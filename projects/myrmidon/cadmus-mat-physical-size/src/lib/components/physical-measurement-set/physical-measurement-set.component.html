@@ -87,7 +87,7 @@
 
   <!-- measurements -->
   <div>
-    @if (measures.value.length) {
+    @if (measurements().length) {
     <table>
       <thead>
         <tr>
@@ -97,7 +97,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (m of measures.value; track m; let index = $index) {
+        @for (m of measurements(); track m; let index = $index) {
         <tr>
           <td class="fit-width">
             <!-- edit -->
@@ -124,7 +124,7 @@
               type="button"
               mat-icon-button
               matTooltip="Move measure down"
-              [disabled]="index === measures.value.length - 1"
+              [disabled]="index === measurements().length - 1"
               (click)="moveMeasurementDown(index)"
             >
               <mat-icon>arrow_downward</mat-icon>

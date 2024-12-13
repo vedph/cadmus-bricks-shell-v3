@@ -75,7 +75,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   /**
    * The set of measurements.
    */
-  public readonly measurements = model<PhysicalMeasurement[]>();
+  public readonly measurements = model<PhysicalMeasurement[]>([]);
 
   /**
    * True to allow custom measurement names. This is meaningful
@@ -107,7 +107,6 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   public name: FormControl<string | null>;
   public hasCustom: FormControl<boolean>;
   public custom: FormControl<string | null>;
-  public measures: FormControl<PhysicalMeasurement[]>;
   public batch: FormControl<string | null>;
   public form: FormGroup;
 
@@ -118,22 +117,12 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     this.name = formBuilder.control(null);
     this.hasCustom = formBuilder.control(false, { nonNullable: true });
     this.custom = formBuilder.control(null);
-    this.measures = formBuilder.control([], {
-      nonNullable: true,
-      validators: NgxToolsValidators.strictMinLengthValidator(1),
-    });
     this.batch = formBuilder.control(null);
     this.form = formBuilder.group({
       name: this.name,
       hasCustom: this.hasCustom,
       custom: this.custom,
-      measures: this.measures,
       batch: this.batch,
-    });
-
-    // when measures change, update the form value
-    effect(() => {
-      this.measures.setValue(this.measurements() || []);
     });
   }
 
@@ -161,7 +150,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
 
   public editMeasurement(index: number): void {
     this.editedIndex = index;
-    this.edited = this.measures.value[index];
+    this.edited = this.measurements()[index];
   }
 
   public addMeasurement(event?: Event): void {
@@ -217,6 +206,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       return;
     }
     let prevUnit: string | undefined = undefined;
+    const added: PhysicalMeasurement[] = [];
     for (let i = 0; i < entries.length; i++) {
       // match: 1=name, 2=value, 3=unit, 4=tag
       const m = entries[i].match(
@@ -234,10 +224,17 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
             unit: unit,
             tag: tag,
           };
-          this.measures.value.push(measure);
+          added.push(measure);
           prevUnit = unit;
         }
       }
+    }
+
+    if (added.length) {
+      const measurements = [...this.measurements()];
+      measurements.push(...added);
+      this.measurements.set(measurements);
+      this.measurementsChange.emit(this.measurements());
     }
   }
 
@@ -246,21 +243,17 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const measures = [...this.measures.value];
+    const measurements = [...this.measurements()];
 
     if (this.editedIndex === -1) {
-      measures.push(this.edited);
+      measurements.push(this.edited);
     } else {
-      measures[this.editedIndex] = this.edited;
+      measurements[this.editedIndex] = this.edited;
     }
     this.closeMeasurement();
 
-    this.measures.setValue(measures);
-    this.measures.markAsDirty();
-    this.measures.updateValueAndValidity();
-
-    this.measurements.set(this.measures.value);
-    this.measurementsChange.emit(this.measurements()!);
+    this.measurements.set(measurements);
+    this.measurementsChange.emit(this.measurements());
   }
 
   public onDimensionChange(dimension?: PhysicalDimension): void {
@@ -268,48 +261,36 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   }
 
   public moveMeasurementUp(index: number): void {
-    const measurements = [...this.measures.value];
     if (index < 1) {
       return;
     }
+    const measurements = [...this.measurements()];
     const item = measurements[index];
     measurements.splice(index, 1);
     measurements.splice(index - 1, 0, item);
 
-    this.measures.setValue(measurements);
-    this.measures.markAsDirty();
-    this.measures.updateValueAndValidity();
-
-    this.measurements.set(this.measures.value);
-    this.measurementsChange.emit(this.measurements()!);
+    this.measurements.set(measurements);
+    this.measurementsChange.emit(this.measurements());
   }
 
   public moveMeasurementDown(index: number): void {
-    const measurements = [...this.measures.value];
-    if (index + 1 >= measurements.length) {
+    if (index + 1 >= this.measurements().length) {
       return;
     }
+    const measurements = [...this.measurements()];
     const item = measurements[index];
     measurements.splice(index, 1);
     measurements.splice(index + 1, 0, item);
 
-    this.measures.setValue(measurements);
-    this.measures.markAsDirty();
-    this.measures.updateValueAndValidity();
-
-    this.measurements.set(this.measures.value);
-    this.measurementsChange.emit(this.measurements()!);
+    this.measurements.set(measurements);
+    this.measurementsChange.emit(this.measurements());
   }
 
   public deleteMeasurement(index: number) {
-    const measurements = [...this.measures.value];
+    const measurements = [...this.measurements()];
     measurements.splice(index, 1);
 
-    this.measures.setValue(measurements);
-    this.measures.markAsDirty();
-    this.measures.updateValueAndValidity();
-
-    this.measurements.set(this.measures.value);
-    this.measurementsChange.emit(this.measurements()!);
+    this.measurements.set(measurements);
+    this.measurementsChange.emit(this.measurements());
   }
 }
