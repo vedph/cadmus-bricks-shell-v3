@@ -1,0 +1,40 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Physical Size</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <cadmus-mat-physical-size
+      [unitEntries]="unitEntries"
+      [hBeforeW]="hBeforeW.value"
+      [size]="size"
+      [defaultWUnit]="defaultUnit"
+      [defaultHUnit]="defaultUnit"
+      [defaultDUnit]="defaultUnit"
+      (sizeChange)="onSizeChange($event)"
+    >
+    </cadmus-mat-physical-size>
+    @if (size) {
+    <div>
+      <pre>{{ size | json }}</pre>
+    </div>
+    }
+    <div>
+      {{ size | physicalSize : hBeforeW.value }}
+    </div>
+    <hr />
+    <div class="form-row">
+      <mat-checkbox [formControl]="hBeforeW">H before W</mat-checkbox>
+      <button
+        type="button"
+        class="mat-warn"
+        mat-flat-button
+        (click)="reset()"
+      >
+        reset (toggle default unit)
+      </button>
+      <span>{{ defaultUnit }}</span>
+    </div>
+  </mat-card-content>
+</mat-card>

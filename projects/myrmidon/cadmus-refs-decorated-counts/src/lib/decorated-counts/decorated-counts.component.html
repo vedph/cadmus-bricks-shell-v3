@@ -1,0 +1,134 @@
+<div [formGroup]="form">
+  <div formArrayName="entries">
+    <div>
+      <button
+        type="button"
+        mat-flat-button
+        class="mat-primary"
+        (click)="addCount()"
+      >
+        <mat-icon>add_circle</mat-icon> count
+      </button>
+    </div>
+    @for ( item of entries.controls; track item; let i = $index; let first =
+    $first; let last = $last) {
+    <div class="row">
+      <!-- child form -->
+      <div [formGroupName]="i">
+        <!-- child actions -->
+        {{ i + 1 }}.
+        <button
+          mat-icon-button
+          type="button"
+          matTooltip="Remove this count"
+          (click)="removeCount(i)"
+        >
+          <mat-icon class="mat-warn">remove_circle</mat-icon>
+        </button>
+        <button
+          [disabled]="first"
+          mat-icon-button
+          type="button"
+          matTooltip="Move count up"
+          (click)="moveCountUp(i)"
+        >
+          <mat-icon>arrow_upward</mat-icon>
+        </button>
+        <button
+          [disabled]="last"
+          mat-icon-button
+          type="button"
+          matTooltip="Move count down"
+          (click)="moveCountDown(i)"
+        >
+          <mat-icon>arrow_downward</mat-icon>
+        </button>
+        <!-- child controls -->
+        <div class="form-row">
+          <!-- ID (bound) -->
+          @if (idEntries()?.length) {
+          <mat-form-field>
+            <mat-label>ID</mat-label>
+            <mat-select formControlName="id">
+              @for (e of idEntries(); track e) {
+              <mat-option [value]="e.id">{{ e.value }}</mat-option>
+              }
+            </mat-select>
+            @if ( $any(item)['controls'].id.errors?.required &&
+            ($any(item)['controls'].id.dirty ||
+            $any(item)['controls'].id.touched) ) {
+            <mat-error>ID required</mat-error>
+            }
+          </mat-form-field>
+          }
+          <!-- ID (free) -->
+          @else {
+          <mat-form-field>
+            <mat-label>ID</mat-label>
+            <input matInput formControlName="id" />
+            @if ( $any(item)['controls'].id.errors?.required &&
+            ($any(item)['controls'].id.dirty ||
+            $any(item)['controls'].id.touched) ) {
+            <mat-error>ID required</mat-error>
+            } @if ( $any(item)['controls'].id.errors?.maxLength &&
+            ($any(item)['controls'].id.dirty ||
+            $any(item)['controls'].id.touched) ) {
+            <mat-error>ID too long</mat-error>
+            }
+          </mat-form-field>
+          }
+          <!-- value -->
+          <mat-form-field style="width: 6em">
+            <mat-label>value</mat-label>
+            <input matInput type="number" formControlName="value" />
+            @if ( $any(item)['controls'].value.errors?.required &&
+            ($any(item)['controls'].value.dirty ||
+            $any(item)['controls'].value.touched) ) {
+            <mat-error>value required</mat-error>
+            } @if ( $any(item)['controls'].value.errors?.maxLength &&
+            ($any(item)['controls'].value.dirty ||
+            $any(item)['controls'].value.touched) ) {
+            <mat-error>value too long</mat-error>
+            }
+          </mat-form-field>
+          <!-- tag (bound) -->
+          @if (tagEntries()?.length) {
+          <mat-form-field>
+            <mat-label>tag</mat-label>
+            <mat-select formControlName="tag">
+              @for (e of tagEntries(); track e) {
+              <mat-option [value]="e.id">{{ e.value }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          }
+          <!-- tag (free) -->
+          @else {
+          <mat-form-field>
+            <mat-label>tag</mat-label>
+            <input matInput formControlName="tag" />
+            @if ( $any(item)['controls'].tag.errors?.maxLength &&
+            ($any(item)['controls'].tag.dirty ||
+            $any(item)['controls'].tag.touched) ) {
+            <mat-error>tag too long</mat-error>
+            }
+          </mat-form-field>
+          }
+        </div>
+        <div>
+          <!-- note -->
+          <mat-form-field class="long-text">
+            <mat-label>note</mat-label>
+            <input matInput formControlName="note" />
+            @if ( $any(item)['controls'].note.errors?.maxLength &&
+            ($any(item)['controls'].note.dirty ||
+            $any(item)['controls'].note.touched) ) {
+            <mat-error>note too long</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,126 @@
+<form [formGroup]="form" (submit)="save()">
+  <div class="form-row">
+    <div>
+      <!-- type (bound) -->
+      @if (stateEntries()?.length) {
+      <mat-form-field>
+        <mat-label>type</mat-label>
+        <mat-select [formControl]="type">
+          @for (e of stateEntries(); track e.id) {
+          <mat-option [value]="e.id">{{ e.value }}</mat-option>
+          }
+        </mat-select>
+        @if ($any(type).errors?.required && (type.dirty || type.touched)) {
+        <mat-error>type required</mat-error>
+        }
+      </mat-form-field>
+      } @else {
+      <!-- type (free) -->
+      <mat-form-field>
+        <mat-label>type</mat-label>
+        <input matInput [formControl]="type" />
+        @if ($any(type).errors?.required && (type.dirty || type.touched)) {
+        <mat-error>type required</mat-error>
+        } @if ($any(type).errors?.maxLength && (type.dirty || type.touched)) {
+        <mat-error>type too long</mat-error>
+        }
+      </mat-form-field>
+      }
+    </div>
+  </div>
+
+  <!-- flags -->
+  @if (featEntries()?.length) {
+  <div>
+    <cadmus-flag-set
+      [flags]="flags()"
+      [checkedIds]="features.value"
+      (checkedIdsChange)="onCheckedIdsChange($event)"
+    />
+  </div>
+  }
+
+  <!-- recognition -->
+  @if (!noRecognition) {
+  <fieldset>
+    <legend>last recognition</legend>
+    <div class="form-row">
+      <!-- date -->
+      <mat-checkbox [formControl]="hasDate">date</mat-checkbox>
+      @if (hasDate.value) {
+      <mat-form-field class="date">
+        <input matInput [matDatepicker]="picker" [formControl]="date" />
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        @if ($any(date).errors?.required && (date.dirty || date.touched)) {
+        <mat-error>date required</mat-error>
+        }
+      </mat-form-field>
+      }
+
+      <!-- reporter (bound) -->
+      @if (reporterEntries()?.length) {
+      <mat-form-field>
+        <mat-label>reporter</mat-label>
+        <mat-select [formControl]="reporter">
+          @for (e of reporterEntries(); track e.id) {
+          <mat-option [value]="e.id">{{ e.value }}</mat-option>
+          }
+        </mat-select>
+        @if ($any(reporter).errors?.required && (reporter.dirty ||
+        reporter.touched)) {
+        <mat-error>reporter required</mat-error>
+        }
+      </mat-form-field>
+      } @else {
+      <!-- reporter (free) -->
+      <mat-form-field>
+        <mat-label>reporter</mat-label>
+        <input matInput [formControl]="reporter" />
+        @if ($any(reporter).errors?.required && (reporter.dirty ||
+        reporter.touched)) {
+        <mat-error>reporter required</mat-error>
+        } @if ($any(reporter).errors?.maxLength && (reporter.dirty ||
+        reporter.touched)) {
+        <mat-error>reporter too long</mat-error>
+        }
+      </mat-form-field>
+      }
+    </div>
+  </fieldset>
+  }
+
+  <!-- note -->
+  <div>
+    <mat-form-field class="long-text">
+      <mat-label>note</mat-label>
+      <textarea matInput [formControl]="note"></textarea>
+      @if ($any(note).errors?.maxLength && (note.dirty || note.touched)) {
+      <mat-error>note too long</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <!-- buttons -->
+  <div>
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Discard state"
+      (click)="cancel()"
+    >
+      <mat-icon class="mat-warn">clear</mat-icon>
+    </button>
+    <button
+      type="submit"
+      mat-icon-button
+      matTooltip="Save state"
+      [disabled]="form.invalid || form.pristine"
+    >
+      <mat-icon class="mat-primary">check_circle</mat-icon>
+    </button>
+  </div>
+</form>

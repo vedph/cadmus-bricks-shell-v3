@@ -1,0 +1,23 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Asserted IDs</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <cadmus-refs-asserted-ids
+      [ids]="ids || []"
+      [idScopeEntries]="idScopeEntries"
+      [idTagEntries]="idTagEntries"
+      [assTagEntries]="assTagEntries"
+      [refTypeEntries]="refTypeEntries"
+      [refTagEntries]="refTagEntries"
+      (idsChange)="onIdsChange($event)"
+    ></cadmus-refs-asserted-ids>
+    @if (ids) {
+    <div>
+      <pre>{{ ids | json }}</pre>
+    </div>
+    }
+  </mat-card-content>
+</mat-card>

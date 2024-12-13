@@ -1,0 +1,24 @@
+.cadmus-text-block-view-row {
+  display: flex;
+  flex-flow: row wrap;
+  row-gap: 8px;
+  align-items: stretch;
+  z-index: 0;
+}
+.cadmus-text-block-view-col {
+  flex: 0 0 auto;
+  cursor: default;
+  z-index: 1;
+}
+.cadmus-text-block-view-t {
+  font-size: 1.25rem;
+  text-align: center;
+  z-index: 2;
+}
+.cadmus-text-block-view-d {
+  font-size: 0.9rem;
+  color: silver;
+  text-align: center;
+  margin: 0 2px;
+  z-index: 2;
+}

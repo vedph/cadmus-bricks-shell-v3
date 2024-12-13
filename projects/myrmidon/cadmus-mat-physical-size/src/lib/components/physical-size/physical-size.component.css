@@ -1,0 +1,28 @@
+.label {
+  margin: 0 8px;
+  padding: 4px;
+  background: #c3e2f6;
+  border-radius: 8px;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+.value {
+  width: 7em;
+}
+.unit {
+  width: 6em;
+}
+.tag {
+  width: 9em;
+}
+.long-text {
+  width: 100%;
+  max-width: 800px;
+}

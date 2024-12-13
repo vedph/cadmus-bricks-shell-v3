@@ -1,0 +1,129 @@
+<form [formGroup]="form">
+  <div formArrayName="refsArr">
+    <!-- add -->
+    <div>
+      <button
+        type="button"
+        mat-flat-button
+        class="mat-primary"
+        (click)="addReference()"
+      >
+        <mat-icon>add_circle</mat-icon> reference
+      </button>
+    </div>
+    <!-- list -->
+    @for ( item of refsArr.controls; track item; let i = $index; let first =
+    $first; let last = $last) {
+    <div>
+      <!-- child form -->
+      <div [formGroupName]="i" class="row">
+        <!-- child actions -->
+        <div style="flex: 0 0 auto">
+          <span class="nr">{{ i + 1 }}.</span>
+          <button
+            mat-icon-button
+            type="button"
+            matTooltip="Remove this reference"
+            (click)="removeReference(i)"
+          >
+            <mat-icon class="mat-warn">remove_circle</mat-icon>
+          </button>
+          <button
+            [disabled]="first"
+            mat-icon-button
+            type="button"
+            matTooltip="Move reference up"
+            (click)="moveReferenceUp(i)"
+          >
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <button
+            [disabled]="last"
+            mat-icon-button
+            type="button"
+            matTooltip="Move reference down"
+            (click)="moveReferenceDown(i)"
+          >
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+        </div>
+        <!-- child controls -->
+        <div style="flex: 0 0 auto">
+          <!-- type (bound) -->
+          @if (typeEntries()) {
+          <mat-form-field style="width: 8em">
+            <mat-label>type</mat-label>
+            <mat-select formControlName="type">
+              @for (e of typeEntries(); track e) {
+              <mat-option [value]="e.id">
+                {{ e.value }}
+              </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          }
+          <!-- type (free) -->
+          @else {
+          <mat-form-field style="width: 8em">
+            <mat-label>type</mat-label>
+            <input matInput formControlName="type" />
+            @if ( $any(item)['controls'].type.hasError('max-length') &&
+            ($any(item)['controls'].type.dirty ||
+            $any(item)['controls'].type.touched) ) {
+            <mat-error>type too long </mat-error>
+            }
+          </mat-form-field>
+          }
+        </div>
+        <div style="flex: 0 0 auto">
+          <!-- tag (bound) -->
+          @if (tagEntries()) {
+          <mat-form-field style="width: 8em">
+            <mat-label>tag</mat-label>
+            <mat-select formControlName="tag">
+              @for (e of tagEntries(); track e) {
+              <mat-option [value]="e.id">
+                {{ e.value }}
+              </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          }
+          <!-- tag (free) -->
+          @else {
+          <mat-form-field style="width: 8em">
+            <mat-label>tag</mat-label>
+            <input matInput formControlName="tag" />
+            @if ( $any(item)['controls'].tag.hasError('max-length') &&
+            ($any(item)['controls'].tag.dirty ||
+            $any(item)['controls'].tag.touched) ) {
+            <mat-error>tag too long </mat-error>
+            }
+          </mat-form-field>
+          }
+        </div>
+        <!-- citation -->
+        <mat-form-field style="flex: 1 0 1fr">
+          <mat-label>citation</mat-label>
+          <input matInput formControlName="citation" />
+          @if ( $any(item)['controls'].citation.hasError('max-length') &&
+          ($any(item)['controls'].citation.dirty ||
+          $any(item)['controls'].citation.touched) ) {
+          <mat-error>citation too long </mat-error>
+          }
+        </mat-form-field>
+        <!-- note -->
+        <mat-form-field style="flex: 1 0 1fr">
+          <mat-label>note</mat-label>
+          <input matInput formControlName="note" />
+          @if ( $any(item)['controls'].note.hasError('max-length') &&
+          ($any(item)['controls'].note.dirty ||
+          $any(item)['controls'].note.touched) ) {
+          <mat-error>note too long </mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+    }
+  </div>
+</form>

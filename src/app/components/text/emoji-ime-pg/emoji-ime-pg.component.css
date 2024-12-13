@@ -1,0 +1,18 @@
+figure {
+  margin: 8px;
+  padding: 6px;
+  border: 1px solid silver;
+  border-radius: 6px;
+}
+legend {
+  color: silver;
+}
+.form-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@myrmidon/cadmus-refs-proper-name",
+  "version": "8.0.0",
+  "description": "Cadmus - proper name component.",
+  "keywords": [
+    "Cadmus",
+    "bricks"
+  ],
+  "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vedph/cadmus-bricks-shell-v3"
+  },
+  "author": {
+    "name": "Daniele Fusi"
+  },
+  "peerDependencies": {
+    "@angular/common": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@myrmidon/ngx-tools": "^0.0.1",
+    "@myrmidon/cadmus-core": "^10.0.0",
+    "@myrmidon/cadmus-refs-assertion": "^8.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

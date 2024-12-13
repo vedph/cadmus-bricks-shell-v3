@@ -1,0 +1,42 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Flags Set</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div>
+      <fieldset>
+        <legend>flags</legend>
+        <cadmus-flag-set
+          [flags]="flags"
+          [checkedIds]="checkedIds"
+          [allowCustom]="true"
+          (checkedIdsChange)="onCheckedIdsChange($event)"
+        />
+      </fieldset>
+      <hr />
+      <div class="form-row">
+        <form [formGroup]="form" (submit)="setUserIds()">
+          <mat-form-field>
+            <input matInput placeholder="IDs" [formControl]="userIds" />
+          </mat-form-field>
+          <button mat-raised-button type="submit" class="mat-primary">
+            set IDs
+          </button>
+        </form>
+        <button
+          mat-raised-button
+          type="button"
+          class="mat-warn"
+          (click)="toggleFlags()"
+        >
+          change set
+        </button>
+      </div>
+      <div>
+        {{ checkedIds | json }}
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

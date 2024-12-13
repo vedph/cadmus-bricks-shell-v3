@@ -1,0 +1,46 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>VIAF Reference Lookup</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <cadmus-ref-lookup
+      [service]="service"
+      [item]="item"
+      [required]="true"
+      [hasMore]="true"
+      linkTemplate="http://www.viaf.org/viaf/{viafid}"
+      label="VIAF"
+      (itemChange)="onItemChange($event)"
+      (moreRequest)="onMoreRequest()"
+    ></cadmus-ref-lookup>
+    @if (item) {
+      <div>
+        <pre>{{ item | json }}</pre>
+      </div>
+    }
+    <hr />
+    <h3>Direct VIAF Access</h3>
+    <p>
+      This is the simplest VIAF term suggestion query. Type something and press
+      enter.
+    </p>
+    <form [formGroup]="form" (submit)="suggestTerm()">
+      <mat-form-field>
+        <mat-label>term</mat-label>
+        <input matInput [formControl]="term" />
+      </mat-form-field>
+    </form>
+    @if (suggesting) {
+      <div>
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+    }
+    @if (suggestResult) {
+      <div>
+        <pre>{{ suggestResult | json }}</pre>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

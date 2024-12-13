@@ -1,0 +1,23 @@
+.flex-row {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-end;
+}
+.flex-row * {
+  flex: 0 0 auto;
+}
+div.labeled {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 2px;
+}
+div.label {
+  font-size: 85%;
+  color: silver;
+}
+.labeled * {
+  flex: 0 0 auto;
+}
+.required {
+  color: red;
+}

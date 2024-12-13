@@ -1,0 +1,67 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Text Edit</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-tab-group>
+      <mat-tab label="edit">
+        <form [formGroup]="form" (submit)="edit()">
+          <div class="form-row">
+            <!-- selector -->
+            <mat-form-field>
+              <mat-select [formControl]="selector">
+                <mat-option value="md.bold">toggle bold</mat-option>
+                <mat-option value="md.italic">toggle italic</mat-option>
+                <mat-option value="txt.emoji">emoji</mat-option>
+                <mat-option value="md.link">link</mat-option>
+                <mat-option value="$match-first">match first</mat-option>
+                <mat-option value="$match-all">match all</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- text -->
+            <mat-form-field>
+              <input matInput [formControl]="text" placeholder="text" />
+            </mat-form-field>
+
+            <!-- button -->
+            <button type="submit" class="mat-primary" mat-flat-button>
+              edit
+            </button>
+          </div>
+          <!-- context -->
+          <div>
+            <mat-form-field class="long-text">
+              <textarea
+                matInput
+                [formControl]="context"
+                rows="3"
+                placeholder="context"
+              ></textarea>
+              <mat-hint>JSON context object</mat-hint>
+            </mat-form-field>
+          </div>
+        </form>
+
+        <!-- result -->
+        @if (result) {
+        <div id="result">
+          <code>
+            <pre>{{ result | json }}</pre>
+          </code>
+        </div>
+        }
+      </mat-tab>
+      <mat-tab label="inline">
+        <div id="editor">
+          <nge-monaco-editor
+            style="--editor-height: 100%"
+            (ready)="onEditorInit($event)"
+          />
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

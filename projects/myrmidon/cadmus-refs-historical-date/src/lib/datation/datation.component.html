@@ -1,0 +1,49 @@
+@if (label()) {
+<h4>{{ label() }}</h4>
+}
+<form role="form" [formGroup]="form">
+  <!-- value -->
+  <div class="form-row">
+    <mat-form-field class="value">
+      <mat-label>value</mat-label>
+      <input matInput [formControl]="value" type="number" />
+    </mat-form-field>
+    <!-- month -->
+    <mat-form-field class="md">
+      <mat-label>month</mat-label>
+      <input matInput [formControl]="month" type="number" min="0" max="12" />
+      @if (month.hasError('min') && (month.touched || month.dirty)) {
+      <mat-error>month less than 0</mat-error>
+      } @if (month.hasError('max') && (month.touched || month.dirty)) {
+      <mat-error>month greater than 12</mat-error>
+      }
+    </mat-form-field>
+    <!-- day -->
+    <mat-form-field class="md">
+      <mat-label>day</mat-label>
+      <input matInput [formControl]="day" type="number" min="0" max="31" />
+      @if (day.hasError('min') && (day.touched || day.dirty)) {
+      <mat-error>day less than 0</mat-error>
+      } @if (day.hasError('max') && (day.touched || day.dirty)) {
+      <mat-error>day greater than 31</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- century, span, about, dubious -->
+    <mat-checkbox [formControl]="century">century</mat-checkbox>
+    <mat-checkbox [formControl]="span">span</mat-checkbox>
+    <mat-checkbox [formControl]="about">about</mat-checkbox>
+    <mat-checkbox [formControl]="dubious">dubious</mat-checkbox>
+  </div>
+
+  <!-- hint -->
+  <div>
+    <mat-form-field>
+      <mat-label>hint</mat-label>
+      <input matInput [formControl]="hint" />
+      @if (hint.hasError('maxLength') && (hint.touched || hint.dirty)) {
+      <mat-error>hint too long</mat-error>
+      }
+    </mat-form-field>
+  </div>
+</form>

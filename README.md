@@ -1,59 +1,122 @@
-# CadmusBricksShellV3
+# Cadmus Bricks Shell V3
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.4.
 
-## Development server
+## Codicology
 
-To start a local development server, run:
+- [@myrmidon/cadmus-cod-location](projects/myrmidon/cadmus-cod-location/README.md)
+
+## Imaging
+
+- [@myrmidon/cadmus-img-annotator](projects/myrmidon/cadmus-img-annotator/README.md)
+- [@myrmidon/cadmus-img-gallery](projects/myrmidon/cadmus-img-gallery/README.md)
+- [@myrmidon/cadmus-img-gallery-iiif](projects/myrmidon/cadmus-img-gallery-iiif/README.md)
+- [@myrmidon/cadmus-sdimg-annotator](projects/myrmidon/cadmus-sdimg-annotator/README.md)
+- [@myrmidon/cadmus-sdimg-gallery](projects/myrmidon/cadmus-sdimg-gallery/README.md)
+
+## Physical
+
+- [@myrmidon/cadmus-mat-physical-grid](projects/myrmidon/cadmus-mat-physical-grid/README.md)
+- [@myrmidon/cadmus-mat-physical-size](projects/myrmidon/cadmus-mat-physical-size/README.md)
+- [@myrmidon/cadmus-mat-physical-state](projects/myrmidon/cadmus-mat-physical-state/README.md)
+
+## References
+
+- [@myrmidon/cadmus-refs-doc-references](projects/myrmidon/cadmus-refs-doc-references/README.md)
+
+- [@myrmidon/cadmus-refs-assertion](projects/myrmidon/cadmus-refs-assertion/README.md)
+
+- [@myrmidon/cadmus-refs-asserted-ids](projects/myrmidon/cadmus-refs-asserted-ids/README.md)
+- [@myrmidon/cadmus-refs-decorated-ids](projects/myrmidon/cadmus-refs-decorated-ids/README.md)
+- [@myrmidon/cadmus-refs-external-ids](projects/myrmidon/cadmus-refs-external-ids/README.md)
+
+- [@myrmidon/cadmus-refs-decorated-counts](projects/myrmidon/cadmus-refs-decorated-counts/README.md)
+
+- [@myrmidon/cadmus-refs-chronotope](projects/myrmidon/cadmus-refs-chronotope/README.md)
+- [@myrmidon/cadmus-refs-asserted-chronotope](projects/myrmidon/cadmus-refs-asserted-chronotope/README.md)
+- [@myrmidon/cadmus-refs-historical-date](projects/myrmidon/cadmus-refs-historical-date/README.md)
+
+- [@myrmidon/cadmus-refs-proper-name](projects/myrmidon/cadmus-refs-proper-name/README.md)
+
+- [@myrmidon/cadmus-refs-lookup](projects/myrmidon/cadmus-refs-lookup/README.md)
+- [@myrmidon/cadmus-refs-dbpedia-lookup](projects/myrmidon/cadmus-refs-dbpedia-lookup/README.md)
+- [@myrmidon/cadmus-refs-geonames-lookup](projects/myrmidon/cadmus-refs-geonames-lookup/README.md)
+- [@myrmidon/cadmus-refs-viaf-lookup](projects/myrmidon/cadmus-refs-viaf-lookup/README.md)
+- [@myrmidon/cadmus-refs-whg-lookup](projects/myrmidon/cadmus-refs-whg-lookup/README.md)
+
+## Text
+
+- [@myrmidon/cadmus-text-block-view](projects/myrmidon/cadmus-text-block-view/README.md)
+- [@myrmidon/cadmus-text-ed](projects/myrmidon/cadmus-text-ed/README.md)
+- [@myrmidon/cadmus-text-ed-md](projects/myrmidon/cadmus-text-ed-md/README.md)
+- [@myrmidon/cadmus-text-ed-txt](projects/myrmidon/cadmus-text-ed-txt/README.md)
+
+## UI
+
+- [@myrmidon/cadmus-ui-custom-action-bar](projects/myrmidon/cadmus-ui-custom-action-bar/README.md)
+- [@myrmidon/cadmus-ui-flag-set](projects/myrmidon/cadmus-ui-flag-set/README.md)
+- [@myrmidon/cadmus-ui-note-set](projects/myrmidon/cadmus-ui-note-set/README.md)
+
+## Setup
 
 ```bash
-ng serve
+ng new cadmus-bricks-shell-v3
+ng add @angular/material
+ng add @angular/localize
+
+ng g library @myrmidon/cadmus-cod-location --prefix cadmus
+ng g library @myrmidon/cadmus-img-annotator --prefix cadmus
+ng g library @myrmidon/cadmus-img-gallery --prefix cadmus
+ng g library @myrmidon/cadmus-img-gallery-iiif --prefix cadmus
+ng g library @myrmidon/cadmus-mat-physical-grid --prefix cadmus
+ng g library @myrmidon/cadmus-mat-physical-size --prefix cadmus
+ng g library @myrmidon/cadmus-mat-physical-state --prefix cadmus
+ng g library @myrmidon/cadmus-refs-asserted-chronotope --prefix cadmus
+ng g library @myrmidon/cadmus-refs-asserted-ids --prefix cadmus
+ng g library @myrmidon/cadmus-refs-assertion --prefix cadmus
+ng g library @myrmidon/cadmus-refs-chronotope --prefix cadmus
+ng g library @myrmidon/cadmus-refs-dbpedia-lookup --prefix cadmus
+ng g library @myrmidon/cadmus-refs-decorated-counts --prefix cadmus
+ng g library @myrmidon/cadmus-refs-decorated-ids --prefix cadmus
+ng g library @myrmidon/cadmus-refs-doc-references --prefix cadmus
+ng g library @myrmidon/cadmus-refs-external-ids --prefix cadmus
+ng g library @myrmidon/cadmus-refs-historical-date --prefix cadmus
+ng g library @myrmidon/cadmus-refs-lookup --prefix cadmus
+ng g library @myrmidon/cadmus-refs-proper-name --prefix cadmus
+ng g library @myrmidon/cadmus-refs-viaf-lookup --prefix cadmus
+ng g library @myrmidon/cadmus-sdimg-annotator --prefix cadmus
+ng g library @myrmidon/cadmus-sdimg-gallery --prefix cadmus
+ng g library @myrmidon/cadmus-text-block-view --prefix cadmus
+ng g library @myrmidon/cadmus-text-ed --prefix cadmus
+ng g library @myrmidon/cadmus-text-ed-md --prefix cadmus
+ng g library @myrmidon/cadmus-text-ed-txt --prefix cadmus
+ng g library @myrmidon/cadmus-ui-custom-action-bar --prefix cadmus
+ng g library @myrmidon/cadmus-ui-flag-set --prefix cadmus
+ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- TODO: add docs to each README
 
-## Code scaffolding
+I then replaced Karma with Jest.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Testing
+
+In Jest, you can run tests from a single library or the main app by specifying the test file or directory in the Jest command. Here's how you can do it:
+
+- **To run tests from a single library**, use the following command:
 
 ```bash
-ng generate component component-name
+npx jest projects/myrmidon/library-name
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Replace `library-name` with the name of your library.
+
+- **To run tests from the main app**, use the following command:
 
 ```bash
-ng generate --help
+npx jest src
 ```
 
-## Building
+This will run all tests in the `src` directory, which typically contains your main app's code.
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Remember to run these commands in your terminal from your project's root directory.

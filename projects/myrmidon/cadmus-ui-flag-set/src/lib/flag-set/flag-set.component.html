@@ -1,0 +1,67 @@
+@if (flags().length) { @if (!hideToolbar()) {
+  <div>
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Toggle all"
+      (click)="toggleAll()"
+    >
+      <mat-icon>published_with_changes</mat-icon>
+    </button>
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Check all"
+      (click)="checkAll()"
+    >
+      <mat-icon class="mat-primary">done_all</mat-icon>
+    </button>
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Uncheck all"
+      (click)="uncheckAll()"
+    >
+      <mat-icon class="mat-warn">remove_done</mat-icon>
+    </button>
+    <!-- custom -->
+    @if (allowCustom()) {
+    <form [formGroup]="customForm" (submit)="addCustomFlag()">
+      <mat-form-field>
+        <mat-label>custom</mat-label>
+        <input matInput [formControl]="customFlag" />
+      </mat-form-field>
+      <button
+        [disabled]="customForm.invalid"
+        type="submit"
+        mat-icon-button
+        matTooltip="Add a new entry"
+      >
+        <mat-icon class="mat-primary">add_circle</mat-icon>
+      </button>
+    </form>
+    }
+  </div>
+  }
+  <div class="form-row">
+    @for (f of userFlags; track f.id) {
+    <mat-checkbox
+      [checked]="f.checked"
+      (change)="onFlagChecked(f, $event.checked)"
+    >
+      @if (f.color) {
+      <span
+        class="chip"
+        [style.backgroundColor]="f.color"
+        [style.color]="f.color | colorToContrast"
+        ><span [class]="f.custom ? 'custom' : undefined">{{
+          f.label
+        }}</span></span
+      >
+      } @else {
+      <span [class]="f.custom ? 'custom' : undefined">{{ f.label }}</span>
+      }
+    </mat-checkbox>
+    }
+  </div>
+  }

@@ -1,0 +1,20 @@
+form {
+  display: inline-block;
+}
+.custom {
+  color: tomato;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+.chip {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+}

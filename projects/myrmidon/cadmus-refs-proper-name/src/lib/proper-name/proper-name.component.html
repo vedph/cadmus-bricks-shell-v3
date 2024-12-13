@@ -1,0 +1,170 @@
+<form [formGroup]="form">
+  <div class="form-row">
+    <!-- language (free) -->
+    @if (!langEntries()?.length) {
+    <mat-form-field style="width: 11em">
+      <mat-label>language</mat-label>
+      <input matInput [formControl]="language" />
+      @if ( language.hasError('required') && (language.dirty ||
+      language.touched) ) {
+      <mat-error>enter a language</mat-error>
+      } @if ( language.hasError('max-length') && (language.dirty ||
+      language.touched) ) {
+      <mat-error>language too long</mat-error>
+      }
+    </mat-form-field>
+    }
+    <!-- language (bound) -->
+    @else {
+    <mat-form-field style="width: 11em">
+      <mat-label>language</mat-label>
+      <mat-select [formControl]="language">
+        @for (e of langEntries(); track e) {
+        <mat-option [value]="e.id">{{ e.value }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    }
+
+    <!-- tag (free) -->
+    @if (!tagEntries()?.length) {
+    <mat-form-field style="width: 8em">
+      <mat-label>tag</mat-label>
+      <input matInput [formControl]="tag" />
+      @if (tag.hasError('required') && (tag.dirty || tag.touched)) {
+      <mat-error>enter a tag</mat-error>
+      } @if (tag.hasError('max-length') && (tag.dirty || tag.touched)) {
+      <mat-error>tag too long</mat-error>
+      }
+    </mat-form-field>
+    }
+    <!-- tag (bound) -->
+    @else {
+    <mat-form-field style="width: 8em">
+      <mat-label>tag</mat-label>
+      <mat-select [formControl]="tag">
+        @for (e of tagEntries(); track e) {
+        <mat-option [value]="e.id">{{ e.value }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    }
+
+    <!-- add piece -->
+    <button
+      type="button"
+      mat-icon-button
+      (click)="addPiece()"
+      matTooltip="Add a new piece to the name"
+    >
+      <mat-icon class="mat-primary">add_circle</mat-icon>
+    </button>
+  </div>
+
+  <!-- pieces -->
+  <table>
+    <thead>
+      <th></th>
+      <th>type</th>
+      <th>value</th>
+      <th></th>
+    </thead>
+    <tbody>
+      @for ( piece of pieces.value; track piece; let i = $index; let first =
+      $first; let last = $last) {
+      <tr>
+        <td>
+          <span class="nr">{{ i + 1 }}.</span>
+        </td>
+        <td class="type">
+          {{ piece.type | flatLookup : purgedTypeEntries : "id" : "value" }}
+        </td>
+        <td class="value">
+          {{ piece.value | flatLookup : valueEntries : "id" : "value" }}
+        </td>
+        <td class="button-row">
+          <button
+            mat-icon-button
+            type="button"
+            matTooltip="Edit this piece"
+            (click)="editPiece(piece, i)"
+          >
+            <mat-icon class="mat-primary">edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            type="button"
+            matTooltip="Remove this piece"
+            (click)="removePiece(i)"
+          >
+            <mat-icon class="mat-warn">remove_circle</mat-icon>
+          </button>
+          @if (!ordered) {
+          <button
+            [disabled]="first"
+            mat-icon-button
+            type="button"
+            matTooltip="Move piece up"
+            (click)="movePieceUp(i)"
+          >
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <button
+            [disabled]="last"
+            mat-icon-button
+            type="button"
+            matTooltip="Move piece down"
+            (click)="movePieceDown(i)"
+          >
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+          }
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- piece -->
+  <mat-expansion-panel [disabled]="!editedPiece" [expanded]="editedPiece">
+    <mat-expansion-panel-header>
+      {{
+        editedPieceIndex === -1
+          ? "new piece"
+          : "piece #" + (editedPieceIndex + 1)
+      }}</mat-expansion-panel-header
+    >
+    <cadmus-refs-proper-name-piece
+      [piece]="editedPiece!"
+      [types]="pieceTypes"
+      (editorClose)="closePiece()"
+      (pieceChange)="savePiece($event)"
+    ></cadmus-refs-proper-name-piece>
+  </mat-expansion-panel>
+
+  <!-- assertion -->
+  @if (!noAssertion()) {
+  <div>
+    <mat-expansion-panel [(expanded)]="assEdOpen">
+      <mat-expansion-panel-header>assertion</mat-expansion-panel-header>
+      <cadmus-refs-assertion
+        [assertion]="assertion.value || undefined"
+        [assTagEntries]="assTagEntries()"
+        [refTagEntries]="refTagEntries()"
+        [refTypeEntries]="refTypeEntries()"
+        (assertionChange)="onAssertionChange($event)"
+      ></cadmus-refs-assertion>
+      <div style="margin: 8px 0">
+        <button
+          class="mat-primary"
+          type="button"
+          mat-flat-button
+          (click)="saveAssertion()"
+        >
+          <mat-icon>check_circle</mat-icon> assertion
+        </button>
+      </div>
+    </mat-expansion-panel>
+  </div>
+  }
+</form>

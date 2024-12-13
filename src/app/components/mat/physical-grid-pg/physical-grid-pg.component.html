@@ -1,0 +1,32 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Physical Grid</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="form-row">
+      <mat-form-field>
+        <mat-label>mode</mat-label>
+        <mat-select [formControl]="mode">
+          <mat-option value="contiguous">contiguous</mat-option>
+          <mat-option value="single">single</mat-option>
+          <mat-option value="multiple">multiple</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-checkbox [formControl]="required">required</mat-checkbox>
+      <mat-checkbox [formControl]="collapsedGrid">collapsed grid</mat-checkbox>
+    </div>
+    <hr />
+    <cadmus-mat-physical-grid-location
+      [presets]="presets"
+      [required]="required.value"
+      [collapsedGrid]="collapsedGrid.value"
+      [allowCustomSize]="true"
+      [allowResize]="true"
+      [mode]="mode.value"
+      [location]="location"
+      (locationChange)="onLocationChange($event)"
+      (collapsedGridChange)="onCollapsedGridChange($event)"
+    /> </mat-card-content
+></mat-card>

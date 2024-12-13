@@ -1,0 +1,49 @@
+@if (list) {
+<div>
+  @if (list!.annotations$ | async; as annotations) {
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>annotation</th>
+        <th class="noif-lt-md">ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (a of annotations; track a; let i = $index) {
+      <tr [class.selected]="a === (list!.selectedAnnotation$ | async)">
+        <td class="fit-width">
+          <button
+            type="button"
+            mat-icon-button
+            (click)="selectAnnotation(i)"
+            matTooltip="Select annotation"
+          >
+            <mat-icon>check_circle</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            (click)="removeAnnotation(i)"
+            matTooltip="Remove annotation"
+          >
+            <mat-icon class="mat-warn">delete</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            (click)="editAnnotation(i)"
+            matTooltip="Edit annotation"
+          >
+            <mat-icon class="mat-primary">edit</mat-icon>
+          </button>
+        </td>
+        <td>{{ a | objectToString : annotationToString }}</td>
+        <td class="muted noif-lt-md">{{ a.id }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+</div>
+}

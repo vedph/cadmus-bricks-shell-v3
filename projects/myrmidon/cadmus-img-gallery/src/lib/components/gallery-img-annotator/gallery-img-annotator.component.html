@@ -1,0 +1,85 @@
+<div id="container">
+  @if (imageUri) {
+  <div id="annotator">
+    <div class="toolbar">
+      <mat-button-toggle-group #group="matButtonToggleGroup" value="rect">
+        <mat-button-toggle value="rect" matTooltip="Rectangle">
+          <mat-icon>rectangle</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="polygon" matTooltip="Polygon">
+          <mat-icon>polyline</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="circle" matTooltip="Circle">
+          <mat-icon>radio_button_unchecked</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="ellipse" matTooltip="Ellipse">
+          <mat-icon>exposure_zero</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="freehand" matTooltip="Freehand">
+          <mat-icon>gesture</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+    <div>
+      <img
+        alt="image"
+        cadmusImgAnnotator
+        (createAnnotation)="onCreateAnnotation($event)"
+        (updateAnnotation)="onUpdateAnnotation($event)"
+        (deleteAnnotation)="onDeleteAnnotation($event)"
+        [tool]="group.value"
+        [additionalTools]="['circle', 'ellipse', 'freehand']"
+        [src]="imageUri"
+        [selectedAnnotation]="selectedW3cAnnotation"
+        [annotations]="w3cAnnotations"
+      />
+    </div>
+  </div>
+  }
+  <div id="list">
+    <ng-content select=".before-list"></ng-content>
+    @if (data$ | async; as data) {
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>ID</th>
+          <th>tag(s)</th>
+          <th>note</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of data.annotations; track a; let i = $index) {
+        <tr>
+          <td class="fit-width">
+            <div class="bar-row">
+              <span class="nr">{{ i + 1 }}</span>
+              <button
+                type="button"
+                mat-icon-button
+                (click)="selectAnnotation(i)"
+              >
+                <mat-icon class="mat-primary">edit</mat-icon>
+              </button>
+              <cadmus-custom-action-bar
+                [actions]="customActions() || []"
+                [payload]="i"
+                (actionRequest)="onActionRequest($event)"
+              ></cadmus-custom-action-bar>
+            </div>
+          </td>
+          <td>{{ a.id }}</td>
+          <td>{{ a.tags | join : ", " }}</td>
+          <td class="note">
+            @for (n of a.notes; track n) {
+            <p>{{ n }}</p>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+    <ng-content select=".after-list"></ng-content>
+  </div>
+</div>

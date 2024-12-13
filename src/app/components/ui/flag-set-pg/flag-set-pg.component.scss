@@ -1,0 +1,16 @@
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px;
+  margin: 10px 0;
+  max-width: 800px;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}

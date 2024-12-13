@@ -1,0 +1,103 @@
+<form [formGroup]="form">
+  <div>
+    <button
+      type="button"
+      mat-flat-button
+      class="mat-primary"
+      (click)="addChronotope()"
+    >
+      <mat-icon>add_circle</mat-icon> chronotope
+    </button>
+  </div>
+  @if (entries.value.length) {
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>place</th>
+        <th>date</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for ( entry of entries.value; track entry; let i = $index; let first =
+      $first; let last = $last) {
+      <tr>
+        <td class="fit-width">
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Edit this chronotope"
+            (click)="editChronotope(entry, i)"
+          >
+            <mat-icon class="mat-primary">edit</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Move this chronotope up"
+            [disabled]="first"
+            (click)="moveChronotopeUp(i)"
+          >
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Move this chronotope down"
+            [disabled]="last"
+            (click)="moveChronotopeDown(i)"
+          >
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Delete this chronotope"
+            (click)="deleteChronotope(i)"
+          >
+            <mat-icon class="mat-warn">remove_circle</mat-icon>
+          </button>
+        </td>
+        <td>{{ entry.place?.value }}</td>
+        <td>{{ entry.date | historicalDate }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+
+  <mat-expansion-panel
+    [disabled]="editedIndex < 0"
+    [expanded]="initialChronotope"
+  >
+    <mat-expansion-panel-header
+      >chronotope #{{ editedIndex + 1 }}</mat-expansion-panel-header
+    >
+    <cadmus-refs-asserted-chronotope
+      [tagEntries]="tagEntries()"
+      [assTagEntries]="assTagEntries()"
+      [refTagEntries]="refTagEntries()"
+      [refTypeEntries]="refTypeEntries()"
+      [chronotope]="initialChronotope"
+      (chronotopeChange)="onChronotopeChange($event)"
+    ></cadmus-refs-asserted-chronotope>
+    <div class="form-row">
+      <button
+        type="button"
+        (click)="editChronotope(null)"
+        mat-icon-button
+      >
+        <mat-icon class="mat-warn">cancel</mat-icon>
+      </button>
+      <button
+        type="button"
+        (click)="onChronotopeSave()"
+        mat-flat-button
+        class="mat-primary"
+      >
+        <mat-icon>check_circle</mat-icon>
+        chronotope
+      </button>
+    </div>
+  </mat-expansion-panel>
+</form>

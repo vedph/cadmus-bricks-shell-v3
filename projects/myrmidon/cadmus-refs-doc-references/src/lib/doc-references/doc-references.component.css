@@ -1,0 +1,17 @@
+.row {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  margin: 0 6px;
+}
+mat-form-field {
+  width: auto !important;
+}
+.nr {
+  background-color: #f0f0f0;
+  padding: 4px;
+  border-radius: 4px;
+  margin-right: 4px;
+}

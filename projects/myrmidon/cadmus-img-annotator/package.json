@@ -1,0 +1,26 @@
+{
+  "name": "@myrmidon/cadmus-img-annotator",
+  "version": "8.0.0",
+  "description": "Cadmus - images: annotator.",
+  "keywords": [
+    "Cadmus",
+    "bricks"
+  ],
+  "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vedph/cadmus-bricks-shell-v3"
+  },
+  "author": {
+    "name": "Daniele Fusi"
+  },
+  "peerDependencies": {
+    "@angular/common": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@myrmidon/ngx-tools": "^0.0.1"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

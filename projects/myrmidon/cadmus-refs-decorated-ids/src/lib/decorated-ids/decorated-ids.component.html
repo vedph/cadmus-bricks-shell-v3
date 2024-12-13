@@ -1,0 +1,133 @@
+<form [formGroup]="form">
+  <!-- list -->
+  <div>
+    <button type="button" mat-flat-button (click)="addId()" class="mat-primary">
+      <mat-icon>add_circle</mat-icon> ID
+    </button>
+  </div>
+  @if (ids.length) {
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>id</th>
+        <th>rnk</th>
+        <th>tag</th>
+        <th>src</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (id of ids(); track id; let i = $index) {
+      <tr [class.selected]="i === editedIndex">
+        <td>
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Edit this ID"
+            (click)="editId(i)"
+          >
+            <mat-icon class="mat-primary">edit</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Delete this ID"
+            (click)="deleteId(i)"
+          >
+            <mat-icon class="mat-warn">remove_circle</mat-icon>
+          </button>
+        </td>
+        <td>{{ id.id }}</td>
+        <td style="text-align: center">{{ id.rank }}</td>
+        <td>{{ id.tag }}</td>
+        <td style="text-align: center">{{ id.sources?.length || 0 }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+
+  <!-- editor -->
+  <mat-expansion-panel
+    [(expanded)]="editorOpen"
+    [disabled]="!editorOpen"
+    class="boxed"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title>ID</mat-panel-title>
+      <mat-panel-description>
+        {{ editedId?.id }}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <form [formGroup]="subForm" (submit)="saveEditedId()">
+      <!-- id -->
+      <div>
+        <mat-form-field>
+          <mat-label>ID</mat-label>
+          <input matInput [formControl]="id" />
+          @if (id.hasError('required') && (id.dirty || id.touched)) {
+          <mat-error>enter ID</mat-error>
+          } @if (id.hasError('max-length') && (id.dirty || id.touched)) {
+          <mat-error>ID too long</mat-error>
+          }
+        </mat-form-field>
+        &nbsp;
+        <!-- rank -->
+        <mat-form-field style="width: 4em">
+          <mat-label>rank</mat-label>
+          <input matInput [formControl]="rank" type="number" min="0" />
+        </mat-form-field>
+        &nbsp;
+        <!-- tag (bound) -->
+        @if (tagEntries()) {
+        <mat-form-field style="width: 8em">
+          <mat-label>tag</mat-label>
+          <mat-select [formControl]="tag">
+            @for (e of tagEntries(); track e) {
+            <mat-option [value]="e.id">{{ e.value }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        }
+        <!-- tag (free) -->
+        @else {
+        <mat-form-field style="width: 6em">
+          <mat-label>tag</mat-label>
+          <input matInput [formControl]="tag" />
+          @if (tag.hasError('max-length') && (tag.dirty || tag.touched)) {
+          <mat-error>tag too long</mat-error>
+          }
+        </mat-form-field>
+        }
+      </div>
+      <div>
+        <!-- sources -->
+        <h4>ID sources</h4>
+        <cadmus-refs-doc-references
+          [tagEntries]="refTagEntries()"
+          [typeEntries]="refTypeEntries()"
+          [references]="sources.value"
+          (referencesChange)="onSourcesChange($event)"
+        ></cadmus-refs-doc-references>
+      </div>
+      <div>
+        <button
+          (click)="closeEditedId()"
+          type="button"
+          mat-icon-button
+          matTooltip="Discard ID changes"
+        >
+          <mat-icon class="mat-warn">clear</mat-icon>
+        </button>
+        <button
+          type="submit"
+          [disabled]="form.invalid || form.pristine"
+          mat-icon-button
+          matTooltip="Save ID changes"
+        >
+          <mat-icon class="mat-primary">check_circle</mat-icon>
+        </button>
+      </div>
+    </form>
+  </mat-expansion-panel>
+</form>

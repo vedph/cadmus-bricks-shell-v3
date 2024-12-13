@@ -1,0 +1,109 @@
+<div>
+  <div class="form-row">
+    @if (allowResize()) {
+    <ng-content>
+      <!-- columnCount -->
+      <mat-form-field class="nr-input">
+        <mat-label>columns</mat-label>
+        <input
+          matInput
+          [formControl]="columnCount"
+          type="number"
+          min="1"
+          [readonly]="!allowCustomSize()"
+        />
+      </mat-form-field>
+
+      <!-- rowCount -->
+      <mat-form-field class="nr-input">
+        <mat-label>rows</mat-label>
+        <input
+          matInput
+          [formControl]="rowCount"
+          type="number"
+          min="1"
+          [readonly]="!allowCustomSize()"
+        />
+      </mat-form-field>
+
+      <!-- preset -->
+      @if (presets()?.length) {
+      <mat-form-field>
+        <mat-label>preset</mat-label>
+        <mat-select [formControl]="preset">
+          @for (p of presets(); track p) {
+          <mat-option [value]="p">{{ p }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      }
+      <!-- button -->
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Set size"
+        (click)="setGridSize()"
+      >
+        <mat-icon class="mat-primary">check_circle</mat-icon>
+      </button>
+    </ng-content>
+    }
+
+    <!-- text -->
+    <div>
+      <mat-form-field>
+        <mat-label>cells</mat-label>
+        <input matInput [formControl]="text" />
+        <mat-hint>cell coordinate(s) like A1</mat-hint>
+      </mat-form-field>
+      <!-- buttons -->
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Reset cells"
+        (click)="resetCells()"
+      >
+        <mat-icon class="mat-warn">clear</mat-icon>
+      </button>
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Set cells from text"
+        (click)="setCellsFromText()"
+      >
+        <mat-icon class="mat-primary">check_circle</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  @if (!noGrid()) {
+  <!-- grid -->
+  <mat-expansion-panel
+    [expanded]="!collapsedGrid()"
+    (expandedChange)="onExpandedChange($event)"
+  >
+    <mat-expansion-panel-header>
+      <mat-icon>window</mat-icon>
+    </mat-expansion-panel-header>
+    <div>
+      @for (r of rows; track $index) {
+      <div class="row">
+        @for (c of r; track $index) {
+        <div
+          matRipple
+          class="cell"
+          [class.selected]="c.selected"
+          (click)="toggleCell(c)"
+        >
+          {{ c.column | excelColumn }}{{ c.row }}
+          @if (c.ordinal) {
+          <span class="super">{{ c.ordinal }}</span>
+          }
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </mat-expansion-panel>
+  }
+</div>

@@ -1,0 +1,25 @@
+.long-text {
+  width: 100%;
+  max-width: 800px;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+.date {
+  width: 12em;
+}
+fieldset {
+  margin: 8px 0;
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 4px;
+}
+fieldset legend {
+  color: silver;
+}

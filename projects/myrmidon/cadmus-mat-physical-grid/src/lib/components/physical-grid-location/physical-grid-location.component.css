@@ -1,0 +1,47 @@
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+.row {
+  display: flex;
+  gap: 4px;
+  margin: 4px 0;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cell {
+  flex: 0 0 auto;
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell.selected {
+  background-color: #e4ee2e;
+}
+.cell.selected:hover {
+  background-color: #f8ff6e;
+}
+.cell:hover {
+  background-color: #f0f0f0;
+}
+.nr-input {
+  width: 6em;
+}
+.super {
+  font-size: 0.8em;
+  margin-top: -1.5em;
+  color: #6db376;
+}

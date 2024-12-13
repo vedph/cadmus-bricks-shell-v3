@@ -1,0 +1,19 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Asserted Chronotopes</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <cadmus-asserted-chronotope-set
+      [chronotopes]="chronotopes"
+      (chronotopesChange)="onChronotopesChange($event)"
+    ></cadmus-asserted-chronotope-set>
+    @if (chronotopes) {
+    <div>
+      <pre>{{ chronotopes | json }}</pre>
+      <p>{{ chronotopes | assertedChronotopes }}</p>
+    </div>
+    }
+  </mat-card-content>
+</mat-card>

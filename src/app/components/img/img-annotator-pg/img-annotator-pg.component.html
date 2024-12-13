@@ -1,0 +1,41 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Image Annotator</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div id="container">
+      <div id="image">
+        <div id="toolbar">
+          <cadmus-img-annotator-toolbar (toolChange)="onToolChange($event)" />
+        </div>
+        <div>
+          <img
+            alt="image"
+            cadmusImgAnnotator
+            (createAnnotation)="onCreateAnnotation($event)"
+            (updateAnnotation)="onUpdateAnnotation($event)"
+            (deleteAnnotation)="onDeleteAnnotation($event)"
+            (createSelection)="onCreateSelection($event)"
+            (selectAnnotation)="onSelectAnnotation($event)"
+            (cancelSelected)="onCancelSelected($event)"
+            (annotatorInit)="onAnnotatorInit($event)"
+            [disableEditor]="true"
+            [tool]="tool"
+            [additionalTools]="['circle', 'ellipse', 'freehand']"
+            src="assets/sample.jpg"
+          />
+        </div>
+      </div>
+      <div id="list">
+        <app-my-img-annotation-list
+          [image]="image"
+          [annotator]="annotator"
+          [editorComponent]="editor"
+          (listInit)="onListInit($event)"
+        />F
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,42 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Person Name</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <fieldset>
+      <legend>demo</legend>
+      <button type="button" mat-flat-button (click)="configureAsAnthroponym()">
+        person
+      </button>
+      &nbsp;
+      <button type="button" mat-flat-button (click)="configureAsToponym()">
+        place
+      </button>
+    </fieldset>
+    <br />
+    <cadmus-refs-proper-name
+      [langEntries]="langEntries"
+      [typeEntries]="namePieceTypeEntries"
+      [name]="initialName"
+      (nameChange)="onNameChange($event)"
+    ></cadmus-refs-proper-name>
+    @if (name) {
+    <div>
+      <pre>{{ name | json }}</pre>
+    </div>
+    }
+    <div>
+      {{
+        name
+          | cadmusProperName
+            : namePieceTypeEntries
+            : namePieceValueEntries
+            : "id"
+            : "value"
+            : true
+      }}
+    </div>
+  </mat-card-content>
+</mat-card>

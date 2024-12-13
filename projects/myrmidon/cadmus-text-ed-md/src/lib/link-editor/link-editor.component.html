@@ -1,0 +1,24 @@
+<div [style.margin]="inDialog ? '16px' : '0'">
+  <cadmus-refs-asserted-composite-id
+    [canEditTarget]="data?.canEditTarget"
+    [canSwitchMode]="data?.canSwitchMode"
+    [defaultPartTypeKey]="data?.defaultPartTypeKey"
+    [internalDefault]="data?.internalDefault"
+    [lookupDefinitions]="data?.lookupDefinitions"
+    [idScopeEntries]="idScopeEntries()"
+    [idTagEntries]="idTagEntries()"
+    [assTagEntries]="assTagEntries()"
+    [refTypeEntries]="refTypeEntries()"
+    [refTagEntries]="refTagEntries()"
+    [id]="id()"
+    (idChange)="onIdChange($event)"
+  />
+  <div class="button-row">
+    <button type="button" class="mat-warn" mat-flat-button (click)="close()">
+      <mat-icon>cancel</mat-icon> Cancel
+    </button>
+    <button type="button" class="mat-primary" mat-flat-button (click)="save()">
+      <mat-icon>check_circle</mat-icon> OK
+    </button>
+  </div>
+</div>

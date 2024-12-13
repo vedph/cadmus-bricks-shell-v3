@@ -1,0 +1,103 @@
+<form [formGroup]="form" (submit)="save()">
+  <!-- bar -->
+  <div class="toolbar-row">
+    <!-- keys -->
+    @if (keys.length) {
+    <mat-form-field>
+      <mat-label>note</mat-label>
+      <mat-select [formControl]="key">
+        @for (k of keys; track k.key) {
+        <mat-option [value]="k.key">{{ k.value }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    }
+    <!-- count -->
+    <span class="bar count">
+      {{ noteCount }}
+    </span>
+    <!-- revert -->
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Revert text"
+      [disabled]="!currentDef"
+      (click)="revertNote()"
+    >
+      <mat-icon class="mat-warn">refresh</mat-icon>
+    </button>
+    <!-- flags -->
+    @if (currentDef?.required) {
+    <span class="bar" matTooltip="required">
+      <mat-icon>done</mat-icon>
+    </span>
+    } @if (currentDef?.markdown) {
+    <span class="bar" matTooltip="Markdown">
+      <mat-icon>brush</mat-icon>
+    </span>
+    } @if (currentDef?.maxLength) {
+    <span class="bar">
+      <span
+        [ngClass]="{
+          ok:
+            !currentDef?.maxLength ||
+            !currentLen ||
+            currentLen <= $any(currentDef).maxLength,
+          err:
+            currentDef?.maxLength &&
+            currentLen &&
+            currentLen > $any(currentDef).maxLength
+        }"
+        >{{ currentLen }}</span
+      >/{{ currentDef?.maxLength }}
+    </span>
+    } @if (missing?.length) {
+    <span class="bar" [matTooltip]="'Missing: ' + missing!.join(', ')">
+      <mat-icon class="mat-warn">error</mat-icon>
+    </span>
+    } @if (existing?.length) {
+    <span class="bar-existing">
+      {{ existing!.join(" - ").trim() }}
+    </span>
+    }
+  </div>
+
+  <!-- note -->
+  @if (currentDef) {
+  <div>
+    <mat-form-field class="long-text">
+      <textarea rows="3" matInput [formControl]="text"></textarea>
+      @if ($any(text).errors?.required && (text.touched || text.dirty)) {
+      <mat-error>required</mat-error>
+      } @if ($any(text).errors?.maxLength) {
+      <mat-error>too long</mat-error>
+      }
+    </mat-form-field>
+    <!-- buttons -->
+    <div>
+      <button
+        type="button"
+        (click)="clear()"
+        mat-icon-button
+        matTooltip="Clear this note"
+      >
+        <mat-icon class="mat-warn">delete</mat-icon>
+      </button>
+      <button
+        type="submit"
+        [disabled]="text.invalid"
+        mat-icon-button
+        matTooltip="Save this note"
+      >
+        <mat-icon class="mat-primary">check_circle</mat-icon>
+      </button>
+    </div>
+    <!-- preview -->
+    @if (currentDef.markdown) {
+    <div class="preview">
+      <nge-markdown [data]="text.value || undefined"></nge-markdown>
+    </div>
+    }
+  </div>
+  }
+</form>

@@ -3,6 +3,101 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "paths": {
+      "@myrmidon/cadmus-cod-location": [
+        "./dist/myrmidon/cadmus-cod-location"
+      ],
+      "@myrmidon/cadmus-img-annotator": [
+        "./dist/myrmidon/cadmus-img-annotator"
+      ],
+      "@myrmidon/cadmus-img-gallery": [
+        "./dist/myrmidon/cadmus-img-gallery"
+      ],
+      "@myrmidon/cadmus-img-gallery-iiif": [
+        "./dist/myrmidon/cadmus-img-gallery-iiif"
+      ],
+      "@myrmidon/cadmus-mat-physical-grid": [
+        "./dist/myrmidon/cadmus-mat-physical-grid"
+      ],
+      "@myrmidon/cadmus-mat-physical-size": [
+        "./dist/myrmidon/cadmus-mat-physical-size"
+      ],
+      "@myrmidon/cadmus-mat-physical-state": [
+        "./dist/myrmidon/cadmus-mat-physical-state"
+      ],
+      "@myrmidon/cadmus-refs-asserted-chronotope": [
+        "./dist/myrmidon/cadmus-refs-asserted-chronotope"
+      ],
+      "@myrmidon/cadmus-refs-asserted-ids": [
+        "./dist/myrmidon/cadmus-refs-asserted-ids"
+      ],
+      "@myrmidon/cadmus-refs-assertion": [
+        "./dist/myrmidon/cadmus-refs-assertion"
+      ],
+      "@myrmidon/cadmus-refs-chronotope": [
+        "./dist/myrmidon/cadmus-refs-chronotope"
+      ],
+      "@myrmidon/cadmus-refs-dbpedia-lookup": [
+        "./dist/myrmidon/cadmus-refs-dbpedia-lookup"
+      ],
+      "@myrmidon/cadmus-refs-decorated-counts": [
+        "./dist/myrmidon/cadmus-refs-decorated-counts"
+      ],
+      "@myrmidon/cadmus-refs-decorated-ids": [
+        "./dist/myrmidon/cadmus-refs-decorated-ids"
+      ],
+      "@myrmidon/cadmus-refs-doc-references": [
+        "./dist/myrmidon/cadmus-refs-doc-references"
+      ],
+      "@myrmidon/cadmus-refs-external-ids": [
+        "./dist/myrmidon/cadmus-refs-external-ids"
+      ],
+      "@myrmidon/cadmus-refs-geonames-lookup": [
+        "./dist/myrmidon/cadmus-refs-geonames-lookup"
+      ],
+      "@myrmidon/cadmus-refs-historical-date": [
+        "./dist/myrmidon/cadmus-refs-historical-date"
+      ],
+      "@myrmidon/cadmus-refs-lookup": [
+        "./dist/myrmidon/cadmus-refs-lookup"
+      ],
+      "@myrmidon/cadmus-refs-proper-name": [
+        "./dist/myrmidon/cadmus-refs-proper-name"
+      ],
+      "@myrmidon/cadmus-refs-viaf-lookup": [
+        "./dist/myrmidon/cadmus-refs-viaf-lookup"
+      ],
+      "@myrmidon/cadmus-refs-whg-lookup": [
+        "./dist/myrmidon/cadmus-refs-whg-lookup"
+      ],
+      "@myrmidon/cadmus-sdimg-annotator": [
+        "./dist/myrmidon/cadmus-sdimg-annotator"
+      ],
+      "@myrmidon/cadmus-sdimg-gallery": [
+        "./dist/myrmidon/cadmus-sdimg-gallery"
+      ],
+      "@myrmidon/cadmus-text-block-view": [
+        "./dist/myrmidon/cadmus-text-block-view"
+      ],
+      "@myrmidon/cadmus-text-ed": [
+        "./dist/myrmidon/cadmus-text-ed"
+      ],
+      "@myrmidon/cadmus-text-ed-md": [
+        "./dist/myrmidon/cadmus-text-ed-md"
+      ],
+      "@myrmidon/cadmus-text-ed-txt": [
+        "./dist/myrmidon/cadmus-text-ed-txt"
+      ],
+      "@myrmidon/cadmus-ui-custom-action-bar": [
+        "./dist/myrmidon/cadmus-ui-custom-action-bar"
+      ],
+      "@myrmidon/cadmus-ui-flag-set": [
+        "./dist/myrmidon/cadmus-ui-flag-set"
+      ],
+      "@myrmidon/cadmus-ui-note-set": [
+        "./dist/myrmidon/cadmus-ui-note-set"
+      ]
+    },
     "outDir": "./dist/out-tsc",
     "strict": true,
     "noImplicitOverride": true,

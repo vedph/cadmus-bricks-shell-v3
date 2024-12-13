@@ -1,0 +1,35 @@
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+.long-text {
+  width: 100%;
+  max-width: 800px;
+}
+.input-nr {
+  width: 5em;
+}
+.info {
+  color: #666;
+  margin: 8px;
+  font-size: 0.9em;
+  max-width: 800px;
+}
+fieldset {
+  border: 1px solid silver;
+  border-radius: 4px;
+  padding: 8px;
+  margin: 8px;
+}
+legend {
+  color: silver;
+}
+article {
+  border-bottom: 1px solid silver;
+  margin-bottom: 16px;
+}

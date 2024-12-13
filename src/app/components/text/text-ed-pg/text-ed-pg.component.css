@@ -1,0 +1,16 @@
+.form-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+#editor {
+  height: 600px;
+}
+.long-text {
+  width: 100%;
+  max-width: 600px;
+}
