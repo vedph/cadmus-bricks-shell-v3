@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -28,6 +28,10 @@ import {
   styleUrl: './physical-measurement-set-pg.component.scss',
 })
 export class PhysicalMeasurementSetPgComponent {
+  public distinct: FormControl<boolean> = new FormControl(false, {
+    nonNullable: true,
+  });
+
   public measurements: PhysicalMeasurement[] = [
     {
       name: 'width',

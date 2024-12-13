@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  effect,
   ElementRef,
   input,
   model,
@@ -29,7 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subscription } from 'rxjs';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
-import { FlatLookupPipe, NgxToolsValidators } from '@myrmidon/ngx-tools';
+import { FlatLookupPipe } from '@myrmidon/ngx-tools';
 
 import {
   PhysicalDimension,
@@ -88,6 +87,12 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
    * The default unit to use when adding a new measurement.
    */
   public readonly defaultUnit = input<string>();
+
+  /**
+   * True to allow distinct measurements only. When this is true,
+   * you cannot add multiple measurements with the same name.
+   */
+  public readonly distinct = input<boolean>();
 
   // physical-size-units
   public readonly unitEntries = input<ThesaurusEntry[]>([]);
@@ -231,7 +236,14 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     }
 
     if (added.length) {
-      const measurements = [...this.measurements()];
+      let measurements = [...this.measurements()];
+
+      // if distinct, remove existing measurements with the same name
+      if (this.distinct()) {
+        const names = new Set(added.map((m) => m.name));
+        measurements = measurements.filter((m) => !names.has(m.name));
+      }
+
       measurements.push(...added);
       this.measurements.set(measurements);
       this.measurementsChange.emit(this.measurements());
@@ -244,12 +256,27 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     }
 
     const measurements = [...this.measurements()];
-
+    // get the index of the existing measurement with the same name
+    const existingIndex = measurements.findIndex(
+      (m) => m.name === this.edited!.name
+    );
+    // append or replace
     if (this.editedIndex === -1) {
       measurements.push(this.edited);
     } else {
       measurements[this.editedIndex] = this.edited;
     }
+
+    // if distinct, remove another existing measurement with the same name
+    if (
+      existingIndex > -1 &&
+      existingIndex !== this.editedIndex &&
+      this.distinct()
+    ) {
+      measurements.splice(existingIndex, 1);
+    }
+
+    // close the editor
     this.closeMeasurement();
 
     this.measurements.set(measurements);
