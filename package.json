@@ -35,7 +35,7 @@
     "build-ttx": "ng build @myrmidon/cadmus-text-ed-txt",
     "build-viaf": "ng build @myrmidon/cadmus-refs-viaf-lookup",
     "build-whg": "ng build @myrmidon/cadmus-refs-whg-lookup",
-    "build-lib": "npm run build-doc && npm run build-ass && npm run build-lok && npm run build-his && npm run build-cab && npm run build-col && npm run build-phg && npm run build-phs && npm run build-aid && npm run build-chr && npm run build-decc && npm run build-deci && npm run build-ext && npm run build-achr && npm run build-prp && npm run build-viaf && npm run build-dbp && npm run build-blk && npm run build-img && npm run build-nts && npm run build-sdimg && npm run build-ted && npm run build-tmd && npm run build-ttx && npm run build-geo && npm run build-whg && npm run build-pht && npm run build-fst"
+    "build-lib": "npm run build-fst && npm run build-doc && npm run build-ass && npm run build-lok && npm run build-his && npm run build-cab && npm run build-col && npm run build-phg && npm run build-phs && npm run build-aid && npm run build-chr && npm run build-decc && npm run build-deci && npm run build-ext && npm run build-achr && npm run build-prp && npm run build-viaf && npm run build-dbp && npm run build-blk && npm run build-img && npm run build-nts && npm run build-sdimg && npm run build-ted && npm run build-tmd && npm run build-ttx && npm run build-geo && npm run build-whg && npm run build-pht"
   },
   "private": true,
   "dependencies": {
