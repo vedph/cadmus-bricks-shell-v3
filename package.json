@@ -53,7 +53,7 @@
     "@myrmidon/cadmus-api": "^10.0.0",
     "@myrmidon/cadmus-core": "^10.0.0",
     "@myrmidon/ngx-mat-tools": "^0.0.1",
-    "@myrmidon/ngx-tools": "^0.0.2",
+    "@myrmidon/ngx-tools": "^0.0.3",
     "@myrmidon/paged-data-browsers": "^4.0.1",
     "@recogito/annotorious": "^2.7.13",
     "@recogito/annotorious-openseadragon": "^2.7.18",

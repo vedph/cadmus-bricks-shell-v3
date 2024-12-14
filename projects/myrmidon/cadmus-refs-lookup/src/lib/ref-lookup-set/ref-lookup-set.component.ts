@@ -189,7 +189,9 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
           this.configChange.emit(config);
         }
       });
-    if (this.configs?.length) {
+
+    // set the first config as the current one if any
+    if (this.configs()?.length) {
       this.config.setValue(this.configs()[0]);
     }
   }

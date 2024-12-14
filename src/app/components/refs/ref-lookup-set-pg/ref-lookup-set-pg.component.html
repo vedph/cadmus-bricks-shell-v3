@@ -9,11 +9,11 @@
       [configs]="configs"
       (itemChange)="onItemChange($event)"
       (moreRequest)="onMoreRequest($event)"
-    ></cadmus-ref-lookup-set>
+    />
     @if (item) {
-      <div>
-        <pre>{{ item | json }}</pre>
-      </div>
+    <div>
+      <pre>{{ item | json }}</pre>
+    </div>
     }
   </mat-card-content>
 </mat-card>
