@@ -41,7 +41,7 @@
   </mat-form-field>
   }
   <!-- value (free) -->
-  @if (!typeValues.length) {
+  @else {
   <mat-form-field>
     <mat-label>value</mat-label>
     <input #valuectl matInput [formControl]="value" maxlength="100" />

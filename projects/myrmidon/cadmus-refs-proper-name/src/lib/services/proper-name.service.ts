@@ -98,7 +98,6 @@ export class ProperNameService {
     if (!types?.length) {
       return [];
     }
-    types.map((e) => e.values);
     let entries: ThesaurusEntry[] = [];
     for (let i = 0; i < types.length; i++) {
       if (types[i].values?.length) {
