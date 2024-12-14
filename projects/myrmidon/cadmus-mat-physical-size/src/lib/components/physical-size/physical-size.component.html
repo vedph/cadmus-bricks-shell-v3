@@ -7,6 +7,7 @@
       >(Tag) ValueUnit1 (Tag1) x ValueUnit2 (Tag2) x ValueUnit3 (Tag3)
       &#123;Note&#125;</mat-hint
     >
+    <!-- parser -->
     <button
       type="button"
       mat-icon-button
@@ -15,16 +16,29 @@
       matTooltip="Parse size from text"
       [disabled]="!text.value"
     >
-      <mat-icon class="mat-primary">arrow_circle_right</mat-icon>
+      <mat-icon class="mat-warn">arrow_circle_right</mat-icon>
+    </button>
+    <!-- toggler -->
+    <button
+      type="button"
+      mat-icon-button
+      matSuffix
+      matTooltip="Toggle visual editor"
+      (click)="visualExpanded = !visualExpanded"
+    >
+      @if (visualExpanded) {
+      <mat-icon class="mat-primary">publish</mat-icon>
+      } @if (!visualExpanded) {
+      <mat-icon class="mat-primary">get_app</mat-icon>
+      }
     </button>
   </mat-form-field>
 
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <mat-icon>straighten</mat-icon>
-      </mat-panel-title>
-    </mat-expansion-panel-header>
+  <mat-expansion-panel
+    id="visual"
+    [expanded]="visualExpanded"
+    (expandedChange)="visualExpanded = $event"
+  >
     <form [formGroup]="form">
       <div class="form-row">
         @if (!noTag()) {

@@ -8,7 +8,8 @@
     <cadmus-refs-historical-date
       [date]="date"
       (dateChange)="onDateChange($event)"
-    ></cadmus-refs-historical-date>
+    />
+    <hr>
     @if (date) {
     <div>
       <pre>{{ date | json }}</pre>

@@ -127,6 +127,7 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
   public text: FormControl<string | null>;
 
   public label?: string;
+  public visualExpanded?: boolean;
 
   constructor(formBuilder: FormBuilder) {
     this.tag = formBuilder.control(null, Validators.maxLength(50));
