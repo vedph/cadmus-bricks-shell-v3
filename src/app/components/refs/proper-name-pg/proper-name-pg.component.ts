@@ -48,6 +48,30 @@ export class ProperNamePgComponent {
     // for pipe: these are all the children values as collected
     // from the types entries
     this.namePieceValueEntries = [
+      {
+        id: 'p.al',
+        value: 'Alessandria',
+      },
+      {
+        id: 'p.an',
+        value: 'Ancona',
+      },
+      {
+        id: 'p.aq',
+        value: "L'Aquila",
+      },
+      {
+        id: 'p.ar',
+        value: 'Arezzo',
+      },
+      {
+        id: 'p.at',
+        value: 'Asti',
+      },
+      {
+        id: 'p.av',
+        value: 'Avellino',
+      },
       { id: 'a.cr', value: 'Cannareggio' },
       { id: 'a.cs', value: 'Castello' },
       { id: 'a.dd', value: 'Dorsoduro' },
@@ -94,6 +118,30 @@ export class ProperNamePgComponent {
   public configureAsToponym(): void {
     this.namePieceTypeEntries = [
       { id: 'p*', value: 'provincia' },
+      {
+        "id": "p.al",
+        "value": "Alessandria"
+      },
+      {
+        "id": "p.an",
+        "value": "Ancona"
+      },
+      {
+        "id": "p.aq",
+        "value": "L'Aquila"
+      },
+      {
+        "id": "p.ar",
+        "value": "Arezzo"
+      },
+      {
+        "id": "p.at",
+        "value": "Asti"
+      },
+      {
+        "id": "p.ve",
+        "value": "Venezia"
+      },
       { id: 'c*', value: 'città' },
       { id: 'a*', value: 'area' },
       { id: 'a.cr', value: 'Cannareggio' },
@@ -109,7 +157,7 @@ export class ProperNamePgComponent {
       language: 'ita',
       tag: 'sample',
       pieces: [
-        { type: 'p', value: 'VE' },
+        { type: 'p', value: 'p.ve' },
         { type: 'c', value: 'Venezia' },
         { type: 'a', value: 'Cannareggio' },
         { type: 'l', value: 'Fondamenta Daniele Canal' },
