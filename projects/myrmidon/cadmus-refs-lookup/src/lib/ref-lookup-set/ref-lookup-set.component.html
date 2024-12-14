@@ -30,7 +30,7 @@
   <!-- lookup -->
   @if (config.value) {
   <cadmus-ref-lookup
-    [service]="config.value.service"
+    [service]="config.value.service!"
     [item]="config.value.item"
     [required]="config.value.required"
     [hasMore]="config.value.hasMore"
