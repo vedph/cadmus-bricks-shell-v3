@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -26,7 +26,7 @@ import {
     CadmusProperNamePipe,
   ],
 })
-export class ProperNamePgComponent implements OnInit {
+export class ProperNamePgComponent {
   public initialName?: AssertedProperName;
   public name: AssertedProperName | undefined;
   public langEntries: ThesaurusEntry[] | undefined;
@@ -63,8 +63,6 @@ export class ProperNamePgComponent implements OnInit {
     ];
     this.configureAsAnthroponym();
   }
-
-  ngOnInit(): void {}
 
   public configureAsAnthroponym(): void {
     this.namePieceTypeEntries = [
@@ -118,7 +116,7 @@ export class ProperNamePgComponent implements OnInit {
     ];
 
     this.initialName = {
-      language: 'eng',
+      language: 'ita',
       tag: 'sample',
       pieces: [
         // { type: 'continent', value: 'continent.europe' },

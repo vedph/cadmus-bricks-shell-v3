@@ -77,6 +77,7 @@ export interface AssertedProperName extends ProperName {
 })
 export class ProperNameComponent implements OnInit, OnDestroy {
   private readonly _subs: Subscription[] = [];
+  private _updating?: boolean;
   private _typeEntries$: BehaviorSubject<ThesaurusEntry[] | undefined>;
   private _name$: BehaviorSubject<AssertedProperName | undefined>;
 
@@ -259,23 +260,23 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     this.emitNameChange();
   }
 
-  public savePiece(piece: ProperNamePiece): void {
+  public savePiece(piece?: ProperNamePiece): void {
     const pieces = [...this.pieces.value];
 
     // just replace if editing an existing piece
     if (this.editedPieceIndex > -1) {
-      pieces.splice(this.editedPieceIndex, 1, piece);
+      pieces.splice(this.editedPieceIndex, 1, piece!);
       this.updatePieces(pieces);
       this.closePiece();
       return;
     }
 
     // also replace a single piece if one is already present
-    const type = this.pieceTypes.find((t) => t.id === piece.type);
+    const type = this.pieceTypes.find((t) => t.id === piece!.type);
     if (type?.single) {
-      const i = this.pieces.value.findIndex((p) => p.type === piece.type);
+      const i = this.pieces.value.findIndex((p) => p.type === piece!.type);
       if (i > -1) {
-        pieces.splice(i, 1, piece);
+        pieces.splice(i, 1, piece!);
         this.updatePieces(pieces);
         this.closePiece();
         return;
@@ -289,12 +290,12 @@ export class ProperNameComponent implements OnInit, OnDestroy {
         ? pieces.findIndex((p) => n < this.getTypeOrdinal(p.type))
         : -1;
       if (i === -1) {
-        pieces.push(piece);
+        pieces.push(piece!);
       } else {
-        pieces.splice(i, 0, piece);
+        pieces.splice(i, 0, piece!);
       }
     } else {
-      pieces.push(piece);
+      pieces.push(piece!);
     }
 
     this.updatePieces(pieces);
@@ -360,7 +361,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
 
     // no name
     if (!name) {
-      this.clearPieces();
+      this.pieces.setValue([]);
       this.form.reset();
       this.pieceTypes = this._nameService.parseTypeEntries(typeEntries);
       this.ordered = this.pieceTypes.some((t) => t.ordinal);
@@ -369,13 +370,12 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     }
 
     // name
-    this.clearPieces();
     this.pieceTypes = this._nameService.parseTypeEntries(typeEntries);
     this.ordered = this.pieceTypes.some((t) => t.ordinal);
     this.updateValueEntries(this.pieceTypes);
 
-    this.language.setValue(name.language);
-    this.tag.setValue(name.tag || null);
+    this.language.setValue(name.language, { emitEvent: false });
+    this.tag.setValue(name.tag || null, { emitEvent: false });
     this.pieces.setValue(name.pieces);
     this.assertion.setValue(name.assertion || null);
     this.form.markAsPristine();

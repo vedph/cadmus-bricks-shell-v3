@@ -2,6 +2,7 @@ import {
   Component,
   effect,
   input,
+  model,
   OnDestroy,
   OnInit,
   output,
@@ -63,7 +64,7 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
   /**
    * The piece being edited.
    */
-  public readonly piece = input<ProperNamePiece>();
+  public readonly piece = model<ProperNamePiece>();
 
   /**
    * The available piece types.
@@ -206,6 +207,7 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
         (this.value.value as ThesaurusEntry)?.id ||
         (this.value.value as string),
     });
+    this.piece.set(this._piece$.value!);
     this.pieceChange.emit(this._piece$.value!);
   }
 }
