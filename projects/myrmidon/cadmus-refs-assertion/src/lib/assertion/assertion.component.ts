@@ -1,4 +1,12 @@
-import { Component, effect, input, model, OnInit, output } from '@angular/core';
+import {
+  Component,
+  effect,
+  input,
+  model,
+  OnDestroy,
+  OnInit,
+  output,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -22,6 +30,7 @@ import {
   DocReference,
   DocReferencesComponent,
 } from '@myrmidon/cadmus-refs-doc-references';
+import { Subscription } from 'rxjs';
 
 export interface Assertion {
   tag?: string;
@@ -48,9 +57,9 @@ export interface Assertion {
     DocReferencesComponent,
   ],
 })
-export class AssertionComponent implements OnInit {
+export class AssertionComponent implements OnInit, OnDestroy {
+  private _sub?: Subscription;
   private _updatingForm: boolean | undefined;
-  private _assertion: Assertion | undefined;
 
   public tag: FormControl<string | null>;
   public rank: FormControl<number>;
@@ -98,11 +107,17 @@ export class AssertionComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.form.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-      if (!this._updatingForm) {
-        this.emitAssertionChange();
-      }
-    });
+    this._sub = this.form.valueChanges
+      .pipe(debounceTime(300))
+      .subscribe((_) => {
+        if (!this._updatingForm) {
+          this.emitAssertionChange();
+        }
+      });
+  }
+
+  public ngOnDestroy(): void {
+    this._sub?.unsubscribe();
   }
 
   public onReferencesChange(references: DocReference[]): void {
