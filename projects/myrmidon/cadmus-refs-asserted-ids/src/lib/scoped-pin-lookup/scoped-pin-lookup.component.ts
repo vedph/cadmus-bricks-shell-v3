@@ -15,7 +15,7 @@ import {
   Item,
   Part,
 } from '@myrmidon/cadmus-core';
-import { forkJoin, take } from 'rxjs';
+import { forkJoin, of, take } from 'rxjs';
 
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -106,7 +106,7 @@ export class ScopedPinLookupComponent {
     });
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     // pre-select a unique key
     if (this.keys.length === 1) {
       this.key.setValue(this.keys[0]);
@@ -121,24 +121,26 @@ export class ScopedPinLookupComponent {
     };
     // lookup item and its metadata part if any
     forkJoin({
-      item: this._itemService.getItem(
-        (item as DataPinInfo).itemId,
-        false,
-        true
-      ),
-      part: this._itemService.getPartFromTypeAndRole(
-        (item as DataPinInfo).itemId,
-        METADATA_PART_ID,
-        undefined,
-        true
-      ),
+      item: item
+        ? this._itemService.getItem((item as DataPinInfo).itemId, false, true)
+        : of(null),
+      part: item
+        ? this._itemService.getPartFromTypeAndRole(
+            (item as DataPinInfo).itemId,
+            METADATA_PART_ID,
+            undefined,
+            true
+          )
+        : of(null),
     })
       .pipe(take(1))
       .subscribe({
         next: (result) => {
-          info.item = result.item!;
-          info.part = result.part as MetadataPart;
-          this.info = info;
+          if (result.item) {
+            info.item = result.item;
+            info.part = result.part as MetadataPart;
+            this.info = info;
+          }
         },
         error: (error) => {
           console.error(

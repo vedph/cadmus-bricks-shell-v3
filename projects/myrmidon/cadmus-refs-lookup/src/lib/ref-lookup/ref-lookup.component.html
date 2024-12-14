@@ -23,7 +23,7 @@
       mat-icon-button
       matSuffix
       (click)="clear()"
-      [disabled]="!item"
+      [disabled]="!item()"
       matTooltip="Clear"
     >
       <mat-icon class="mat-warn">clear</mat-icon>
@@ -44,7 +44,7 @@
       </div>
       } @if (!lookupActive) {
       <button type="button" mat-flat-button (click)="lookupActive = true">
-        {{ getLookupName(item) || label }}
+        {{ getLookupName(item()) || label() }}
       </button>
       }
     </div>
@@ -54,7 +54,7 @@
       type="button"
       mat-icon-button
       (click)="openLink()"
-      [disabled]="!item"
+      [disabled]="!item()"
       matTooltip="Open the web resource"
     >
       <mat-icon>link</mat-icon>
