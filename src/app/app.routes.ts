@@ -56,9 +56,9 @@ export const routes: Routes = [
   {
     path: 'mat/physical-grid',
     loadComponent: () =>
-      import('./components/mat/physical-grid-pg/physical-grid-pg.component').then(
-        (m) => m.PhysicalGridPgComponent
-      ),
+      import(
+        './components/mat/physical-grid-pg/physical-grid-pg.component'
+      ).then((m) => m.PhysicalGridPgComponent),
   },
   // mat/physical-measurement-set
   {
@@ -72,17 +72,17 @@ export const routes: Routes = [
   {
     path: 'mat/physical-size',
     loadComponent: () =>
-      import('./components/mat/physical-size-pg/physical-size-pg.component').then(
-        (m) => m.PhysicalSizePgComponent
-      ),
+      import(
+        './components/mat/physical-size-pg/physical-size-pg.component'
+      ).then((m) => m.PhysicalSizePgComponent),
   },
   // mat/physical-state
   {
     path: 'mat/physical-state',
     loadComponent: () =>
-      import('./components/mat/physical-state-pg/physical-state-pg.component').then(
-        (m) => m.PhysicalStatePgComponent
-      ),
+      import(
+        './components/mat/physical-state-pg/physical-state-pg.component'
+      ).then((m) => m.PhysicalStatePgComponent),
   },
   // refs/asserted-chronotope
   {
@@ -163,6 +163,14 @@ export const routes: Routes = [
       import(
         './components/refs/decorated-ids-pg/decorated-ids-pg.component'
       ).then((m) => m.DecoratedIdsPgComponent),
+  },
+  // refs/doc-references
+  {
+    path: 'refs/doc-references',
+    loadComponent: () =>
+      import(
+        './components/refs/doc-references-pg/doc-references-pg.component'
+      ).then((m) => m.DocReferencesPgComponent),
   },
   // refs/external-ids
   {
