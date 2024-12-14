@@ -56,7 +56,7 @@ export interface RefLookupService {
 /**
  * Generic reference lookup component. You must set the service
  * property to the lookup service, implementing the LookupService
- * interface, and eventually the current lookup item. Optionally
+ * interface, and optionally the current lookup item. Optionally
  * set the label and limit, and hasMore to true if you want a
  * more button for more complex lookup.
  */
@@ -105,7 +105,7 @@ export class RefLookupComponent {
   /**
    * The lookup service to use.
    */
-  public readonly service = input<RefLookupService>();
+  public readonly service = input.required<RefLookupService>();
 
   /**
    * The current lookup item or undefined.
@@ -219,7 +219,12 @@ export class RefLookupComponent {
   }
 
   public getLookupName(item: any): string {
-    return this.service()?.getName(item) || '';
+    const service = this.service ? this.service() : undefined;
+    if (service) {
+      return service.getName(item) || '';
+    } else {
+      return '';
+    }
   }
 
   public clear(): void {
@@ -237,12 +242,12 @@ export class RefLookupComponent {
 
   public requestMore(): void {
     this.lookupActive = false;
-    this.moreRequest.emit(this.item);
+    this.moreRequest.emit(this.item());
   }
 
   private resolvePlaceholder(value: string): string | null {
     const steps = value.split('.');
-    let p: any = this.item;
+    let p: any = this.item();
     for (let i = 0; i < steps.length; i++) {
       p = p[steps[i]];
       if (!p) {
@@ -253,7 +258,7 @@ export class RefLookupComponent {
   }
 
   public openLink(): void {
-    if (!this.item || !this.linkTemplate()) {
+    if (!this.item() || !this.linkTemplate()) {
       return;
     }
 
