@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,6 +37,7 @@ export interface Assertion {
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    MatBadgeModule,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -74,6 +76,8 @@ export class AssertionComponent implements OnInit {
    * Emitted when the assertion changes.
    */
   public readonly assertionChange = output<Assertion>();
+
+  public visualExpanded?: boolean;
 
   constructor(formBuilder: FormBuilder) {
     this.tag = formBuilder.control(null, Validators.maxLength(50));
