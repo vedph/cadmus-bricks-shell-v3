@@ -65,6 +65,7 @@ export interface PhysicalSize {
 })
 export class PhysicalSizeComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
+  private _updating?: boolean;
 
   /**
    * The size to edit.
@@ -205,6 +206,10 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     this._sub = this.form.valueChanges
       .pipe(distinctUntilChanged(), debounceTime(400))
       .subscribe((_) => {
+        if (this._updating) {
+          this._updating = false;
+          return;
+        }
         this.size.set(this.getSize());
 
         if (
@@ -220,7 +225,7 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.updateForm(this.size());
+    // this.updateForm(this.size());
   }
 
   public ngOnDestroy(): void {
@@ -236,7 +241,11 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
       return;
     }
     const size = PhysicalSizeParser.parse(this.text.value, this.hBeforeW());
-    this.updateForm(size);
+    if (size) {
+      this.updateForm(size);
+      this.size.set(size);
+      this.sizeChange.emit(this.size()!);
+    }
   }
 
   private validateUnit(form: FormGroup): { [key: string]: any } | null {
@@ -371,6 +380,8 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
   }
 
   private updateForm(model?: PhysicalSize | null): void {
+    this._updating = true;
+
     if (!model) {
       this.form.reset();
       this.resetUnits();
@@ -412,6 +423,8 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
       this.form.markAsPristine();
       this.updateLabel();
     }
+
+    // this._updating = false;
   }
 
   private getDimension(
