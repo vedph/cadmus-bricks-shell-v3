@@ -4,6 +4,7 @@ import {
   Inject,
   input,
   model,
+  OnDestroy,
   OnInit,
   output,
 } from '@angular/core';
@@ -29,6 +30,7 @@ import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
 
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
 import { ScopedPinLookupComponent } from '../scoped-pin-lookup/scoped-pin-lookup.component';
+import { Subscription } from 'rxjs';
 
 export interface AssertedId {
   tag?: string;
@@ -55,7 +57,8 @@ export interface AssertedId {
     ScopedPinLookupComponent,
   ],
 })
-export class AssertedIdComponent implements OnInit {
+export class AssertedIdComponent implements OnInit, OnDestroy {
+  private _sub?: Subscription;
   private _updatingForm: boolean | undefined;
 
   public tag: FormControl<string | null>;
@@ -137,11 +140,17 @@ export class AssertedIdComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.form.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-      if (!this._updatingForm) {
-        this.emitIdChange();
-      }
-    });
+    this._sub = this.form.valueChanges
+      .pipe(debounceTime(300))
+      .subscribe((_) => {
+        if (!this._updatingForm) {
+          this.emitIdChange();
+        }
+      });
+  }
+
+  public ngOnDestroy(): void {
+    this._sub?.unsubscribe();
   }
 
   public onAssertionChange(assertion: Assertion | undefined): void {
@@ -181,7 +190,7 @@ export class AssertedIdComponent implements OnInit {
   }
 
   public emitIdChange(): void {
-    if (!this.hasSubmit) {
+    if (!this.hasSubmit()) {
       this.id.set(this.getId());
       this.idChange.emit(this.id()!);
     }
