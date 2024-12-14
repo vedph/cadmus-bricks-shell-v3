@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Type } from '@angular/core';
+import { Component, Type } from '@angular/core';
 import {
   RefLookupFilter,
   RefLookupService,
@@ -204,7 +204,7 @@ export class WebColorLookup implements RefLookupService {
     RefLookupComponent,
   ],
 })
-export class RefLookupPgComponent implements OnInit {
+export class RefLookupPgComponent {
   public item?: WebColor;
   public service: WebColorLookup;
   public optDialog: Type<any> = RefLookupDummyOptComponent;
@@ -217,8 +217,6 @@ export class RefLookupPgComponent implements OnInit {
     this.options = { letter: 'b' };
     this.baseFilter = { yearMax: new Date().getFullYear() };
   }
-
-  ngOnInit(): void {}
 
   public onItemChange(item: any | undefined): void {
     this.item = item;

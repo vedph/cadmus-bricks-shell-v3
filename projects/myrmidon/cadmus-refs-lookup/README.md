@@ -16,7 +16,10 @@ The lookup component is a general purpose lookup where:
 
 ### Usage
 
-(1) create a **service** acting as an adapter for the quick search by implementing `RefLookupService`. This interface has a `getName` function used to retrieve a user-friendly name from the item model, and a `lookup` function getting a filter implementing `RefLookupFilter`, and returning an observable with a list of matching items. The filter is the minimum required for the lookup, i.e. has a text and a limit (=maximum count of items to return).
+(1) create a **service** acting as an adapter for the quick search by implementing interface `RefLookupService`. This interface has:
+
+- a `getName` function used to retrieve a user-friendly name from the item model;
+- a `lookup` function getting a filter implementing `RefLookupFilter`, and returning an observable with a list of matching items. The filter is the minimum required for the lookup, i.e. has a text and a limit (=maximum count of items to return).
 
 For an example, serverless implementation see [WebColorLookup](../../../src/app/refs/ref-lookup-pg/ref-lookup-pg.component.ts) in the demo app.
 
@@ -24,15 +27,15 @@ This service is then injected into the component hosting the lookup control, and
 
 (2) if your service requires **additional options**, just extend `RefLookupFilters` if they are provided by your program. In this case, typically your code will set the lookup's component `baseFilter` property so that it represents the additional filter criteria you want to preset. If instead the additional options can be changed by users, create a component representing these options, like  `RefLookupDummyOptComponent` in the demo project.
 
-This component is a normal Angular component, but you should get injected in its constructor:
+This options component is a normal Angular component, but in its constructor you must inject:
 
 - `@Inject(MAT_DIALOG_DATA) public data: any`: this gets the data with the options to be changed. Options are stored under the `options` property of `data`.
 - `private _dialogRef: MatDialogRef<RefLookupOptionsComponent>`: this gets the reference to the dialog hosting your options component, so that you can use it to close the dialog, returning updated data if required.
 
 Once you have created this options component, the component hosting the lookup control should provide two public properties:
 
-- a property for the options component: e.g. `public optDialog: Type<any> = RefLookupDummyOptComponent;`
-- a property for the options data, e.g. `public options: any;`
+- a property for the options component: e.g. `public optDialog: Type<any> = RefLookupDummyOptComponent;`.
+- a property for the options data, e.g. `public options: any;`.
 
 These must then be bound to the lookup control, e.g.:
 
@@ -48,7 +51,7 @@ These must then be bound to the lookup control, e.g.:
   label="color"
   (itemChange)="onItemChange($event)"
   (moreRequest)="onMoreRequest()"
-></cadmus-ref-lookup>
+/>
 ```
 
 Once this is in place, when the user clicks the options button he gets to a dialog with your options component. The options are then passed to the adapter service together with the filter whenever a search is requested.

@@ -179,7 +179,7 @@ export class RefLookupComponent {
                 limit: this.limit(),
                 text: value,
               },
-              this.options
+              this.options()
             )
             .pipe(
               tap((v) => {
