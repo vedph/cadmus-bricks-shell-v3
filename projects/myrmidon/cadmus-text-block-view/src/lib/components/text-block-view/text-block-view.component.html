@@ -5,7 +5,7 @@
       >
       <div
         class="cadmus-text-block-view-t"
-        [ngClass]="block.layerIds || [] | arrayIntersect : selectedIds"
+        [ngClass]="block.layerIds || [] | arrayIntersect : selectedIds()"
         [id]="block.id"
         (click)="onBlockClick(block, false)"
         >

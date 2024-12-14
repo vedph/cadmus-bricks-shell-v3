@@ -33,10 +33,19 @@ export interface TextBlockEventArgs {
   ],
 })
 export class TextBlockViewComponent {
+  /**
+   * The IDs of the selected layers.
+   */
   public readonly selectedIds = input<string[]>();
 
+  /**
+   * The blocks to display.
+   */
   public readonly blocks = input<TextBlock[]>([]);
 
+  /**
+   * Emitted when a block is clicked
+   */
   public readonly blockClick = output<TextBlockEventArgs>();
 
   public getBlockId(index: number, block: TextBlock): any {
