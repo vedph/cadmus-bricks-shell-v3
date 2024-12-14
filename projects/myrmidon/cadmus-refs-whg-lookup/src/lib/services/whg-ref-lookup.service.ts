@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { map, mergeMap, reduce } from 'rxjs/operators';
 
@@ -20,7 +20,7 @@ import {
 /**
  * The token to provide the WHG user name.
  */
-export const WHG_USERNAME_TOKEN = 'WHG_USERNAME';
+export const WHG_USERNAME_TOKEN = new InjectionToken('WHG_USERNAME');
 
 /**
  * WHG reference lookup service.

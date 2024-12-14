@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, InjectionToken } from '@angular/core';
 import {
   RefLookupFilter,
   RefLookupService,
@@ -16,7 +16,7 @@ import {
 /**
  * The token to provide the GeoNames user name.
  */
-export const GEONAMES_USERNAME_TOKEN = 'GEONAMES_USERNAME';
+export const GEONAMES_USERNAME_TOKEN = new InjectionToken('GEONAMES_USERNAME');
 
 /**
  * Base options for a GeoNames search request.
@@ -72,7 +72,7 @@ export class GeoNamesRefLookupService implements RefLookupService {
     }
     options.text = filter.text;
 
-    console.info('GeoNames lookup: ', JSON.stringify(options));
+    console.info('GeoNames lookup: ', options);
     return this._geonames.search(options).pipe(
       map((r) => {
         return r.geonames;
