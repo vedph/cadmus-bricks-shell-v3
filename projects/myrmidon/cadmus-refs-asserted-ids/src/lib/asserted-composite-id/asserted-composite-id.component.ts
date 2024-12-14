@@ -247,7 +247,7 @@ export class AssertedCompositeIdComponent implements OnInit {
   }
 
   public emitIdChange(): void {
-    if (!this.hasSubmit) {
+    if (!this.hasSubmit()) {
       this.id.set(this.getId());
       this.idChange.emit(this.id()!);
     }

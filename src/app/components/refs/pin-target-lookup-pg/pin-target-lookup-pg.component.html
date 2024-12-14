@@ -1,0 +1,25 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Pin Target Lookup</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="form-row">
+      <mat-checkbox [formControl]="canEditTarget">edit target</mat-checkbox>
+      <mat-checkbox [formControl]="canSwitchMode">switch mode</mat-checkbox>
+    </div>
+    <hr />
+    <cadmus-pin-target-lookup
+      [canEditTarget]="canEditTarget.value"
+      [canSwitchMode]="canSwitchMode.value"
+      [extLookupConfigs]="extLookupConfigs"
+      [target]="target"
+      (targetChange)="onTargetChange($event!)"
+    />
+    <hr />
+    @if (target) {
+    <div>{{ target | json }}</div>
+    }
+  </mat-card-content>
+</mat-card>

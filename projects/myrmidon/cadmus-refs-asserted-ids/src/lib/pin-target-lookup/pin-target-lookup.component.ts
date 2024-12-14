@@ -122,8 +122,9 @@ export interface PinTarget {
   ],
 })
 export class PinTargetLookupComponent implements OnInit, OnDestroy {
-  private _subs: Subscription[];
+  private readonly _subs: Subscription[] = [];
   private _noTargetUpdate?: boolean;
+  private _noFormUpdate?: boolean;
   private _startWithByTypeMode?: boolean;
 
   /**
@@ -225,7 +226,6 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   ) {
     this.partTypeKeys = [];
     this.itemParts = [];
-    this._subs = [];
     this.modelEntries = [];
     // this is the default filter for the pin lookup, which will
     // be merged with values provided by user here
@@ -262,13 +262,20 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       if (!this.byTypeMode) {
         this._startWithByTypeMode = this.pinByTypeMode();
       } else {
-        this.byTypeMode.setValue(this.pinByTypeMode() || false);
+        this.byTypeMode.setValue(this.pinByTypeMode() || false, {
+          emitEvent: false,
+        });
         this.byTypeMode.updateValueAndValidity();
       }
     });
 
     // when target changes, update form
     effect(() => {
+      if (this._noFormUpdate) {
+        this._noFormUpdate = false;
+        return;
+      }
+      console.log('target changed', this.target());
       this.updateForm(this.target());
     });
   }
@@ -284,7 +291,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       this.lookupDefinitions.set(this._presetLookupDefs);
     }
     // keys are all the defined lookup searches
-    this.partTypeKeys = Object.keys(this.lookupDefinitions);
+    this.partTypeKeys = Object.keys(this.lookupDefinitions()!);
 
     // if no keys, get them from thesaurus model-types;
     // if this is not available, just force by item mode.
@@ -321,12 +328,12 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       this.byTypeMode.setValue(true);
     }
 
-    // whenever item changes, update item's parts and filter
+    // whenever item changes (by lookup), update item's parts and filter
     this._subs.push(
       this.item.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(300))
         .subscribe((item) => {
-          this.itemPart.setValue(null);
+          this.itemPart.setValue(null, { emitEvent: false });
           this.itemParts = item?.parts || [];
           this.filter = {
             ...this.filter,
@@ -335,7 +342,8 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         })
     );
 
-    // whenever itemPart changes, update target and eventually gid
+    // whenever itemPart changes (by user selection), update target and
+    // eventually gid
     this._subs.push(
       this.itemPart.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(300))
@@ -462,6 +470,12 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     }
   }
 
+  private emitChange(): void {
+    this.target.set(this.getTarget());
+    this.targetChange.emit(this.target()!);
+    this._noFormUpdate = true;
+  }
+
   private updateTarget(): void {
     if (this._noTargetUpdate) {
       return;
@@ -474,7 +488,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       this.label.updateValueAndValidity();
       this.label.markAsDirty();
     }
-    this.target.set(this.getTarget());
+    this.emitChange();
   }
 
   private updateForm(target?: PinTarget): void {
@@ -488,8 +502,8 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       return;
     }
     this._noTargetUpdate = true;
-    this.gid.setValue(target.gid || '');
-    this.label.setValue(target.label || '');
+    this.gid.setValue(target.gid || '', { emitEvent: false });
+    this.label.setValue(target.label || '', { emitEvent: false });
     this.lookupData = {
       pin: {
         itemId: target.itemId || '',
@@ -504,22 +518,24 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     if (target.itemId) {
       this._itemService.getItem(target.itemId, true, true).subscribe({
         next: (item) => {
-          this.item.setValue(item);
+          this.item.setValue(item, { emitEvent: false });
           this.form.markAsPristine();
           this._noTargetUpdate = false;
-          this.external.setValue(!target.name);
+          this.external.setValue(!target.name, { emitEvent: false });
           this.updateTarget();
         },
         error: (error) => {
           if (error) {
-            console.error(JSON.stringify(error));
+            console.error('Item service error', error);
           }
-          this.external.setValue(!target.name);
+          this.external.setValue(!target.name, { emitEvent: false });
           this._noTargetUpdate = false;
         },
       });
     } else {
-      this.external.setValue(!target.name && !this.internalDefault);
+      this.external.setValue(!target.name && !this.internalDefault(), {
+        emitEvent: false,
+      });
       this._noTargetUpdate = false;
       this.updateTarget();
     }
@@ -532,6 +548,9 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
    * @param item The item got from lookup.
    */
   public onItemLookupChange(item: unknown): void {
+    if (!item) {
+      return;
+    }
     // load item's parts
     this._itemService.getItem((item as Item)!.id, true, true).subscribe({
       next: (i) => {
@@ -541,7 +560,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         if (error) {
-          console.error(JSON.stringify(error));
+          console.error('Error getting item', error);
         }
         this.itemPart.setValue(null);
         this.itemParts = [];
@@ -550,7 +569,10 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadItemInfo(pin: DataPinInfo): void {
+  private loadItemInfo(pin?: DataPinInfo): void {
+    if (!pin) {
+      return;
+    }
     forkJoin({
       item: this._itemService.getItem(pin.itemId, false, true),
       part: this._itemService.getPartFromTypeAndRole(
@@ -572,9 +594,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.lookupData = undefined;
-          console.error(
-            error ? JSON.stringify(error) : 'Error loading item/metadata'
-          );
+          console.error('Error loading item/metadata', error);
         },
       });
   }
@@ -627,6 +647,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       return;
     }
     this.target.set(this.getTarget());
-    this.targetChange.emit(this.target()!);
+    this.emitChange();
+    // this.targetChange.emit(this.target()!);
   }
 }

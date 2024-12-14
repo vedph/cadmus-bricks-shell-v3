@@ -196,7 +196,15 @@ export const routes: Routes = [
         './components/refs/historical-date-pg/historical-date-pg.component'
       ).then((m) => m.HistoricalDatePgComponent),
   },
-  // refs-proper-name
+  // refs/pin-target-lookup
+  {
+    path: 'refs/pin-target-lookup',
+    loadComponent: () =>
+      import(
+        './components/refs/pin-target-lookup-pg/pin-target-lookup-pg.component'
+      ).then((m) => m.PinTargetLookupPgComponent),
+  },
+  // refs/refs-proper-name
   {
     path: 'refs/proper-name',
     loadComponent: () =>

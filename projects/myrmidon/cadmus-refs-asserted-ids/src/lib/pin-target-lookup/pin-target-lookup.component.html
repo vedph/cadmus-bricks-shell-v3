@@ -26,7 +26,7 @@
         <mat-error>label too long</mat-error>
         }
       </mat-form-field>
-      } @if (!external.value && !canEditTarget && label.value) {
+      } @if (!external.value && !canEditTarget() && label.value) {
       <div class="info"><span class="label">label</span>{{ label.value }}</div>
       }
     </div>
@@ -52,7 +52,7 @@
   </div>
 
   <!-- external lookup set -->
-  @if (external.value && extLookupConfigs.length) {
+  @if (external.value && extLookupConfigs().length) {
   <div>
     <cadmus-ref-lookup-set
       [configs]="extLookupConfigs()"
