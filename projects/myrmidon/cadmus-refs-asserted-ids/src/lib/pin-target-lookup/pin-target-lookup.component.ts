@@ -476,7 +476,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     this.targetChange.emit(this.target()!);
   }
 
-  private updateTarget(): void {
+  private updateTarget(noEmit = false): void {
     if (this._noTargetUpdate) {
       return;
     }
@@ -488,7 +488,9 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       this.label.updateValueAndValidity();
       this.label.markAsDirty();
     }
-    this.emitChange();
+    if (!noEmit) {
+      this.emitChange();
+    }
   }
 
   private updateForm(target?: PinTarget): void {
@@ -590,7 +592,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
             item: result.item!,
             metaPart: result.part as MetadataPart,
           };
-          this.updateTarget();
+          this.updateTarget(true);
         },
         error: (error) => {
           this.lookupData = undefined;
@@ -650,6 +652,5 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     }
     this.target.set(this.getTarget());
     this.emitChange();
-    // this.targetChange.emit(this.target()!);
   }
 }

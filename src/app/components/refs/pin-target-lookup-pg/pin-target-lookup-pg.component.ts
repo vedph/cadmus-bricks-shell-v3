@@ -34,6 +34,9 @@ export class PinTargetLookupPgComponent {
   public readonly canEditTarget: FormControl<boolean> = new FormControl(false, {
     nonNullable: true,
   });
+  public readonly pinByTypeMode: FormControl<boolean> = new FormControl(false, {
+    nonNullable: true,
+  });
 
   constructor(viaf: ViafRefLookupService) {
     this.extLookupConfigs = [
