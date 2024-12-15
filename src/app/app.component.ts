@@ -26,6 +26,7 @@ import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.co
     MatButtonModule,
     MatDividerModule,
     MatMenuModule,
+    MatDividerModule,
     MatToolbarModule,
   ],
   templateUrl: './app.component.html',
