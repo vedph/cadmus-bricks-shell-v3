@@ -4,9 +4,7 @@
       @if (image) {
       <div id="image">
         <div>
-          <cadmus-img-annotator-toolbar
-            (toolChange)="onToolChange($event)"
-          ></cadmus-img-annotator-toolbar>
+          <cadmus-img-annotator-toolbar (toolChange)="onToolChange($event)" />
         </div>
         <div>
           <img
@@ -60,6 +58,6 @@
     <cadmus-gallery-list
       [entries]="entries"
       (imagePick)="onImagePick($event)"
-    ></cadmus-gallery-list>
+    />
   </mat-tab>
 </mat-tab-group>

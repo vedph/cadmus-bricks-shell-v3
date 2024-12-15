@@ -20,11 +20,11 @@ export class EditAnnotationDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: ListAnnotation<any>
   ) {}
 
-  onCloseClick(): void {
+  public onCloseClick(): void {
     this.dialogRef.close();
   }
 
-  onSaveClick(annotation: ListAnnotation<any>): void {
+  public onSaveClick(annotation: ListAnnotation<any>): void {
     this.dialogRef.close(annotation);
   }
 }

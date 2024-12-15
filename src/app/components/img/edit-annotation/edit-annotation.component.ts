@@ -74,7 +74,7 @@ export class EditAnnotationComponent {
     this.annotationChange = new EventEmitter<ListAnnotation<any>>();
   }
 
-  ngAfterViewInit() {
+  public ngAfterViewInit() {
     setTimeout(() => {
       this.txtElementRef?.nativeElement.focus();
     });
