@@ -38,7 +38,7 @@
             <mat-icon class="mat-primary">edit</mat-icon>
           </button>
         </td>
-        <td>{{ a | objectToString : annotationToString }}</td>
+        <td>{{ a | objectToString : annotationToString() }}</td>
         <td class="muted noif-lt-md">{{ a.id }}</td>
       </tr>
       }
