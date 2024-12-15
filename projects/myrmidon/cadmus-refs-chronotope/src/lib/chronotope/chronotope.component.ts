@@ -76,7 +76,7 @@ export class ChronotopeComponent implements OnInit, OnDestroy {
   /**
    * Emitted when the chronotope changes.
    */
-  public readonly chronotopeChange = output<Chronotope>();
+  // public readonly chronotopeChange = output<Chronotope>();
 
   public tag: FormControl<string | null>;
   public place: FormControl<string | null>;
@@ -152,6 +152,6 @@ export class ChronotopeComponent implements OnInit, OnDestroy {
   public emitChronotopeChange(): void {
     this._dropNextInput = true;
     this.chronotope.set(this.getChronotope());
-    this.chronotopeChange.emit(this.chronotope()!);
+    // this.chronotopeChange.emit(this.chronotope()!);
   }
 }
