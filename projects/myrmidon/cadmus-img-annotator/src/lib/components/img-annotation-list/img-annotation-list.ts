@@ -153,6 +153,66 @@ export class ImgAnnotationList<T> {
     this.deselectAnnotation();
   }
 
+  private generateGUID(): string {
+    function s4(): string {
+      return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+    }
+    return (
+      s4() +
+      s4() +
+      '-' +
+      s4() +
+      '-' +
+      s4() +
+      '-' +
+      s4() +
+      '-' +
+      s4() +
+      s4() +
+      s4()
+    );
+  }
+
+  /**
+   * Save the specified list annotation. This temporarily replaces saveAnnotation
+   * because it seems that Annotorious is not firing the createAnnotation event
+   * when in headless mode.
+   *
+   * @param annotation The annotation.
+   */
+  private saveAnnotation2(annotation: ListAnnotation<any>): void {
+    // update by instance in annotorious (we may not have an ID yet)
+    this.annotator.updateSelected(annotation.value, true);
+
+    // update an existing annotation, or add a new one
+    const annotations = [...this._annotations$.value];
+    if (annotation.id) {
+      const index = annotations.findIndex((a) => a.id === annotation.id);
+      if (index > -1) {
+        annotations.splice(index, 1, annotation);
+      }
+    } else {
+      annotations.push({
+        id: '#' + this.generateGUID(),
+        image: this.image!,
+        value: annotation.value,
+        payload: this._pendingAnnotation?.payload,
+      });
+    }
+    this._annotations$.next(annotations);
+
+    // deselect current annotation
+    this.annotator.cancelSelected();
+    this._selectedAnnotation$.next(null);
+    this._selectedIndex = -1;
+    this._currentIsNew = false;
+
+    // set annotations in annotorious
+    this.annotator.setAnnotations(annotations.map((a) => a.value));
+  }
+
   /**
    * Edit the selected annotation in the editor dialog.
    */
@@ -179,7 +239,7 @@ export class ImgAnnotationList<T> {
       .subscribe((result: ListAnnotation<any>) => {
         // save on OK, else remove if was new
         if (result) {
-          this.saveAnnotation(result);
+          this.saveAnnotation2(result);
         } else {
           if (this._currentIsNew) {
             this.annotator.removeAnnotation(
