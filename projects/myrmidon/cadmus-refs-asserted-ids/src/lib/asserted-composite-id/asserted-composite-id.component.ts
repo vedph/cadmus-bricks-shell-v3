@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   effect,
@@ -11,18 +12,18 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
-  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 
+import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { RamStorageService } from '@myrmidon/ngx-tools';
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
@@ -67,7 +68,7 @@ export const ASSERTED_COMPOSITE_ID_CONFIGS_KEY =
   templateUrl: './asserted-composite-id.component.html',
   styleUrls: ['./asserted-composite-id.component.css'],
   imports: [
-    FormsModule,
+    CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatExpansionModule,
@@ -75,6 +76,7 @@ export const ASSERTED_COMPOSITE_ID_CONFIGS_KEY =
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatTooltipModule,
     AssertionComponent,
     PinTargetLookupComponent,
   ],
@@ -83,7 +85,7 @@ export class AssertedCompositeIdComponent implements OnInit {
   private _updatingForm: boolean | undefined;
 
   public extLookupConfigs: RefLookupConfig[];
-  public targetExpanded: boolean;
+  public targetExpanded = false;
   // form
   public target: FormControl<PinTarget | null>;
   public scope: FormControl<string | null>;
@@ -176,6 +178,7 @@ export class AssertedCompositeIdComponent implements OnInit {
     public lookupDefs: IndexLookupDefinitions,
     settings: RamStorageService
   ) {
+    // form
     this.target = formBuilder.control(null, Validators.required);
     this.scope = formBuilder.control(null, Validators.maxLength(500));
     this.tag = formBuilder.control(null, Validators.maxLength(50));
@@ -186,7 +189,8 @@ export class AssertedCompositeIdComponent implements OnInit {
       tag: this.tag,
       assertion: this.assertion,
     });
-    this.targetExpanded = false;
+
+    // external lookup configs
     this.extLookupConfigs =
       settings.retrieve<RefLookupConfig[]>(ASSERTED_COMPOSITE_ID_CONFIGS_KEY) ||
       [];
@@ -213,7 +217,9 @@ export class AssertedCompositeIdComponent implements OnInit {
     this.target.setValue(target!);
     this.target.markAsDirty();
     this.target.updateValueAndValidity();
-    // this.targetExpanded = false;
+    if (this.form.valid) {
+      this.targetExpanded = false;
+    }
   }
 
   private updateForm(id: AssertedCompositeId | undefined): void {

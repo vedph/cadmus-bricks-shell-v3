@@ -355,7 +355,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
             ...this.filter,
             partId: part?.id,
           };
-          this.updateTarget();
+          this.updateTarget(true);
         })
     );
 
@@ -558,7 +558,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       next: (i) => {
         // setting the item will trigger its parts update
         this.item.setValue(i);
-        this.updateTarget();
+        this.updateTarget(true);
       },
       error: (error) => {
         if (error) {
@@ -566,7 +566,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         }
         this.itemPart.setValue(null);
         this.itemParts = [];
-        this.updateTarget();
+        this.updateTarget(true);
       },
     });
   }
