@@ -66,60 +66,62 @@
   <!-- BY ITEM -->
   @if (!external.value) {
   <div>
-    @if (!byTypeMode.value) {
-    <fieldset class="form-row">
-      <legend>pin filters</legend>
-      <!-- item filter -->
-      <cadmus-ref-lookup
-        [service]="itemLookupService"
-        label="item"
-        (itemChange)="onItemLookupChange($event)"
-      ></cadmus-ref-lookup>
-      <!-- part filter -->
-      @if (itemParts.length) {
-      <mat-form-field>
-        <mat-label>part</mat-label>
-        <mat-select [formControl]="itemPart">
-          <mat-option [value]="null">(any)</mat-option>
-          @for (p of itemParts; track p) {
-          <mat-option [value]="p">{{
-            p.typeId | flatLookup : modelEntries : "id" : "value"
-          }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <div class="form-row">
+      @if (!byTypeMode.value) {
+      <fieldset class="form-row">
+        <legend>pin filters</legend>
+        <!-- item filter -->
+        <cadmus-ref-lookup
+          [service]="itemLookupService"
+          label="item"
+          (itemChange)="onItemLookupChange($event)"
+        ></cadmus-ref-lookup>
+        <!-- part filter -->
+        @if (itemParts.length) {
+        <mat-form-field>
+          <mat-label>part</mat-label>
+          <mat-select [formControl]="itemPart">
+            <mat-option [value]="null">(any)</mat-option>
+            @for (p of itemParts; track p) {
+            <mat-option [value]="p">{{
+              p.typeId | flatLookup : modelEntries : "id" : "value"
+            }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        }
+      </fieldset>
       }
-    </fieldset>
-    }
-    <!-- BY TYPE -->
-    @if (byTypeMode.value) {
-    <div>
-      <!-- par type filter -->
-      @if (partTypeKeys.length) {
-      <mat-form-field>
-        <mat-label>part type</mat-label>
-        <mat-select [formControl]="partTypeKey">
-          @for (k of partTypeKeys; track k) {
-          <mat-option [value]="k">{{ k }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <!-- BY TYPE -->
+      @if (byTypeMode.value) {
+      <div>
+        <!-- par type filter -->
+        @if (partTypeKeys.length) {
+        <mat-form-field>
+          <mat-label>part type</mat-label>
+          <mat-select [formControl]="partTypeKey">
+            @for (k of partTypeKeys; track k) {
+            <mat-option [value]="k">{{ k }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        }
+      </div>
+      }
+      <!-- PIN -->
+      @if (partTypeKey.value) {
+      <div>
+        <!-- pin lookup -->
+        <cadmus-ref-lookup
+          [service]="pinLookupService"
+          [baseFilter]="filter"
+          [options]="pinFilterOptions"
+          label="pin"
+          (itemChange)="onPinLookupChange($event)"
+        />
+      </div>
       }
     </div>
-    }
-    <!-- PIN -->
-    @if (partTypeKey.value) {
-    <div>
-      <!-- pin lookup -->
-      <cadmus-ref-lookup
-        [service]="pinLookupService"
-        [baseFilter]="filter"
-        [options]="pinFilterOptions"
-        label="pin"
-        (itemChange)="onPinLookupChange($event)"
-      ></cadmus-ref-lookup>
-    </div>
-    }
     <!-- data -->
     @if (lookupData?.pin?.name) {
     <mat-expansion-panel id="data">
@@ -260,7 +262,7 @@
   }
 
   <!-- buttons -->
-  <div class="button-row">
+  <div class="button-row" id="toolbar">
     <button mat-icon-button type="button" (click)="close()">
       <mat-icon class="mat-warn">close</mat-icon>
     </button>

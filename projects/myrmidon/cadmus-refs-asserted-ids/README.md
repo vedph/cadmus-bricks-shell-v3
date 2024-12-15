@@ -155,11 +155,11 @@ Three components are used for this brick:
 
 - 📥 input:
   - `ids` (`AssertedId[]`)
-  - `idScopeEntries` (`ThesaurusEntry[]?`): thesaurus `asserted-id-scopes`.
-  - `idTagEntries` (`ThesaurusEntry[]?`): thesaurus `asserted-id-tags`.
-  - `assTagEntries` (`ThesaurusEntry[]?`): thesaurus `assertion-tags`.
-  - `refTypeEntries` (`ThesaurusEntry[]?`): thesaurus `doc-reference-types`.
-  - `refTagEntries` (`ThesaurusEntry[]?`): thesaurus `doc-reference-tags`.
+  - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
+  - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
+  - `assTagEntries` (`ThesaurusEntry[]?`): 📚 `assertion-tags`.
+  - `refTypeEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-types`.
+  - `refTagEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-tags`.
   - `pinByTypeMode` (`boolean?`)
   - `canSwitchMode` (`boolean?`)
   - `canEditTarget` (`boolean?`)
@@ -196,8 +196,9 @@ Three components are used for this brick:
 
 This component is used to edit an internal or external ID via lookup:
 
-- for external lookup, you can specify any number of lookup providers (e.g. VIAF, geonames, etc.).
-- for internal lookup, TODO
+- for both external and internal IDs, you can optionally specify a scope (usually defining the context of the ID, like VIAF or DBPedia, or your own Cadmus database) and a tag (an arbitrary string for grouping or tagging the ID in some way).
+- for external IDs, you can enter the ID and its human-friendly label manually, or get them from any number of lookup providers (e.g. VIAF, geonames, etc.).
+- for internal IDs, your lookup is based on search pins. Any part or fragment provides any number of such pins, which essentially are name=value pairs, used for a simple search during editing. Each pin name is unique only in the context of the part or fragment defining it, so that pin design is not constrained; yet, a pin can easily be turned into a globally unique identifier by adding to it other data. For instance, given that every part or fragment has its own globally unique ID, you can just prepend it to the pin name to get a globally unique internal ID pointing to a specific feature of a specific part or fragment.
 
 - 📥 input:
   - `target` (`PinTarget? | null`)
@@ -206,7 +207,7 @@ This component is used to edit an internal or external ID via lookup:
   - `canEditTarget` (`boolean?`)
   - `defaultPartTypeKey` (`string?|null`)
   - `lookupDefinitions` (`IndexLookupDefinitions?`)
-  - `extLookupConfigs` (`RefLookupConfig[]`)
+  - `extLookupConfigs` (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
   - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
 - ⚡ output:
   - `targetChange` (`PinTarget`)
@@ -246,15 +247,14 @@ The user can then use buttons to append each of these components to the ID being
 
 Apart from the IDs list, you can use the pin-based link target lookup control to add a lookup for any entity in your own UI:
 
-(1) ensure to import this module (`CadmusRefsAssertedIdsModule`).
+(1) ensure to import the `PinTargetLookupComponent` control in your component.
 
 (2) add a lookup control to your UI, like this:
 
 ```html
 <!-- lookup -->
 <cadmus-pin-target-lookup [canSwitchMode]="true"
-                          (targetChange)="onTargetChange($event)">
-</cadmus-pin-target-lookup>
+                          (targetChange)="onTargetChange($event)"/>
 ```
 
 (3) specify the lookup definitions, either from code, or via injection. In the latter case, in your app's `index-lookup-definitions.ts` file, add the required lookup definitions. Each definition has a conventional key, and is an object with part type ID for the lookup scope, and pin name, e.g.:
