@@ -25,6 +25,9 @@ export interface ImgAnnotatorToolbarTool {
   tip: string;
 }
 
+/**
+ * The toolbar for the image annotator.
+ */
 @Component({
   selector: 'cadmus-img-annotator-toolbar',
   templateUrl: './img-annotator-toolbar.component.html',
@@ -41,6 +44,9 @@ export interface ImgAnnotatorToolbarTool {
 export class ImgAnnotatorToolbarComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
 
+  /**
+   * The tools to display in the toolbar.
+   */
   public readonly tools = input<ImgAnnotatorToolbarTool[]>([
     { id: 'rect', icon: 'rectangle', tip: 'Rectangle' },
     { id: 'polygon', icon: 'polyline', tip: 'Polygon' },
@@ -49,6 +55,9 @@ export class ImgAnnotatorToolbarComponent implements OnInit, OnDestroy {
     { id: 'freehand', icon: 'gesture', tip: 'Freehand' },
   ]);
 
+  /**
+   * Emitted whenever the tool changes.
+   */
   public readonly toolChange = output<string>();
 
   public form: FormGroup;

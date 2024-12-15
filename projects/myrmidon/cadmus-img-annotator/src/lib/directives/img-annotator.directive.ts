@@ -120,7 +120,7 @@ export class ImgAnnotatorDirective {
    * The initial configuration for the annotator. Note that the image property
    * will be overridden with the img being decorated by this directive.
    */
-  public readonly config = model<AnnotoriousConfig>();
+  public readonly config = model<AnnotoriousConfig>({ disableEditor: true });
 
   /**
    * Disables the editor thus toggling the headless mode.
@@ -235,16 +235,19 @@ export class ImgAnnotatorDirective {
     // when disableEditor changes, disable annotator
     effect(() => {
       // https://annotorious.github.io/guides/headless-mode/
+      console.log('disableEditor', this.disableEditor());
       this._ann.disableEditor = this.disableEditor();
     });
 
     // when tool changes, select it in the annotator
     effect(() => {
+      console.log('tool', this.tool());
       this._ann?.setDrawingTool(this.tool());
     });
 
     // when annotations change, update the annotator
     effect(() => {
+      console.log('annotations', this.annotations());
       const annotations = this.annotations();
       if (!annotations?.length) {
         this._ann?.clearAnnotations();
@@ -255,19 +258,20 @@ export class ImgAnnotatorDirective {
 
     // when selected annotation changes, select it in the annotator
     effect(() => {
+      console.log('selectedAnnotation', this.selectedAnnotation());
       this._ann?.selectAnnotation(this.selectedAnnotation());
     });
   }
 
   private initAnnotator(): void {
-    const cfg = this.config() || { disableEditor: true }; //@@
+    const cfg = this.config() || { disableEditor: true };
     cfg.image = this._elementRef.nativeElement;
     this._ann = new Annotorious(cfg);
 
     // plugin
-    if (this.additionalTools?.length) {
+    if (this.additionalTools()?.length) {
       SelectorPack(this._ann, {
-        tools: this.additionalTools,
+        tools: this.additionalTools(),
       });
     }
 
