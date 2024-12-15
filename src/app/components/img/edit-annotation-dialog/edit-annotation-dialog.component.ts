@@ -25,6 +25,7 @@ export class EditAnnotationDialogComponent {
   }
 
   public onSaveClick(annotation: ListAnnotation<any>): void {
+    console.log('closing annotation dialog', annotation);
     this.dialogRef.close(annotation);
   }
 }

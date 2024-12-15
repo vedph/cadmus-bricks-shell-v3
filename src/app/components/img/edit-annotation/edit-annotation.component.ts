@@ -120,6 +120,6 @@ export class EditAnnotationComponent {
       return;
     }
     this._annotation = this.getAnnotation();
-    this.annotationChange.emit(this.annotation);
+    this.annotationChange.emit(this._annotation);
   }
 }

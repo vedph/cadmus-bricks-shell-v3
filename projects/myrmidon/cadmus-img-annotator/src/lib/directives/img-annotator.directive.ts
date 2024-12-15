@@ -281,14 +281,17 @@ export class ImgAnnotatorDirective {
     // wrap events:
     // createSelection
     this._ann.on('createSelection', (selection: Annotation) => {
+      console.log('createSelection', selection);
       this.createSelection.emit(selection);
     });
     // selectAnnotation
     this._ann.on('selectAnnotation', (selection: Annotation) => {
+      console.log('selectAnnotation', selection);
       this.selectAnnotation.emit(selection);
     });
     // cancelSelected
     this._ann.on('cancelSelected', (selection: Annotation) => {
+      console.log('cancelSelected', selection);
       this.cancelSelected.emit(selection);
     });
 
@@ -296,6 +299,7 @@ export class ImgAnnotatorDirective {
     this._ann.on(
       'createAnnotation',
       (annotation: any, overrideId: (id: any) => void) => {
+        console.log('createAnnotation', annotation);
         this.createAnnotation.emit({
           annotation,
           overrideId,
@@ -304,10 +308,12 @@ export class ImgAnnotatorDirective {
     );
     // updateAnnotation
     this._ann.on('updateAnnotation', (annotation: any, previous: any) => {
+      console.log('updateAnnotation', annotation);
       this.updateAnnotation.emit({ annotation, prevAnnotation: previous });
     });
     // deleteAnnotation
     this._ann.on('deleteAnnotation', (annotation: any) => {
+      console.log('deleteAnnotation', annotation);
       this.deleteAnnotation.emit({ annotation });
     });
     // mouse
