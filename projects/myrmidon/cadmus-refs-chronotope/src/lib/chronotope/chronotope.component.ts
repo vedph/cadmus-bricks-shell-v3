@@ -15,6 +15,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +32,6 @@ import {
   HistoricalDateComponent,
   HistoricalDateModel,
 } from '@myrmidon/cadmus-refs-historical-date';
-import { Subscription } from 'rxjs';
 
 /**
  * Chronotopic coordinates: a place with a date.
@@ -63,6 +63,7 @@ export interface Chronotope {
 export class ChronotopeComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
   private _updatingForm: boolean | undefined;
+  private _dropNextInput?: boolean;
 
   /**
    * The chronotope to edit.
@@ -97,6 +98,10 @@ export class ChronotopeComponent implements OnInit, OnDestroy {
 
     // when chronotope changes, update form
     effect(() => {
+      if (this._dropNextInput) {
+        this._dropNextInput = false;
+        return;
+      }
       this.updateForm(this.chronotope());
     });
   }
@@ -145,6 +150,7 @@ export class ChronotopeComponent implements OnInit, OnDestroy {
   }
 
   public emitChronotopeChange(): void {
+    this._dropNextInput = true;
     this.chronotope.set(this.getChronotope());
     this.chronotopeChange.emit(this.chronotope()!);
   }
