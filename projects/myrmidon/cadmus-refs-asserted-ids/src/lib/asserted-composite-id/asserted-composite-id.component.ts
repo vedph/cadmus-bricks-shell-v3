@@ -213,7 +213,7 @@ export class AssertedCompositeIdComponent implements OnInit {
     this.target.setValue(target!);
     this.target.markAsDirty();
     this.target.updateValueAndValidity();
-    this.targetExpanded = false;
+    // this.targetExpanded = false;
   }
 
   private updateForm(id: AssertedCompositeId | undefined): void {

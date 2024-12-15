@@ -471,9 +471,9 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   }
 
   private emitChange(): void {
+    this._noFormUpdate = true;
     this.target.set(this.getTarget());
     this.targetChange.emit(this.target()!);
-    this._noFormUpdate = true;
   }
 
   private updateTarget(): void {
@@ -613,15 +613,17 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   }
 
   public onExtItemChange(event: RefLookupSetEvent): void {
-    setTimeout(() => {
-      this.gid.setValue(event.itemId);
-      this.gid.updateValueAndValidity();
-      this.gid.markAsDirty();
+    if (event.item) {
+      setTimeout(() => {
+        this.gid.setValue(event.itemId);
+        this.gid.updateValueAndValidity();
+        this.gid.markAsDirty();
 
-      this.label.setValue(event.itemLabel);
-      this.label.updateValueAndValidity();
-      this.label.markAsDirty();
-    });
+        this.label.setValue(event.itemLabel);
+        this.label.updateValueAndValidity();
+        this.label.markAsDirty();
+      });
+    }
   }
 
   public onExtMoreRequest(event: RefLookupSetEvent): void {
