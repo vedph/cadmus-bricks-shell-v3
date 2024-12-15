@@ -64,7 +64,7 @@ export class ImgAnnotatorPgComponent {
     this.tool = 'rect';
     this.image = {
       id: '1',
-      uri: 'assets/sample.jpg',
+      uri: 'sample.jpg',
       title: 'sample',
       description: 'Sample image',
     };

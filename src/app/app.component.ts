@@ -46,7 +46,7 @@ export class AppComponent {
     storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
       {
         name: 'colors',
-        iconUrl: '/assets/img/colors128.png',
+        iconUrl: '/img/colors128.png',
         description: 'Colors',
         label: 'color',
         service: new WebColorLookup(),
@@ -55,7 +55,7 @@ export class AppComponent {
       },
       {
         name: 'VIAF',
-        iconUrl: '/assets/img/viaf128.png',
+        iconUrl: '/img/viaf128.png',
         description: 'Virtual International Authority File',
         label: 'ID',
         service: viaf,
@@ -64,7 +64,7 @@ export class AppComponent {
       },
       {
         name: 'geonames',
-        iconUrl: '/assets/img/geonames128.png',
+        iconUrl: '/img/geonames128.png',
         description: 'GeoNames',
         label: 'ID',
         service: geonames,
@@ -73,7 +73,7 @@ export class AppComponent {
       },
       {
         name: 'whg',
-        iconUrl: '/assets/img/whg128.png',
+        iconUrl: '/img/whg128.png',
         description: 'World Historical Gazetteer',
         label: 'ID',
         service: whg,
