@@ -5,48 +5,101 @@
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
 
 - [CadmusRefsAssertedIds](#cadmusrefsassertedids)
-  - [Asserted ID](#asserted-id)
-    - [Behavior](#behavior)
-    - [Using Scoped ID Lookup](#using-scoped-id-lookup)
+  - [External IDs](#external-ids)
+  - [Internal IDs](#internal-ids)
+  - [ID Components](#id-components)
+  - [Asserted ID Component](#asserted-id-component)
+    - [Configuring Asserted ID](#configuring-asserted-id)
+  - [Asserted IDs Component](#asserted-ids-component)
+  - [PinTargetLookupComponent](#pintargetlookupcomponent)
+    - [Configuring the Target ID Editor](#configuring-the-target-id-editor)
   - [Asserted Composite ID](#asserted-composite-id)
-    - [Components API](#components-api)
-      - [AssertedCompositeIdsComponent](#assertedcompositeidscomponent)
-      - [AssertedCompositeIdComponent](#assertedcompositeidcomponent)
-      - [PinTargetLookupComponent](#pintargetlookupcomponent)
-    - [Target ID Editor](#target-id-editor)
-    - [Using PinTargetLookupComponent](#using-pintargetlookupcomponent)
+  - [Asserted Composite IDs](#asserted-composite-ids)
 
-The asserted ID and asserted composite IDs bricks provide a way to include _external_ or _internal_ references to resource identifiers, whatever their type and origin. These components are the foundation for pin-based links in links part and links fragment types, as they provide both external and internal links eventually accompanied by an assertion.
+The asserted ID and asserted composite IDs bricks provide a way to include _external_ or _internal_ references to resource identifiers, whatever their type and origin. These components are the foundation for pin-based links in links part and links fragment types, as they provide both external and internal links, optionally accompanied by an assertion.
 
-## Asserted ID
+## External IDs
 
-The asserted ID brick allows editing a simple model representing such IDs, having:
+External IDs are provided by users, either manually or with the aid of lookup services. Cadmus already provides a set of builtin lookup providers for popular web APIs like VIAF, DBPedia, Geonames, and WHG, and you can add as many as you want.
 
-- a _value_, the ID itself.
-- a _scope_, representing the context the ID originates from (e.g. an ontology, a repository, a website, etc.).
-- an optional _tag_, used to group or classify the ID.
-- an optional _assertion_, used to define the uncertainty level of the assignment of this ID to the context it applies to.
+At a minimum, an external ID is just a string representing an identifier. Usually this is globally unique, or it is unique only within the scope defined by its context. For instance, a DBPedia ID is a URI, which makes it a globally unique identifier; while the numeric ID assigned to an entity in a RDBMS is unique only in the scope of its table in that database.
 
-The asserted IDs brick is just a collection of such IDs.
+According to their type and purpose, such IDs can thus be totally opaque for human users, like a number; or provide a hint about their target, like e.g. the URI for Marco Polo in DBPedia: <http://dbpedia.org/resource/Marco_Polo>.
 
-### Behavior
+So, in its most complete model an external ID has:
 
-While external IDs are just provided by users, internal IDs are linked via EIDs.
+- a value for the ID itself, whether it's globally unique or not.
+- a human-friendly label conventionally attached to the ID.
+- an optional scope.
+- an optional tag, which can be used to group or classify IDs in some way.
 
-In most cases, human users prefer to adopt friendly IDs, which are unique only in the context of their editing environment. Such identifiers are typically named EIDs (=_entity IDs_), and may be found scattered among parts, or linked to items via a metadata part.
+## Internal IDs
 
->Whenever we want to assign a human-friendly ID to the _item_ itself, rather than referring to it by its GUID, the conventional method relies on the generic _metadata part_, which allows users entering any number of arbitrarily defined name=value pairs. So, a user might enter a pair like e.g. `eid=vat_lat_123`, and use it as the human friendly identifier for a manuscript item corresponding to Vat. Lat. 123.
+Internal IDs are human-friendly identifiers connected to any data in the Cadmus database. They can refer to an item as a whole, or to a specific part or fragment of it, or to a specific feature inside a part or fragment.
 
-For instance, a decorations part in a manuscript collects a number of decorations; for each one, it might define an arbitrary EID (like e.g. `angel1`) used to identify it among the others, in the context of that part.
+In most cases, human users prefer friendly identifiers, unique only in the context of their editing environment (which is what is present to the user's mind when entering data). These identifiers in Cadmus are named **EID**s (=_entity IDs_), and may be found scattered among parts or fragments via pins, or linked to whole items via a metadata part.
 
-When filling the decorations part with data, users just ensure that this EID is unique in the context of the list they are editing. Yet, should we be in need of a non-scoped, unique ID, we could easily build it by assembling together the EID with its part/item IDs, which by definition are globally unique (being GUIDs). For instance, this is what can be done when mapping entities from parts into a semantic graph (via mapping rules).
+>Of course, all Cadmus data objects (items, parts and fragments) have their own globally unique identifier, which is an opaque GUID like `401267e7-282c-40e6-8f47-67be54382b07`. EIDs instead provide human-friendly identifiers, e.g. just like the IDs you type in a TEI document. Additionally, they can be used to target a specific feature inside a part or fragment, via search pins provided by it.
 
-The asserted ID library provides a number of components which can be used to easily refer to the entities identified in this way. According to the scenario illustrated above, the basic requirements for building non-scoped, unique IDs from scoped, human-friendly identifiers are:
+**Item EID**s are just human-friendly aliases used to refer to a Cadmus item as a whole. Whenever we want to assign a human-friendly ID to the _item_ itself, rather than referring to it by its GUID, the conventional method relies on the generic _metadata part_, which allows users entering any number of arbitrarily defined name=value pairs. So, a user might enter a pair like e.g. `eid=vat_lat_123`, and use it as the human friendly identifier for a manuscript item corresponding to Vat.Lat.123.
 
-- we must be able to draw EIDs _from parts or from items_, assuming the convention by which an item can be assigned an EID via its generic _metadata_ part.
-- we must let users pick _the preferred combination_ of components which once assembled build a unique, yet human-friendly identifier.
+Ultimately, even an item EID, just like any other EID is just based on a **search pin**. In Cadmus, any part or fragment in an item provides any number of _search pins_, which essentially are name=value pairs, used for a simple search during editing.
 
-To this end, the asserted ID component provides an internal lookup mechanism based on data pins and metadata conventions. When users want to add an ID referring to some internal entity, either found in a part or corresponding to an item, he just has to pick the type of desired lookup (when more than a single lookup search definition is present), and type some characters to get the first N pins starting with these characters; he can then pick one from the list. Once a pin value is picked, the lookup control shows all the relevant data which can be used as components for the ID to build:
+Each pin name is unique only in the context of the part or fragment defining it, so that pin design is not constrained; yet, a pin can easily be turned into a globally unique identifier by adding to it other data.
+
+For instance, given that every part or fragment has its own globally unique ID, you can just prepend it to the pin name to get a globally unique internal ID pointing to a specific feature of a specific part or fragment. Thus, users just enter pins as arbitrary, easy to use strings, when entering data; but the general architecture also provides a way for making them globally unique.
+
+>This is how the in-editor search is implemented, and a similar mechanism is also used when mapping entities from parts into a semantic graph (via mapping rules).
+
+For instance, say a decorations part in a manuscript item collects a number of decorations; for each one, it might define an arbitrary EID (like e.g. `angel1`) used to identify it among the others, in the context of that part.
+
+When filling the decorations part with data, users just ensure that this EID is unique in the context of the list they are editing; in other terms, no other decoration in that part will have `angel1` as its ID, while it might happen that `angel1` is used somewhere else in another part. Yet, should we be in need of a non-scoped, unique ID, we could easily build it by assembling together the EID with its part/item IDs, which by definition are globally unique (being GUIDs).
+
+## ID Components
+
+The asserted ID library provides a number of components which can be used to easily refer to the entities identified with external or internal IDs.
+
+According to the scenario illustrated above, the basic requirements for ID components are:
+
+- provide a general lookup mechanism for external and/or internal IDs.
+- for internal IDs, be able to draw data _from parts or from items_, assuming the convention by which an item can be assigned an EID via its generic _metadata_ part; and provide a quick way to build a globally unique identifier from an EID. Optionally, a component can also allow users pick _the preferred combination_ of components which once assembled build a unique, yet human-friendly identifier.
+
+>👉 The demo found in this workspace uses a [mock data service](../../../src/app/services/mock-item.service.ts) instead of the real one, which provides a minimal set of data and functions, just required for the components to function.
+
+Various components from this library provide a different level of complexity, so you can pick the one which best fits your purposes; in general, the most powerful and versatile ID picker is represented by the [asserted composite ID](#asserted-composite-id), which can be used for both external and internal IDs, with full lookup support from lookup providers in either case.
+
+## Asserted ID Component
+
+- 🔑 `AssertedIdComponent`
+- 🚩 `cadmus-refs-asserted-id`
+- ▶️ input:
+  - `id` (`AssertedId? | null`)
+  - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
+  - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
+  - `assTagEntries` (`ThesaurusEntry[]?`): 📚 `assertion-tags`.
+  - `refTypeEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-types`.
+  - `refTagEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-tags`.
+  - `external` (`boolean?`)
+  - `hasSubmit` (`boolean?`)
+  - `pinByTypeMode` (`boolean?`)
+  - `canSwitchMode` (`boolean?`)
+  - `canEditTarget` (`boolean?`)
+  - `defaultPartTypeKey` (`string?|null`)
+  - `lookupDefinitions` (`IndexLookupDefinitions?`)
+  - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
+- ⚡ output:
+  - `idChange` (`AssertedId`)
+  - `editorClose`
+  - `extMoreRequest` (`RefLookupSetEvent`): the user requested more about the current external lookup source.
+
+The asserted ID component allows editing a simple model representing a generic ID with an optional assertion. The ID has:
+
+- **value**: the ID itself.
+- **scope**: the context the ID originates from (e.g. an ontology, a repository, a website, etc.).
+- an optional **tag**, used to group or classify the ID.
+- an optional **assertion**, used to define the uncertainty level of the assignment of this ID to the context it applies to.
+
+The asserted ID component provides an internal lookup mechanism based on data pins and metadata conventions. When users want to add an ID referring to some internal entity, either found in a part or corresponding to an item, he just has to pick the type of desired lookup (when more than a single lookup search definition is present), and type some characters to get the first N pins starting with these characters; he can then pick one from the list. Once a pin value is picked, the lookup control shows all the relevant data which can be used as components for the ID to build:
 
 - the item GUID.
 - the item title.
@@ -56,19 +109,19 @@ To this end, the asserted ID component provides an internal lookup mechanism bas
 
 The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
 
->👉 The demo found in this workspace uses a [mock data service](../../../src/app/services/mock-item.service.ts) instead of the real one, which provides a minimal set of data and functions, just required for the components to function.
+### Configuring Asserted ID
 
-### Using Scoped ID Lookup
+The asserted ID component internally uses a scoped pin lookup component (`ScopedPinLookupComponent`) to provide a list of pin-based searches with a lookup control.  Whenever the user picks a pin value, he gets the details about its item and part, and item's metadata part, if any. He can then use these data to build a globally unique internal identifier by variously assembling these components.
 
-Apart from the IDs list, you can use the scoped ID lookup control to add a pin-based lookup for any entity in your own UI:
+You can use the scoped ID lookup control to add a pin-based lookup for any entity in your own UI:
 
-(1) ensure to import this module (`CadmusRefsAssertedIdsModule`).
+(1) ensure to import the component (`ScopedPinLookupComponent`).
 
 (2) add a lookup control to your UI, like this:
 
 ```html
 <!-- lookup -->
-<cadmus-scoped-pin-lookup *ngIf="!noLookup" (idPick)="onIdPick($event)"></cadmus-scoped-pin-lookup>
+<cadmus-scoped-pin-lookup *ngIf="!noLookup" (idPick)="onIdPick($event)"/>
 ```
 
 In this sample, my UI has a `noLookup` property which can be used to hide the lookup if not required:
@@ -111,9 +164,138 @@ export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
 
 >Note that while pin name and type will not be displayed to the end user, the key of each definition will. Unless you have a single definition, the lookup component will display a dropdown list with all the available keys, so that the user can select the lookup's scope. So, use short, yet meaningful keys here, like in the above sample (`meta_eid`, `event_eid`).
 
+## Asserted IDs Component
+
+- 🔑 `AssertedIdsComponent`
+- 🚩 `cadmus-refs-asserted-ids`
+
+The corresponding asserted IDs brick is just a collection of one or more [asserted ID](#asserted-id-component)s.
+
+- ▶️ input:
+  - `ids` (`AssertedId[]`)
+  - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
+  - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
+  - `assTagEntries` (`ThesaurusEntry[]?`): 📚 `assertion-tags`.
+  - `refTypeEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-types`.
+  - `refTagEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-tags`.
+- ⚡ output:
+  - `idsChange` (`AssertedId[]`)
+
+## PinTargetLookupComponent
+
+- ▶️ input:
+  - `target` (`PinTarget? | null`)
+  - `pinByTypeMode` (`boolean?`)
+  - `canSwitchMode` (`boolean?`)
+  - `canEditTarget` (`boolean?`)
+  - `defaultPartTypeKey` (`string?|null`)
+  - `lookupDefinitions` (`IndexLookupDefinitions?`)
+  - `extLookupConfigs` (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
+  - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
+- ⚡ output:
+  - `targetChange` (`PinTarget`)
+  - `editorClose`
+
+This component is used to edit an internal or external ID via lookup, and is the core of the [asserted composite ID](#asserted-composite-id) component:
+
+- for **external** IDs, you can enter the ID and its human-friendly label manually, or get them from any number of lookup providers (e.g. VIAF, geonames, etc.).
+
+- for **internal** IDs, your lookup is based on search pins.
+
+- for **both** external and internal IDs, you can optionally specify a scope (usually defining the context of the ID, like VIAF or DBPedia, or your own Cadmus database) and a tag (an arbitrary string for grouping or tagging the ID in some way).
+
+With thousands of parts/fragments providing dozens of pins, you quickly end up with a lot of them. So, to ease their lookup in this control, you can filter them. This component provides _two modes_ to get to a pin-based link target:
+
+- **by item** (default mode): the user selects an item from a lookup list; then a part, from the list of the parts found in the selected item; and finally a pin, from a lookup list of pins filtered by that item's part. This essentially provides a way of selecting a pin from a restricted lookup set, by walking the data hierarchy from item to part/fragment and finally pin.
+- **by type**: the user selects the part's type (this is automatically pre-selected when only a single type is set), and then selects a pin from a lookup list of pins filtered by that part's type. The list of part types may come from several sources:
+  - explicitly set via the component `lookupDefinitions` property;
+  - if this is not set, the lookup definitions will be got via injection when available;
+  - if the injected definitions are empty, the lookup definitions will be built from the `model-types` thesaurus;
+  - if this is not available either, the _by-type_ lookup will be disabled.
+
+>Filtering by item essentially means filtering by an object instance: for instance a specific manuscript object. Filtering by type instead means filtering by pin class, as each part or fragment provides its own set of search pins, whose names are meaningful and unique only in their context.
+
+In both cases, in the end the target ID model is the same; it's just the way the user selects the pin which changes. You can specify the mode for the component with `pinByTypeMode`, and control the possibility of switching between modes with `canSwitchMode`.
+
+Once the user picks an internal pin, the target is automatically filled with data from the pin itself. Two values are calculated:
+
+- `gid`, the global ID for the target is `P<part-id>/<pin-value>` when the pin is from a part; or `I<item-id>/<pin-value>` when it is from an item only.
+- `label`, the human-friendly label for the target, is `<pin-value> | <item-title> (<part-type>[, <part-role>])`, where `<part-type>` is either the human-friendly name of the part type ID (as drawn from the `model-types` thesaurus), or the part type ID itself.
+
+Optionally, users can customize both `gid` and `label` (when `canBuildGid` and `canBuildLabel` are true). As for `gid`, users have access to a full set of metadata about the target, so that they can build their own global ID. Once a pin value is picked, the lookup control shows all the relevant data which can be used as components for the ID to build:
+
+- the item GUID.
+- the item title.
+- the part GUID.
+- the part type ID.
+- the item's metadata part entries.
+
+The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
+
+>👉 The demo found in this workspace uses a [mock data service](../../../src/app/services/mock-item.service.ts) instead of the real one, which provides a minimal set of data and functions, just required for the components to function.
+
+### Configuring the Target ID Editor
+
+You can configure the target ID editor to use any number of lookup providers:
+
+(1) ensure to import the `PinTargetLookupComponent` control in your component.
+
+(2) add a lookup control to your UI, like this:
+
+```html
+<!-- lookup -->
+<cadmus-pin-target-lookup [canSwitchMode]="true"
+                          (targetChange)="onTargetChange($event)"/>
+```
+
+(3) specify the lookup definitions, either from binding, or via injection. In the latter case, in your app's `index-lookup-definitions.ts` file, add the required lookup definitions. Each definition has a conventional key, and is an object with part type ID for the lookup scope, and pin name, e.g.:
+
+```ts
+import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
+import {
+  METADATA_PART_TYPEID,
+  HISTORICAL_EVENTS_PART_TYPEID,
+} from '@myrmidon/cadmus-part-general-ui';
+
+export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
+  // item's metadata
+  meta_eid: {
+    typeId: METADATA_PART_TYPEID,
+    name: 'eid',
+  },
+  // general parts
+  event_eid: {
+    typeId: HISTORICAL_EVENTS_PART_TYPEID,
+    name: 'eid',
+  },
+  // ... etc.
+};
+```
+
+>Note that while pin name and type will not be displayed to the end user, the key of each definition will. Unless you have a single definition, the lookup component will display a dropdown list with all the available keys, so that the user can select the lookup's scope. So, use short, yet meaningful keys here, like in the above sample (`meta_eid`, `event_eid`).
+
 ## Asserted Composite ID
 
-This is the most complete ID reference. Each asserted composite ID has:
+- 🔑 `AssertedCompositeIdComponent`
+- 🚩 `cadmus-refs-asserted-composite-id`
+- ▶️ input:
+  - `ids` (`AssertedId[]`)
+  - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
+  - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
+  - `assTagEntries` (`ThesaurusEntry[]?`): 📚 `assertion-tags`.
+  - `refTypeEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-types`.
+  - `refTagEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-tags`.
+  - `pinByTypeMode` (`boolean?`)
+  - `canSwitchMode` (`boolean?`)
+  - `canEditTarget` (`boolean?`)
+  - `defaultPartTypeKey` (`string?|null`)
+  - `lookupDefinitions` (`IndexLookupDefinitions?`)
+  - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
+- ⚡ output:
+  - `idsChange` (`AssertedId[]`)
+  - `extMoreRequest` (`RefLookupSetEvent`): the user requested more about the current external lookup source.
+
+This is the most complete ID reference, which can be used for both external and internal IDs, providing full lookup in either cases. Each asserted composite ID has:
 
 - a `target`, representing the pin-based target of the ID. The target model has these properties:
   - a global ID, `gid`, built from the pin or manually defined;
@@ -149,11 +331,14 @@ Three components are used for this brick:
 - `AssertedCompositeIdComponent`, the editor for each single ID. This allows you to edit shared metadata (tag and scope), and specific properties for both external and internal ID.
 - `PinTargetLookupComponent`, the editor for an internal ID, i.e. a link target based on pins lookup. This is the core of the editor's logic.
 
-### Components API
+## Asserted Composite IDs
 
-#### AssertedCompositeIdsComponent
+- 🔑 `AssertedCompositeIdsComponent`
+- 🚩 `cadmus-refs-asserted-composite-ids`
 
-- 📥 input:
+The corresponding asserted IDs brick is just a collection of one or more [asserted ID](#asserted-id-component)s.
+
+- ▶️ input:
   - `ids` (`AssertedId[]`)
   - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
   - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
@@ -167,118 +352,4 @@ Three components are used for this brick:
   - `lookupDefinitions` (`IndexLookupDefinitions?`)
   - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
 - ⚡ output:
-  - `idsChange` (`AssertedId[]`)
-  - `extMoreRequest` (`RefLookupSetEvent`): the user requested more about the current external lookup source.
-
-#### AssertedCompositeIdComponent
-
-- 📥 input:
-  - `id` (`AssertedId? | null`)
-  - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
-  - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
-  - `assTagEntries` (`ThesaurusEntry[]?`): 📚 `assertion-tags`.
-  - `refTypeEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-types`.
-  - `refTagEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-tags`.
-  - `external` (`boolean?`)
-  - `hasSubmit` (`boolean?`)
-  - `pinByTypeMode` (`boolean?`)
-  - `canSwitchMode` (`boolean?`)
-  - `canEditTarget` (`boolean?`)
-  - `defaultPartTypeKey` (`string?|null`)
-  - `lookupDefinitions` (`IndexLookupDefinitions?`)
-  - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
-- ⚡ output:
-  - `idChange` (`AssertedId`)
-  - `editorClose`
-  - `extMoreRequest` (`RefLookupSetEvent`): the user requested more about the current external lookup source.
-
-#### PinTargetLookupComponent
-
-This component is used to edit an internal or external ID via lookup:
-
-- for both external and internal IDs, you can optionally specify a scope (usually defining the context of the ID, like VIAF or DBPedia, or your own Cadmus database) and a tag (an arbitrary string for grouping or tagging the ID in some way).
-- for external IDs, you can enter the ID and its human-friendly label manually, or get them from any number of lookup providers (e.g. VIAF, geonames, etc.).
-- for internal IDs, your lookup is based on search pins. Any part or fragment provides any number of such pins, which essentially are name=value pairs, used for a simple search during editing. Each pin name is unique only in the context of the part or fragment defining it, so that pin design is not constrained; yet, a pin can easily be turned into a globally unique identifier by adding to it other data. For instance, given that every part or fragment has its own globally unique ID, you can just prepend it to the pin name to get a globally unique internal ID pointing to a specific feature of a specific part or fragment.
-
-- 📥 input:
-  - `target` (`PinTarget? | null`)
-  - `pinByTypeMode` (`boolean?`)
-  - `canSwitchMode` (`boolean?`)
-  - `canEditTarget` (`boolean?`)
-  - `defaultPartTypeKey` (`string?|null`)
-  - `lookupDefinitions` (`IndexLookupDefinitions?`)
-  - `extLookupConfigs` (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
-  - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
-- ⚡ output:
-  - `targetChange` (`PinTarget`)
-  - `editorClose`
-
-### Target ID Editor
-
-This component provides _two modes_ to get to a pin-based link target:
-
-- **by item** (default mode): the user selects an item from a lookup list; then a part, from the list of the selected item's parts; and finally a pin, from a lookup list of pins filtered by that item's part. This essentially provides a way of selecting a pin from a restricted lookup set.
-- **by type**: the user selects the part's type (or this is automatically pre-selected when only a single type is set), and then selects a pin from a lookup list of pins filtered by that part's type. The list of part types may come from several sources:
-  - explicitly set via the component `lookupDefinitions` property;
-  - if this is not set, the lookup definitions will be got via injection when available;
-  - if the injected definitions are empty, the lookup definitions will be built from the `model-types` thesaurus;
-  - if this is not available either, the _by-type_ lookup will be disabled.
-
-In both cases, in the end the model is the same; it's just the way the user selects the pin which changes. You can specify the mode for the component with `pinByTypeMode`, and control the possibility of switching between modes with `canSwitchMode`.
-
-Once the user picks a pin, the target is automatically filled with data from the pin itself. Two values are calculated:
-
-- `gid`, the global ID for the target is `P<part-id>/<pin-value>` when the pin is from a part; or `I<item-id>/<pin-value>` when it is from an item only.
-- `label`, the human-friendly label for the target, is `<pin-value> | <item-title> (<part-type>[, <part-role>])`, where `<part-type>` is either the human-friendly name of the part type ID (as drawn from the `model-types` thesaurus), or the part type ID itself.
-
-Optionally, users can customize both `gid` and `label` (when `canBuildGid` and `canBuildLabel` are true). As for `gid`, users have access to a full set of metadata about the target, so that they can build their own global ID. Once a pin value is picked, the lookup control shows all the relevant data which can be used as components for the ID to build:
-
-- the item GUID.
-- the item title.
-- the part GUID.
-- the part type ID.
-- the item's metadata part entries.
-
-The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
-
->👉 The demo found in this workspace uses a [mock data service](../../../src/app/services/mock-item.service.ts) instead of the real one, which provides a minimal set of data and functions, just required for the components to function.
-
-### Using PinTargetLookupComponent
-
-Apart from the IDs list, you can use the pin-based link target lookup control to add a lookup for any entity in your own UI:
-
-(1) ensure to import the `PinTargetLookupComponent` control in your component.
-
-(2) add a lookup control to your UI, like this:
-
-```html
-<!-- lookup -->
-<cadmus-pin-target-lookup [canSwitchMode]="true"
-                          (targetChange)="onTargetChange($event)"/>
-```
-
-(3) specify the lookup definitions, either from code, or via injection. In the latter case, in your app's `index-lookup-definitions.ts` file, add the required lookup definitions. Each definition has a conventional key, and is an object with part type ID for the lookup scope, and pin name, e.g.:
-
-```ts
-import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
-import {
-  METADATA_PART_TYPEID,
-  HISTORICAL_EVENTS_PART_TYPEID,
-} from '@myrmidon/cadmus-part-general-ui';
-
-export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
-  // item's metadata
-  meta_eid: {
-    typeId: METADATA_PART_TYPEID,
-    name: 'eid',
-  },
-  // general parts
-  event_eid: {
-    typeId: HISTORICAL_EVENTS_PART_TYPEID,
-    name: 'eid',
-  },
-  // ... etc.
-};
-```
-
->Note that while pin name and type will not be displayed to the end user, the key of each definition will. Unless you have a single definition, the lookup component will display a dropdown list with all the available keys, so that the user can select the lookup's scope. So, use short, yet meaningful keys here, like in the above sample (`meta_eid`, `event_eid`).
+  - `idsChange` (`AssertedCompositeId[]`)

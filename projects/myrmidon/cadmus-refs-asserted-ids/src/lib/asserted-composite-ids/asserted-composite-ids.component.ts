@@ -24,7 +24,7 @@ import {
 } from '../asserted-composite-id/asserted-composite-id.component';
 
 /**
- * Asserted IDs editor.
+ * Asserted composite IDs editor.
  */
 @Component({
   selector: 'cadmus-refs-asserted-composite-ids',
