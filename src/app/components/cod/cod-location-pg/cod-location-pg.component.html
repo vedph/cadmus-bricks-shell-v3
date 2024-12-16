@@ -40,9 +40,9 @@
       [label]="single.value ? 'single' : 'multi'"
       [single]="single.value"
       [required]="required.value"
-      [location]="initialRanges"
+      [location]="ranges"
       (locationChange)="onRangesChange($event)"
-    ></cadmus-cod-location>
+    />
     @if (ranges) {
     <div>
       <pre>{{ ranges | json }}</pre>

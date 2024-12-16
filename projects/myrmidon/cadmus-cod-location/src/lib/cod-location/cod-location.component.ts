@@ -1,5 +1,11 @@
-
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  effect,
+  input,
+  model,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -9,6 +15,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,107 +29,77 @@ import {
 } from '../cod-location-parser';
 
 @Component({
-    selector: 'cadmus-cod-location',
-    templateUrl: './cod-location.component.html',
-    styleUrls: ['./cod-location.component.css'],
-    imports: [
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-    ]
+  selector: 'cadmus-cod-location',
+  templateUrl: './cod-location.component.html',
+  styleUrls: ['./cod-location.component.css'],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+  ],
 })
-export class CodLocationComponent implements OnInit {
-  private _initPending: boolean | undefined;
+export class CodLocationComponent implements OnInit, OnDestroy {
+  private _sub?: Subscription;
   private _changeFrozen: boolean | undefined;
-  private _location: CodLocationRange[] | null;
   private _updatingVals: boolean | undefined;
-  private _required: boolean | undefined;
-  private _single: boolean | undefined;
 
   /**
    * The label to display in the control (default="location").
    */
-  @Input()
-  public label: string | undefined;
+  public readonly label = input<string>('location');
 
   /**
    * True if this location is required.
    */
-  @Input()
-  public get required(): boolean | undefined {
-    return this._required;
-  }
-  public set required(value: boolean | undefined) {
-    this._required = value;
-    this.updateValidators();
-  }
+  public readonly required = input<boolean>();
+
   /**
    * True if this location refers to a single sheet.
    * If false, it refers to one or more ranges.
    */
-  @Input()
-  public get single(): boolean | undefined {
-    return this._single;
-  }
-  public set single(value: boolean | undefined) {
-    this._single = value;
-    this.updateValidators();
-  }
+  public readonly single = input<boolean>();
 
   /**
    * The location.
    */
-  @Input()
-  public get location(): CodLocationRange[] | null {
-    return this._location;
-  }
-  public set location(value: CodLocationRange[] | null) {
-    if (this._location !== value) {
-      this._location = value;
-      if (!this.text) {
-        this._initPending = true;
-      } else {
-        this._changeFrozen = true;
-        this.text.setValue(CodLocationParser.rangesToString(value));
-        this._changeFrozen = false;
-      }
-    }
-  }
-
-  /**
-   * Emitted when location changes.
-   */
-  @Output()
-  public locationChange: EventEmitter<CodLocationRange[] | null>;
+  public readonly location = model<CodLocationRange[] | null>(null);
 
   public text: FormControl<string | null>;
   public form: FormGroup;
 
   constructor(formBuilder: FormBuilder) {
-    this.locationChange = new EventEmitter<CodLocationRange[] | null>();
-    this._location = null;
-    this.label = 'location';
-    // form
     this.text = formBuilder.control(null);
     this.form = formBuilder.group({
       text: this.text,
     });
+
+    // when required/single changes, update validators
+    effect(() => {
+      this.updateValidators(this.required(), this.single());
+    });
+
+    // when location changes, update text
+    effect(() => {
+      const location = this.location();
+      console.log('location', location);
+      this.updateForm(location);
+    });
   }
 
-  private updateValidators(): void {
+  private updateValidators(required?: boolean, single?: boolean): void {
     if (this._updatingVals) {
       return;
     }
     this._updatingVals = true;
     this.text.clearValidators();
     // required
-    if (this.required) {
+    if (required) {
       this.text.addValidators(Validators.required);
     }
     // single
-    if (this.single) {
+    if (single) {
       this.text.addValidators(Validators.pattern(COD_LOCATION_PATTERN));
     } else {
       this.text.addValidators(Validators.pattern(COD_LOCATION_RANGES_PATTERN));
@@ -131,34 +108,45 @@ export class CodLocationComponent implements OnInit {
     this.text.updateValueAndValidity();
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.updateValidators();
-    if (this._initPending) {
-      this.text.setValue(CodLocationParser.rangesToString(this._location));
-    }
-    this.text.valueChanges
+    this.text.setValue(CodLocationParser.rangesToString(this.location()));
+
+    // when text changes, update location
+    this._sub = this.text.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((_) => {
         if (!this._changeFrozen) {
-          this.emitLocationChange();
+          this.saveLocation();
         }
       });
-    // initial value
-    this.emitLocationChange();
+    // this.saveLocation();
   }
 
-  private emitLocationChange(): void {
-    if (this._single) {
+  public ngOnDestroy(): void {
+    this._sub?.unsubscribe();
+  }
+
+  private updateForm(location: CodLocationRange[] | null): void {
+    this._changeFrozen = true;
+    if (location) {
+      this.text.setValue(CodLocationParser.rangesToString(location));
+    } else {
+      this.text.reset();
+    }
+    this._changeFrozen = false;
+  }
+
+  private saveLocation(): void {
+    if (this.single()) {
       const loc = this.text.valid
         ? CodLocationParser.parseLocation(this.text.value)
         : null;
       if (loc) {
-        this._location = [{ start: loc, end: loc }];
-        this.locationChange.emit(this._location);
+        this.location.set([{ start: loc, end: loc }]);
       } else {
-        if (!this._required && !this.text.value?.length) {
-          this._location = null;
-          this.locationChange.emit(null);
+        if (!this.required() && !this.text.value?.length) {
+          this.location.set(null);
         }
       }
     } else {
@@ -166,12 +154,10 @@ export class CodLocationComponent implements OnInit {
         ? CodLocationParser.parseLocationRanges(this.text.value)
         : null;
       if (ranges?.length) {
-        this._location = ranges;
-        this.locationChange.emit(ranges);
+        this.location.set(ranges);
       } else {
-        if (!this._required && !this.text.value?.length) {
-          this._location = null;
-          this.locationChange.emit(null);
+        if (!this.required() && !this.text.value?.length) {
+          this.location.set(null);
         }
       }
     }

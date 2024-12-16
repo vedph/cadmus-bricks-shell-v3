@@ -38,11 +38,11 @@ export class CodLocationPgComponent implements OnInit {
   public required: FormControl<boolean>;
   public form: FormGroup;
 
-  public initialRanges: CodLocationRange[];
+  // public initialRanges: CodLocationRange[];
 
   constructor(formBuilder: FormBuilder) {
-    this.ranges = null;
-    this.initialRanges = [
+    // this.ranges = null;
+    this.ranges = [
       {
         start: {
           s: 'x',
