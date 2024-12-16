@@ -87,8 +87,8 @@ export class ImgAnnotationList<T> {
   }
 
   /**
-   * Gets the W3C annotations in the Annotorious annotator.
-   * @returns The annotations in the Annotorious annotator.
+   * Gets the W3C annotations in the wrapped Annotorious annotator.
+   * @returns The annotations in the wrapped Annotorious annotator.
    */
   public getW3CAnnotations(): Annotation[] {
     return this.annotator.getAnnotations();

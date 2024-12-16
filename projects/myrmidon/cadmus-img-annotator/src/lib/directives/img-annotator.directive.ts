@@ -79,6 +79,7 @@ export interface AnnotationBodyEntry {
 
 /**
  * An annotation.
+ * See https://annotorious.github.io/getting-started/web-annotation.
  */
 export interface Annotation {
   id?: string;
@@ -245,10 +246,11 @@ export class ImgAnnotatorDirective {
       this._ann?.setDrawingTool(this.tool());
     });
 
-    // when annotations change, update the annotator
+    // when annotations are changed, update the annotator
     effect(() => {
       console.log('annotations', this.annotations());
       const annotations = this.annotations();
+      // clear or set annotations
       if (!annotations?.length) {
         this._ann?.clearAnnotations();
       } else {
@@ -259,6 +261,7 @@ export class ImgAnnotatorDirective {
     // when selected annotation changes, select it in the annotator
     effect(() => {
       console.log('selectedAnnotation', this.selectedAnnotation());
+      // select by instance
       this._ann?.selectAnnotation(this.selectedAnnotation());
     });
   }
@@ -296,6 +299,7 @@ export class ImgAnnotatorDirective {
     });
 
     // createAnnotation
+    // https://annotorious.github.io/api-docs/annotorious/#createannotation
     this._ann.on(
       'createAnnotation',
       (annotation: any, overrideId: (id: any) => void) => {
@@ -306,23 +310,30 @@ export class ImgAnnotatorDirective {
         });
       }
     );
+
     // updateAnnotation
+    // https://annotorious.github.io/api-docs/annotorious/#updateannotation
     this._ann.on('updateAnnotation', (annotation: any, previous: any) => {
       console.log('updateAnnotation', annotation);
       this.updateAnnotation.emit({ annotation, prevAnnotation: previous });
     });
+
     // deleteAnnotation
+    // https://annotorious.github.io/api-docs/annotorious/#deleteannotation
     this._ann.on('deleteAnnotation', (annotation: any) => {
       console.log('deleteAnnotation', annotation);
       this.deleteAnnotation.emit({ annotation });
     });
+
     // mouse
+    // https://annotorious.github.io/api-docs/annotorious/#mouseenterannotation
     this._ann.on(
       'mouseEnterAnnotation',
       (annotation: any, element: HTMLElement) => {
         this.mouseEnterAnnotation.emit({ annotation });
       }
     );
+    // https://annotorious.github.io/api-docs/annotorious/#mouseleaveannotation
     this._ann.on(
       'mouseLeaveAnnotation',
       (annotation: any, element: HTMLElement) => {
