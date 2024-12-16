@@ -70,3 +70,15 @@ export interface GalleryService {
     options: GalleryOptions
   ): Observable<GalleryImage | null>;
 }
+
+/**
+ * Essential metadata mostly extracted from the W3C annotation produced
+ * by Annotorious.
+ */
+export interface GalleryImageAnnotation {
+  id: string;
+  target: GalleryImage;
+  selector: string;
+  notes?: string[];
+  tags?: string[];
+}

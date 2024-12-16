@@ -27,8 +27,6 @@ The architecture of the image annotation subsystem is represented by these libra
 - `cadmus-img-gallery`: gallery-specific components.
 - `cadmus-img-gallery-iiif`: IIIF-related services for galleries.
 
->Note that since version 3, the `GalleryImgAnnotator` component found in `cadmus-img-gallery` is obsolete, and is replaced by custom implementations based on annotations list editors. In future versions, this component will be removed.
-
 At the core there is the **annotator component**, an Angular directive (=template-less component) wrapping the [Annotorious library](https://annotorious.github.io/api-docs/annotorious) used in _headless mode_.
 
 >Headless mode disallows the usage of Annotorious standard UI for editing W3C-based annotations, leaving to the consumer code the task of providing its own UI.
