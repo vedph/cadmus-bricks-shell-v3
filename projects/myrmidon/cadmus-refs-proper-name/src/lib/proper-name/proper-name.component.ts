@@ -121,11 +121,6 @@ export class ProperNameComponent implements OnInit, OnDestroy {
    */
   public readonly noAssertion = input<boolean>();
 
-  /**
-   * Emitted whenever the name changes.
-   */
-  public readonly nameChange = output<AssertedProperName>();
-
   // main form
   public language: FormControl<string | null>;
   public tag: FormControl<string | null>;
@@ -198,14 +193,14 @@ export class ProperNameComponent implements OnInit, OnDestroy {
       this.language.valueChanges
         .pipe(debounceTime(300), distinctUntilChanged())
         .subscribe((_) => {
-          this.emitNameChange();
+          this.name.set(this.getName());
         })
     );
     this._subs.push(
       this.tag.valueChanges
         .pipe(debounceTime(300), distinctUntilChanged())
         .subscribe((_) => {
-          this.emitNameChange();
+          this.name.set(this.getName());
         })
     );
   }
@@ -257,7 +252,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     this.pieces.markAsDirty();
     this.pieces.updateValueAndValidity();
 
-    this.emitNameChange();
+    this.name.set(this.getName());
   }
 
   public savePiece(piece?: ProperNamePiece): void {
@@ -313,7 +308,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
       this.closePiece();
     }
 
-    this.emitNameChange();
+    this.name.set(this.getName());
   }
 
   public movePieceUp(index: number): void {
@@ -326,7 +321,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     this.pieces.setValue(pieces);
     this.pieces.markAsDirty();
     this.pieces.updateValueAndValidity();
-    this.emitNameChange();
+    this.name.set(this.getName());
   }
 
   public movePieceDown(index: number): void {
@@ -339,12 +334,12 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     this.pieces.setValue(pieces);
     this.pieces.markAsDirty();
     this.pieces.updateValueAndValidity();
-    this.emitNameChange();
+    this.name.set(this.getName());
   }
 
   public clearPieces(): void {
     this.pieces.setValue([]);
-    this.emitNameChange();
+    this.name.set(this.getName());
   }
   //#endregion
 
@@ -388,7 +383,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   }
 
   public saveAssertion(): void {
-    this.emitNameChange();
+    this.name.set(this.getName());
     this.assEdOpen = false;
   }
 
@@ -403,10 +398,5 @@ export class ProperNameComponent implements OnInit, OnDestroy {
       pieces: this.pieces.value,
       assertion: this.assertion.value || undefined,
     };
-  }
-
-  public emitNameChange(): void {
-    this.name.set(this.getName());
-    this.nameChange.emit(this.name()!);
   }
 }

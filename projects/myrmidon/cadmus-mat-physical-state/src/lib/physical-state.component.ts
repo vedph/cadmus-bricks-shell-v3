@@ -99,11 +99,6 @@ export class PhysicalStateComponent {
    */
   public readonly stateCancel = output();
 
-  /**
-   * Emitted when the state is changed.
-   */
-  public readonly stateChange = output<PhysicalState>();
-
   constructor(formBuilder: FormBuilder) {
     this.type = formBuilder.control('', {
       validators: [Validators.required, Validators.maxLength(100)],
@@ -167,6 +162,5 @@ export class PhysicalStateComponent {
 
   public save(): void {
     this.state.set(this.getState());
-    this.stateChange.emit(this.state()!);
   }
 }

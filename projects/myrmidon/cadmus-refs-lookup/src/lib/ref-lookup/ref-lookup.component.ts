@@ -145,11 +145,6 @@ export class RefLookupComponent {
   public readonly options = model<unknown>();
 
   /**
-   * Fired whenever an item is picked up.
-   */
-  public readonly itemChange = output<unknown | null>();
-
-  /**
    * The request for a more complex lookup, getting the
    * current item if any.
    */
@@ -231,13 +226,11 @@ export class RefLookupComponent {
     this.item.set(undefined);
     this.lookup.reset();
     this.lookupActive = false;
-    this.itemChange.emit(null);
   }
 
   public pickItem(item: any): void {
     this.item.set(item);
     this.lookupActive = false;
-    this.itemChange.emit(item);
   }
 
   public requestMore(): void {

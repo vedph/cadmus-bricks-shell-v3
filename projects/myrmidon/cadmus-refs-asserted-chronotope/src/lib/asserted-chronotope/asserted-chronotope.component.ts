@@ -5,7 +5,6 @@ import {
   model,
   OnDestroy,
   OnInit,
-  output,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -85,8 +84,6 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
   // doc-reference-tags
   public refTagEntries = input<ThesaurusEntry[]>();
 
-  public readonly chronotopeChange = output<AssertedChronotope>();
-
   public plTag: FormControl<string | null>;
   public plAssertion: FormControl<Assertion | null>;
   public place: FormControl<string | null>;
@@ -125,7 +122,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(350))
       .subscribe((_) => {
         if (!this._updatingForm) {
-          this.emitChronotopeChange();
+          this.chronotope.set(this.getChronotope());
         }
       });
   }
@@ -187,10 +184,5 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
             }
           : undefined,
     };
-  }
-
-  public emitChronotopeChange(): void {
-    this.chronotope.set(this.getChronotope());
-    this.chronotopeChange.emit(this.chronotope()!);
   }
 }

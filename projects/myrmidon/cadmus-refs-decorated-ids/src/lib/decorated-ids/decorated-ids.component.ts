@@ -1,4 +1,4 @@
-import { Component, effect, input, model, OnInit, output } from '@angular/core';
+import { Component, effect, input, model } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -52,7 +52,7 @@ export interface DecoratedId {
     DocReferencesComponent,
   ],
 })
-export class DecoratedIdsComponent implements OnInit {
+export class DecoratedIdsComponent {
   public editedIndex: number;
   public editedId: DecoratedId | undefined;
   public editorOpen: boolean;
@@ -77,11 +77,6 @@ export class DecoratedIdsComponent implements OnInit {
 
   // doc-reference-types
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
-
-  /**
-   * Emitted when the IDs change.
-   */
-  public readonly idsChange = output<DecoratedId[]>();
 
   constructor(formBuilder: FormBuilder) {
     this.editedIndex = -1;
@@ -109,10 +104,6 @@ export class DecoratedIdsComponent implements OnInit {
       const ids = this.ids();
       this.closeIdEditor();
     });
-  }
-
-  public ngOnInit(): void {
-    this.emitChange();
   }
 
   private closeIdEditor(): void {
@@ -164,13 +155,11 @@ export class DecoratedIdsComponent implements OnInit {
     }
     this.closeEditedId();
     this.ids.set(this.ids().splice(index, 1));
-    this.emitChange();
   }
 
   public onSourcesChange(sources: DocReference[]): void {
     this.sources.setValue(sources);
     this.subForm.markAsDirty();
-    this.emitChange();
   }
 
   public closeEditedId(): void {
@@ -192,12 +181,7 @@ export class DecoratedIdsComponent implements OnInit {
     } else {
       ids.splice(this.editedIndex, 1, id);
     }
-    this.ids.set(ids);
     this.closeEditedId();
-    this.emitChange();
-  }
-
-  private emitChange(): void {
-    this.idsChange.emit(this.ids()!);
+    this.ids.set(ids);
   }
 }

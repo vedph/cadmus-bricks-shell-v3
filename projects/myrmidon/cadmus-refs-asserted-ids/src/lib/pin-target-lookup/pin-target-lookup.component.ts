@@ -178,12 +178,6 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   public readonly editorClose = output();
 
   /**
-   * Emitted whenever the target changes.
-   * The event's value is the new target.
-   */
-  public readonly targetChange = output<PinTarget>();
-
-  /**
    * Emitted when the user requests more items from an external lookup.
    */
   public readonly extMoreRequest = output<RefLookupSetEvent>();
@@ -473,7 +467,6 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   private emitChange(): void {
     this._noFormUpdate = true;
     this.target.set(this.getTarget());
-    this.targetChange.emit(this.target()!);
   }
 
   private updateTarget(noEmit = false): void {

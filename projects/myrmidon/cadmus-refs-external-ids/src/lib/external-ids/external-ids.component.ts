@@ -95,11 +95,6 @@ export class ExternalIdsComponent implements OnDestroy {
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
-  /**
-   * Emitted whenever any ID changes.
-   */
-  public readonly idsChange = output<RankedExternalId[]>();
-
   public idsArr: FormArray;
   public form: FormGroup;
   // edited assertion
@@ -294,6 +289,5 @@ export class ExternalIdsComponent implements OnDestroy {
 
   private emitIdsChange(): void {
     this.ids.set(this.getIds());
-    this.idsChange.emit(this.ids()!);
   }
 }

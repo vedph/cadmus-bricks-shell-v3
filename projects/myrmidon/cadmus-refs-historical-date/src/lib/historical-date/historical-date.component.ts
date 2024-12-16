@@ -68,11 +68,6 @@ export class HistoricalDateComponent implements OnInit {
    */
   public readonly disabled = input<boolean>();
 
-  /**
-   * Emitted when the date changes.
-   */
-  public readonly dateChange = output<HistoricalDateModel>();
-
   // set by date text:
   public invalidDateText?: boolean;
   public dateValue?: number;
@@ -124,7 +119,6 @@ export class HistoricalDateComponent implements OnInit {
           this.a = hd.a;
           this.b = hd.b;
           this.date.set(hd);
-          this.dateChange.emit(this.date()!);
         } else {
           this.invalidDateText = true;
           this.dateValue = 0;
@@ -190,7 +184,6 @@ export class HistoricalDateComponent implements OnInit {
         this.a = hd.a;
         this.b = hd.b;
         this.date.set(hd);
-        this.dateChange.emit(this.date()!);
       } else {
         this.invalidDateText = true;
         this.dateValue = 0;

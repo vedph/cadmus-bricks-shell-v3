@@ -101,11 +101,6 @@ export class AssertedIdComponent implements OnInit, OnDestroy {
   public readonly hasSubmit = input<boolean>();
 
   /**
-   * Emitted when the ID changes.
-   */
-  public readonly idChange = output<AssertedId>();
-
-  /**
    * Emitted when the editor is closed.
    */
   public readonly editorClose = output();
@@ -192,7 +187,6 @@ export class AssertedIdComponent implements OnInit, OnDestroy {
   public emitIdChange(): void {
     if (!this.hasSubmit()) {
       this.id.set(this.getId());
-      this.idChange.emit(this.id()!);
     }
   }
 
@@ -203,7 +197,6 @@ export class AssertedIdComponent implements OnInit, OnDestroy {
   public save(): void {
     if (this.form.valid) {
       this.id.set(this.getId());
-      this.idChange.emit(this.id()!);
     }
   }
 }

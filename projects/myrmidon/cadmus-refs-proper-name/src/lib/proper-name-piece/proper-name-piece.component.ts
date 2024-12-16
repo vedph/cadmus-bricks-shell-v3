@@ -72,11 +72,6 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
   public readonly types = input<TypeThesaurusEntry[]>();
 
   /**
-   * Emitted when the edited piece changes.
-   */
-  public readonly pieceChange = output<ProperNamePiece>();
-
-  /**
    * Emitted when the editor is closed.
    */
   public readonly editorClose = output();
@@ -208,6 +203,5 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
         (this.value.value as string),
     });
     this.piece.set(this._piece$.value!);
-    this.pieceChange.emit(this._piece$.value!);
   }
 }

@@ -83,12 +83,6 @@ export class NoteSetComponent implements OnInit {
    */
   public readonly noteChange = output<KeyValue<string, string | null>>();
 
-  /**
-   * Event emitted whenever the set is changed.
-   * This comes after each noteChange event.
-   */
-  public readonly setChange = output<NoteSet>();
-
   public form: FormGroup;
   public key: FormControl<string | null>;
   public text: FormControl<string | null>;
@@ -266,7 +260,6 @@ export class NoteSetComponent implements OnInit {
 
     // update set
     this.set.set(set);
-    this.setChange.emit(this.set());
 
     // update UI
     this.text.markAsPristine();

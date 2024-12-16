@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, JsonPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import {
   FormBuilder,
@@ -25,6 +25,7 @@ import {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    JsonPipe,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
@@ -63,8 +64,8 @@ export class PhysicalGridPgComponent {
     this.collapsedGrid = formBuilder.control(false, { nonNullable: true });
   }
 
-  public onLocationChange(location?: PhysicalGridLocation): void {
-    this.location = location!;
+  public onLocationChange(location: PhysicalGridLocation): void {
+    this.location = location;
   }
 
   public onCollapsedGridChange(collapsed: boolean): void {

@@ -83,11 +83,6 @@ export class LinkEditorComponent implements OnInit {
   public readonly id = model<AssertedCompositeId>();
 
   /**
-   * Emitted when the ID changes.
-   */
-  public readonly idChange = output<AssertedCompositeId>();
-
-  /**
    * Emitted when the editor is closed.
    */
   public readonly closeRequest = output();
@@ -137,7 +132,6 @@ export class LinkEditorComponent implements OnInit {
 
   public onIdChange(id?: AssertedCompositeId): void {
     this.id.set(id!);
-    this.idChange.emit(this.id()!);
   }
 
   public save(): void {

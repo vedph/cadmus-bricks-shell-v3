@@ -73,11 +73,6 @@ export class ChronotopeComponent implements OnInit, OnDestroy {
   // chronotope-tags
   public readonly ctTagEntries = input<ThesaurusEntry[]>();
 
-  /**
-   * Emitted when the chronotope changes.
-   */
-  // public readonly chronotopeChange = output<Chronotope>();
-
   public tag: FormControl<string | null>;
   public place: FormControl<string | null>;
   public hasDate: FormControl<boolean>;
@@ -152,6 +147,5 @@ export class ChronotopeComponent implements OnInit, OnDestroy {
   public emitChronotopeChange(): void {
     this._dropNextInput = true;
     this.chronotope.set(this.getChronotope());
-    // this.chronotopeChange.emit(this.chronotope()!);
   }
 }

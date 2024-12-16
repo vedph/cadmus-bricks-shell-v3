@@ -1,14 +1,10 @@
 import {
   Component,
   effect,
-  EventEmitter,
   input,
-  Input,
   model,
   OnDestroy,
   OnInit,
-  output,
-  Output,
 } from '@angular/core';
 import {
   FormControl,
@@ -55,11 +51,6 @@ export class DatationComponent implements OnInit, OnDestroy {
    * The optional label to display for this datation.
    */
   public readonly label = input<string>();
-
-  /**
-   * Emitted when the datation changes.
-   */
-  public readonly datationChange = output<DatationModel>();
 
   public value: FormControl<number>;
   public century: FormControl<boolean>;
@@ -151,6 +142,5 @@ export class DatationComponent implements OnInit, OnDestroy {
 
   private emitChange(): void {
     this.datation.set(this.getDatation());
-    this.datationChange.emit(this.datation()!);
   }
 }

@@ -64,8 +64,6 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
   // decorated-count-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
 
-  public readonly countsChange = output<DecoratedCount[]>();
-
   public entries: FormArray;
   public form: FormGroup;
 
@@ -206,6 +204,5 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
       return;
     }
     this.counts.set(this.getCounts());
-    this.countsChange.emit(this.counts()!);
   }
 }

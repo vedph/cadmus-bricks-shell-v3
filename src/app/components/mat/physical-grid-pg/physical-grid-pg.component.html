@@ -26,7 +26,14 @@
       [allowResize]="true"
       [mode]="mode.value"
       [location]="location"
-      (locationChange)="onLocationChange($event)"
+      (locationChange)="onLocationChange($event!)"
       (collapsedGridChange)="onCollapsedGridChange($event)"
-    /> </mat-card-content
-></mat-card>
+    />
+    <hr />
+    <div>
+      <code>
+        <pre>{{ location | json }}</pre>
+      </code>
+    </div>
+  </mat-card-content></mat-card
+>

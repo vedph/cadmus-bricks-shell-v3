@@ -80,13 +80,9 @@
       [refTypeEntries]="refTypeEntries()"
       [chronotope]="initialChronotope"
       (chronotopeChange)="onChronotopeChange($event)"
-    ></cadmus-refs-asserted-chronotope>
+    />
     <div class="form-row">
-      <button
-        type="button"
-        (click)="editChronotope(null)"
-        mat-icon-button
-      >
+      <button type="button" (click)="editChronotope(null)" mat-icon-button>
         <mat-icon class="mat-warn">cancel</mat-icon>
       </button>
       <button

@@ -5,7 +5,6 @@ import {
   model,
   OnDestroy,
   OnInit,
-  output,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -81,11 +80,6 @@ export class AssertionComponent implements OnInit, OnDestroy {
    */
   public readonly assertion = model<Assertion>();
 
-  /**
-   * Emitted when the assertion changes.
-   */
-  public readonly assertionChange = output<Assertion>();
-
   public visualExpanded?: boolean;
 
   constructor(formBuilder: FormBuilder) {
@@ -111,7 +105,7 @@ export class AssertionComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(300))
       .subscribe((_) => {
         if (!this._updatingForm) {
-          this.emitAssertionChange();
+          this.saveAssertion();
         }
       });
   }
@@ -122,7 +116,7 @@ export class AssertionComponent implements OnInit, OnDestroy {
 
   public onReferencesChange(references: DocReference[]): void {
     this.references.setValue(references, { emitEvent: false });
-    this.emitAssertionChange();
+    this.saveAssertion();
   }
 
   private updateForm(value: Assertion | undefined): void {
@@ -159,8 +153,7 @@ export class AssertionComponent implements OnInit, OnDestroy {
     return assertion;
   }
 
-  public emitAssertionChange(): void {
+  public saveAssertion(): void {
     this.assertion.set(this.getAssertion());
-    this.assertionChange.emit(this.assertion()!);
   }
 }

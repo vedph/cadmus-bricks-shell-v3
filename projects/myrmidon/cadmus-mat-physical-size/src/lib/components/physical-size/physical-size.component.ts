@@ -106,11 +106,6 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
    */
   public readonly noTag = input<boolean>();
 
-  /**
-   * Emitted when the size changes.
-   */
-  public readonly sizeChange = output<PhysicalSize>();
-
   public form: FormGroup;
   public tag: FormControl<string | null>;
   public wValue: FormControl<number>;
@@ -219,14 +214,11 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
           this.note.valid
         ) {
           this.updateLabel();
-          this.sizeChange.emit(this.size()!);
           this.text.setValue(
             PhysicalSizeParser.toString(this.size()!, this.hBeforeW())
           );
         }
       });
-
-    // this.updateForm(this.size());
   }
 
   public ngOnDestroy(): void {
@@ -245,7 +237,6 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     if (size) {
       this.updateForm(size);
       this.size.set(size);
-      this.sizeChange.emit(this.size()!);
     }
   }
 

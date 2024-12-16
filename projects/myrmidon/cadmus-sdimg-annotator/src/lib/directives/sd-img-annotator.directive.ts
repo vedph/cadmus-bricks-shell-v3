@@ -56,13 +56,13 @@ export class SdImgAnnotatorDirective implements AfterViewInit {
   /**
    * The optional initial annotations to show on the image.
    */
-  public readonly annotations = model<any[]>([]);
+  public readonly annotations = input<any[]>([]);
 
   /**
    * The selected annotation or its ID. When set, the annotator
    * will highlight the annotation and open its editor.
    */
-  public selectedAnnotation = model<any>();
+  public selectedAnnotation = input<any>();
 
   /**
    * The IDs of all the additional selection tools to be used

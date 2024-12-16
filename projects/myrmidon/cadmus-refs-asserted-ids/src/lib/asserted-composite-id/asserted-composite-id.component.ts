@@ -157,11 +157,6 @@ export class AssertedCompositeIdComponent implements OnInit {
   public readonly defaultPartTypeKey = input<string>();
 
   /**
-   * Emitted whenever the ID changes.
-   */
-  public readonly idChange = output<AssertedCompositeId>();
-
-  /**
    * Emitted whenever the user requests to close the editor.
    */
   public readonly editorClose = output();
@@ -255,7 +250,6 @@ export class AssertedCompositeIdComponent implements OnInit {
   public emitIdChange(): void {
     if (!this.hasSubmit()) {
       this.id.set(this.getId());
-      this.idChange.emit(this.id()!);
     }
   }
 
@@ -285,7 +279,6 @@ export class AssertedCompositeIdComponent implements OnInit {
   public save(): void {
     if (this.form.valid) {
       this.id.set(this.getId());
-      this.idChange.emit(this.id()!);
     }
   }
 }

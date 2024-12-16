@@ -11,7 +11,12 @@
       (actionRequest)="onActionRequest($event)"
     ></cadmus-custom-action-bar>
     @if (request) {
-    <div>{{ request | json }}</div>
+    <hr />
+    <div>
+      <code>
+        <pre>{{ request | json }}</pre>
+      </code>
+    </div>
     }
   </mat-card-content>
 </mat-card>

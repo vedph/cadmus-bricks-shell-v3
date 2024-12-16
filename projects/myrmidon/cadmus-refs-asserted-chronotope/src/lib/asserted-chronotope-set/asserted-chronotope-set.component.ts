@@ -61,11 +61,6 @@ export class AssertedChronotopeSetComponent implements OnInit {
   // chronotope-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
-  /**
-   * Emitted when the chronotopes change.
-   */
-  public readonly chronotopesChange = output<AssertedChronotope[]>();
-
   public entries: FormControl<AssertedChronotope[]>;
   public form: FormGroup;
 
@@ -82,7 +77,9 @@ export class AssertedChronotopeSetComponent implements OnInit {
 
     // when chronotopes change, update form
     effect(() => {
-      this.updateForm(this.chronotopes());
+      const chronotopes = this.chronotopes();
+      console.log('chronotopes', chronotopes);
+      this.updateForm(chronotopes);
     });
   }
 
@@ -90,15 +87,14 @@ export class AssertedChronotopeSetComponent implements OnInit {
     if (this.chronotopes()?.length) {
       this.updateForm(this.chronotopes());
     }
-    this.emitChronotopesChange();
   }
 
-  private updateForm(model: AssertedChronotope[] | undefined): void {
-    if (!model) {
+  private updateForm(chronotopes: AssertedChronotope[] | undefined): void {
+    if (!chronotopes) {
       this.form!.reset();
       return;
     }
-    this.entries.setValue(model || []);
+    this.entries.setValue(chronotopes || []);
     this.form.markAsPristine();
   }
 
@@ -140,7 +136,7 @@ export class AssertedChronotopeSetComponent implements OnInit {
     this.entries.updateValueAndValidity();
     this.entries.markAsDirty();
     this.editChronotope(null);
-    this.emitChronotopesChange();
+    this.saveChronotopes();
   }
 
   public deleteChronotope(index: number): void {
@@ -154,7 +150,7 @@ export class AssertedChronotopeSetComponent implements OnInit {
           this.entries.setValue(entries);
           this.entries.updateValueAndValidity();
           this.entries.markAsDirty();
-          this.emitChronotopesChange();
+          this.saveChronotopes();
         }
       });
   }
@@ -170,7 +166,7 @@ export class AssertedChronotopeSetComponent implements OnInit {
     this.entries.setValue(entries);
     this.entries.updateValueAndValidity();
     this.entries.markAsDirty();
-    this.emitChronotopesChange();
+    this.saveChronotopes();
   }
 
   public moveChronotopeDown(index: number): void {
@@ -184,11 +180,10 @@ export class AssertedChronotopeSetComponent implements OnInit {
     this.entries.setValue(entries);
     this.entries.updateValueAndValidity();
     this.entries.markAsDirty();
-    this.emitChronotopesChange();
+    this.saveChronotopes();
   }
 
-  private emitChronotopesChange(): void {
+  private saveChronotopes(): void {
     this.chronotopes.set(this.entries.value?.length ? this.entries.value : []);
-    this.chronotopesChange.emit(this.chronotopes()!);
   }
 }

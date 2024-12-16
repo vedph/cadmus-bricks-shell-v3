@@ -64,11 +64,6 @@ export class AssertedIdsComponent {
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
-  /**
-   * Emitted whenever any ID changes.
-   */
-  public readonly idsChange = output<AssertedId[]>();
-
   public entries: FormControl<AssertedId[]>;
   public form: FormGroup;
 
@@ -94,10 +89,6 @@ export class AssertedIdsComponent {
     this.entries.setValue(ids, { emitEvent: false });
     this.entries.updateValueAndValidity();
     this.form.markAsPristine();
-  }
-
-  private emitIdsChange(): void {
-    this.idsChange.emit(this.entries.value);
   }
 
   public addId(): void {
@@ -147,7 +138,7 @@ export class AssertedIdsComponent {
           this.entries.setValue(entries);
           this.entries.markAsDirty();
           this.entries.updateValueAndValidity();
-          this.emitIdsChange();
+          this.ids.set(this.entries.value);
         }
       });
   }
@@ -163,7 +154,7 @@ export class AssertedIdsComponent {
     this.entries.setValue(entries);
     this.entries.markAsDirty();
     this.entries.updateValueAndValidity();
-    this.emitIdsChange();
+    this.ids.set(this.entries.value);
   }
 
   public moveIdDown(index: number): void {
@@ -177,11 +168,11 @@ export class AssertedIdsComponent {
     this.entries.setValue(entries);
     this.entries.markAsDirty();
     this.entries.updateValueAndValidity();
-    this.emitIdsChange();
+    this.ids.set(this.entries.value);
   }
 
   public onIdChange(id?: AssertedId): void {
     this.saveId(id!);
-    this.emitIdsChange();
+    this.ids.set(this.entries.value);
   }
 }
