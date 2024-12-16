@@ -82,11 +82,6 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
    */
   public readonly noTag = input<boolean>();
 
-  /**
-   * Emitted when the dimension changes.
-   */
-  public readonly dimensionChange = output<PhysicalDimension>();
-
   public value: FormControl<number>;
   public unit: FormControl<string | null>;
   public tag: FormControl<string | null>;
@@ -126,7 +121,6 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
       .subscribe((_) => {
         if (!this._changeFrozen) {
           this.dimension.set(this.getModel());
-          this.dimensionChange.emit(this.dimension()!);
         }
       });
   }

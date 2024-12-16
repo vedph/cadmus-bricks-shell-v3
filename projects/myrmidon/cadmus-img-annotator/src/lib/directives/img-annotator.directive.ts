@@ -125,7 +125,7 @@ export class ImgAnnotatorDirective {
   /**
    * Disables the editor thus toggling the headless mode.
    */
-  public readonly disableEditor = model<boolean>(true);
+  public readonly disableEditor = input<boolean>(true);
 
   /**
    * The current drawing tool. The default available tools are rect and polygon,
@@ -142,7 +142,7 @@ export class ImgAnnotatorDirective {
    * The selected annotation or its ID. When set, the annotator
    * will highlight the annotation and open its editor.
    */
-  public selectedAnnotation = model<any>();
+  public selectedAnnotation = input<any>();
 
   /**
    * The IDs of all the additional selection tools to be used

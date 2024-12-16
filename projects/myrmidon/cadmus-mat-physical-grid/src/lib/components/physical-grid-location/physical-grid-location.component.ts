@@ -134,11 +134,6 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
   public readonly mode = model<PhysicalGridMode>('contiguous');
 
   /**
-   * Emitted when the location changes.
-   */
-  public readonly locationChange = output<PhysicalGridLocation>();
-
-  /**
    * Emitted when the grid is collapsed.
    */
   public readonly collapsedGridChange = output<boolean>();
@@ -256,7 +251,6 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
       coords: [],
     });
     this.updateGrid();
-    this.locationChange.emit(this.location()!);
   }
 
   private getNeighbors(
@@ -377,7 +371,6 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
       ...this.location(),
       coords: [] as PhysicalGridCoords[],
     } as PhysicalGridLocation);
-    this.locationChange.emit(this.location()!);
   }
 
   private updateText() {
@@ -492,8 +485,6 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
 
     // update the selected cells text
     this.updateText();
-
-    this.locationChange.emit(this.location()!);
   }
 
   public setCellsFromText() {
@@ -540,7 +531,6 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
         });
       }
     }
-    this.locationChange.emit(this.location()!);
   }
 
   public onExpandedChange(expanded: boolean) {

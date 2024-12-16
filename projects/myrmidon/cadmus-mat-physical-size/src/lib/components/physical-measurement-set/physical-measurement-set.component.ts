@@ -101,11 +101,6 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   // physical-size-set-names
   public nameEntries = input<ThesaurusEntry[]>();
 
-  /**
-   * Emitted when measurements change.
-   */
-  public readonly measurementsChange = output<PhysicalMeasurement[]>();
-
   @ViewChild('cstn', { static: false })
   public customCtl?: ElementRef;
 
@@ -246,7 +241,6 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
 
       measurements.push(...added);
       this.measurements.set(measurements);
-      this.measurementsChange.emit(this.measurements());
     }
   }
 
@@ -280,7 +274,6 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     this.closeMeasurement();
 
     this.measurements.set(measurements);
-    this.measurementsChange.emit(this.measurements());
   }
 
   public onDimensionChange(dimension?: PhysicalDimension): void {
@@ -297,7 +290,6 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     measurements.splice(index - 1, 0, item);
 
     this.measurements.set(measurements);
-    this.measurementsChange.emit(this.measurements());
   }
 
   public moveMeasurementDown(index: number): void {
@@ -310,7 +302,6 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     measurements.splice(index + 1, 0, item);
 
     this.measurements.set(measurements);
-    this.measurementsChange.emit(this.measurements());
   }
 
   public deleteMeasurement(index: number) {
@@ -318,6 +309,5 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     measurements.splice(index, 1);
 
     this.measurements.set(measurements);
-    this.measurementsChange.emit(this.measurements());
   }
 }
