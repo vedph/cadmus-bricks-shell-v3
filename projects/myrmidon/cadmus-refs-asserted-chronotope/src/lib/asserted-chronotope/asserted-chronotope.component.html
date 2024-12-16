@@ -44,8 +44,7 @@
           [refTagEntries]="refTagEntries()"
           [assertion]="plAssertion.value || undefined"
           (assertionChange)="onPlAssertionChange($event)"
-        >
-        </cadmus-refs-assertion>
+        />
       </mat-expansion-panel>
     </fieldset>
 
@@ -81,7 +80,7 @@
         <cadmus-refs-historical-date
           [date]="date.value || undefined"
           (dateChange)="onDateChange($event)"
-        ></cadmus-refs-historical-date>
+        />
         } @if (hasDate.value) {
         <mat-expansion-panel>
           <!-- assertion -->
@@ -94,8 +93,7 @@
             [refTagEntries]="refTagEntries()"
             [assertion]="dtAssertion.value || undefined"
             (assertionChange)="onDtAssertionChange($event)"
-          >
-          </cadmus-refs-assertion>
+          />
         </mat-expansion-panel>
         }
       </div>
