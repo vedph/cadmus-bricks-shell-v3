@@ -101,7 +101,7 @@ export class DecoratedIdsComponent {
 
     // when ids change, close ID editor
     effect(() => {
-      const ids = this.ids();
+      console.log('ids change', this.ids());
       this.closeIdEditor();
     });
   }
