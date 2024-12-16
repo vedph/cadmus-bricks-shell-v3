@@ -8,12 +8,15 @@
     <cadmus-refs-asserted-chronotope
       [chronotope]="chronotope"
       (chronotopeChange)="onChronotopeChange($event!)"
-    ></cadmus-refs-asserted-chronotope>
+    />
     @if (chronotope) {
+    <hr />
     <div>
-      <pre>{{ chronotope | json }}</pre>
-      <p>{{ chronotope | assertedChronotopes }}</p>
+      <code>
+        <pre>{{ chronotope | json }}</pre>
+      </code>
     </div>
+    <div>{{ chronotope | assertedChronotopes }}</div>
     }
   </mat-card-content>
   <mat-card-actions>

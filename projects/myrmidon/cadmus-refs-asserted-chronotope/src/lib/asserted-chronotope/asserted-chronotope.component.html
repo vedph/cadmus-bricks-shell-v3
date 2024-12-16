@@ -1,14 +1,108 @@
-<form [formGroup]="form">
-  <div id="container">
+<div id="container">
+  <!-- toolbar -->
+  <div id="toolbar" class="form-row">
     <!-- place -->
-    <fieldset id="place">
-      <legend>place</legend>
+    <mat-checkbox [formControl]="hasPlace">{{
+      chronotope()?.place?.value || "place"
+    }}</mat-checkbox>
+    <button
+      type="button"
+      mat-icon-button
+      (click)="editPlace()"
+      [disabled]="!hasPlace.value"
+    >
+      <mat-icon class="mat-primary">edit</mat-icon>
+    </button>
+    <!-- date -->
+    <mat-checkbox [formControl]="hasDate">{{
+      (chronotope()?.date | historicalDate) || "date"
+    }}</mat-checkbox>
+    <button
+      type="button"
+      mat-icon-button
+      (click)="editDate()"
+      [disabled]="!hasDate.value"
+    >
+      <mat-icon class="mat-primary">edit</mat-icon>
+    </button>
+  </div>
+
+  <!-- place -->
+  <mat-expansion-panel [(expanded)]="placeExpanded">
+    <form [formGroup]="plForm" (submit)="savePlace()">
+      <fieldset id="place">
+        <legend>place</legend>
+        <div class="form-row">
+          <!-- tag (bound) -->
+          @if (tagEntries()) {
+          <mat-form-field>
+            <mat-label>tag</mat-label>
+            <mat-select [formControl]="plTag">
+              @for (e of tagEntries(); track e) {
+              <mat-option [value]="e.id">{{ e.value }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          }
+          <!-- tag (free) -->
+          @else {
+          <mat-form-field>
+            <mat-label>tag</mat-label>
+            <input matInput [formControl]="plTag" />
+            @if ( plTag.hasError('max-length') && (plTag.dirty || plTag.touched)
+            ) {
+            <mat-error>tag too long</mat-error>
+            }
+          </mat-form-field>
+          }
+          <!-- place -->
+          <mat-form-field>
+            <mat-label>place</mat-label>
+            <input matInput [formControl]="place" />
+            @if (place.hasError('required') && (place.dirty || place.touched)) {
+            <mat-error>place required</mat-error>
+            } @if (place.hasError('max-length') && (place.dirty ||
+            place.touched)) {
+            <mat-error>place too long</mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <!-- assertion -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header
+            >place assertion</mat-expansion-panel-header
+          >
+          <cadmus-refs-assertion
+            [assTagEntries]="assTagEntries()"
+            [refTypeEntries]="refTypeEntries()"
+            [refTagEntries]="refTagEntries()"
+            [assertion]="plAssertion.value || undefined"
+            (assertionChange)="onPlAssertionChange($event)"
+          />
+        </mat-expansion-panel>
+      </fieldset>
+      <!-- buttons -->
       <div class="form-row">
+        <button type="button" mat-icon-button (click)="placeExpanded = false">
+          <mat-icon class="mat-warn">cancel</mat-icon>
+        </button>
+        <button type="submit" mat-icon-button [disabled]="dtForm.invalid">
+          <mat-icon class="mat-primary">check_circle</mat-icon>
+        </button>
+      </div>
+    </form>
+  </mat-expansion-panel>
+
+  <!-- date -->
+  <mat-expansion-panel [(expanded)]="dateExpanded" (submit)="saveDate()">
+    <form [formGroup]="dtForm">
+      <fieldset id="date">
+        <legend>date</legend>
         <!-- tag (bound) -->
-        @if (tagEntries()) {
+        @if (tagEntries()?.length) {
         <mat-form-field>
           <mat-label>tag</mat-label>
-          <mat-select [formControl]="plTag">
+          <mat-select [formControl]="dtTag">
             @for (e of tagEntries(); track e) {
             <mat-option [value]="e.id">{{ e.value }}</mat-option>
             }
@@ -19,84 +113,42 @@
         @else {
         <mat-form-field>
           <mat-label>tag</mat-label>
-          <input matInput [formControl]="plTag" />
-          @if ( plTag.hasError('max-length') && (plTag.dirty || plTag.touched) )
-          {
+          <input matInput [formControl]="dtTag" />
+          @if (dtTag.hasError('max-length') && (dtTag.dirty || dtTag.touched)) {
           <mat-error>tag too long</mat-error>
           }
         </mat-form-field>
         }
-        <!-- place -->
-        <mat-form-field>
-          <mat-label>place</mat-label>
-          <input matInput [formControl]="place" />
-          @if (place.hasError('max-length') && (place.dirty || place.touched)) {
-          <mat-error>place too long</mat-error>
-          }
-        </mat-form-field>
-      </div>
-      <!-- assertion -->
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>place assertion</mat-expansion-panel-header>
-        <cadmus-refs-assertion
-          [assTagEntries]="assTagEntries()"
-          [refTypeEntries]="refTypeEntries()"
-          [refTagEntries]="refTagEntries()"
-          [assertion]="plAssertion.value || undefined"
-          (assertionChange)="onPlAssertionChange($event)"
-        />
-      </mat-expansion-panel>
-    </fieldset>
-
-    <!-- date -->
-    <fieldset id="date">
-      <legend>date</legend>
-      <mat-checkbox [formControl]="hasDate">has date</mat-checkbox>
-      &nbsp;
-      <!-- tag (bound) -->
-      @if (hasDate.value && tagEntries()?.length) {
-      <mat-form-field>
-        <mat-label>tag</mat-label>
-        <mat-select [formControl]="dtTag">
-          @for (e of tagEntries(); track e) {
-          <mat-option [value]="e.id">{{ e.value }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      }
-
-      <!-- tag (free) -->
-      @if (hasDate.value && !tagEntries()?.length) {
-      <mat-form-field>
-        <mat-label>tag</mat-label>
-        <input matInput [formControl]="dtTag" />
-        @if (dtTag.hasError('max-length') && (dtTag.dirty || dtTag.touched)) {
-        <mat-error>tag too long</mat-error>
-        }
-      </mat-form-field>
-      }
-      <div>
-        @if (hasDate.value) {
-        <cadmus-refs-historical-date
-          [date]="date.value || undefined"
-          (dateChange)="onDateChange($event)"
-        />
-        } @if (hasDate.value) {
-        <mat-expansion-panel>
-          <!-- assertion -->
-          <mat-expansion-panel-header
-            >date assertion</mat-expansion-panel-header
-          >
-          <cadmus-refs-assertion
-            [assTagEntries]="assTagEntries()"
-            [refTypeEntries]="refTypeEntries()"
-            [refTagEntries]="refTagEntries()"
-            [assertion]="dtAssertion.value || undefined"
-            (assertionChange)="onDtAssertionChange($event)"
+        <div>
+          <!-- date -->
+          <cadmus-refs-historical-date
+            [date]="date.value || undefined"
+            (dateChange)="onDateChange($event)"
           />
-        </mat-expansion-panel>
-        }
+          <mat-expansion-panel>
+            <!-- assertion -->
+            <mat-expansion-panel-header
+              >date assertion</mat-expansion-panel-header
+            >
+            <cadmus-refs-assertion
+              [assTagEntries]="assTagEntries()"
+              [refTypeEntries]="refTypeEntries()"
+              [refTagEntries]="refTagEntries()"
+              [assertion]="dtAssertion.value || undefined"
+              (assertionChange)="onDtAssertionChange($event)"
+            />
+          </mat-expansion-panel>
+        </div>
+      </fieldset>
+      <!-- buttons -->
+      <div class="form-row">
+        <button type="button" mat-icon-button (click)="dateExpanded = false">
+          <mat-icon class="mat-warn">cancel</mat-icon>
+        </button>
+        <button type="submit" mat-icon-button [disabled]="dtForm.invalid">
+          <mat-icon class="mat-primary">check_circle</mat-icon>
+        </button>
       </div>
-    </fieldset>
-  </div>
-</form>
+    </form>
+  </mat-expansion-panel>
+</div>
