@@ -69,6 +69,7 @@ export interface AssertedChronotope {
 export class AssertedChronotopeComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
   private _updatingForm: boolean | undefined;
+  private _dropNextInput?: boolean;
 
   public readonly chronotope = model<AssertedChronotope>();
 
@@ -113,6 +114,10 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
 
     // when chronotope changes, update the form
     effect(() => {
+      if (this._dropNextInput) {
+        this._dropNextInput = false;
+        return;
+      }
       this.updateForm(this.chronotope());
     });
   }
@@ -141,12 +146,15 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
     this.dtAssertion.setValue(assertion || null);
     this.dtAssertion.updateValueAndValidity();
     this.dtAssertion.markAsDirty();
+    this._dropNextInput = true;
+    this.chronotope.set(this.getChronotope());
   }
 
   public onDateChange(date?: HistoricalDateModel): void {
     this.date.setValue(date || null);
     this.date.updateValueAndValidity();
     this.date.markAsDirty();
+    this.chronotope.set(this.getChronotope());
   }
 
   private updateForm(value: AssertedChronotope | undefined): void {
