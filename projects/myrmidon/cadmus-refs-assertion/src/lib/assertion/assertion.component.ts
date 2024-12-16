@@ -58,7 +58,8 @@ export interface Assertion {
 })
 export class AssertionComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
-  private _updatingForm: boolean | undefined;
+  private _updatingForm?: boolean;
+  private _dropNextAssertion?: boolean;
 
   public tag: FormControl<string | null>;
   public rank: FormControl<number>;
@@ -96,6 +97,10 @@ export class AssertionComponent implements OnInit, OnDestroy {
 
     // when assertion changes, update form
     effect(() => {
+      if (this._dropNextAssertion) {
+        this._dropNextAssertion = false;
+        return;
+      }
       this.updateForm(this.assertion());
     });
   }
@@ -154,6 +159,7 @@ export class AssertionComponent implements OnInit, OnDestroy {
   }
 
   public saveAssertion(): void {
+    this._dropNextAssertion = true;
     this.assertion.set(this.getAssertion());
   }
 }
