@@ -36,7 +36,7 @@ export class AssertedChronotopeSetPgComponent {
     ];
   }
 
-  public onChronotopesChange(chronotopes?: AssertedChronotope[]): void {
-    this.chronotopes = chronotopes!;
+  public onChronotopesChange(chronotopes: AssertedChronotope[]): void {
+    this.chronotopes = chronotopes;
   }
 }

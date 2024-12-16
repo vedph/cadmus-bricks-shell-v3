@@ -1,12 +1,11 @@
 <form role="form" [formGroup]="form" (submit)="save()">
   <div>
     <mat-form-field>
-      <mat-label>date</mat-label>
       <input
         appearance="fill"
         matInput
         [formControl]="dateText"
-        [placeholder]="label() || 'datation'"
+        [placeholder]="label() || 'date'"
       />
       <mat-hint>A or A--B</mat-hint>
     </mat-form-field>
@@ -44,14 +43,14 @@
       [datation]="a"
       (datationChange)="onDatationAChange($event)"
       [label]="'A'"
-    ></cadmus-refs-datation>
+    />
 
     @if (range.value) {
     <cadmus-refs-datation
       [datation]="b"
       (datationChange)="onDatationBChange($event)"
       [label]="'B'"
-    ></cadmus-refs-datation>
+    />
     }
 
     <div class="form-row">
