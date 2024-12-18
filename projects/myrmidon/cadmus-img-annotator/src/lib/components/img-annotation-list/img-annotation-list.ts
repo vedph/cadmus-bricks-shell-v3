@@ -136,6 +136,7 @@ export class ImgAnnotationList<T> {
         ...this.dlgConfig,
         data: {
           id: annotation.id,
+          image: this.image!,
           value: annotation,
           payload,
         },

@@ -48,7 +48,7 @@ export class SdImgAnnotatorDirective implements AfterViewInit {
    * The current drawing tool. The default available tools are rect and polygon,
    * but more can be available from plugins.
    */
-  public readonly tool = input<string>('rect');
+  public readonly tool = input<string>('rectangle');
 
   /**
    * The optional initial annotations to show on the image.
@@ -65,7 +65,7 @@ export class SdImgAnnotatorDirective implements AfterViewInit {
    * The IDs of all the additional selection tools to be used
    * when the Annotorious Selector Pack plugin is loaded
    * (see https://github.com/recogito/annotorious-selector-pack).
-   * Allowed values (besides 'rect', 'polygon'): 'point', 'circle',
+   * Allowed values (besides 'rectangle', 'polygon'): 'point', 'circle',
    * 'ellipse', 'freehand'. Note that this requires to add the
    * plugins library to your app (@recogito/annotorious-selector-pack).
    */
@@ -261,7 +261,7 @@ export class SdImgAnnotatorDirective implements AfterViewInit {
     // );
 
     // default drawing tool
-    if (this.tool() !== 'rect') {
+    if (this.tool() !== 'rectangle') {
       this._ann.setDrawingTool(this.tool());
     }
 

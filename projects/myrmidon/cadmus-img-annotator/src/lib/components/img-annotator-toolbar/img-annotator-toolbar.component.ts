@@ -65,7 +65,7 @@ export class ImgAnnotatorToolbarComponent implements OnInit, OnDestroy {
 
   constructor(formBuilder: FormBuilder) {
     this.form = formBuilder.group({
-      tool: ['rect'],
+      tool: ['rectangle'],
     });
     // if tools change, set the first one as the current tool
     effect(() => {

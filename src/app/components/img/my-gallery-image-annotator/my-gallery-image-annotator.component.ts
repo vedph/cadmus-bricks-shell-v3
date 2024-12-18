@@ -87,7 +87,7 @@ export class MyGalleryImageAnnotatorComponent implements OnInit, OnDestroy {
   public entries: ThesaurusEntry[];
   public annotator?: any;
   public editorComponent = EditAnnotationDialogComponent;
-  public tool: string = 'rect';
+  public tool: string = 'rectangle';
   public tabIndex: number = 0;
   // dump
   public json: FormControl<string | null>;

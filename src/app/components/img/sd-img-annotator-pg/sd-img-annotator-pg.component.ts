@@ -59,7 +59,7 @@
 //     public dialog: MatDialog,
 //     @Inject(MAT_DIALOG_DEFAULT_OPTIONS) public dlgConfig: MatDialogConfig
 //   ) {
-//     this.tool = 'rect';
+//     this.tool = 'rectangle';
 //     this.image = {
 //       id: '1',
 //       uri: 'sample.jpg',

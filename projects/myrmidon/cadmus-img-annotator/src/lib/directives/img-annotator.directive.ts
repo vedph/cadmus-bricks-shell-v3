@@ -85,7 +85,7 @@ export class ImgAnnotatorDirective {
    * The IDs of all the additional selection tools to be used
    * when the Annotorious Selector Pack plugin is loaded
    * (see https://github.com/recogito/annotorious-selector-pack).
-   * Allowed values (besides 'rect', 'polygon'): 'point', 'circle',
+   * Allowed values (besides 'rectangle', 'polygon'): 'point', 'circle',
    * 'ellipse', 'freehand'. Note that this requires to add the
    * plugins library to your app (@recogito/annotorious-selector-pack).
    */
