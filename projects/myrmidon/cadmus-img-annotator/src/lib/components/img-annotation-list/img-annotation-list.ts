@@ -168,8 +168,8 @@ export class ImgAnnotationList<T> {
    * Deselect the selected annotation if any.
    */
   private deselectAnnotation(): void {
-    this.annotator.cancelSelected();
     if (this._selectedAnnotation$.value) {
+      this.annotator.cancelSelected();
       this._selectedAnnotation$.next(null);
     }
   }
