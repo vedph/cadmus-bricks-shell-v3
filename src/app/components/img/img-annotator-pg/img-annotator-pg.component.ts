@@ -6,6 +6,7 @@ import {
   MatDialogConfig,
 } from '@angular/material/dialog';
 
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
 import { ImageAnnotation } from '@annotorious/annotorious';
@@ -32,6 +33,7 @@ import { MyImgAnnotationListComponent } from '../img-annotation-list/my-img-anno
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    MatButtonModule,
     MatCardModule,
     ImgAnnotatorDirective,
     ImgAnnotatorToolbarComponent,
@@ -111,5 +113,9 @@ export class ImgAnnotatorPgComponent {
 
   public onDeleteAnnotation(annotation: ImageAnnotation) {
     this._list?.onDeleteAnnotation(annotation);
+  }
+
+  public clearAnnotations(): void {
+    this._list?.clearAnnotations();
   }
 }
