@@ -18,7 +18,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Overview
 
-The image gallery is a minimalist set of components wrapping [Annotorious](https://annotorious.github.io/) functionalities and used to:
+The image gallery is a minimalist set of components wrapping [Annotorious](https://annotorious.dev/) functionalities and used to:
 
 - show a _gallery_ of images from some online source.
 - let users _pick_ an image and _annotate_ it.
