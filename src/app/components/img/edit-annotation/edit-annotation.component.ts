@@ -20,7 +20,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 
-import { ListAnnotation } from '../../../../../projects/myrmidon/cadmus-img-annotator/src/public-api';
+import {
+  GuidService,
+  ListAnnotation,
+} from '../../../../../projects/myrmidon/cadmus-img-annotator/src/public-api';
 
 @Component({
   selector: 'app-edit-annotation',
@@ -61,7 +64,7 @@ export class EditAnnotationComponent {
   public text: FormControl<string | null>;
   public form: FormGroup;
 
-  constructor(formBuilder: FormBuilder) {
+  constructor(formBuilder: FormBuilder, private _guidService: GuidService) {
     this.text = formBuilder.control(null, {
       validators: [Validators.required, Validators.maxLength(100)],
       nonNullable: true,
@@ -87,7 +90,9 @@ export class EditAnnotationComponent {
     }
 
     this.text.setValue(
-      annotation.value.bodies?.length ? annotation.value.bodies[0].value || '' : ''
+      annotation.value.bodies?.length
+        ? annotation.value.bodies[0].value || ''
+        : ''
     );
     this.form.markAsPristine();
   }
@@ -95,7 +100,7 @@ export class EditAnnotationComponent {
   private getAnnotation(): ListAnnotation<any> {
     if (this._annotation!.value.bodies!.length === 0) {
       this._annotation!.value.bodies.push({
-        id: '', // TODO create ID
+        id: this._guidService.getGuid(),
         annotation: this._annotation!.id,
         type: 'TextualBody',
         value: this.text.value || '',
@@ -106,9 +111,11 @@ export class EditAnnotationComponent {
     }
     let a: ListAnnotation<any> = {
       id: this._annotation!.id,
+      // here the annotation value is just a string, but when it's an object,
+      // we can leave it out as payload will be used instead anyway
       value: this._annotation!.value,
       image: this._annotation!.image,
-      payload: this._annotation!.payload,
+      payload: this.text.value,
     };
     return a;
   }

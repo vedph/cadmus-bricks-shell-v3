@@ -180,44 +180,15 @@ export class ImgAnnotationList<T> {
     annotation: ListAnnotation<any>,
     isNew?: boolean
   ): void {
-    // update in annotorious unless it's new
-    if (!isNew) {
-      this.annotator.updateAnnotation(annotation.value);
-    }
+    const annotations = [...this._annotations$.value];
 
-    // update or add in local
-    if (annotation.id) {
-      const annotations = [...this._annotations$.value];
-      const index = annotations.findIndex((a) => a.id === annotation.id);
-      if (index > -1) {
-        annotations.splice(index, 1, annotation);
-        this._annotations$.next(annotations);
-      } else {
-        this._annotations$.next([...annotations, annotation]);
-      }
+    // if new, add to local supplying image
+    if (isNew) {
+      annotation.image = this.image!;
+      this._annotations$.next([...annotations, annotation]);
     }
-  }
-
-  private generateGUID(): string {
-    function s4(): string {
-      return Math.floor((1 + Math.random()) * 0x10000)
-        .toString(16)
-        .substring(1);
-    }
-    return (
-      s4() +
-      s4() +
-      '-' +
-      s4() +
-      '-' +
-      s4() +
-      '-' +
-      s4() +
-      '-' +
-      s4() +
-      s4() +
-      s4()
-    );
+    // update in annotorious for bodies
+    this.annotator.updateAnnotation(annotation.value);
   }
 
   /**
@@ -300,7 +271,7 @@ export class ImgAnnotationList<T> {
     if (!annotation) {
       this.deselectAnnotation();
     } else {
-      // if annotation, select it in the list
+      // else select it in the list
       this._selectedAnnotation$.next(
         this._annotations$.value.find((a) => a.id === annotation.id) || null
       );
