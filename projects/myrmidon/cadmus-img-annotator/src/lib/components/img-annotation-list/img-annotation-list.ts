@@ -115,48 +115,48 @@ export class ImgAnnotationList<T> {
   }
 
   /**
-   * Edit the selected annotation in the editor dialog.
+   * Edit the specified annotation in the editor dialog.
+   * @param annotation The annotation to edit.
    * @param isNew True if the annotation is new.
    * @returns True if the annotation was saved, false if it was deleted.
    * An annotation is deleted if it was new and the dialog was canceled.
    */
-  public editSelectedAnnotation(isNew?: boolean): Promise<boolean> {
+  public editAnnotation(
+    annotation: ImageAnnotation,
+    isNew?: boolean
+  ): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
-      if (!this._selectedAnnotation$.value) {
-        resolve(false);
-      } else {
-        // get payload
-        const payload = this._annotations$.value.find(
-          (a) => a.id === this._selectedAnnotation$.value?.id
-        )?.payload;
+      // get payload
+      const payload = this._annotations$.value.find(
+        (a) => a.id === this._selectedAnnotation$.value?.id
+      )?.payload;
 
-        // edit in dialog
-        const dialogRef = this.dialog.open(this.editorComponent, {
-          ...this.dlgConfig,
-          data: {
-            id: this._selectedAnnotation$.value.id,
-            value: this._selectedAnnotation$.value.value,
-            payload,
-          },
-        });
-        dialogRef
-          .afterClosed()
-          .pipe(take(1))
-          .subscribe((annotation: ListAnnotation<any>) => {
-            // on OK, save the annotation
-            if (annotation) {
-              this.saveAnnotation(annotation, isNew);
-              resolve(true);
-            } else {
-              // else delete it if new
-              if (isNew) {
-                this.removeAnnotation(this._selectedAnnotation$.value!.id);
-                resolve(false);
-              }
-              resolve(true);
+      // edit in dialog
+      const dialogRef = this.dialog.open(this.editorComponent, {
+        ...this.dlgConfig,
+        data: {
+          id: annotation.id,
+          value: annotation,
+          payload,
+        },
+      });
+      dialogRef
+        .afterClosed()
+        .pipe(take(1))
+        .subscribe((annotation: ListAnnotation<any>) => {
+          // on OK, save the annotation
+          if (annotation) {
+            this.saveAnnotation(annotation, isNew);
+            resolve(true);
+          } else {
+            // else delete it if new
+            if (isNew) {
+              this.removeAnnotation(this._selectedAnnotation$.value!.id);
+              resolve(false);
             }
-          });
-      }
+            resolve(true);
+          }
+        });
     });
   }
 
@@ -221,15 +221,6 @@ export class ImgAnnotationList<T> {
   }
 
   /**
-   * Edit the annotation at the specified index.
-   * @param index The annotation index.
-   */
-  public editAnnotation(index: number): void {
-    this._selectedAnnotation$.next(this._annotations$.value[index]);
-    this.editSelectedAnnotation();
-  }
-
-  /**
    * Select the specified annotation.
    * @param annotation The annotation to select or undefined or null
    * to deselect.
@@ -240,6 +231,17 @@ export class ImgAnnotationList<T> {
     } else {
       this._selectedAnnotation$.next(annotation);
       this.annotator.setSelected(annotation.id);
+    }
+  }
+
+  /**
+   * Edit the annotation at the specified index.
+   * @param index The annotation index.
+   */
+  public editAnnotationAt(index: number): void {
+    const annotation = this._annotations$.value[index];
+    if (annotation) {
+      this.editAnnotation(annotation.value, false);
     }
   }
 
@@ -283,11 +285,12 @@ export class ImgAnnotationList<T> {
   public async onCreateAnnotation(annotation: ImageAnnotation) {
     console.log('onCreateAnnotation');
 
-    await this.editSelectedAnnotation(true);
+    await this.editAnnotation(annotation, true);
   }
 
   /**
-   * Handle the Annotorious select event.
+   * Handle the Annotorious select event to keep the selection
+   * in synch.
    * @param annotation The annotation or undefined for no
    * selection.
    */
@@ -305,7 +308,7 @@ export class ImgAnnotationList<T> {
   }
 
   /**
-   * Handle the Annotorious delete event.
+   * Handle the Annotorious delete event to keep the list in synch.
    * @param event The event.
    */
   public onDeleteAnnotation(annotation: ImageAnnotation) {

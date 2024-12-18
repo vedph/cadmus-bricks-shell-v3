@@ -212,8 +212,8 @@ export class MyGalleryImageAnnotatorComponent implements OnInit, OnDestroy {
     this._list?.onSelectionChange(annotation);
   }
 
-  public editAnnotation(index: number): void {
-    this._list?.editAnnotation(index);
+  public editAnnotation(annotation: ImageAnnotation): void {
+    this._list?.editAnnotation(annotation);
   }
 
   public selectAnnotation(index: number): void {

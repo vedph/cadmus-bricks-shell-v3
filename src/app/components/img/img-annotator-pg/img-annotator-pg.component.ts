@@ -8,6 +8,7 @@ import {
 
 import { MatCardModule } from '@angular/material/card';
 
+import { ImageAnnotation } from '@annotorious/annotorious';
 import { GalleryImage } from '@myrmidon/cadmus-img-annotator';
 
 import {
@@ -19,7 +20,6 @@ import {
 } from '../../../../../projects/myrmidon/cadmus-img-annotator/src/public-api';
 import { EditAnnotationDialogComponent } from '../edit-annotation-dialog/edit-annotation-dialog.component';
 import { MyImgAnnotationListComponent } from '../img-annotation-list/my-img-annotation-list.component';
-import { ImageAnnotation } from '@annotorious/annotorious';
 
 /**
  * Sample annotation list component, orchestrating the annotator directive,
@@ -86,8 +86,8 @@ export class ImgAnnotatorPgComponent {
     this._list?.onSelectionChange(annotation);
   }
 
-  public editAnnotation(index: number): void {
-    this._list?.editAnnotation(index);
+  public editAnnotation(annotation: ImageAnnotation): void {
+    this._list?.editAnnotation(annotation);
   }
 
   public selectAnnotation(index: number): void {
@@ -100,6 +100,13 @@ export class ImgAnnotatorPgComponent {
 
   public onCreateAnnotation(annotation: ImageAnnotation) {
     this._list?.onCreateAnnotation(annotation);
+  }
+
+  public onClickAnnotation(event: {
+    annotation: ImageAnnotation;
+    originalEvent: PointerEvent;
+  }) {
+    this._list?.editAnnotation(event.annotation);
   }
 
   public onDeleteAnnotation(annotation: ImageAnnotation) {
