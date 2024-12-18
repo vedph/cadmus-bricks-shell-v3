@@ -104,7 +104,7 @@ export class ImgAnnotationList<T> {
   public removeAnnotation(id: string): void {
     // if annotation is selected, deselect it
     if (this._selectedAnnotation$.value?.id === id) {
-      this.deselectAnnotation();
+      this._selectedAnnotation$.next(null);
     }
     // delete from annotorious
     this.annotator.removeAnnotation(id);
@@ -189,6 +189,7 @@ export class ImgAnnotationList<T> {
     if (isNew) {
       this._annotations$.next([...annotations, annotation]);
       this.annotator.addAnnotation(annotation.value);
+      this._selectedAnnotation$.next(annotation);
     } else {
       const i = this._annotations$.value.findIndex(a => a.id === annotation.id);
       annotations.splice(i, 1, annotation);
@@ -203,7 +204,8 @@ export class ImgAnnotationList<T> {
    * to deselect.
    */
   public selectAnnotation(annotation?: ListAnnotation<T>): void {
-    this.deselectAnnotation();
+    this.annotator.cancelSelected();
+
     if (annotation) {
       this._selectedAnnotation$.next(annotation);
       this.annotator.setSelected(annotation.id, true);
@@ -230,7 +232,7 @@ export class ImgAnnotationList<T> {
       this.deselectAnnotation();
     } else {
       this._selectedAnnotation$.next(this._annotations$.value[index]);
-      this.annotator.setSelected(this._selectedAnnotation$.value!.id);
+      this.annotator.setSelected(this._selectedAnnotation$.value!.id, true);
     }
   }
 
