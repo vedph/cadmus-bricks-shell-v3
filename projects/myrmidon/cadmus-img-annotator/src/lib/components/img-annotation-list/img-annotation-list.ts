@@ -146,6 +146,9 @@ export class ImgAnnotationList<T> {
         .subscribe((annotation: ListAnnotation<any>) => {
           // on OK, save the annotation
           if (annotation) {
+            if (!annotation.image) {
+              annotation.image = this.image!;
+            }
             this.saveAnnotation(annotation, isNew);
             resolve(true);
           } else {
@@ -184,7 +187,6 @@ export class ImgAnnotationList<T> {
 
     // if new, add to local supplying image
     if (isNew) {
-      annotation.image = this.image!;
       this._annotations$.next([...annotations, annotation]);
     }
     // update in annotorious for bodies
