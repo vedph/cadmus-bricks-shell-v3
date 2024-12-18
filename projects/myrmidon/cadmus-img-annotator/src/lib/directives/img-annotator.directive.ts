@@ -7,7 +7,6 @@ import {
   output,
 } from '@angular/core';
 import {
-  Annotator,
   createImageAnnotator,
   DrawingTool,
   ImageAnnotation,
@@ -43,7 +42,7 @@ export interface AnnotoriousConfig {
  * Default configuration for the annotorious directive.
  */
 export const DEFAULT_ANNOTORIOUS_CONFIG: AnnotoriousConfig = {
-  autoSave: false,
+  autoSave: true,
   drawingEnabled: true,
   drawingMode: 'drag',
 };

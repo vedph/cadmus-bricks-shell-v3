@@ -185,7 +185,6 @@ export class ImgAnnotationList<T> {
   ): void {
     const annotations = [...this._annotations$.value];
 
-    // update local
     if (isNew) {
       this._annotations$.next([...annotations, annotation]);
       this.annotator.addAnnotation(annotation.value);
