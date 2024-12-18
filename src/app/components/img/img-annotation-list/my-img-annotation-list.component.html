@@ -10,13 +10,13 @@
       </tr>
     </thead>
     <tbody>
-      @for (a of annotations; track a; let i = $index) {
+      @for (a of annotations; track a.id; let i = $index) {
       <tr [class.selected]="a === (list!.selectedAnnotation$ | async)">
         <td class="fit-width">
           <button
             type="button"
             mat-icon-button
-            (click)="selectAnnotation(i)"
+            (click)="selectAnnotation(a)"
             matTooltip="Select annotation"
           >
             <mat-icon>check_circle</mat-icon>
@@ -24,7 +24,7 @@
           <button
             type="button"
             mat-icon-button
-            (click)="removeAnnotation(i)"
+            (click)="removeAnnotationAt(i)"
             matTooltip="Remove annotation"
           >
             <mat-icon class="mat-warn">delete</mat-icon>
@@ -32,7 +32,7 @@
           <button
             type="button"
             mat-icon-button
-            (click)="editAnnotation(i)"
+            (click)="editAnnotation(a)"
             matTooltip="Edit annotation"
           >
             <mat-icon class="mat-primary">edit</mat-icon>

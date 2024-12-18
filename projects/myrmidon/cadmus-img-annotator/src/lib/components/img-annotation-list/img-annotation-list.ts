@@ -128,7 +128,7 @@ export class ImgAnnotationList<T> {
     return new Promise<boolean>((resolve) => {
       // get payload
       const payload = this._annotations$.value.find(
-        (a) => a.id === this._selectedAnnotation$.value?.id
+        (a) => a.id === annotation.id
       )?.payload;
 
       // edit in dialog
@@ -144,18 +144,18 @@ export class ImgAnnotationList<T> {
       dialogRef
         .afterClosed()
         .pipe(take(1))
-        .subscribe((annotation: ListAnnotation<any>) => {
+        .subscribe((saved: ListAnnotation<any>) => {
           // on OK, save the annotation
-          if (annotation) {
-            if (!annotation.image) {
-              annotation.image = this.image!;
+          if (saved) {
+            if (!saved.image) {
+              saved.image = this.image!;
             }
-            this.saveAnnotation(annotation, isNew);
+            this.saveAnnotation(saved, isNew);
             resolve(true);
           } else {
             // else delete it if new
             if (isNew) {
-              this.removeAnnotation(this._selectedAnnotation$.value!.id);
+              this.removeAnnotation(annotation.id);
               resolve(false);
             }
             resolve(true);
@@ -186,12 +186,16 @@ export class ImgAnnotationList<T> {
   ): void {
     const annotations = [...this._annotations$.value];
 
-    // if new, add to local supplying image
+    // update local
     if (isNew) {
       this._annotations$.next([...annotations, annotation]);
+    } else {
+      const i = this._annotations$.value.findIndex(a => a.id === annotation.id);
+      annotations.splice(i, 1, annotation);
+      this._annotations$.next(annotations);
     }
     // update in annotorious for bodies
-    this.annotator.updateAnnotation(annotation.value);
+    //this.annotator.updateAnnotation(annotation.value);
   }
 
   /**

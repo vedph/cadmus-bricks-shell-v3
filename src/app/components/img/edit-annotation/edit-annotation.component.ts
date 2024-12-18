@@ -1,9 +1,9 @@
 import {
   Component,
+  effect,
   ElementRef,
-  EventEmitter,
-  Input,
-  Output,
+  model,
+  output,
   ViewChild,
 } from '@angular/core';
 import {
@@ -39,25 +39,8 @@ import {
   ],
 })
 export class EditAnnotationComponent {
-  private _annotation?: ListAnnotation<any>;
-
-  @Input()
-  public get annotation(): ListAnnotation<any> | undefined {
-    return this._annotation;
-  }
-  public set annotation(value: ListAnnotation<any> | undefined) {
-    if (this._annotation === value) {
-      return;
-    }
-    this._annotation = value;
-    this.updateForm(this._annotation);
-  }
-
-  @Output()
-  public cancel: EventEmitter<any>;
-
-  @Output()
-  public annotationChange: EventEmitter<ListAnnotation<any>>;
+  public readonly annotation = model<ListAnnotation<any> | undefined>();
+  public readonly cancel = output();
 
   @ViewChild('txt') txtElementRef?: ElementRef<HTMLTextAreaElement>;
 
@@ -72,9 +55,10 @@ export class EditAnnotationComponent {
     this.form = formBuilder.group({
       text: this.text,
     });
-    // events
-    this.cancel = new EventEmitter<any>();
-    this.annotationChange = new EventEmitter<ListAnnotation<any>>();
+    // when annotation changes, update form
+    effect(() => {
+      this.updateForm(this.annotation());
+    });
   }
 
   public ngAfterViewInit() {
@@ -98,25 +82,29 @@ export class EditAnnotationComponent {
   }
 
   private getAnnotation(): ListAnnotation<any> {
-    if (this._annotation!.value.bodies!.length === 0) {
-      this._annotation!.value.bodies.push({
+    const annotation = { ...this.annotation()! };
+
+    if (annotation.value.bodies!.length === 0) {
+      annotation.value.bodies.push({
         id: this._guidService.getGuid(),
-        annotation: this._annotation!.id,
+        annotation: annotation.id,
         type: 'TextualBody',
         value: this.text.value || '',
         purpose: 'commenting',
       });
     } else {
-      this._annotation!.value!.bodies[0].value = this.text.value || '';
+      annotation.value!.bodies[0].value = this.text.value || '';
     }
+
     let a: ListAnnotation<any> = {
-      id: this._annotation!.id,
+      id: annotation.id,
       // here the annotation value is just a string, but when it's an object,
       // we can leave it out as payload will be used instead anyway
-      value: this._annotation!.value,
-      image: this._annotation!.image,
+      value: annotation.value,
+      image: annotation.image,
       payload: this.text.value,
     };
+
     return a;
   }
 
@@ -128,7 +116,6 @@ export class EditAnnotationComponent {
     if (this.form.invalid) {
       return;
     }
-    this._annotation = this.getAnnotation();
-    this.annotationChange.emit(this._annotation);
+    this.annotation.set(this.getAnnotation());
   }
 }

@@ -8,6 +8,7 @@ import {
   ImgAnnotationListComponent,
   ObjectToStringPipe,
 } from '../../../../../projects/myrmidon/cadmus-img-annotator/src/public-api';
+import { ListAnnotation } from '@myrmidon/cadmus-img-annotator';
 
 @Component({
   selector: 'app-my-img-annotation-list',
@@ -16,15 +17,15 @@ import {
   imports: [CommonModule, MatButtonModule, MatIconModule, ObjectToStringPipe],
 })
 export class MyImgAnnotationListComponent extends ImgAnnotationListComponent<any> {
-  public selectAnnotation(annotation: any): void {
+  public selectAnnotation(annotation: ListAnnotation<string>): void {
     this.list?.selectAnnotation(annotation);
   }
 
-  public removeAnnotation(index: number): void {
+  public removeAnnotationAt(index: number): void {
     this.list?.removeAnnotationAt(index);
   }
 
-  public editAnnotation(annotation: any): void {
-    this.list?.editAnnotation(annotation);
+  public editAnnotation(annotation: ListAnnotation<string>): void {
+    this.list?.editAnnotation(annotation.value);
   }
 }

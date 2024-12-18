@@ -18,7 +18,9 @@ export class EditAnnotationDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<EditAnnotationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ListAnnotation<any>
-  ) {}
+  ) {
+    console.log('dialog data', data);
+  }
 
   public onCloseClick(): void {
     this.dialogRef.close();
