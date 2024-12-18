@@ -9,8 +9,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
-import { ImageAnnotation } from '@annotorious/annotorious';
-import { GalleryImage } from '@myrmidon/cadmus-img-annotator';
+import { ImageAnnotation, ImageAnnotator } from '@annotorious/annotorious';
 
 import {
   AnnotoriousConfig,
@@ -18,6 +17,7 @@ import {
   ImgAnnotatorToolbarComponent,
   ImgAnnotatorDirective,
   DEFAULT_ANNOTORIOUS_CONFIG,
+  GalleryImage,
 } from '../../../../../projects/myrmidon/cadmus-img-annotator/src/public-api';
 import { EditAnnotationDialogComponent } from '../edit-annotation-dialog/edit-annotation-dialog.component';
 import { MyImgAnnotationListComponent } from '../img-annotation-list/my-img-annotation-list.component';
@@ -45,7 +45,7 @@ export class ImgAnnotatorPgComponent {
   private _list?: ImgAnnotationList<any>;
 
   // the Annotorious annotator instance derived from the annotator directive
-  public annotator?: any;
+  public annotator?: ImageAnnotator;
 
   // the annotation editor component type, used by the annotations list child
   // component to create a new editor instance inside a popup dialog
