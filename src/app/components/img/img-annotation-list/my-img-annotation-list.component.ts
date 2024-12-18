@@ -3,13 +3,13 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
   ImgAnnotationListComponent,
+  ListAnnotation,
   ObjectToStringPipe,
 } from '../../../../../projects/myrmidon/cadmus-img-annotator/src/public-api';
-import { ListAnnotation } from '@myrmidon/cadmus-img-annotator';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-my-img-annotation-list',
