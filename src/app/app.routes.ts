@@ -37,21 +37,21 @@ export const routes: Routes = [
       ),
   },
   // img/sd-img-annotator
-  {
-    path: 'img/sd-img-annotator',
-    loadComponent: () =>
-      import(
-        './components/img/sd-img-annotator-pg/sd-img-annotator-pg.component'
-      ).then((m) => m.SdImgAnnotatorPgComponent),
-  },
+  // {
+  //   path: 'img/sd-img-annotator',
+  //   loadComponent: () =>
+  //     import(
+  //       './components/img/sd-img-annotator-pg/sd-img-annotator-pg.component'
+  //     ).then((m) => m.SdImgAnnotatorPgComponent),
+  // },
   // img/sd-img-gallery
-  {
-    path: 'img/sd-img-gallery',
-    loadComponent: () =>
-      import(
-        './components/img/sd-img-gallery-pg/sd-img-gallery-pg.component'
-      ).then((m) => m.SdImgGalleryPgComponent),
-  },
+  // {
+  //   path: 'img/sd-img-gallery',
+  //   loadComponent: () =>
+  //     import(
+  //       './components/img/sd-img-gallery-pg/sd-img-gallery-pg.component'
+  //     ).then((m) => m.SdImgGalleryPgComponent),
+  // },
   // mat/physical-grid
   {
     path: 'mat/physical-grid',

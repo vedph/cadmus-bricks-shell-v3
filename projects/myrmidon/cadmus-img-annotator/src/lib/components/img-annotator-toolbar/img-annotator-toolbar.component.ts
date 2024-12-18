@@ -48,11 +48,12 @@ export class ImgAnnotatorToolbarComponent implements OnInit, OnDestroy {
    * The tools to display in the toolbar.
    */
   public readonly tools = input<ImgAnnotatorToolbarTool[]>([
-    { id: 'rect', icon: 'rectangle', tip: 'Rectangle' },
+    { id: 'rectangle', icon: 'rectangle', tip: 'Rectangle' },
     { id: 'polygon', icon: 'polyline', tip: 'Polygon' },
-    { id: 'circle', icon: 'radio_button_unchecked', tip: 'Circle' },
-    { id: 'ellipse', icon: 'exposure_zero', tip: 'Ellipse' },
-    { id: 'freehand', icon: 'gesture', tip: 'Freehand' },
+    // TODO: enable when plugins are available
+    // { id: 'circle', icon: 'radio_button_unchecked', tip: 'Circle' },
+    // { id: 'ellipse', icon: 'exposure_zero', tip: 'Ellipse' },
+    // { id: 'freehand', icon: 'gesture', tip: 'Freehand' },
   ]);
 
   /**

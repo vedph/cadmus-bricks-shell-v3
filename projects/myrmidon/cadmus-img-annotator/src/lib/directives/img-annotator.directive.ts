@@ -6,10 +6,13 @@ import {
   input,
   output,
 } from '@angular/core';
-// @ts-ignore
-import { Annotorious } from '@recogito/annotorious';
-// @ts-ignore
-import SelectorPack from '@recogito/annotorious-selector-pack';
+import {
+  Annotator,
+  createImageAnnotator,
+  DrawingTool,
+  ImageAnnotation,
+  ImageAnnotator,
+} from '@annotorious/annotorious';
 
 // https://recogito.github.io/annotorious/api-docs/annotorious
 
@@ -25,87 +28,25 @@ export interface GalleryImage {
 }
 
 /**
- * Annotorious formatter function.
- */
-export type AnnotoriousFormatter = (
-  annotation: any
-) => string | HTMLElement | object;
-
-/**
- * Annotorious configuration.
+ * Annotorious directive configuration.
+ * https://annotorious.dev/api-reference/image-annotator/
  */
 export interface AnnotoriousConfig {
-  allowEmpty?: boolean;
-  crosshair?: boolean;
-  // https://annotorious.github.io/guides/headless-mode
-  disableEditor?: boolean;
-  disableSelect?: boolean;
-  drawOnSingleClick?: boolean;
-  formatters?: AnnotoriousFormatter | AnnotoriousFormatter[];
-  fragmentUnit?: 'pixel' | 'percent';
-  handleRadius?: number;
+  autoSave: boolean;
+  drawingEnabled: boolean;
+  drawingMode: 'drag' | 'click';
+  // added for directive
   image?: HTMLImageElement | string;
-  locale?: string;
-  messages?: { [key: string]: string };
-  readOnly?: boolean;
-  widgets?: any[];
 }
 
 /**
- * An annotation selector in target.
+ * Default configuration for the annotorious directive.
  */
-export interface AnnotationSelector {
-  type: string;
-  conformsTo: string;
-  value: string;
-}
-
-/**
- * An annotation target.
- */
-export interface AnnotationTarget {
-  source: string;
-  selector: AnnotationSelector;
-}
-
-/**
- * An annotation body entry.
- */
-export interface AnnotationBodyEntry {
-  type: string;
-  value: string;
-  purpose: string;
-}
-
-/**
- * An annotation.
- * See https://annotorious.github.io/getting-started/web-annotation.
- */
-export interface Annotation {
-  id?: string;
-  '@context': string;
-  type: string;
-  body?: AnnotationBodyEntry[];
-  target: AnnotationTarget;
-}
-
-/**
- * Annotorious annotation event.
- */
-export interface AnnotationEvent {
-  /**
-   * The annotation involved in this event.
-   */
-  annotation: Annotation;
-  /**
-   * The annotation before it was updated.
-   */
-  prevAnnotation?: Annotation;
-  /**
-   * The function to optionally override a new annotation's ID.
-   */
-  overrideId?: (id: any) => void;
-}
+export const DEFAULT_ANNOTORIOUS_CONFIG: AnnotoriousConfig = {
+  autoSave: false,
+  drawingEnabled: true,
+  drawingMode: 'drag',
+};
 
 /**
  * Essential directive wrapping Recogito's Annotorious.
@@ -115,35 +56,30 @@ export interface AnnotationEvent {
   selector: '[cadmusImgAnnotator]',
 })
 export class ImgAnnotatorDirective {
-  private _ann?: any;
+  private _ann?: ImageAnnotator;
 
   /**
    * The initial configuration for the annotator. Note that the image property
    * will be overridden with the img being decorated by this directive.
    */
-  public readonly config = model<AnnotoriousConfig>({ disableEditor: true });
+  public readonly config = model<AnnotoriousConfig>();
 
   /**
-   * Disables the editor thus toggling the headless mode.
+   * The current drawing tool. The default available tools are rectangle and
+   * polygon, but more can be available from plugins.
    */
-  public readonly disableEditor = input<boolean>(true);
-
-  /**
-   * The current drawing tool. The default available tools are rect and polygon,
-   * but more can be available from plugins.
-   */
-  public readonly tool = input<string>('rect');
+  public readonly tool = input<DrawingTool>('rectangle');
 
   /**
    * The optional initial annotations to show on the image.
    */
-  public readonly annotations = model<any[]>([]);
+  public readonly annotations = model<ImageAnnotation[]>([]);
 
   /**
-   * The selected annotation or its ID. When set, the annotator
+   * The selected annotation. TODO: When set, the annotator
    * will highlight the annotation and open its editor.
    */
-  public selectedAnnotation = input<any>();
+  public readonly selectedAnnotation = input<ImageAnnotation>();
 
   /**
    * The IDs of all the additional selection tools to be used
@@ -162,68 +98,70 @@ export class ImgAnnotatorDirective {
    * can replace the current selection by modifying the received
    * selection and calling annotator.updateSelected(selection, true).
    */
-  public readonly annotatorInit = output<any>();
+  public readonly annotatorInit = output<ImageAnnotator>();
+
+  // EVENT WRAPPERS
+  // https://annotorious.dev/api-reference/events
 
   /**
-   * Fired when the user has canceled a selection, by hitting Cancel in
-   * the editor, or by clicking or tapping outside the selected annotation
-   * shape.
+   * Emitted when an annotation is clicked.
+   * The handler receives the ImageAnnotation and the original pointer
+   * event.
    */
-  public readonly cancelSelected = output<Annotation>();
-
-  /**
-   * Fired when the shape of a newly created selection, or of a selected
-   * annotation is moved or resized. The argument is the annotation target.
-   */
-  public readonly changeSelectionTarget = output<any>();
-
-  /**
-   * Fired every time the user clicks an annotation (regardless of whether
-   * it is already selected or not).
-   */
-  public readonly clickAnnotation = output<AnnotationEvent>();
+  public readonly clickAnnotation = output<{
+    annotation: ImageAnnotation;
+    originalEvent: PointerEvent;
+  }>();
 
   /**
    * Emitted when a new annotation is created.
+   * The handler receives the created ImageAnnotation.
    */
-  public readonly createAnnotation = output<AnnotationEvent>();
-
-  /**
-   * Fires when the user has created a new selection (headless mode).
-   * The handler should modify the selected annotation and call
-   * updateSelected (which is an async function returning a Promise)
-   * to replace it.
-   */
-  public readonly createSelection = output<Annotation>();
+  public readonly createAnnotation = output<ImageAnnotation>();
 
   /**
    * Emitted when an annotation is deleted.
+   * The handler receives the deleted ImageAnnotation.
    */
-  public readonly deleteAnnotation = output<AnnotationEvent>();
+  public readonly deleteAnnotation = output<ImageAnnotation>();
 
   /**
    * Emitted when mouse enters an annotation.
+   * The handler receives the ImageAnnotation.
    */
-  public readonly mouseEnterAnnotation = output<AnnotationEvent>();
+  public readonly mouseEnterAnnotation = output<ImageAnnotation>();
 
   /**
    * Emitted when mouse exits an annotation.
+   * The handler receives the ImageAnnotation.
    */
-  public readonly mouseLeaveAnnotation = output<AnnotationEvent>();
+  public readonly mouseLeaveAnnotation = output<ImageAnnotation>();
 
   /**
-   * Fires when the user selects an existing annotation (headless mode).
-   * The user can then move or delete the annotation; the corresponding
-   * events will be fired (after moving, the updateAnnotation event when
-   * the user clicks outside the shape, or draws another one; after
-   * deleting, the deleteAnnotation event).
+   * Emitted when selection changes.
+   * The handler receives an array of ImageAnnotation's for future use,
+   * but currently it's always an array with a single element, or
+   * an empty array when no selection is made.
    */
-  public readonly selectAnnotation = output<Annotation>();
+  public readonly selectionChanged = output<ImageAnnotation | undefined>();
 
   /**
    * Emitted when an annotation is updated.
+   * The handler receives the updated ImageAnnotation and the previous one.
    */
-  public readonly updateAnnotation = output<AnnotationEvent>();
+  public readonly updateAnnotation = output<{
+    updated: ImageAnnotation;
+    previous: ImageAnnotation;
+  }>();
+
+  /**
+   * OSD only: emitted when the set of annotations visible in the current
+   * viewport changes.
+   * This event is only available on the OpenSeadragonAnnotator and will
+   * respond to zooming and panning of the OpenSeadragon image.
+   * The handler receives an array of ImageAnnotation's.
+   */
+  public readonly viewportIntersect = output<ImageAnnotation[]>();
 
   constructor(private _elementRef: ElementRef<HTMLImageElement>) {
     // when config changes, recreate annotator
@@ -231,13 +169,6 @@ export class ImgAnnotatorDirective {
       console.log('annotator config', this.config());
       this._ann?.destroy();
       this.initAnnotator();
-    });
-
-    // when disableEditor changes, disable annotator
-    effect(() => {
-      // https://annotorious.github.io/guides/headless-mode/
-      console.log('disableEditor', this.disableEditor());
-      this._ann.disableEditor = this.disableEditor();
     });
 
     // when tool changes, select it in the annotator
@@ -261,91 +192,86 @@ export class ImgAnnotatorDirective {
     // when selected annotation changes, select it in the annotator
     effect(() => {
       console.log('selectedAnnotation', this.selectedAnnotation());
-      // select by instance
-      this._ann?.selectAnnotation(this.selectedAnnotation());
+      this._ann?.setSelected(this.selectedAnnotation()?.id);
     });
   }
 
   private initAnnotator(): void {
-    const cfg = this.config() || { disableEditor: true };
+    const cfg = this.config() || DEFAULT_ANNOTORIOUS_CONFIG;
     cfg.image = this._elementRef.nativeElement;
-    this._ann = new Annotorious(cfg);
-
-    // plugin
-    if (this.additionalTools()?.length) {
-      SelectorPack(this._ann, {
-        tools: this.additionalTools(),
-      });
+    if (!cfg.image) {
+      console.error('No image for annotator');
+      this._ann = undefined;
+      return;
     }
+
+    this._ann = createImageAnnotator(cfg.image);
+
+    // plugin TODO
+    // if (this.additionalTools()?.length) {
+    //   SelectorPack(this._ann, {
+    //     tools: this.additionalTools(),
+    //   });
+    // }
 
     // initial annotations
     this._ann.setAnnotations(this.annotations() || []);
 
     // wrap events:
-    // createSelection
-    this._ann.on('createSelection', (selection: Annotation) => {
-      console.log('createSelection', selection);
-      this.createSelection.emit(selection);
-    });
-    // selectAnnotation
-    this._ann.on('selectAnnotation', (selection: Annotation) => {
-      console.log('selectAnnotation', selection);
-      this.selectAnnotation.emit(selection);
-    });
-    // cancelSelected
-    this._ann.on('cancelSelected', (selection: Annotation) => {
-      console.log('cancelSelected', selection);
-      this.cancelSelected.emit(selection);
-    });
+    // clickAnnotation
+    this._ann.on(
+      'clickAnnotation',
+      (annotation: ImageAnnotation, originalEvent: PointerEvent) => {
+        console.log('clickAnnotation', annotation, originalEvent);
+        this.clickAnnotation.emit({ annotation, originalEvent });
+      }
+    );
 
     // createAnnotation
-    // https://annotorious.github.io/api-docs/annotorious/#createannotation
-    this._ann.on(
-      'createAnnotation',
-      (annotation: any, overrideId: (id: any) => void) => {
-        console.log('createAnnotation', annotation);
-        this.createAnnotation.emit({
-          annotation,
-          overrideId,
-        });
-      }
-    );
-
-    // updateAnnotation
-    // https://annotorious.github.io/api-docs/annotorious/#updateannotation
-    this._ann.on('updateAnnotation', (annotation: any, previous: any) => {
-      console.log('updateAnnotation', annotation);
-      this.updateAnnotation.emit({ annotation, prevAnnotation: previous });
+    this._ann.on('createAnnotation', (annotation: ImageAnnotation) => {
+      console.log('createAnnotation', annotation);
+      this.createAnnotation.emit(annotation);
     });
-
     // deleteAnnotation
-    // https://annotorious.github.io/api-docs/annotorious/#deleteannotation
-    this._ann.on('deleteAnnotation', (annotation: any) => {
+    this._ann.on('deleteAnnotation', (annotation: ImageAnnotation) => {
       console.log('deleteAnnotation', annotation);
-      this.deleteAnnotation.emit({ annotation });
+      this.deleteAnnotation.emit(annotation);
+    });
+    // mouseEnterAnnotation
+    this._ann.on('mouseEnterAnnotation', (annotation: ImageAnnotation) => {
+      console.log('mouseEnterAnnotation', annotation);
+      this.mouseEnterAnnotation.emit(annotation);
+    });
+    // mouseLeaveAnnotation
+    this._ann.on('mouseLeaveAnnotation', (annotation: ImageAnnotation) => {
+      console.log('mouseLeaveAnnotation', annotation);
+      this.mouseLeaveAnnotation.emit(annotation);
+    });
+    // selectionChanged
+    this._ann.on('selectionChanged', (annotations: ImageAnnotation[]) => {
+      console.log('selectionChanged', annotations);
+      this.selectionChanged.emit(annotations[0]);
+    });
+    // updateAnnotation
+    this._ann.on(
+      'updateAnnotation',
+      (updated: ImageAnnotation, previous: ImageAnnotation) => {
+        console.log('updateAnnotation', updated, previous);
+        this.updateAnnotation.emit({ updated, previous });
+      }
+    );
+    // viewportIntersect
+    this._ann.on('viewportIntersect', (annotations: ImageAnnotation[]) => {
+      console.log('viewportIntersect', annotations);
+      this.viewportIntersect.emit(annotations);
     });
 
-    // mouse
-    // https://annotorious.github.io/api-docs/annotorious/#mouseenterannotation
-    this._ann.on(
-      'mouseEnterAnnotation',
-      (annotation: any, element: HTMLElement) => {
-        this.mouseEnterAnnotation.emit({ annotation });
-      }
-    );
-    // https://annotorious.github.io/api-docs/annotorious/#mouseleaveannotation
-    this._ann.on(
-      'mouseLeaveAnnotation',
-      (annotation: any, element: HTMLElement) => {
-        this.mouseLeaveAnnotation.emit({ annotation });
-      }
-    );
-
-    // default drawing tool
-    if (this.tool() !== 'rect') {
+    // set the default drawing tool
+    if (this.tool() !== 'rectangle') {
       this._ann.setDrawingTool(this.tool());
     }
 
+    // emit the annotator on init completion
     this.annotatorInit.emit(this._ann);
   }
 

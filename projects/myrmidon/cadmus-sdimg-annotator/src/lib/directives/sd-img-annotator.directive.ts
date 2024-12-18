@@ -8,11 +8,7 @@ import {
   model,
   output,
 } from '@angular/core';
-import {
-  Annotation,
-  AnnotationEvent,
-  AnnotoriousConfig,
-} from '@myrmidon/cadmus-img-annotator';
+import { AnnotoriousConfig } from '@myrmidon/cadmus-img-annotator';
 // @ts-ignore
 // import { OSDAnnotorious } from '@recogito/annotorious-openseadragon';
 // import * as OSDAnnotorious from '@recogito/annotorious-openseadragon';
@@ -22,6 +18,7 @@ import OSDAnnotorious from '@recogito/annotorious-openseadragon';
 import { Viewer } from 'openseadragon';
 // @ts-ignore
 import SelectorPack from '@recogito/annotorious-selector-pack';
+import { ImageAnnotation } from '@annotorious/annotorious';
 
 @Directive({
   standalone: true,
@@ -59,8 +56,8 @@ export class SdImgAnnotatorDirective implements AfterViewInit {
   public readonly annotations = input<any[]>([]);
 
   /**
-   * The selected annotation or its ID. When set, the annotator
-   * will highlight the annotation and open its editor.
+   * The selected ImageAnnotation or its ID. When set, the annotator
+   * will highlight the ImageAnnotation and open its editor.
    */
   public selectedAnnotation = input<any>();
 
@@ -85,64 +82,64 @@ export class SdImgAnnotatorDirective implements AfterViewInit {
 
   /**
    * Fired when the user has canceled a selection, by hitting Cancel in
-   * the editor, or by clicking or tapping outside the selected annotation
+   * the editor, or by clicking or tapping outside the selected ImageAnnotation
    * shape.
    */
-  public readonly cancelSelected = output<Annotation>();
+  public readonly cancelSelected = output<ImageAnnotation>();
 
   /**
    * Fired when the shape of a newly created selection, or of a selected
-   * annotation is moved or resized. The argument is the annotation target.
+   * ImageAnnotation is moved or resized. The argument is the ImageAnnotation target.
    */
   public readonly changeSelectionTarget = output<any>();
 
   /**
-   * Fired every time the user clicks an annotation (regardless of whether
+   * Fired every time the user clicks an ImageAnnotation (regardless of whether
    * it is already selected or not).
    */
-  public readonly clickAnnotation = output<AnnotationEvent>();
+  public readonly clickAnnotation = output<ImageAnnotation>();
 
   /**
-   * Emitted when a new annotation is created.
+   * Emitted when a new ImageAnnotation is created.
    */
-  public readonly createAnnotation = output<AnnotationEvent>();
+  public readonly createAnnotation = output<ImageAnnotation>();
 
   /**
    * Fires when the user has created a new selection (headless mode).
-   * The handler should modify the selected annotation and call
+   * The handler should modify the selected ImageAnnotation and call
    * updateSelected (which is an async function returning a Promise)
    * to replace it.
    */
-  public readonly createSelection = output<Annotation>();
+  public readonly createSelection = output<ImageAnnotation>();
 
   /**
-   * Emitted when an annotation is deleted.
+   * Emitted when an ImageAnnotation is deleted.
    */
-  public readonly deleteAnnotation = output<AnnotationEvent>();
+  public readonly deleteAnnotation = output<ImageAnnotation>();
 
   /**
-   * Emitted when mouse enters an annotation.
+   * Emitted when mouse enters an ImageAnnotation.
    */
-  public readonly mouseEnterAnnotation = output<AnnotationEvent>();
+  public readonly mouseEnterAnnotation = output<ImageAnnotation>();
 
   /**
-   * Emitted when mouse exits an annotation.
+   * Emitted when mouse exits an ImageAnnotation.
    */
-  public readonly mouseLeaveAnnotation = output<AnnotationEvent>();
+  public readonly mouseLeaveAnnotation = output<ImageAnnotation>();
 
   /**
-   * Fires when the user selects an existing annotation (headless mode).
-   * The user can then move or delete the annotation; the corresponding
+   * Fires when the user selects an existing ImageAnnotation (headless mode).
+   * The user can then move or delete the ImageAnnotation; the corresponding
    * events will be fired (after moving, the updateAnnotation event when
    * the user clicks outside the shape, or draws another one; after
    * deleting, the deleteAnnotation event).
    */
-  public readonly selectAnnotation = output<Annotation>();
+  public readonly selectAnnotation = output<ImageAnnotation>();
 
   /**
-   * Emitted when an annotation is updated.
+   * Emitted when an ImageAnnotation is updated.
    */
-  public readonly updateAnnotation = output<AnnotationEvent>();
+  public readonly updateAnnotation = output<ImageAnnotation>();
 
   constructor(private _ngZone: NgZone, private el: ElementRef) {
     // when source changes, reinit annotator
@@ -173,7 +170,7 @@ export class SdImgAnnotatorDirective implements AfterViewInit {
       }
     });
 
-    // when selected annotation changes, select it in the annotator
+    // when selected ImageAnnotation changes, select it in the annotator
     effect(() => {
       this._ann?.selectAnnotation(this.selectedAnnotation());
     });
@@ -217,51 +214,51 @@ export class SdImgAnnotatorDirective implements AfterViewInit {
 
     // wrap events:
     // createSelection
-    this._ann.on('createSelection', (selection: Annotation) => {
+    this._ann.on('createSelection', (selection: ImageAnnotation) => {
       console.log('ann-createSelection');
       this.createSelection.emit(selection);
     });
     // selectAnnotation
-    this._ann.on('selectAnnotation', (selection: Annotation) => {
+    this._ann.on('selectAnnotation', (selection: ImageAnnotation) => {
       this.selectAnnotation.emit(selection);
     });
     // cancelSelected
-    this._ann.on('cancelSelected', (selection: Annotation) => {
+    this._ann.on('cancelSelected', (selection: ImageAnnotation) => {
       this.cancelSelected.emit(selection);
     });
 
     // createAnnotation
-    this._ann.on(
-      'createAnnotation',
-      (annotation: any, overrideId: (id: any) => void) => {
-        console.log('ann-createAnnotation');
-        this.createAnnotation.emit({
-          annotation,
-          overrideId,
-        });
-      }
-    );
+    // this._ann.on(
+    //   'createAnnotation',
+    //   (ImageAnnotation: any, overrideId: (id: any) => void) => {
+    //     console.log('ann-createAnnotation');
+    //     this.createAnnotation.emit({
+    //       ImageAnnotation,
+    //       overrideId,
+    //     });
+    //   }
+    // );
     // updateAnnotation
-    this._ann.on('updateAnnotation', (annotation: any, previous: any) => {
-      this.updateAnnotation.emit({ annotation, prevAnnotation: previous });
-    });
+    // this._ann.on('updateAnnotation', (ImageAnnotation: any, previous: any) => {
+    //   this.updateAnnotation.emit({ ImageAnnotation, prevAnnotation: previous });
+    // });
     // deleteAnnotation
-    this._ann.on('deleteAnnotation', (annotation: any) => {
-      this.deleteAnnotation.emit({ annotation });
-    });
+    // this._ann.on('deleteAnnotation', (ImageAnnotation: any) => {
+    //   this.deleteAnnotation.emit({ ImageAnnotation });
+    // });
     // mouse
-    this._ann.on(
-      'mouseEnterAnnotation',
-      (annotation: any, element: HTMLElement) => {
-        this.mouseEnterAnnotation.emit({ annotation });
-      }
-    );
-    this._ann.on(
-      'mouseLeaveAnnotation',
-      (annotation: any, element: HTMLElement) => {
-        this.mouseLeaveAnnotation.emit({ annotation });
-      }
-    );
+    // this._ann.on(
+    //   'mouseEnterAnnotation',
+    //   (ImageAnnotation: any, element: HTMLElement) => {
+    //     this.mouseEnterAnnotation.emit({ ImageAnnotation });
+    //   }
+    // );
+    // this._ann.on(
+    //   'mouseLeaveAnnotation',
+    //   (ImageAnnotation: any, element: HTMLElement) => {
+    //     this.mouseLeaveAnnotation.emit({ ImageAnnotation });
+    //   }
+    // );
 
     // default drawing tool
     if (this.tool() !== 'rect') {

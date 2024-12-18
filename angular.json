@@ -30,16 +30,11 @@
               }
             ],
             "styles": [
-              "node_modules/@recogito/annotorious/dist/annotorious.min.css",
+              "node_modules/@annotorious/annotorious/dist/annotorious.css",
               "src/styles.scss"
             ],
             "scripts": [],
-            "allowedCommonJsDependencies": [
-              "openseadragon",
-              "@recogito/annotorious",
-              "@recogito/annotorious-selector-pack",
-              "@recogito/annotorious-openseadragon"
-            ]
+            "allowedCommonJsDependencies": ["openseadragon"]
           },
           "configurations": {
             "production": {

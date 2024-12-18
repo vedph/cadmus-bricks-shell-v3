@@ -2,14 +2,21 @@
 
 📦 `@myrmidon/cadmus-img-annotator`
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
+This requires [Annotorious V3](https://annotorious.dev):
 
-Since its version 3, this library has been refactored to use Annotorious _headless mode_. In this mode, the Annotorious library is used only for drawing, while disposing of its default popup UI. This allows for much more customization, even if at a price of higher code complexity.
+```bash
+npm install @annotorious/annotorious openseadragon @annotorious/openseadragon
+```
+
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
 
 - [CadmusImgAnnotator](#cadmusimgannotator)
   - [Overview](#overview)
   - [Requirements](#requirements)
   - [Components](#components)
+    - [ImgAnnotatorDirective](#imgannotatordirective)
+    - [ImgAnnotatorToolbar](#imgannotatortoolbar)
+    - [ImgAnnotationList](#imgannotationlist)
   - [Usage](#usage)
     - [Annotated Image](#annotated-image)
     - [Annotated Image with Gallery](#annotated-image-with-gallery)
@@ -27,9 +34,7 @@ The architecture of the image annotation subsystem is represented by these libra
 - `cadmus-img-gallery`: gallery-specific components.
 - `cadmus-img-gallery-iiif`: IIIF-related services for galleries.
 
-At the core there is the **annotator component**, an Angular directive (=template-less component) wrapping the [Annotorious library](https://annotorious.github.io/api-docs/annotorious) used in _headless mode_.
-
->Headless mode disallows the usage of Annotorious standard UI for editing W3C-based annotations, leaving to the consumer code the task of providing its own UI.
+At the core there is the **annotator component**, an Angular directive (=template-less component) wrapping the [Annotorious library](https://annotorious.dev).
 
 This component is used as an `img` element attribute, and wires Annotorious to the image, while providing a number of events reporting user interaction to the outer world. Among these events, there is also one which provides an Annotorious core instance (depicted as the gray circled `A` in the above schema), to be directly used for interacting with this subsystem.
 
@@ -64,6 +69,8 @@ Thus, the gallery image annotator provides a way of selecting an image from a se
 
 ## Requirements
 
+TODO update
+
 - [Annotorious API](https://annotorious.github.io/api-docs/annotorious)
 - [Annotorious Plugins](https://annotorious.github.io/plugins)
 - [Annotorious Selector Pack](https://github.com/annotorious/annotorious-v2-selector-pack)
@@ -93,16 +100,16 @@ declare module "@recogito/annotorious";
 You can now import and use like this:
 
 ```ts
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 // @ts-ignore
-import { Annotorious } from '@recogito/annotorious';
+import { Annotorious } from "@recogito/annotorious";
 // @ts-ignore
-import SelectorPack from '@recogito/annotorious-selector-pack';
+import SelectorPack from "@recogito/annotorious-selector-pack";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"],
 })
 export class AppComponent {
   ngAfterViewInit(): void {
@@ -123,38 +130,62 @@ export class AppComponent {
 
 ## Components
 
-This library contains the following components:
+### ImgAnnotatorDirective
 
-- `ImgAnnotatorDirective` is the lowest level component, in charge of communicating with an Annotorious `annotator`. To use it, just add `cadmusImgAnnotator` as an attribute to your `img` element.
-  - ➡️ input:
-    - `config: AnnotoriousConfig | undefined`
-    - `disableEditor: boolean | undefined`
-    - `tool: string`
-    - `annotations: any[]`
-    - `selectedAnnotation: any | undefined`
-    - `additionalTools: string[] | undefined`
-  - ⬅️  output:
-    - `annotatorInit: any`
-    - `cancelSelected: Annotation`
-    - `changeSelectionTarget: any`
-    - `clickAnnotation: AnnotationEvent`
-    - `createAnnotation: AnnotationEvent`
-    - `createSelection: Annotation`
-    - `deleteAnnotation: AnnotationEvent`
-    - `mouseEnterAnnotation: AnnotationEvent`
-    - `mouseLeaveAnnotation: AnnotationEvent`
-    - `selectAnnotation: Annotation`
-    - `updateAnnotation: AnnotationEvent`
+`ImgAnnotatorDirective` is the lowest level component, in charge of communicating with an Annotorious `annotator`. To use it, just add `cadmusImgAnnotator` as an attribute to your `img` element.
 
-- `ImgAnnotatorToolbar` is a dumb component used to provide a toolbar for selecting the drawing tool when using `ImgAnnotatorDirective`.
-- ➡️ input:
-  - tools: list of tools, each with its Annotorious ID, icon, and tip. Usually you won't set this but just use the default.
-- ⬅️  output:
+- ▶️ input:
+  - `config` (`AnnotoriousConfig | undefined`): the configuration, usually just set once.
+  - `tool` (`string`): the selection tool to use.
+  - `annotations` (`ImageAnnotation[]`): the initial annotations.
+  - `selectedAnnotation` (`ImageAnnotation | undefined`): the selected annotation.
+  - `additionalTools` (`string[] | undefined`)
+- 🔥 output:
+  - `annotatorInit` (`ImageAnnotator`): fired when the wrapped annotator has been initialized.
+  - `clickAnnotation` (`{annotation: ImageAnnotation, originalEvent: PointerEvent}`)
+  - `createAnnotation` (`ImageAnnotation`)
+  - `deleteAnnotation` (`ImageAnnotation`)
+  - `mouseEnterAnnotation`  (`ImageAnnotation`)
+  - `mouseLeaveAnnotation`  (`ImageAnnotation`)
+  - `selectionChanged` (`ImageAnnotation | undefined`)
+  - `updateAnnotation` (`{ updated: ImageAnnotation, previous: ImageAnnotation }`)
+  - `viewportIntersect` (`ImageAnnotation[]`): OSD only, emitted when the set of annotations visible in the current viewport changes.
+
+### ImgAnnotatorToolbar
+
+`ImgAnnotatorToolbar` is a dumb component used to provide a toolbar for selecting the drawing tool when using `ImgAnnotatorDirective`.
+
+- ▶️ input:
+  - `tools`: list of tools, each with its Annotorious ID, icon, and tip. Usually you won't set this but just use the default.
+- 🔥 output:
   - `toolChange`: emitted when the control is initialized, and whenever the tool is changed.
 
->Toolbar consumers just handle the `toolChange` event to set a `tool` property; the annotator directive's `tool` property is bound to it.
+>💡 Toolbar consumers just handle the `toolChange` event to set a `tool` property; the annotator directive's `tool` property is bound to it.
 
-- `ImgAnnotationList<T>` (where `T` is the annotation payload type) is a list of image annotations. This list empowers an image annotations list component by maintaining a list of annotation/payload pairs for each annotation, where the payload type is defined by `T`. This list requires an instance of Annotorious `annotator`, and the type of the editor component to use for editing each annotation. It will then use the annotator to keep in synch with Annotorious, and a dialog wrapper to edit each annotation via the provided editor. Consumers should thus provide an annotation editor and a corresponding dialog component wrapper, which wires the annotation to the editor.
+### ImgAnnotationList
+
+`ImgAnnotationList<T>` (where `T` is the annotation payload type) is a list of image annotations.
+
+This list empowers an image annotations list component by maintaining a list of annotation/payload pairs for each annotation, where the payload type is defined by `T`.
+
+This list requires an instance of Annotorious `annotator`, and the type of the editor component to use for editing each annotation. It will then use the annotator to keep in synch with Annotorious, and a dialog wrapper to edit each annotation via the provided editor. 
+
+Consumers should thus provide an annotation editor and a corresponding dialog component wrapper, which wires the annotation to the editor.
+
+This list manages its own internal storage of annotations, which wrap the inner annotator's annotations by adding to them some metadata essential to the UI (like the reference image), plus the payload specific to the attached model. It also manages the annotation selection.
+
+This implies that the list has to keep its own storage in synch with the annotator's storage.
+
+Typically, the annotation flow is:
+
+- **creation**: the user creates a new annotation by dragging. This triggers the `createAnnotation` event in the wrapped annotator, where the newly created annotation gets selected. The create event is handled by the wrapper directive which just forwards the received event, and the list handles it as follows:
+  - the annotation editor dialog is opened.
+  - when the dialog is dismissed with OK, the annotation gets updated in the wrapped annotator, and added in the internal storage, enriched with the payload provided by the dialog.
+  - if instead the dialog is dismissed with cancel, the created annotation gets removed from both the wrapped annotator and the internal storage.
+
+- **update**:
+
+TODO
 
 - `ImgAnnotationListComponent<T>` (where `T` is the annotation payload type) is a base class for image annotations list components. Derive your component from this, wiring its input `annotator` and `editorComponent` properties. Once both these are set, the list is initialized and ready to be used.
   - ➡️ input:
@@ -276,11 +307,7 @@ with its template:
       <button type="button" mat-icon-button (click)="close()">
         <mat-icon class="mat-warn">cancel</mat-icon>
       </button>
-      <button
-        type="submit"
-        mat-icon-button
-        [disabled]="form.pristine || form.invalid"
-      >
+      <button type="submit" mat-icon-button [disabled]="form.pristine || form.invalid">
         <mat-icon class="mat-primary">check_circle</mat-icon>
       </button>
     </div>
@@ -312,28 +339,22 @@ You can find an example of this component in this demo app at `edit-annotation-c
 For instance, here is a wrapper using an any-type payload for the demo editor (which has no payload at all):
 
 ```ts
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject } from "@angular/core";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
-import {
-  Annotation,
-  ListAnnotation,
-} from 'projects/myrmidon/cadmus-img-annotator/src/public-api';
+import { Annotation, ListAnnotation } from "projects/myrmidon/cadmus-img-annotator/src/public-api";
 
 /**
  * A dialog wrapping an annotation editor. This just wires the received
  * data with the editor.
  */
 @Component({
-  selector: 'app-edit-annotation-dialog',
-  templateUrl: './edit-annotation-dialog.component.html',
-  styleUrls: ['./edit-annotation-dialog.component.css'],
+  selector: "app-edit-annotation-dialog",
+  templateUrl: "./edit-annotation-dialog.component.html",
+  styleUrls: ["./edit-annotation-dialog.component.css"],
 })
 export class EditAnnotationDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<EditAnnotationDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ListAnnotation<any>
-  ) {}
+  constructor(public dialogRef: MatDialogRef<EditAnnotationDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: ListAnnotation<any>) {}
 
   onCloseClick(): void {
     this.dialogRef.close();
@@ -351,24 +372,20 @@ and its template:
 <h1 mat-dialog-title>Edit Annotation</h1>
 <div mat-dialog-content>
   <!-- this is your own list annotation editor -->
-  <app-edit-annotation
-    [annotation]="data"
-    (cancel)="onCloseClick()"
-    (annotationChange)="onSaveClick($event)"
-  ></app-edit-annotation>
+  <app-edit-annotation [annotation]="data" (cancel)="onCloseClick()" (annotationChange)="onSaveClick($event)"></app-edit-annotation>
 </div>
 ```
 
 (2C) a customized version of an **annotations list component**, derived from `ImgAnnotationListComponent<T>`. Typically all what you have to do is implement a few methods for user actions, and use the type argument corresponding to your payload (in this sample we just have `any` because it is related to the app's sample with no payload).
 
 ```ts
-import { Component } from '@angular/core';
-import { ImgAnnotationListComponent } from 'projects/myrmidon/cadmus-img-annotator/src/public-api';
+import { Component } from "@angular/core";
+import { ImgAnnotationListComponent } from "projects/myrmidon/cadmus-img-annotator/src/public-api";
 
 @Component({
-  selector: 'app-my-img-annotation-list',
-  templateUrl: './my-img-annotation-list.component.html',
-  styleUrls: ['./my-img-annotation-list.component.css'],
+  selector: "app-my-img-annotation-list",
+  templateUrl: "./my-img-annotation-list.component.html",
+  styleUrls: ["./my-img-annotation-list.component.css"],
 })
 export class MyImgAnnotationListComponent extends ImgAnnotationListComponent<any> {
   public selectAnnotation(annotation: any): void {
@@ -398,33 +415,15 @@ Its template should represent the list of annotations, so here you are free to i
       </tr>
     </thead>
     <tbody>
-      <tr
-        *ngFor="let a of annotations; let i = index"
-        [class.selected]="a === (list!.selectedAnnotation$ | async)"
-      >
+      <tr *ngFor="let a of annotations; let i = index" [class.selected]="a === (list!.selectedAnnotation$ | async)">
         <td class="fit-width">
-          <button
-            type="button"
-            mat-icon-button
-            (click)="selectAnnotation(i)"
-            matTooltip="Select annotation"
-          >
+          <button type="button" mat-icon-button (click)="selectAnnotation(i)" matTooltip="Select annotation">
             <mat-icon>check_circle</mat-icon>
           </button>
-          <button
-            type="button"
-            mat-icon-button
-            (click)="removeAnnotation(i)"
-            matTooltip="Remove annotation"
-          >
+          <button type="button" mat-icon-button (click)="removeAnnotation(i)" matTooltip="Remove annotation">
             <mat-icon class="mat-warn">delete</mat-icon>
           </button>
-          <button
-            type="button"
-            mat-icon-button
-            (click)="editAnnotation(i)"
-            matTooltip="Edit annotation"
-          >
+          <button type="button" mat-icon-button (click)="editAnnotation(i)" matTooltip="Edit annotation">
             <mat-icon class="mat-primary">edit</mat-icon>
           </button>
         </td>
@@ -482,9 +481,9 @@ Here is a sample code:
 
 ```ts
 @Component({
-  selector: 'app-my-gallery-image-annotator',
-  templateUrl: './my-gallery-image-annotator.component.html',
-  styleUrls: ['./my-gallery-image-annotator.component.css'],
+  selector: "app-my-gallery-image-annotator",
+  templateUrl: "./my-gallery-image-annotator.component.html",
+  styleUrls: ["./my-gallery-image-annotator.component.css"],
 })
 export class MyGalleryImageAnnotatorComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
@@ -494,9 +493,9 @@ export class MyGalleryImageAnnotatorComponent implements OnInit, OnDestroy {
   public entries: ThesaurusEntry[];
   public annotator?: any;
   public editorComponent = EditAnnotationDialogComponent;
-  public tool: string = 'rect';
+  public tool: string = "rect";
   public tabIndex: number = 0;
- 
+
   /**
    * The gallery image to annotate.
    */
@@ -534,9 +533,7 @@ export class MyGalleryImageAnnotatorComponent implements OnInit, OnDestroy {
    * Emitted whenever annotations change.
    */
   @Output()
-  public annotationsChange: EventEmitter<
-    GalleryAnnotatedImage<MyAnnotationPayload>
-  >;
+  public annotationsChange: EventEmitter<GalleryAnnotatedImage<MyAnnotationPayload>>;
 
   constructor(
     public dialog: MatDialog,
@@ -546,19 +543,17 @@ export class MyGalleryImageAnnotatorComponent implements OnInit, OnDestroy {
     private _options: GalleryOptionsService,
     formBuilder: FormBuilder
   ) {
-    this.annotationsChange = new EventEmitter<
-      GalleryAnnotatedImage<MyAnnotationPayload>
-    >();
+    this.annotationsChange = new EventEmitter<GalleryAnnotatedImage<MyAnnotationPayload>>();
 
     // mock filter entries
     this.entries = [
       {
-        id: 'title',
-        value: 'title',
+        id: "title",
+        value: "title",
       },
       {
-        id: 'dsc',
-        value: 'description',
+        id: "dsc",
+        value: "description",
       },
     ];
   }
@@ -602,7 +597,7 @@ export class MyGalleryImageAnnotatorComponent implements OnInit, OnDestroy {
     if (this.form.invalid) {
       return;
     }
-    const annotations = JSON.parse(this.json.value || '[]');
+    const annotations = JSON.parse(this.json.value || "[]");
     this._list?.setAnnotations(annotations);
   }
 
@@ -662,43 +657,19 @@ and its template:
     <div id="container">
       <div id="image" *ngIf="image">
         <div>
-          <cadmus-img-annotator-toolbar
-            (toolChange)="onToolChange($event)"
-          ></cadmus-img-annotator-toolbar>
+          <cadmus-img-annotator-toolbar (toolChange)="onToolChange($event)"></cadmus-img-annotator-toolbar>
         </div>
         <div>
-          <img
-            alt="image"
-            cadmusImgAnnotator
-            (createAnnotation)="onCreateAnnotation($event)"
-            (updateAnnotation)="onUpdateAnnotation($event)"
-            (deleteAnnotation)="onDeleteAnnotation($event)"
-            (createSelection)="onCreateSelection($event)"
-            (selectAnnotation)="onSelectAnnotation($event)"
-            (cancelSelected)="onCancelSelected($event)"
-            (annotatorInit)="onAnnotatorInit($event)"
-            [disableEditor]="true"
-            [tool]="tool"
-            [additionalTools]="['circle', 'ellipse', 'freehand']"
-            [src]="image!.uri"
-          />
+          <img alt="image" cadmusImgAnnotator (createAnnotation)="onCreateAnnotation($event)" (updateAnnotation)="onUpdateAnnotation($event)" (deleteAnnotation)="onDeleteAnnotation($event)" (createSelection)="onCreateSelection($event)" (selectAnnotation)="onSelectAnnotation($event)" (cancelSelected)="onCancelSelected($event)" (annotatorInit)="onAnnotatorInit($event)" [disableEditor]="true" [tool]="tool" [additionalTools]="['circle', 'ellipse', 'freehand']" [src]="image!.uri" />
         </div>
       </div>
       <div id="list">
-        <app-my-img-annotation-list
-          [image]="image!"
-          [annotator]="annotator"
-          [editorComponent]="editorComponent"
-          (listInit)="onListInit($event)"
-        ></app-my-img-annotation-list>
+        <app-my-img-annotation-list [image]="image!" [annotator]="annotator" [editorComponent]="editorComponent" (listInit)="onListInit($event)"></app-my-img-annotation-list>
       </div>
     </div>
   </mat-tab>
   <mat-tab label="Gallery">
-    <cadmus-gallery-list
-      [entries]="entries"
-      (imagePick)="onImagePick($event)"
-    ></cadmus-gallery-list>
+    <cadmus-gallery-list [entries]="entries" (imagePick)="onImagePick($event)"></cadmus-gallery-list>
   </mat-tab>
 </mat-tab-group>
 ```

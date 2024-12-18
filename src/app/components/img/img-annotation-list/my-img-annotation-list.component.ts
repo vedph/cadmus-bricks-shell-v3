@@ -21,7 +21,7 @@ export class MyImgAnnotationListComponent extends ImgAnnotationListComponent<any
   }
 
   public removeAnnotation(index: number): void {
-    this.list?.removeAnnotation(index);
+    this.list?.removeAnnotationAt(index);
   }
 
   public editAnnotation(annotation: any): void {

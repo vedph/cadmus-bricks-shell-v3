@@ -34,8 +34,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
 import {
-  Annotation,
-  AnnotationEvent,
   GalleryImage,
   ImgAnnotationList,
   ImgAnnotatorDirective,
@@ -50,6 +48,7 @@ import {
 } from '../../../../../projects/myrmidon/cadmus-img-gallery/src/public-api';
 import { EditAnnotationDialogComponent } from '../edit-annotation-dialog/edit-annotation-dialog.component';
 import { MyImgAnnotationListComponent } from '../img-annotation-list/my-img-annotation-list.component';
+import { ImageAnnotation } from '@annotorious/annotorious';
 
 /**
  * Sample image annotation payload: this just contains a note.
@@ -209,16 +208,8 @@ export class MyGalleryImageAnnotatorComponent implements OnInit, OnDestroy {
     this._list?.setAnnotations(annotations);
   }
 
-  public onCreateSelection(annotation: Annotation) {
-    this._list?.onCreateSelection(annotation);
-  }
-
-  public onSelectAnnotation(annotation: Annotation) {
-    this._list?.onSelectAnnotation(annotation);
-  }
-
-  public onCancelSelected(annotation: Annotation) {
-    this._list?.onCancelSelected(annotation);
+  public onSelectionChange(annotation?: ImageAnnotation) {
+    this._list?.onSelectionChange(annotation);
   }
 
   public editAnnotation(index: number): void {
@@ -226,23 +217,19 @@ export class MyGalleryImageAnnotatorComponent implements OnInit, OnDestroy {
   }
 
   public selectAnnotation(index: number): void {
-    this._list?.selectAnnotation(index);
+    this._list?.selectAnnotationAt(index);
   }
 
   public removeAnnotation(index: number): void {
-    this._list?.removeAnnotation(index);
+    this._list?.removeAnnotationAt(index);
   }
 
-  public onCreateAnnotation(event: AnnotationEvent) {
-    this._list?.onCreateAnnotation(event);
+  public onCreateAnnotation(annotation: ImageAnnotation) {
+    this._list?.onCreateAnnotation(annotation);
   }
 
-  public onUpdateAnnotation(event: AnnotationEvent) {
-    this._list?.onUpdateAnnotation(event);
-  }
-
-  public onDeleteAnnotation(event: AnnotationEvent) {
-    this._list?.onDeleteAnnotation(event);
+  public onDeleteAnnotation(annotation: ImageAnnotation) {
+    this._list?.onDeleteAnnotation(annotation);
   }
 
   public onImagePick(image: GalleryImage): void {

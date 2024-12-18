@@ -11,13 +11,8 @@
             alt="image"
             cadmusImgAnnotator
             (createAnnotation)="onCreateAnnotation($event)"
-            (updateAnnotation)="onUpdateAnnotation($event)"
             (deleteAnnotation)="onDeleteAnnotation($event)"
-            (createSelection)="onCreateSelection($event)"
-            (selectAnnotation)="onSelectAnnotation($event)"
-            (cancelSelected)="onCancelSelected($event)"
             (annotatorInit)="onAnnotatorInit($event)"
-            [disableEditor]="true"
             [tool]="tool"
             [additionalTools]="['circle', 'ellipse', 'freehand']"
             [src]="image!.uri"

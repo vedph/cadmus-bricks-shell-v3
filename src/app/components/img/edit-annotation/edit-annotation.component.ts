@@ -87,20 +87,22 @@ export class EditAnnotationComponent {
     }
 
     this.text.setValue(
-      annotation.value.body?.length ? annotation.value.body[0].value : ''
+      annotation.value.bodies?.length ? annotation.value.bodies[0].value || '' : ''
     );
     this.form.markAsPristine();
   }
 
   private getAnnotation(): ListAnnotation<any> {
-    if (this._annotation!.value.body!.length === 0) {
-      this._annotation!.value.body!.push({
+    if (this._annotation!.value.bodies!.length === 0) {
+      this._annotation!.value.bodies.push({
+        id: '', // TODO create ID
+        annotation: this._annotation!.id,
         type: 'TextualBody',
         value: this.text.value || '',
         purpose: 'commenting',
       });
     } else {
-      this._annotation!.value!.body![0].value = this.text.value || '';
+      this._annotation!.value!.bodies[0].value = this.text.value || '';
     }
     let a: ListAnnotation<any> = {
       id: this._annotation!.id,

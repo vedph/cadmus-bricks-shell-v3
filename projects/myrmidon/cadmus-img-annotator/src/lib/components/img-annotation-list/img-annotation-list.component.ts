@@ -47,7 +47,7 @@ export abstract class ImgAnnotationListComponent<T> {
   public readonly annotationToString = input<
     (object: ListAnnotation<any>) => string | null
   >((a: ListAnnotation<any>) => {
-    return a.value.body?.length ? a.value.body[0].value : a.id;
+    return a.value.bodies?.length ? a.value.bodies[0].value || null : a.id;
   });
 
   /**

@@ -22,9 +22,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { JoinPipe } from '@myrmidon/ngx-tools';
-import { AnnotationEvent, GalleryImage } from '@myrmidon/cadmus-img-annotator';
+import { GalleryImage } from '@myrmidon/cadmus-img-annotator';
 import { GalleryImageAnnotation } from '@myrmidon/cadmus-img-gallery';
 import { SdImgAnnotatorDirective } from '@myrmidon/cadmus-sdimg-annotator';
+import { ImageAnnotation } from '@annotorious/annotorious';
 
 interface GalleryImgAnnotatorData {
   image?: GalleryImage;
@@ -119,19 +120,19 @@ export class GallerySdimgAnnotatorComponent implements OnInit, OnDestroy {
     });
   }
 
-  private eventToAnnotation(event: AnnotationEvent): GalleryImageAnnotation {
-    return {
-      id: event.annotation.id!,
-      target: this._data$.value.image!,
-      selector: event.annotation.target.selector.value,
-      notes: event.annotation.body
-        ?.filter((e) => e.purpose === 'commenting')
-        .map((e) => e.value),
-      tags: event.annotation.body
-        ?.filter((e) => e.purpose === 'tagging')
-        .map((e) => e.value),
-    };
-  }
+  // private eventToAnnotation(annotation: ImageAnnotation): GalleryImageAnnotation {
+    // return {
+    //   id: annotation.id!,
+    //   target: this._data$.value.image!,
+    //   selector: annotation.target.selector.value,
+    //   notes: annotation.bodies
+    //     ?.filter((e) => e.purpose === 'commenting')
+    //     .map((e) => e.value),
+    //   tags: event.annotation.body
+    //     ?.filter((e) => e.purpose === 'tagging')
+    //     .map((e) => e.value),
+    // };
+  // }
 
   private annotationsToW3C(annotations: GalleryImageAnnotation[]): any[] {
     if (!annotations.length) {
@@ -192,71 +193,71 @@ export class GallerySdimgAnnotatorComponent implements OnInit, OnDestroy {
     this._sub?.unsubscribe();
   }
 
-  public onCreateAnnotation(event: AnnotationEvent) {
-    // append the newly created W3C annotation
-    this.w3cAnnotations = [...this.w3cAnnotations, event.annotation];
+  public onCreateAnnotation(event: ImageAnnotation) {
+    // // append the newly created W3C annotation
+    // this.w3cAnnotations = [...this.w3cAnnotations, event.annotation];
 
-    // append the annotation
-    const annotations = [...this._data$.value.annotations];
-    annotations.push(this.eventToAnnotation(event));
-    this._frozen = true;
-    this._data$.next({
-      image: this._data$.value.image,
-      annotations: annotations,
-    });
-    this._frozen = false;
+    // // append the annotation
+    // const annotations = [...this._data$.value.annotations];
+    // annotations.push(this.eventToAnnotation(event));
+    // this._frozen = true;
+    // this._data$.next({
+    //   image: this._data$.value.image,
+    //   annotations: annotations,
+    // });
+    // this._frozen = false;
 
-    // fire event
-    this.annotationsChange.emit(annotations);
+    // // fire event
+    // this.annotationsChange.emit(annotations);
   }
 
-  public onUpdateAnnotation(event: AnnotationEvent) {
-    // replace the old W3C annotation with the new one
-    const i = this.annotations().findIndex((a) => a.id === event.annotation.id);
-    if (i > -1) {
-      const w3cAnnotations = [...this.w3cAnnotations];
-      w3cAnnotations.splice(i, 1, event.annotation);
-      this.w3cAnnotations = w3cAnnotations;
+  public onUpdateAnnotation(event: ImageAnnotation) {
+    // // replace the old W3C annotation with the new one
+    // const i = this.annotations().findIndex((a) => a.id === event.annotation.id);
+    // if (i > -1) {
+    //   const w3cAnnotations = [...this.w3cAnnotations];
+    //   w3cAnnotations.splice(i, 1, event.annotation);
+    //   this.w3cAnnotations = w3cAnnotations;
 
-      // replace the annotation
-      const annotations = [...this._data$.value.annotations];
-      annotations.splice(i, 1, this.eventToAnnotation(event));
-      this._frozen = true;
-      this._data$.next({
-        image: this._data$.value.image,
-        annotations: annotations,
-      });
-      this._frozen = false;
+    //   // replace the annotation
+    //   const annotations = [...this._data$.value.annotations];
+    //   annotations.splice(i, 1, this.eventToAnnotation(event));
+    //   this._frozen = true;
+    //   this._data$.next({
+    //     image: this._data$.value.image,
+    //     annotations: annotations,
+    //   });
+    //   this._frozen = false;
 
-      // fire event
-      this.annotationsChange.emit(annotations);
-    }
+    //   // fire event
+    //   this.annotationsChange.emit(annotations);
+    // }
   }
 
-  public onDeleteAnnotation(event: AnnotationEvent) {
-    // delete the W3C annotation
-    const i = this._data$.value.annotations.findIndex(
-      (a) => a.id === event.annotation.id
-    );
-    if (i === -1) {
-      return;
-    }
-    const w3cAnnotations = [...this.w3cAnnotations];
-    w3cAnnotations.splice(i, 1);
-    this.w3cAnnotations = w3cAnnotations;
+  public onDeleteAnnotation(annotation: ImageAnnotation) {
+    // // delete the W3C annotation
+    // const i = this._data$.value.annotations.findIndex(
+    //   (a) => a.id === event.annotation.id
+    // );
+    // if (i === -1) {
+    //   return;
+    // }
+    // const w3cAnnotations = [...this.w3cAnnotations];
+    // w3cAnnotations.splice(i, 1);
+    // this.w3cAnnotations = w3cAnnotations;
 
-    // delete the annotation
-    const annotations = [...this._data$.value.annotations];
-    annotations.splice(i, 1);
-    this._frozen = true;
-    this._data$.next({
-      image: this._data$.value.image,
-      annotations: annotations,
-    });
-    this._frozen = false;
+    // // delete the annotation
+    // const annotations = [...this._data$.value.annotations];
+    // annotations.splice(i, 1);
+    // this._frozen = true;
+    // this._data$.next({
+    //   image: this._data$.value.image,
+    //   annotations: annotations,
+    // });
+    // this._frozen = false;
 
-    // fire event
-    this.annotationsChange.emit(annotations);
+    // // fire event
+    // this.annotationsChange.emit(annotations);
   }
 
   public selectAnnotation(index: number): void {
