@@ -56,6 +56,9 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
   private _changeFrozen?: boolean;
   private _dropNextChange?: boolean;
 
+  /**
+   * The label to display for this dimension.
+   */
   public readonly label = input<string>();
 
   // physical-size-units
@@ -64,7 +67,7 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
     { id: 'mm', value: 'mm' },
   ]);
 
-  // physical-size-tags
+  // physical-size-dim-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
 
   /**

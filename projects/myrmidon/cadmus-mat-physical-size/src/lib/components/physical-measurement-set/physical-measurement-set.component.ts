@@ -15,6 +15,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -24,7 +25,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subscription } from 'rxjs';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { FlatLookupPipe } from '@myrmidon/ngx-tools';
@@ -45,7 +45,7 @@ export interface PhysicalMeasurement extends PhysicalDimension {
  * Editor for a set of physical measurements.
  */
 @Component({
-  selector: 'cadmus-physical-measurement-set',
+  selector: 'cadmus-mat-physical-measurement-set',
   imports: [
     CommonModule,
     FormsModule,
