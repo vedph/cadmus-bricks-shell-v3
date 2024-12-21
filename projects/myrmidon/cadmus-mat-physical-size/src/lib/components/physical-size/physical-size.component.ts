@@ -6,7 +6,6 @@ import {
   model,
   OnDestroy,
   OnInit,
-  output,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -16,6 +15,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +31,6 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
 import { PhysicalDimension } from '../physical-dimension/physical-dimension.component';
 import { PhysicalSizeParser } from './physical-size-parser';
-import { Subscription } from 'rxjs';
 
 /**
  * A physical 1D, 2D or 3D size.
@@ -104,7 +103,7 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
   /**
    * True to hide the tag.
    */
-  public readonly noTag = input<boolean>();
+  public readonly hideTag = input<boolean>();
 
   public form: FormGroup;
   public tag: FormControl<string | null>;
