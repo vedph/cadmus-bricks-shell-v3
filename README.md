@@ -8,11 +8,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Imaging
 
-- [@myrmidon/cadmus-img-annotator](projects/myrmidon/cadmus-img-annotator/README.md)
-- [@myrmidon/cadmus-img-gallery](projects/myrmidon/cadmus-img-gallery/README.md)
-- [@myrmidon/cadmus-img-gallery-iiif](projects/myrmidon/cadmus-img-gallery-iiif/README.md)
-- [@myrmidon/cadmus-sdimg-annotator](projects/myrmidon/cadmus-sdimg-annotator/README.md)
-- [@myrmidon/cadmus-sdimg-gallery](projects/myrmidon/cadmus-sdimg-gallery/README.md)
+All imaging libraries have been moved into a separate repository: [@myrmidon/ngx-annotorious](https://github.com/vedph/ngx-annotorious).
 
 ## Physical
 
@@ -65,9 +61,6 @@ ng add @angular/material
 ng add @angular/localize
 
 ng g library @myrmidon/cadmus-cod-location --prefix cadmus
-ng g library @myrmidon/cadmus-img-annotator --prefix cadmus
-ng g library @myrmidon/cadmus-img-gallery --prefix cadmus
-ng g library @myrmidon/cadmus-img-gallery-iiif --prefix cadmus
 ng g library @myrmidon/cadmus-mat-physical-grid --prefix cadmus
 ng g library @myrmidon/cadmus-mat-physical-size --prefix cadmus
 ng g library @myrmidon/cadmus-mat-physical-state --prefix cadmus
@@ -84,8 +77,6 @@ ng g library @myrmidon/cadmus-refs-historical-date --prefix cadmus
 ng g library @myrmidon/cadmus-refs-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-proper-name --prefix cadmus
 ng g library @myrmidon/cadmus-refs-viaf-lookup --prefix cadmus
-ng g library @myrmidon/cadmus-sdimg-annotator --prefix cadmus
-ng g library @myrmidon/cadmus-sdimg-gallery --prefix cadmus
 ng g library @myrmidon/cadmus-text-block-view --prefix cadmus
 ng g library @myrmidon/cadmus-text-ed --prefix cadmus
 ng g library @myrmidon/cadmus-text-ed-md --prefix cadmus
