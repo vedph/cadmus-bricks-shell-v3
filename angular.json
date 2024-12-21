@@ -29,12 +29,8 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "node_modules/@annotorious/annotorious/dist/annotorious.css",
-              "src/styles.scss"
-            ],
-            "scripts": [],
-            "allowedCommonJsDependencies": ["openseadragon"]
+            "styles": ["src/styles.scss"],
+            "scripts": []
           },
           "configurations": {
             "production": {
