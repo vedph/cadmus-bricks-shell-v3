@@ -25,14 +25,6 @@ import {
   PROXY_INTERCEPTOR_OPTIONS,
   ProxyInterceptor,
 } from '../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
-import {
-  IMAGE_GALLERY_OPTIONS_KEY,
-  IMAGE_GALLERY_SERVICE_KEY,
-} from '../../projects/myrmidon/cadmus-img-gallery/src/public-api';
-import {
-  SimpleIiifGalleryOptions,
-  SimpleIiifGalleryService,
-} from '../../projects/myrmidon/cadmus-img-gallery-iiif/src/public-api';
 import { GEONAMES_USERNAME_TOKEN } from '../../projects/myrmidon/cadmus-refs-geonames-lookup/src/public-api';
 import { WHG_USERNAME_TOKEN } from '../../projects/myrmidon/cadmus-refs-whg-lookup/src/public-api';
 
@@ -92,44 +84,6 @@ export const appConfig: ApplicationConfig = {
     {
       provide: ThesaurusService,
       useClass: MockThesaurusService,
-    },
-    // if you want to use the mock gallery, uncomment these two providers
-    // and comment the IIIF ones below.
-    // mock image gallery
-    // {
-    //   provide: IMAGE_GALLERY_SERVICE_KEY,
-    //   useClass: MockGalleryService,
-    // },
-    // {
-    //   provide: IMAGE_GALLERY_OPTIONS_KEY,
-    //   useValue: {
-    //     baseUri: '',
-    //     count: 50,
-    //     width: 300,
-    //     height: 400,
-    //   },
-    // },
-    // IIIF image gallery
-    {
-      provide: IMAGE_GALLERY_SERVICE_KEY,
-      useClass: SimpleIiifGalleryService,
-    },
-    {
-      provide: IMAGE_GALLERY_OPTIONS_KEY,
-      useValue: {
-        baseUri: '',
-        manifestUri:
-          'https://dms-data.stanford.edu/data/manifests/Parker/xj710dc7305/manifest.json',
-        arrayPath: 'sequences[0]/canvases',
-        resourcePath: 'images[0]/resource',
-        labelPath: 'label',
-        width: 300,
-        height: 400,
-        targetWidth: 800,
-        targetHeight: -1,
-        pageSize: 6,
-        // skip: 6
-      } as SimpleIiifGalleryOptions,
     },
     // GeoNames lookup (see environment.prod.ts for the username)
     {

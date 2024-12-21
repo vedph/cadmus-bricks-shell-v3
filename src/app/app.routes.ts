@@ -12,46 +12,6 @@ export const routes: Routes = [
         (m) => m.CodLocationPgComponent
       ),
   },
-  // img/img-annotator
-  {
-    path: 'img/img-annotator',
-    loadComponent: () =>
-      import(
-        './components/img/img-annotator-pg/img-annotator-pg.component'
-      ).then((m) => m.ImgAnnotatorPgComponent),
-  },
-  // img/img-annotator-toolbar
-  {
-    path: 'img/img-annotator-toolbar',
-    loadComponent: () =>
-      import(
-        './components/img/img-annotator-toolbar-pg/img-annotator-toolbar-pg.component'
-      ).then((m) => m.ImgAnnotatorToolbarPgComponent),
-  },
-  // img/img-gallery
-  {
-    path: 'img/img-gallery',
-    loadComponent: () =>
-      import('./components/img/img-gallery-pg/img-gallery-pg.component').then(
-        (m) => m.ImgGalleryPgComponent
-      ),
-  },
-  // img/sd-img-annotator
-  // {
-  //   path: 'img/sd-img-annotator',
-  //   loadComponent: () =>
-  //     import(
-  //       './components/img/sd-img-annotator-pg/sd-img-annotator-pg.component'
-  //     ).then((m) => m.SdImgAnnotatorPgComponent),
-  // },
-  // img/sd-img-gallery
-  // {
-  //   path: 'img/sd-img-gallery',
-  //   loadComponent: () =>
-  //     import(
-  //       './components/img/sd-img-gallery-pg/sd-img-gallery-pg.component'
-  //     ).then((m) => m.SdImgGalleryPgComponent),
-  // },
   // mat/physical-grid
   {
     path: 'mat/physical-grid',
