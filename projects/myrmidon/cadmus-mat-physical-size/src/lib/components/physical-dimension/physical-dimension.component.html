@@ -21,7 +21,7 @@
     }
   </mat-form-field>
 
-  @if (!noTag) {
+  @if (!hideTag()) {
   <!-- tag (bound) -->
   @if (tagEntries()?.length) {
   <mat-form-field class="tag">
@@ -33,7 +33,6 @@
     </mat-select>
   </mat-form-field>
   }
-
   <!-- tag (free) -->
   @else {
   <mat-form-field class="tag">

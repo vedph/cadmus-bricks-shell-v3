@@ -6,7 +6,6 @@ import {
   model,
   OnDestroy,
   OnInit,
-  output,
   ViewChild,
 } from '@angular/core';
 import {
@@ -198,7 +197,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   }
 
   public addBatchMeasurements(): void {
-    // parse from batch.value with form "name=value unit;name=value unit;..."
+    // parse from batch.value with form "name=value unit (tag);..."
     const entries = this.batch.value
       ?.split(';')
       .filter((s) => s.trim().length > 0);

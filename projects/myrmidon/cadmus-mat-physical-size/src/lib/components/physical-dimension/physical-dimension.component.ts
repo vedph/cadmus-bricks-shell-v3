@@ -5,7 +5,6 @@ import {
   model,
   OnDestroy,
   OnInit,
-  output,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -55,6 +54,7 @@ export interface PhysicalDimension {
 export class PhysicalDimensionComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
   private _changeFrozen?: boolean;
+  private _dropNextChange?: boolean;
 
   public readonly label = input<string>();
 
@@ -78,9 +78,9 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
   public readonly disabled = input<boolean>();
 
   /**
-   * True if the control should not show the tag field.
+   * True if the tag should be hidden.
    */
-  public readonly noTag = input<boolean>();
+  public readonly hideTag = input<boolean>();
 
   public value: FormControl<number>;
   public unit: FormControl<string | null>;
@@ -99,6 +99,10 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
 
     // when dimension changes, update form
     effect(() => {
+      if (this._dropNextChange) {
+        this._dropNextChange = false;
+        return;
+      }
       this.updateForm(this.dimension());
     });
 
@@ -120,6 +124,7 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(300))
       .subscribe((_) => {
         if (!this._changeFrozen) {
+          this._dropNextChange = true;
           this.dimension.set(this.getModel());
         }
       });

@@ -1,7 +1,7 @@
 <mat-card appearance="outlined">
   <mat-card-header>
     <mat-card-title>
-      <h2>Physical Sizes Set</h2>
+      <h2>Physical Measurements Set</h2>
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
@@ -20,6 +20,7 @@
       />
     </div>
     @if (measurements.length) {
+    <hr />
     <div>
       <pre>{{ measurements | json }}</pre>
     </div>
