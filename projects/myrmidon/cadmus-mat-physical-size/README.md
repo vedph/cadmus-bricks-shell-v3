@@ -20,7 +20,7 @@ This component allows you to edit a 2D or 3D physical size.
   - defaultWUnit (`string`): default unit for width (default=`cm`).
   - defaultHUnit (`string`): default unit for height (default=`cm`).
   - defaultDUnit (`string`): default unit for depth (default=`cm`).
-  - hBeforeW (`boolean?`): true if the height comes before the width in the text representation.
+  - hBeforeW (`boolean?`): true if the height comes before the width (both in text and visual representation).
   - hideTag (`boolean?`)
 - 🔥 output:
   - sizeChange (`PhysicalSize`)
