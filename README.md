@@ -9,6 +9,12 @@ This is Cadmus bricks version 3, derived from [Cadmus bricks version 2](https://
 
 All the V3 bricks align with modern Angular, so they are standalone components, and use signal-based input and output properties.
 
+To use a brick:
+
+1. install the package with NPM. If additional third-party dependencies or configuration is required, this is documented in the package README (see the list below).
+2. import the component(s) you want to use.
+3. use the brick via its selector in your component template, binding it to your code as required by its API.
+
 ## Codicology
 
 - [@myrmidon/cadmus-cod-location](projects/myrmidon/cadmus-cod-location/README.md)
@@ -60,7 +66,9 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 - [@myrmidon/cadmus-ui-flag-set](projects/myrmidon/cadmus-ui-flag-set/README.md)
 - [@myrmidon/cadmus-ui-note-set](projects/myrmidon/cadmus-ui-note-set/README.md)
 
-## Setup
+## V3 Creation
+
+I created this workspace with these commands:
 
 ```bash
 ng new cadmus-bricks-shell-v3
