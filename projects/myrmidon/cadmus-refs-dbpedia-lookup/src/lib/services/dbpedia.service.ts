@@ -38,7 +38,7 @@ export interface DbpediaOptions {
 }
 
 const SEARCH_URI = 'https://lookup.dbpedia.org/api/search';
-const PREFIX_URI = 'https://lookup.dbpedia.org/api/prefix';
+const PREFIX_URI = 'https://lookup.dbpedia.org/api/search';
 
 /**
  * Default options for DBPedia keyword lookup.
