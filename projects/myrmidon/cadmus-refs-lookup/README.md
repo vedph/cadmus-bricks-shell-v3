@@ -4,6 +4,49 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
 
+- [CadmusRefsLookup](#cadmusrefslookup)
+  - [RefLookupComponent](#reflookupcomponent)
+  - [RefLookupSetComponent](#reflookupsetcomponent)
+  - [Lookup](#lookup)
+    - [Usage](#usage)
+  - [Lookup Set](#lookup-set)
+    - [Configuring Set](#configuring-set)
+
+## RefLookupComponent
+
+Generic reference lookup component. You must set the `service` property to the lookup service, implementing the `LookupService` interface, and optionally the current lookup `item`. Optionally set the `label` and `limit`, and `hasMore` to true if you want a _more_ button for more complex lookup.
+
+- 🔑 `RefLookupComponent`
+- 🚩 `cadmus-ref-lookup`
+- ▶️ input:
+  - label (`string?`)
+  - limit (`number`, default=10): max number of items to retrieve for lookup.
+  - baseFilter (`unknown`): the base filter object to supply when filtering data in this lookup. If you have more filtering criteria set by your client code, set this property to an object representing the filter criteria. This object will be used as the base object when invoking the lookup service.
+  - service\* (`RefLookupService`)
+  - item (`unknown?`): current lookup item.
+  - required (`boolean?`)
+  - hasMore (`boolean?`)
+  - linkTemplate (`string?`): the optional template to be used when building the URI pointing to the external resource and linked by the _Link_ button. The ID placeholder is represented by a property path included in `{}`, e.g. `{id}` or `{some.id}`. If undefined, no link button will be displayed.
+  - optDialog (`unknown`): when using quick options, this is a component used to customize the lookup `options`.
+  - options (`unknown`): options for lookup.
+- 🔥 output:
+  - moreRequest (`unknown?`): request for a more complex lookup. This receives the current item, if any.
+
+## RefLookupSetComponent
+
+A set of lookup items. Each has its own configuration and uses a specific service.
+
+- 🔑 `RefLookupSetComponent`
+- 🚩 `cadmus-ref-lookup-set`
+- ▶️ input:
+  - configs\* (`RefLookupConfig[]`)
+  - iconSize (`IconSize`, default=24x24)
+- 📚 thesauri:
+- 🔥 output:
+  - configChange (`RefLookupConfig`): emitted when the currently selected lookup configuration changes.
+  - itemChange (`RefLookupSetEvent`)
+  - moreRequest (`RefLookupSetEvent`)
+
 ## Lookup
 
 The lookup component is a general purpose lookup where:

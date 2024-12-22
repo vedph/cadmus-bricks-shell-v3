@@ -17,10 +17,13 @@
       label="color"
       (itemChange)="onItemChange($event)"
       (moreRequest)="onMoreRequest()"
-    ></cadmus-ref-lookup>
+    />
+    <hr />
     @if (item) {
     <div>
-      <pre>{{ item | json }}</pre>
+      <code>
+        <pre>{{ item | json }}</pre>
+      </code>
     </div>
     }
     <div style="margin-top: 8px">

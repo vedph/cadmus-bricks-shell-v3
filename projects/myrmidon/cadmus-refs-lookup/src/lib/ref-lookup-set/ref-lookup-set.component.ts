@@ -155,7 +155,7 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
   /**
    * Configuration for each lookup.
    */
-  public readonly configs = input<RefLookupConfig[]>([]);
+  public readonly configs = input.required<RefLookupConfig[]>();
 
   /**
    * The icon size used for lookup items.
@@ -163,7 +163,7 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
   public readonly iconSize = input<IconSize>({ width: 24, height: 24 });
 
   /**
-   * Emitted when the configuration changes.
+   * Emitted when the currently selected lookup configuration changes.
    */
   public readonly configChange = output<RefLookupConfig>();
 

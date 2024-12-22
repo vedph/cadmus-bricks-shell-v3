@@ -11,8 +11,11 @@
       (moreRequest)="onMoreRequest($event)"
     />
     @if (item) {
+    <hr />
     <div>
-      <pre>{{ item | json }}</pre>
+      <code>
+        <pre>{{ item | json }}</pre>
+      </code>
     </div>
     }
   </mat-card-content>
