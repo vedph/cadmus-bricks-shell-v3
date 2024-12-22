@@ -32,6 +32,9 @@ import { PinRefLookupService } from '../services/pin-ref-lookup.service';
 import { ScopedPinLookupComponent } from '../scoped-pin-lookup/scoped-pin-lookup.component';
 import { Subscription } from 'rxjs';
 
+/**
+ * An asserted ID.
+ */
 export interface AssertedId {
   tag?: string;
   value: string;
@@ -40,6 +43,9 @@ export interface AssertedId {
   assertion?: Assertion;
 }
 
+/**
+ * Asserted ID editor component.
+ */
 @Component({
   selector: 'cadmus-refs-asserted-id',
   templateUrl: './asserted-id.component.html',

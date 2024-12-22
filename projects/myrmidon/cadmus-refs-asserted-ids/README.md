@@ -8,9 +8,9 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [External IDs](#external-ids)
   - [Internal IDs](#internal-ids)
   - [ID Components](#id-components)
-  - [Asserted ID Component](#asserted-id-component)
+  - [AssertedIdComponent](#assertedidcomponent)
     - [Configuring Asserted ID](#configuring-asserted-id)
-  - [Asserted IDs Component](#asserted-ids-component)
+  - [AssertedIdsComponent](#assertedidscomponent)
   - [PinTargetLookupComponent](#pintargetlookupcomponent)
     - [Configuring the Target ID Editor](#configuring-the-target-id-editor)
   - [Asserted Composite ID](#asserted-composite-id)
@@ -68,29 +68,30 @@ According to the scenario illustrated above, the basic requirements for ID compo
 
 Various components from this library provide a different level of complexity, so you can pick the one which best fits your purposes; in general, the most powerful and versatile ID picker is represented by the [asserted composite ID](#asserted-composite-id), which can be used for both external and internal IDs, with full lookup support from lookup providers in either case.
 
-## Asserted ID Component
+## AssertedIdComponent
 
 - 🔑 `AssertedIdComponent`
 - 🚩 `cadmus-refs-asserted-id`
 - ▶️ input:
-  - `id` (`AssertedId? | null`)
-  - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
-  - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
-  - `assTagEntries` (`ThesaurusEntry[]?`): 📚 `assertion-tags`.
-  - `refTypeEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-types`.
-  - `refTagEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-tags`.
-  - `external` (`boolean?`)
-  - `hasSubmit` (`boolean?`)
-  - `pinByTypeMode` (`boolean?`)
-  - `canSwitchMode` (`boolean?`)
-  - `canEditTarget` (`boolean?`)
-  - `defaultPartTypeKey` (`string?|null`)
-  - `lookupDefinitions` (`IndexLookupDefinitions?`)
-  - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
-- ⚡ output:
-  - `idChange` (`AssertedId`)
-  - `editorClose`
-  - `extMoreRequest` (`RefLookupSetEvent`): the user requested more about the current external lookup source.
+  - id (`AssertedId? | null`)
+  - external (`boolean?`)
+  - hasSubmit (`boolean?`)
+  - pinByTypeMode (`boolean?`)
+  - canSwitchMode (`boolean?`)
+  - canEditTarget (`boolean?`)
+  - defaultPartTypeKey (`string?|null`)
+  - lookupDefinitions (`IndexLookupDefinitions?`)
+  - internalDefault (`boolean?`): true to start a new ID as internal rather than external
+- 📚 thesauri:
+  - `asserted-id-scopes` (idScopeEntries)
+  - `asserted-id-tags` (idTagEntries).
+  - `assertion-tags` (assTagEntries).
+  - `doc-reference-types` (refTypeEntries).
+  - `doc-reference-tags` (refTagEntries).
+- 🔥 output:
+  - idChange (`AssertedId`)
+  - editorClose
+  - extMoreRequest (`RefLookupSetEvent`): the user requested more about the current external lookup source.
 
 The asserted ID component allows editing a simple model representing a generic ID with an optional assertion. The ID has:
 
@@ -164,37 +165,37 @@ export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
 
 >Note that while pin name and type will not be displayed to the end user, the key of each definition will. Unless you have a single definition, the lookup component will display a dropdown list with all the available keys, so that the user can select the lookup's scope. So, use short, yet meaningful keys here, like in the above sample (`meta_eid`, `event_eid`).
 
-## Asserted IDs Component
+## AssertedIdsComponent
+
+An editable list of asserted IDs.
 
 - 🔑 `AssertedIdsComponent`
 - 🚩 `cadmus-refs-asserted-ids`
-
-The corresponding asserted IDs brick is just a collection of one or more [asserted ID](#asserted-id-component)s.
-
 - ▶️ input:
-  - `ids` (`AssertedId[]`)
-  - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
-  - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
-  - `assTagEntries` (`ThesaurusEntry[]?`): 📚 `assertion-tags`.
-  - `refTypeEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-types`.
-  - `refTagEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-tags`.
-- ⚡ output:
-  - `idsChange` (`AssertedId[]`)
+  - ids (`AssertedId[]`)
+- 📚 thesauri:
+  - `asserted-id-scopes` (idScopeEntries)
+  - `asserted-id-tags` (idTagEntries)
+  - `assertion-tags` (assTagEntries)
+  - `doc-reference-types` (refTypeEntries)
+  - `doc-reference-tags` (refTagEntries)
+- 🔥 output:
+  - idsChange (`AssertedId[]`)
 
 ## PinTargetLookupComponent
 
 - ▶️ input:
-  - `target` (`PinTarget? | null`)
-  - `pinByTypeMode` (`boolean?`)
-  - `canSwitchMode` (`boolean?`)
-  - `canEditTarget` (`boolean?`)
-  - `defaultPartTypeKey` (`string?|null`)
-  - `lookupDefinitions` (`IndexLookupDefinitions?`)
-  - `extLookupConfigs` (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
-  - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
-- ⚡ output:
-  - `targetChange` (`PinTarget`)
-  - `editorClose`
+  - target (`PinTarget? | null`)
+  - pinByTypeMode (`boolean?`)
+  - canSwitchMode (`boolean?`)
+  - canEditTarget (`boolean?`)
+  - defaultPartTypeKey (`string?|null`)
+  - lookupDefinitions (`IndexLookupDefinitions?`)
+  - extLookupConfigs (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
+  - internalDefault (`boolean?`): true to start a new ID as internal rather than external
+- 🔥 output:
+  - targetChange (`PinTarget`)
+  - editorClose
 
 This component is used to edit an internal or external ID via lookup, and is the core of the [asserted composite ID](#asserted-composite-id) component:
 
@@ -279,18 +280,19 @@ export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
 - 🔑 `AssertedCompositeIdComponent`
 - 🚩 `cadmus-refs-asserted-composite-id`
 - ▶️ input:
-  - `ids` (`AssertedId[]`)
-  - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
-  - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
-  - `assTagEntries` (`ThesaurusEntry[]?`): 📚 `assertion-tags`.
-  - `refTypeEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-types`.
-  - `refTagEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-tags`.
-  - `pinByTypeMode` (`boolean?`)
-  - `canSwitchMode` (`boolean?`)
-  - `canEditTarget` (`boolean?`)
-  - `defaultPartTypeKey` (`string?|null`)
-  - `lookupDefinitions` (`IndexLookupDefinitions?`)
-  - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
+  - ids (`AssertedId[]`)
+  - pinByTypeMode (`boolean?`)
+  - canSwitchMode (`boolean?`)
+  - canEditTarget (`boolean?`)
+  - defaultPartTypeKey (`string?|null`)
+  - lookupDefinitions (`IndexLookupDefinitions?`)
+  - internalDefault (`boolean?`): true to start a new ID as internal rather than external
+- 📚 thesauri:
+  - `asserted-id-scopes` (idScopeEntries)
+  - `asserted-id-tags` (idTagEntries)
+  - `assertion-tags` (assTagEntries)
+  - `doc-reference-types` (refTypeEntries)
+  - `doc-reference-tags` (refTagEntries)
 - ⚡ output:
   - `idsChange` (`AssertedId[]`)
   - `extMoreRequest` (`RefLookupSetEvent`): the user requested more about the current external lookup source.
@@ -333,23 +335,23 @@ Three components are used for this brick:
 
 ## Asserted Composite IDs
 
+A collection of asserted composite IDs.
+
 - 🔑 `AssertedCompositeIdsComponent`
 - 🚩 `cadmus-refs-asserted-composite-ids`
-
-The corresponding asserted IDs brick is just a collection of one or more [asserted ID](#asserted-id-component)s.
-
 - ▶️ input:
-  - `ids` (`AssertedId[]`)
-  - `idScopeEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-scopes`.
-  - `idTagEntries` (`ThesaurusEntry[]?`): 📚 `asserted-id-tags`.
-  - `assTagEntries` (`ThesaurusEntry[]?`): 📚 `assertion-tags`.
-  - `refTypeEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-types`.
-  - `refTagEntries` (`ThesaurusEntry[]?`): 📚 `doc-reference-tags`.
-  - `pinByTypeMode` (`boolean?`)
-  - `canSwitchMode` (`boolean?`)
-  - `canEditTarget` (`boolean?`)
-  - `defaultPartTypeKey` (`string?|null`)
-  - `lookupDefinitions` (`IndexLookupDefinitions?`)
-  - `internalDefault` (`boolean?`): true to start a new ID as internal rather than external
+  - ids (`AssertedId[]`)
+  - pinByTypeMode (`boolean?`)
+  - canSwitchMode (`boolean?`)
+  - canEditTarget (`boolean?`)
+  - defaultPartTypeKey (`string?|null`)
+  - lookupDefinitions (`IndexLookupDefinitions?`)
+  - internalDefault (`boolean?`): true to start a new ID as internal rather than external
+- 📚 thesauri:
+  - `asserted-id-scopes` (idScopeEntries)
+  - `asserted-id-tags` (idTagEntries)
+  - `assertion-tags` (assTagEntries)
+  - `doc-reference-types` (refTypeEntries)
+  - `doc-reference-tags` (refTagEntries)
 - ⚡ output:
-  - `idsChange` (`AssertedCompositeId[]`)
+  - idsChange (`AssertedCompositeId[]`)
