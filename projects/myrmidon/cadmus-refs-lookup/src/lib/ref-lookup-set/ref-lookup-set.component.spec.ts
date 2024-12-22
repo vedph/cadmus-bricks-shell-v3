@@ -8,7 +8,7 @@ describe('RefLookupSetComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RefLookupSetComponent]
+      imports: [RefLookupSetComponent]
     });
     fixture = TestBed.createComponent(RefLookupSetComponent);
     component = fixture.componentInstance;

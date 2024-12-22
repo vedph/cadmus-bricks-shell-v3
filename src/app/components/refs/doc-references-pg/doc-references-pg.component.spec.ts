@@ -8,9 +8,8 @@ describe('DocReferencesPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DocReferencesPgComponent ]
-    })
-    .compileComponents();
+      imports: [DocReferencesPgComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

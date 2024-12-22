@@ -8,7 +8,7 @@ describe('RefLookupSetPgComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RefLookupSetPgComponent]
+      imports: [RefLookupSetPgComponent]
     });
     fixture = TestBed.createComponent(RefLookupSetPgComponent);
     component = fixture.componentInstance;

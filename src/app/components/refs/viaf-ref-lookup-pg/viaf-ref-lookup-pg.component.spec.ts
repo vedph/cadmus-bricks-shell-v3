@@ -8,7 +8,7 @@ describe('ViafRefLookupPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ViafRefLookupPgComponent ]
+      imports: [ ViafRefLookupPgComponent ]
     })
     .compileComponents();
   });

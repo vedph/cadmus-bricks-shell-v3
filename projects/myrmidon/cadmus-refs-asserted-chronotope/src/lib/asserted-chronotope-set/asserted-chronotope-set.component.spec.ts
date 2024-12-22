@@ -8,7 +8,7 @@ describe('AssertedChronotopeSetComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AssertedChronotopeSetComponent ]
+      imports: [ AssertedChronotopeSetComponent ]
     })
     .compileComponents();
   });

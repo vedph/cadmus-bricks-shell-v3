@@ -8,7 +8,7 @@ describe('DecoratedCountsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DecoratedCountsComponent ]
+      imports: [ DecoratedCountsComponent ]
     })
     .compileComponents();
   });

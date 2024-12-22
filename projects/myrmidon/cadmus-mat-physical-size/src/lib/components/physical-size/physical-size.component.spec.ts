@@ -8,7 +8,7 @@ describe('PhysicalSizeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PhysicalSizeComponent ]
+      imports: [ PhysicalSizeComponent ]
     })
     .compileComponents();
   });

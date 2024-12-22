@@ -8,9 +8,8 @@ describe('PhysicalDimensionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PhysicalDimensionComponent ]
-    })
-    .compileComponents();
+      imports: [PhysicalDimensionComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

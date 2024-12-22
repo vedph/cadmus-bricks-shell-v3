@@ -8,7 +8,7 @@ describe('HistoricalDatePgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ HistoricalDatePgComponent ]
+      imports: [ HistoricalDatePgComponent ]
     })
     .compileComponents();
   });

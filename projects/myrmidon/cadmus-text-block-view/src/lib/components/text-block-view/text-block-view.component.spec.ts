@@ -8,7 +8,7 @@ describe('TextBlockViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TextBlockViewComponent ]
+      imports: [ TextBlockViewComponent ]
     })
     .compileComponents();
   });

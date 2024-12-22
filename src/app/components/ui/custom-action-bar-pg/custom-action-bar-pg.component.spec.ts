@@ -8,7 +8,7 @@ describe('CustomActionBarPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CustomActionBarPgComponent ]
+      imports: [ CustomActionBarPgComponent ]
     })
     .compileComponents();
 

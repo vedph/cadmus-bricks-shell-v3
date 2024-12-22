@@ -8,7 +8,7 @@ describe('PinTargetLookupComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PinTargetLookupComponent ]
+      imports: [ PinTargetLookupComponent ]
     })
     .compileComponents();
 

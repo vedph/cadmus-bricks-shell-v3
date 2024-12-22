@@ -8,7 +8,7 @@ describe('ScopedPinLookupComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ScopedPinLookupComponent ]
+      imports: [ ScopedPinLookupComponent ]
     })
     .compileComponents();
 

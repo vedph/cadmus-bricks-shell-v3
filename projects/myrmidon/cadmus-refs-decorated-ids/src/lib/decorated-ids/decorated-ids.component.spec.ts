@@ -8,7 +8,7 @@ describe('DecoratedIdsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DecoratedIdsComponent ]
+      imports: [ DecoratedIdsComponent ]
     })
     .compileComponents();
   });

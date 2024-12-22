@@ -8,7 +8,7 @@ describe('NoteSetPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ NoteSetPgComponent ]
+      imports: [ NoteSetPgComponent ]
     })
     .compileComponents();
 

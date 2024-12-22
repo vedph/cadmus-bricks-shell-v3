@@ -8,7 +8,7 @@ describe('ProperNamePgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ProperNamePgComponent ]
+      imports: [ ProperNamePgComponent ]
     })
     .compileComponents();
   });

@@ -8,9 +8,8 @@ describe('DecoratedCountsPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DecoratedCountsPgComponent ]
-    })
-    .compileComponents();
+      imports: [DecoratedCountsPgComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -8,7 +8,7 @@ describe('NoteSetComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ NoteSetComponent ]
+      imports: [ NoteSetComponent ]
     })
     .compileComponents();
   });

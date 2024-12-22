@@ -8,7 +8,7 @@ describe('DecoratedIdsPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [DecoratedIdsPgComponent],
+      imports: [DecoratedIdsPgComponent],
     }).compileComponents();
   });
 

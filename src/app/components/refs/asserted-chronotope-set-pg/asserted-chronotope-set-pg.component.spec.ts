@@ -8,7 +8,7 @@ describe('AssertedChronotopeSetPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AssertedChronotopeSetPgComponent ]
+      imports: [ AssertedChronotopeSetPgComponent ]
     })
     .compileComponents();
   });

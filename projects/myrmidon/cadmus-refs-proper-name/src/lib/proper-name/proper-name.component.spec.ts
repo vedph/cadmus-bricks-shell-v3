@@ -8,7 +8,7 @@ describe('ProperNameComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ProperNameComponent ]
+      imports: [ ProperNameComponent ]
     })
     .compileComponents();
   });

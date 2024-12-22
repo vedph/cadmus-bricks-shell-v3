@@ -8,7 +8,7 @@ describe('AssertedIdsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AssertedIdsComponent ]
+      imports: [ AssertedIdsComponent ]
     })
     .compileComponents();
   });

@@ -8,7 +8,7 @@ describe('RefLookupPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RefLookupPgComponent ]
+      imports: [ RefLookupPgComponent ]
     })
     .compileComponents();
   });

@@ -8,7 +8,7 @@ describe('DynamicDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RefLookupOptionsComponent ]
+      imports: [ RefLookupOptionsComponent ]
     })
     .compileComponents();
   });

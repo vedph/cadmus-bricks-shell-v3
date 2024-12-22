@@ -19,6 +19,7 @@ describe('DatationEditorComponent', () => {
         RouterModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
+        DatationComponent
       ],
       // https://github.com/angular/components/issues/14668
       providers: [
@@ -27,7 +28,6 @@ describe('DatationEditorComponent', () => {
           useValue: () => new Promise(() => {}),
         },
       ],
-      declarations: [DatationComponent],
     }).compileComponents();
   }));
 

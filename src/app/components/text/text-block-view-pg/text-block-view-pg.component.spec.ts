@@ -8,7 +8,7 @@ describe('TextBlockViewPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TextBlockViewPgComponent ]
+      imports: [ TextBlockViewPgComponent ]
     })
     .compileComponents();
   });

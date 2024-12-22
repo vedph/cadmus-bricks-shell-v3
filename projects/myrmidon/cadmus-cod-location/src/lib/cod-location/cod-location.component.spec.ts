@@ -12,13 +12,13 @@ describe('CodLocationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CodLocationComponent],
       imports: [
         CommonModule,
         BrowserAnimationsModule,
         FormsModule,
         ReactiveFormsModule,
         MatInputModule,
+        CodLocationComponent
       ],
     }).compileComponents();
   });

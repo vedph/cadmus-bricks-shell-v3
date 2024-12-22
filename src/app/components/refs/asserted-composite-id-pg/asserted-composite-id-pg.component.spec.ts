@@ -8,7 +8,7 @@ describe('AssertedIdPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AssertedCompositeIdPgComponent ]
+      imports: [ AssertedCompositeIdPgComponent ]
     })
     .compileComponents();
   });
