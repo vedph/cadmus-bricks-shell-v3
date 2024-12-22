@@ -19,7 +19,7 @@
     "@angular/core": "^19.0.0",
     "@myrmidon/cadmus-text-ed": "^8.0.0",
     "@myrmidon/cadmus-refs-asserted-ids": "^8.0.0",
-    "@myrmidon/cadmus-api": "^10.0.0"
+    "@myrmidon/cadmus-api": "^10.1.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

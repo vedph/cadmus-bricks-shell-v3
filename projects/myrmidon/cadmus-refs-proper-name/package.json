@@ -17,8 +17,8 @@
   "peerDependencies": {
     "@angular/common": "^19.0.0",
     "@angular/core": "^19.0.0",
-    "@myrmidon/ngx-tools": "^0.0.1",
-    "@myrmidon/cadmus-core": "^10.0.0",
+    "@myrmidon/ngx-tools": "^1.0.0",
+    "@myrmidon/cadmus-core": "^10.1.0",
     "@myrmidon/cadmus-refs-assertion": "^8.0.0"
   },
   "dependencies": {
