@@ -5,7 +5,6 @@ import {
   model,
   OnDestroy,
   OnInit,
-  output,
 } from '@angular/core';
 import {
   FormArray,
@@ -55,7 +54,11 @@ export interface DecoratedCount {
 })
 export class DecoratedCountsComponent implements OnInit, OnDestroy {
   private _subs: Subscription[];
+  private _dropNextInput?: boolean;
 
+  /**
+   * The decorated counts.
+   */
   public readonly counts = model<DecoratedCount[]>();
 
   // decorated-count-ids
@@ -77,6 +80,10 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
 
     // when counts change, update form
     effect(() => {
+      if (this._dropNextInput) {
+        this._dropNextInput = false;
+        return;
+      }
       this.updateForm(this.counts());
     });
   }
@@ -106,7 +113,7 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
         this.entries.controls.push(g);
         this._subs.push(
           g.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-            this.emitCountsChange();
+            this.saveCounts();
           })
         );
       }
@@ -139,13 +146,13 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
     const g = this.getCountGroup(item);
     this._subs.push(
       g.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-        this.emitCountsChange();
+        this.saveCounts();
       })
     );
     this.entries.push(g);
     this.entries.updateValueAndValidity();
     this.entries.markAsDirty();
-    this.emitCountsChange();
+    this.saveCounts();
   }
 
   public removeCount(index: number): void {
@@ -154,7 +161,7 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
     this.entries.removeAt(index);
     this.entries.updateValueAndValidity();
     this.entries.markAsDirty();
-    this.emitCountsChange();
+    this.saveCounts();
   }
 
   public moveCountUp(index: number): void {
@@ -168,7 +175,7 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
     this.entries.insert(index - 1, item);
     this.entries.markAsDirty();
     this.entries.updateValueAndValidity();
-    this.emitCountsChange();
+    this.saveCounts();
   }
 
   public moveCountDown(index: number): void {
@@ -182,7 +189,7 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
     this.entries.insert(index + 1, item);
     this.entries.markAsDirty();
     this.entries.updateValueAndValidity();
-    this.emitCountsChange();
+    this.saveCounts();
   }
 
   private getCounts(): DecoratedCount[] | undefined {
@@ -199,10 +206,11 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
     return counts.length ? counts : undefined;
   }
 
-  public emitCountsChange(): void {
+  public saveCounts(): void {
     if (this.form.invalid) {
       return;
     }
+    this._dropNextInput = true;
     this.counts.set(this.getCounts());
   }
 }
