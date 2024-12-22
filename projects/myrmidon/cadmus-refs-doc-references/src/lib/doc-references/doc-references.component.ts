@@ -3,8 +3,8 @@ import {
   Component,
   effect,
   input,
+  model,
   OnDestroy,
-  output,
   QueryList,
   ViewChildren,
 } from '@angular/core';
@@ -27,6 +27,9 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { CadmusCoreModule, ThesaurusEntry } from '@myrmidon/cadmus-core';
 
+/**
+ * A generic compact document reference.
+ */
 export interface DocReference {
   type?: string;
   tag?: string;
@@ -66,17 +69,17 @@ export interface DocReference {
   ],
 })
 export class DocReferencesComponent implements AfterViewInit, OnDestroy {
-  private _references: DocReference[];
   private _updatingForm: boolean | undefined;
+  private _dropNextInput?: boolean;
   private _authorSubscription: Subscription | undefined;
-  private _refSubs: Subscription[];
+  private _subs: Subscription[];
 
   @ViewChildren('author') authorQueryList: QueryList<any> | undefined;
 
   /**
    * The references.
    */
-  public readonly references = input<DocReference[]>([]);
+  public readonly references = model<DocReference[]>([]);
 
   // doc-reference-types
   public readonly typeEntries = input<ThesaurusEntry[]>();
@@ -84,17 +87,11 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
   // doc-reference-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
 
-  /**
-   * Emitted whenever any reference changes.
-   */
-  public readonly referencesChange = output<DocReference[]>();
-
   public refsArr: FormArray;
   public form: FormGroup;
 
   constructor(private _formBuilder: FormBuilder) {
-    this._refSubs = [];
-    this._references = [];
+    this._subs = [];
     // form
     this.refsArr = _formBuilder.array([]);
     this.form = _formBuilder.group({
@@ -103,6 +100,10 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
 
     // when references change, update form
     effect(() => {
+      if (this._dropNextInput) {
+        this._dropNextInput = false;
+        return;
+      }
       this.updateForm(this.references());
     });
   }
@@ -119,8 +120,8 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
   }
 
   private unsubscribeIds(): void {
-    for (let i = 0; i < this._refSubs.length; i++) {
-      this._refSubs[i].unsubscribe();
+    for (let i = 0; i < this._subs.length; i++) {
+      this._subs[i].unsubscribe();
     }
   }
 
@@ -151,23 +152,23 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
 
   public addReference(reference?: DocReference): void {
     const g = this.getReferenceGroup(reference);
-    this._refSubs.push(
+    this._subs.push(
       g.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-        this.emitReferencesChange();
+        this.saveReferences();
       })
     );
     this.refsArr.push(g);
 
     if (!this._updatingForm) {
-      this.emitReferencesChange();
+      this.saveReferences();
     }
   }
 
   public removeReference(index: number): void {
-    this._refSubs[index].unsubscribe();
-    this._refSubs.splice(index, 1);
+    this._subs[index].unsubscribe();
+    this._subs.splice(index, 1);
     this.refsArr.removeAt(index);
-    this.emitReferencesChange();
+    this.saveReferences();
   }
 
   private swapArrElems(a: any[], i: number, j: number): void {
@@ -187,9 +188,9 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
     this.refsArr.removeAt(index);
     this.refsArr.insert(index - 1, ctl);
 
-    this.swapArrElems(this._refSubs, index, index - 1);
+    this.swapArrElems(this._subs, index, index - 1);
 
-    this.emitReferencesChange();
+    this.saveReferences();
   }
 
   public moveReferenceDown(index: number): void {
@@ -200,17 +201,17 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
     this.refsArr.removeAt(index);
     this.refsArr.insert(index + 1, ctl);
 
-    this.swapArrElems(this._refSubs, index, index + 1);
+    this.swapArrElems(this._subs, index, index + 1);
 
-    this.emitReferencesChange();
+    this.saveReferences();
   }
 
   public clearReferences(): void {
     this.refsArr.clear();
     this.unsubscribeIds();
-    this._refSubs = [];
+    this._subs = [];
     if (!this._updatingForm) {
-      this.emitReferencesChange();
+      this.saveReferences();
     }
   }
   // #endregion
@@ -231,7 +232,6 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
       this.form.markAsPristine();
     }
     this._updatingForm = false;
-    // this.emitReferencesChange();
   }
 
   protected getReferences(): DocReference[] {
@@ -250,8 +250,8 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
     return references;
   }
 
-  public emitReferencesChange(): void {
-    this._references = this.getReferences();
-    this.referencesChange.emit(this._references);
+  public saveReferences(): void {
+    this._dropNextInput = true;
+    this.references.set(this.getReferences());
   }
 }
