@@ -10,11 +10,14 @@
       [scopeEntries]="scopeEntries"
       [tagEntries]="tagEntries"
       (idsChange)="onIdsChange($event)"
-    ></cadmus-refs-external-ids>
+    />
     @if (ids) {
-      <div>
+    <hr />
+    <div>
+      <code>
         <pre>{{ ids | json }}</pre>
-      </div>
+      </code>
+    </div>
     }
   </mat-card-content>
 </mat-card>

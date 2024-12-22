@@ -31,6 +31,9 @@ import {
 } from '@myrmidon/cadmus-refs-doc-references';
 import { Subscription } from 'rxjs';
 
+/**
+ * An assertion with optional references.
+ */
 export interface Assertion {
   tag?: string;
   rank: number;
@@ -38,6 +41,9 @@ export interface Assertion {
   references?: DocReference[];
 }
 
+/**
+ * Editor for an assertion with optional references.
+ */
 @Component({
   selector: 'cadmus-refs-assertion',
   templateUrl: './assertion.component.html',
@@ -59,7 +65,7 @@ export interface Assertion {
 export class AssertionComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
   private _updatingForm?: boolean;
-  private _dropNextAssertion?: boolean;
+  private _dropNextInput?: boolean;
 
   public tag: FormControl<string | null>;
   public rank: FormControl<number>;
@@ -97,8 +103,8 @@ export class AssertionComponent implements OnInit, OnDestroy {
 
     // when assertion changes, update form
     effect(() => {
-      if (this._dropNextAssertion) {
-        this._dropNextAssertion = false;
+      if (this._dropNextInput) {
+        this._dropNextInput = false;
         return;
       }
       this.updateForm(this.assertion());
@@ -159,7 +165,7 @@ export class AssertionComponent implements OnInit, OnDestroy {
   }
 
   public saveAssertion(): void {
-    this._dropNextAssertion = true;
+    this._dropNextInput = true;
     this.assertion.set(this.getAssertion());
   }
 }
