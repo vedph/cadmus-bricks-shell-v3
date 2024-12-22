@@ -41,7 +41,6 @@ A set of lookup items. Each has its own configuration and uses a specific servic
 - ▶️ input:
   - configs\* (`RefLookupConfig[]`)
   - iconSize (`IconSize`, default=24x24)
-- 📚 thesauri:
 - 🔥 output:
   - configChange (`RefLookupConfig`): emitted when the currently selected lookup configuration changes.
   - itemChange (`RefLookupSetEvent`)
