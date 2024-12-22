@@ -5,7 +5,6 @@ import {
   model,
   OnDestroy,
   OnInit,
-  output,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -42,6 +41,9 @@ export interface Chronotope {
   date?: HistoricalDateModel;
 }
 
+/**
+ * Chronotope editor.
+ */
 @Component({
   selector: 'cadmus-refs-chronotope',
   templateUrl: './chronotope.component.html',

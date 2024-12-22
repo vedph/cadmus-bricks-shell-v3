@@ -3,6 +3,9 @@ import { HistoricalDate } from '@myrmidon/cadmus-refs-historical-date';
 
 import { Chronotope } from './chronotope/chronotope.component';
 
+/**
+ * Chronotope pipe.
+ */
 @Pipe({
   name: 'chronotope',
 })

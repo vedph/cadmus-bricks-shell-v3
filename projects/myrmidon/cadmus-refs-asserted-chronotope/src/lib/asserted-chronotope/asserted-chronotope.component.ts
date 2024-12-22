@@ -32,22 +32,35 @@ import {
 } from '@myrmidon/cadmus-refs-historical-date';
 import { debounceTime, distinctUntilChanged, merge, Subscription } from 'rxjs';
 
+/**
+ * A place with an optional assertion.
+ */
 export interface AssertedPlace {
   tag?: string;
   value: string;
   assertion?: Assertion;
 }
 
+/**
+ * A date with an optional assertion.
+ */
 export interface AssertedDate extends HistoricalDateModel {
   tag?: string;
   assertion?: Assertion;
 }
 
+/**
+ * Asserted chronotope: a place with an optional assertion, and/or a date with an
+ * optional assertion.
+ */
 export interface AssertedChronotope {
   place?: AssertedPlace;
   date?: AssertedDate;
 }
 
+/**
+ * Asserted chronotope editor.
+ */
 @Component({
   selector: 'cadmus-refs-asserted-chronotope',
   templateUrl: './asserted-chronotope.component.html',
