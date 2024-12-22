@@ -20,6 +20,22 @@ Editor for a chronotope (place and/or date) with an optional [assertion](../cadm
 - 🔥 output:
   - chronotopeChange (`AssertedChronotope`)
 
+## AssertedChronotopeSet
+
+A set of asserted chronotopes.
+
+- 🔑 `AssertedChronotopeSet`
+- 🚩 `cadmus-`
+- ▶️ input:
+  - chronotopes (`AssertedChronotope[]`)
+- 📚 thesauri:
+  - `chronotope-tags` (tagEntries)
+  - `chronotope-assertion-tags` (assTagEntries)
+  - `chronotope-reference-types` (refTypeEntries)
+  - `chronotope-reference-tags` (refTagEntries)
+- 🔥 output:
+  - chronotopesChange  (`AssertedChronotope[]`)
+
 ## AssertedChronotopesPipe
 
 - 🚩 `assertedChronotopes`

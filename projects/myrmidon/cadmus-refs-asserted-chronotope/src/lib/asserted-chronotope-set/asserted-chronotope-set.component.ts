@@ -25,6 +25,9 @@ import {
   AssertedChronotopeComponent,
 } from '../asserted-chronotope/asserted-chronotope.component';
 
+/**
+ * Editor for a set of asserted chronotopes.
+ */
 @Component({
   selector: 'cadmus-asserted-chronotope-set',
   templateUrl: './asserted-chronotope-set.component.html',
