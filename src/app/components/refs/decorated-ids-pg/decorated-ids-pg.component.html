@@ -5,12 +5,13 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <cadmus-refs-decorated-ids
-      (idsChange)="onIdsChange($event)"
-    ></cadmus-refs-decorated-ids>
+    <cadmus-refs-decorated-ids [ids]="ids" (idsChange)="onIdsChange($event)" />
+    <hr />
     @if (ids) {
     <div>
-      <pre>{{ ids | json }}</pre>
+      <code>
+        <pre>{{ ids | json }}</pre>
+      </code>
     </div>
     }
   </mat-card-content>

@@ -25,7 +25,19 @@ export class DecoratedIdsPgComponent {
   public ids: DecoratedId[];
 
   constructor() {
-    this.ids = [];
+    this.ids = [
+      {
+        id: 'alpha',
+        rank: 1,
+        tag: 'tag',
+        sources: [
+          {
+            type: 'corpus',
+            citation: 'CIL X 123',
+          },
+        ],
+      },
+    ];
   }
 
   public onIdsChange(ids: DecoratedId[]): void {

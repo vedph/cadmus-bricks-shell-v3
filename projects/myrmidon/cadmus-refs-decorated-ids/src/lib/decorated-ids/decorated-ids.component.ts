@@ -53,6 +53,8 @@ export interface DecoratedId {
   ],
 })
 export class DecoratedIdsComponent {
+  private _dropNextInput?: boolean;
+
   public editedIndex: number;
   public editedId: DecoratedId | undefined;
   public editorOpen: boolean;
@@ -101,6 +103,10 @@ export class DecoratedIdsComponent {
 
     // when ids change, close ID editor
     effect(() => {
+      if (this._dropNextInput) {
+        this._dropNextInput = false;
+        return;
+      }
       console.log('ids change', this.ids());
       this.closeIdEditor();
     });
@@ -154,6 +160,7 @@ export class DecoratedIdsComponent {
       this.closeEditedId();
     }
     this.closeEditedId();
+    this._dropNextInput = true;
     this.ids.set(this.ids().splice(index, 1));
   }
 
@@ -182,6 +189,7 @@ export class DecoratedIdsComponent {
       ids.splice(this.editedIndex, 1, id);
     }
     this.closeEditedId();
+    this._dropNextInput = true;
     this.ids.set(ids);
   }
 }

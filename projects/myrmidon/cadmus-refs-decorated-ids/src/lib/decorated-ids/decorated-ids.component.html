@@ -61,7 +61,7 @@
     </mat-expansion-panel-header>
     <form [formGroup]="subForm" (submit)="saveEditedId()">
       <!-- id -->
-      <div>
+      <div class="form-row">
         <mat-form-field>
           <mat-label>ID</mat-label>
           <input matInput [formControl]="id" />
@@ -71,13 +71,11 @@
           <mat-error>ID too long</mat-error>
           }
         </mat-form-field>
-        &nbsp;
         <!-- rank -->
-        <mat-form-field style="width: 4em">
+        <mat-form-field class="nr">
           <mat-label>rank</mat-label>
           <input matInput [formControl]="rank" type="number" min="0" />
         </mat-form-field>
-        &nbsp;
         <!-- tag (bound) -->
         @if (tagEntries()) {
         <mat-form-field>
@@ -100,15 +98,15 @@
         </mat-form-field>
         }
       </div>
+      <!-- sources -->
       <div>
-        <!-- sources -->
         <h4>ID sources</h4>
         <cadmus-refs-doc-references
           [tagEntries]="refTagEntries()"
           [typeEntries]="refTypeEntries()"
           [references]="sources.value"
           (referencesChange)="onSourcesChange($event)"
-        ></cadmus-refs-doc-references>
+        />
       </div>
       <div>
         <button

@@ -12,3 +12,15 @@ th {
   border: 1px solid silver;
   margin: 4px 0;
 }
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+.nr {
+  width: 4em;
+}
