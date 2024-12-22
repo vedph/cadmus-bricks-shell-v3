@@ -15,16 +15,19 @@
         place
       </button>
     </fieldset>
-    <br />
+    <hr />
     <cadmus-refs-proper-name
       [langEntries]="langEntries"
       [typeEntries]="namePieceTypeEntries"
       [name]="initialName"
       (nameChange)="onNameChange($event)"
-    ></cadmus-refs-proper-name>
+    />
     @if (name) {
+    <hr />
     <div>
-      <pre>{{ name | json }}</pre>
+      <code>
+        <pre>{{ name | json }}</pre>
+      </code>
     </div>
     }
     <div>

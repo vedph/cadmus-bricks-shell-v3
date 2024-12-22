@@ -119,7 +119,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   /**
    * True to hide the proper name's assertion UI.
    */
-  public readonly noAssertion = input<boolean>();
+  public readonly hideAssertion = input<boolean>();
 
   // main form
   public language: FormControl<string | null>;
