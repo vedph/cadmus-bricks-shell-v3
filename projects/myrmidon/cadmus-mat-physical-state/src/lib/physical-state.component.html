@@ -32,7 +32,7 @@
   <!-- flags -->
   @if (featEntries()?.length) {
   <div>
-    <cadmus-flag-set
+    <cadmus-ui-flag-set
       [flags]="flags()"
       [checkedIds]="features.value"
       (checkedIdsChange)="onCheckedIdsChange($event)"

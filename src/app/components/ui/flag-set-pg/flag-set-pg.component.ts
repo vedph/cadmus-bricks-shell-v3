@@ -11,6 +11,7 @@ import {
   Flag,
   FlagSetComponent,
 } from '../../../../../projects/myrmidon/cadmus-ui-flag-set/src/public-api';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 const COLORS = [
   { id: 'r', label: 'red', color: 'red' },
@@ -60,6 +61,7 @@ const TOPPINGS = [
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     FlagSetComponent,
@@ -71,6 +73,9 @@ const TOPPINGS = [
 export class FlagSetPgComponent {
   public flags: Flag[] = COLORS;
 
+  public numbering: FormControl<boolean> = new FormControl(true, {
+    nonNullable: true,
+  });
   public checkedIds: string[] = ['r', 'g', 'cr'];
 
   public onCheckedIdsChange(ids: string[]): void {

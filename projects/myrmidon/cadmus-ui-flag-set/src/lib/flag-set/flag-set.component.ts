@@ -42,7 +42,7 @@ interface FlagViewModel extends Flag {
  * A set of checkable flags, with optional custom flags.
  */
 @Component({
-  selector: 'cadmus-flag-set',
+  selector: 'cadmus-ui-flag-set',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -81,6 +81,11 @@ export class FlagSetComponent implements OnDestroy {
    * True to hide the toolbar.
    */
   public readonly hideToolbar = input<boolean>();
+
+  /**
+   * True to number each flag in the displayed list.
+   */
+  public readonly numbering = input<boolean>();
 
   /**
    * Emitted when the checked flags IDs change.

@@ -11,7 +11,7 @@ A set of checkable flags. This component replaces the legacy (V2) [Cadmus UI fla
 >Besides being much easier, this component provides additional features, like custom coloring and "black IDs" for each flag.
 
 - 🔑 `FlagSetComponent`
-- 🚩 `cadmus-flag-set`
+- 🚩 `cadmus-ui-flag-set`
 - ▶️ input:
   - flags (`Flag[]`): the flags set.
   - checkedIds (`string[]`)
@@ -45,3 +45,11 @@ function entryToFlag(entry: ThesaurusEntry): Flag {
 ```
 
 >If you want to provide further metadata like color or black IDs, you can either define some convention for IDs, or use component settings.
+
+## History
+
+### 8.0.1
+
+- 2024-12-23:
+  - fixed selector name (cadmus-**ui**-flag-set).
+  - added `numbering` option.
