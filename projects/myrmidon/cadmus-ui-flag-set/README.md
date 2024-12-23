@@ -17,6 +17,7 @@ A set of checkable flags. This component replaces the legacy (V2) [Cadmus UI fla
   - checkedIds (`string[]`)
   - allowCustom (`boolean?`)
   - hideToolbar (`boolean?`)
+  - numbering (`boolean?`)
 - 🔥 output:
   - checkedIdsChange (`string[]`)
 
