@@ -126,3 +126,7 @@ npx jest src
 This will run all tests in the `src` directory, which typically contains your main app's code.
 
 Remember to run these commands in your terminal from your project's root directory.
+
+## History
+
+For the history see the README of each library in this workspace.

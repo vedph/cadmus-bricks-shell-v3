@@ -15,6 +15,8 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Configuring the Target ID Editor](#configuring-the-target-id-editor)
   - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
+  - [History](#history)
+    - [8.0.1](#801)
 
 The asserted ID and asserted composite IDs bricks provide a way to include _external_ or _internal_ references to resource identifiers, whatever their type and origin. These components are the foundation for pin-based links in links part and links fragment types, as they provide both external and internal links, optionally accompanied by an assertion.
 
@@ -355,3 +357,9 @@ A collection of asserted composite IDs.
   - `doc-reference-tags` (refTagEntries)
 - ⚡ output:
   - idsChange (`AssertedCompositeId[]`)
+
+## History
+
+### 8.0.1
+
+- 2025-01-01: fixed missing unsubscribe in `AssertedCompositeIdComponent`.

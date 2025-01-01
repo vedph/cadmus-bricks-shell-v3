@@ -5,6 +5,7 @@ import {
   Inject,
   input,
   model,
+  OnDestroy,
   OnInit,
   output,
 } from '@angular/core';
@@ -38,6 +39,7 @@ import {
   PinTarget,
   PinTargetLookupComponent,
 } from '../pin-target-lookup/pin-target-lookup.component';
+import { Subscription } from 'rxjs';
 
 /**
  * An asserted composite ID. This can be an external ID, having only the ID value
@@ -81,7 +83,8 @@ export const ASSERTED_COMPOSITE_ID_CONFIGS_KEY =
     PinTargetLookupComponent,
   ],
 })
-export class AssertedCompositeIdComponent implements OnInit {
+export class AssertedCompositeIdComponent implements OnInit, OnDestroy {
+  private _sub?: Subscription;
   private _updatingForm: boolean | undefined;
 
   public extLookupConfigs: RefLookupConfig[];
@@ -197,11 +200,17 @@ export class AssertedCompositeIdComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.form.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-      if (!this._updatingForm) {
-        this.emitIdChange();
-      }
-    });
+    this._sub = this.form.valueChanges
+      .pipe(debounceTime(300))
+      .subscribe((_) => {
+        if (!this._updatingForm) {
+          this.emitIdChange();
+        }
+      });
+  }
+
+  public ngOnDestroy(): void {
+    this._sub?.unsubscribe();
   }
 
   public onAssertionChange(assertion: Assertion | undefined): void {
