@@ -49,7 +49,7 @@ The plugin functions are `matches`, which returns true if the plugin matches, an
 
 To use the text editing service in your app, you just have to configure its options (`CadmusTextEdServiceOptions`). Currently, the only property in these options is the list of plugins.
 
-The text editing service is not a singleton, so you can configure each instance of it as you prefer. This typically is done in the constructor of your consumer component. Alternatively, you can configure plugins globally.
+The text editing service is not a singleton, so you must add `CadmusTextEdService` to the `providers` array of your standalone component, and you can configure each service instance as you prefer. This can be done in the constructor of your consumer component, or (most often) globally in application configuration.
 
 ### Global Configuration
 
