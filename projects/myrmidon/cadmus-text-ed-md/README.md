@@ -67,3 +67,9 @@ storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
 ## Example
 
 For an example usage with a Monaco editor instance see the [text editor service demo page](../../../src/app/text/text-ed-pg/text-ed-pg.component.ts).
+
+## History
+
+### 9.0.0
+
+- 2025-01-03: ⚠️ updated [Cadmus dependencies](https://github.com/vedph/cadmus-shell-v3) to version 11 (standalone components).

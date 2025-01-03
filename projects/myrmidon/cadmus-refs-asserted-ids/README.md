@@ -16,6 +16,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
   - [History](#history)
+    - [9.0.0](#900)
     - [8.0.1](#801)
 
 The asserted ID and asserted composite IDs bricks provide a way to include _external_ or _internal_ references to resource identifiers, whatever their type and origin. These components are the foundation for pin-based links in links part and links fragment types, as they provide both external and internal links, optionally accompanied by an assertion.
@@ -359,6 +360,10 @@ A collection of asserted composite IDs.
   - idsChange (`AssertedCompositeId[]`)
 
 ## History
+
+### 9.0.0
+
+- 2025-01-03: ⚠️ updated [Cadmus dependencies](https://github.com/vedph/cadmus-shell-v3) to version 11 (standalone components).
 
 ### 8.0.1
 

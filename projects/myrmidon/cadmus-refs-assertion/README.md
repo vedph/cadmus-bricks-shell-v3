@@ -18,3 +18,7 @@ This component provides an editable assertion. The assertion decorates some othe
   - `doc-reference-tags` (refTagEntries)
 - 🔥 output:
   - assertionChange (`Assertion`)
+
+### 9.0.0
+
+- 2025-01-03: ⚠️ updated [Cadmus dependencies](https://github.com/vedph/cadmus-shell-v3) to version 11 (standalone components).

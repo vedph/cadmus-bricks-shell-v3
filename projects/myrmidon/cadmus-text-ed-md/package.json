@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-text-ed-md",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "description": "Cadmus - text editing helpers.",
   "keywords": [
     "Cadmus",
@@ -17,9 +17,9 @@
   "peerDependencies": {
     "@angular/common": "^19.0.0",
     "@angular/core": "^19.0.0",
+    "@myrmidon/cadmus-api": "^11.0.0",
     "@myrmidon/cadmus-text-ed": "^8.0.0",
-    "@myrmidon/cadmus-refs-asserted-ids": "^8.0.0",
-    "@myrmidon/cadmus-api": "^10.1.0"
+    "@myrmidon/cadmus-refs-asserted-ids": "^9.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

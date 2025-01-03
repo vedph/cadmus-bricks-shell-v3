@@ -25,7 +25,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
-import { CadmusCoreModule, ThesaurusEntry } from '@myrmidon/cadmus-core';
+import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
 /**
  * A generic compact document reference.
@@ -65,7 +65,6 @@ export interface DocReference {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    CadmusCoreModule,
   ],
 })
 export class DocReferencesComponent implements AfterViewInit, OnDestroy {

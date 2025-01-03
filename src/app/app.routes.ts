@@ -68,6 +68,14 @@ export const routes: Routes = [
         './components/refs/asserted-composite-id-pg/asserted-composite-id-pg.component'
       ).then((m) => m.AssertedCompositeIdPgComponent),
   },
+  // refs/asserted-composite-ids
+  {
+    path: 'refs/asserted-composite-ids',
+    loadComponent: () =>
+      import(
+        './components/refs/asserted-composite-ids-pg/asserted-composite-ids-pg.component'
+      ).then((m) => m.AssertedCompositeIdsPgComponent),
+  },
   // refs/asserted-id
   {
     path: 'refs/asserted-id',

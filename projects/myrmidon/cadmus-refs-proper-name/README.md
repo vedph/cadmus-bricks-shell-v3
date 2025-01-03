@@ -121,3 +121,9 @@ The `properName` concatenates all the name's pieces in their order, eventually f
 - `valueName`: the name of the property corresponding to the value in the map. Used only when map is an array
 - of objects.
 - `legend`: true to append the types legend to the concatenated values.
+
+## History
+
+### 9.0.0
+
+- 2025-01-03: ⚠️ updated [Cadmus dependencies](https://github.com/vedph/cadmus-shell-v3) to version 11 (standalone components).

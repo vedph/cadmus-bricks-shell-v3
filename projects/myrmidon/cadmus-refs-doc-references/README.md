@@ -17,3 +17,7 @@ This component provides an editable list of generic and compact document referen
   - `doc-reference-tags` (tagEntries)
 - 🔥 output:
   - referencesChange (`DocReference[]`)
+
+### 9.0.0
+
+- 2025-01-03: ⚠️ updated [Cadmus dependencies](https://github.com/vedph/cadmus-shell-v3) to version 11 (standalone components).

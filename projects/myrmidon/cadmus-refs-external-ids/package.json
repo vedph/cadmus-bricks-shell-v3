@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-external-ids",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "description": "Cadmus - external IDs component.",
   "keywords": [
     "Cadmus",
@@ -17,8 +17,8 @@
   "peerDependencies": {
     "@angular/common": "^19.0.0",
     "@angular/core": "^19.0.0",
-    "@myrmidon/cadmus-core": "^10.1.0",
-    "@myrmidon/cadmus-refs-assertion": "^8.0.0"
+    "@myrmidon/cadmus-core": "^11.0.0",
+    "@myrmidon/cadmus-refs-assertion": "^9.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

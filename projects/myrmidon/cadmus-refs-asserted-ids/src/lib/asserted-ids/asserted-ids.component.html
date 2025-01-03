@@ -16,8 +16,8 @@
     <tbody>
       @for ( entry of entries.value; track entry; let i = $index; let first =
       $first; let last = $last) {
-      <tr>
-        <td>
+      <tr [class.selected]="entry === edited">
+        <td class="fit-width">
           <button
             type="button"
             mat-icon-button
