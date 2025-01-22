@@ -129,4 +129,6 @@ Remember to run these commands in your terminal from your project's root directo
 
 ## History
 
-For the history see the README of each library in this workspace.
+👉 For the libraries history, see the README of each library in this workspace.
+
+- 2025-01-22: updated Angular and packages.
