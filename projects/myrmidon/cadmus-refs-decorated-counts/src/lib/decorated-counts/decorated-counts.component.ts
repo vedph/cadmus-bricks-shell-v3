@@ -1,30 +1,34 @@
 import {
   Component,
-  effect,
+  ElementRef,
   input,
   model,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import {
-  FormArray,
   FormBuilder,
+  FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+import { FlatLookupPipe } from '@myrmidon/ngx-tools';
+import { CommonModule } from '@angular/common';
 
 /**
  * A count decorated with the ID of the entity being counted,
@@ -42,175 +46,273 @@ export interface DecoratedCount {
   templateUrl: './decorated-counts.component.html',
   styleUrls: ['./decorated-counts.component.css'],
   imports: [
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatButtonModule,
+    MatCheckboxModule,
     MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatTooltipModule,
+    FlatLookupPipe,
   ],
 })
 export class DecoratedCountsComponent implements OnInit, OnDestroy {
-  private _subs: Subscription[];
-  private _dropNextInput?: boolean;
+  private _sub?: Subscription;
 
   /**
    * The decorated counts.
    */
   public readonly counts = model<DecoratedCount[]>();
 
+  /**
+   * True to allow custom item IDs. This is meaningful
+   * only when idEntries is specified; otherwise, all the
+   * IDs are custom.
+   */
+  public readonly allowCustomId = input<boolean>(true);
+
+  /**
+   * True to allow distinct IDs only. When this is true,
+   * you cannot add multiple counts with the same ID.
+   */
+  public readonly distinct = input<boolean>();
+
   // decorated-count-ids
   public readonly idEntries = input<ThesaurusEntry[]>();
-
   // decorated-count-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
 
-  public entries: FormArray;
+  @ViewChild('cstn', { static: false })
+  public customCtl?: ElementRef;
+  @ViewChild('valn', { static: false })
+  public valueCtl?: ElementRef;
+
+  public id: FormControl<string | null>;
+  public hasCustom: FormControl<boolean>;
+  public custom: FormControl<string | null>;
+  public batch: FormControl<string | null>;
   public form: FormGroup;
 
-  constructor(private _formBuilder: FormBuilder) {
-    this._subs = [];
-    // form
-    this.entries = _formBuilder.array([]);
-    this.form = _formBuilder.group({
-      entries: this.entries,
-    });
+  public editedIndex: number = -1;
+  public edited?: DecoratedCount;
+  public tag: FormControl<string | null>;
+  public value: FormControl<number>;
+  public note: FormControl<string | null>;
+  public editedForm: FormGroup;
 
-    // when counts change, update form
-    effect(() => {
-      if (this._dropNextInput) {
-        this._dropNextInput = false;
-        return;
-      }
-      this.updateForm(this.counts());
+  constructor(formBuilder: FormBuilder) {
+    // add count form
+    this.id = formBuilder.control(null);
+    this.hasCustom = formBuilder.control(false, { nonNullable: true });
+    this.custom = formBuilder.control(null);
+    this.batch = formBuilder.control(null);
+    this.form = formBuilder.group({
+      id: this.id,
+      hasCustom: this.hasCustom,
+      custom: this.custom,
+      batch: this.batch,
+    });
+    // edited count form
+    this.tag = formBuilder.control(null);
+    this.value = formBuilder.control(0, { nonNullable: true });
+    this.note = formBuilder.control(null, Validators.maxLength(1000));
+    this.editedForm = formBuilder.group({
+      tag: this.tag,
+      value: this.value,
+      note: this.note,
     });
   }
 
   public ngOnInit(): void {
-    if (this.counts()) {
-      this.updateForm(this.counts());
-    }
+    this._sub = this.hasCustom.valueChanges.subscribe((value) => {
+      if (value) {
+        this.id.disable();
+      } else {
+        this.id.enable();
+      }
+      if (value && this.customCtl) {
+        setTimeout(() => this.customCtl!.nativeElement.focus(), 0);
+      }
+    });
   }
 
   public ngOnDestroy(): void {
-    this._subs.forEach((sub) => {
-      sub.unsubscribe();
-    });
+    this._sub?.unsubscribe();
   }
 
-  private updateForm(counts: DecoratedCount[] | undefined): void {
-    if (!counts) {
-      this.form.reset();
+  public closeCount(): void {
+    this.editedIndex = -1;
+    this.edited = undefined;
+  }
+
+  private focusCount(): void {
+    if (this.valueCtl) {
+      setTimeout(() => this.valueCtl!.nativeElement.focus(), 0);
+    }
+  }
+
+  public editCount(index: number): void {
+    this.editedIndex = index;
+    this.edited = this.counts()![index];
+
+    this.value.setValue(this.edited.value);
+    this.tag.setValue(this.edited.tag || null);
+    this.note.setValue(this.edited.note || null);
+    this.editedForm.markAsPristine();
+
+    this.focusCount();
+  }
+
+  public addCustomCount(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    if (!this.custom.value) {
       return;
     }
 
-    this.entries.clear();
-    if (counts?.length) {
-      for (let e of counts) {
-        const g = this.getCountGroup(e);
-        this.entries.controls.push(g);
-        this._subs.push(
-          g.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-            this.saveCounts();
-          })
-        );
+    this.editedIndex = -1;
+    this.edited = {
+      id: this.custom.value,
+      value: 0,
+    } as DecoratedCount;
+    this.editedForm.reset();
+
+    this.custom.reset();
+    this.focusCount();
+  }
+
+  public addCount(event?: Event): void {
+    if (this.hasCustom.value) {
+      this.addCustomCount(event);
+      return;
+    }
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    if (!this.id.value) {
+      return;
+    }
+
+    this.editedIndex = -1;
+    this.edited = {
+      id: this.id.value,
+      value: 0,
+    } as DecoratedCount;
+    this.editedForm.reset();
+
+    if (!this.idEntries?.length) {
+      this.id.reset();
+    }
+    this.focusCount();
+  }
+
+  public addBatchCounts(): void {
+    // parse from batch.value with form "ID=value [tag] (note);..."
+    const entries = this.batch.value
+      ?.split(';')
+      .map((e) => e.trim())
+      .filter((e) => e.length > 0);
+    if (!entries?.length) {
+      return;
+    }
+
+    const added: DecoratedCount[] = [];
+    for (let i = 0; i < entries.length; i++) {
+      const m = entries[i].match(
+        /^([^\s=]+)=([^\s]+)\s*(\[[^\]]+\])?\s*(\([^\)]+\))?$/
+      );
+      if (m) {
+        added.push({
+          id: m[1],
+          value: parseFloat(m[2]),
+          tag: m[3]?.substring(1, m[3].length - 2),
+          note: m[4]?.substring(1, m[4].length - 2),
+        });
       }
     }
-    this.form.markAsPristine();
+
+    if (added.length) {
+      let counts = [...(this.counts() || [])];
+
+      // if distinct, remove existing counts with the same ID
+      if (this.distinct()) {
+        const ids = new Set(added.map((c) => c.id));
+        counts = counts.filter((c) => !ids.has(c.id));
+      }
+
+      counts.push(...added);
+      this.counts.set(counts);
+    }
   }
 
-  private swapArrElems(a: any[], i: number, j: number): void {
-    if (i === j) {
+  public saveCount(): void {
+    if (!this.edited || !this.editedForm.valid) {
       return;
     }
-    const t = a[i];
-    a[i] = a[j];
-    a[j] = t;
-  }
+    this.edited.value = this.value.value;
+    this.edited.tag = this.tag.value ? this.tag.value?.trim() : undefined;
+    this.edited.note = this.note.value ? this.note.value?.trim() : undefined;
 
-  private getCountGroup(item?: DecoratedCount): FormGroup {
-    return this._formBuilder.group({
-      id: this._formBuilder.control(item?.id, [
-        Validators.required,
-        Validators.maxLength(50),
-      ]),
-      value: this._formBuilder.control(item?.value || 0, Validators.required),
-      tag: this._formBuilder.control(item?.tag, Validators.maxLength(50)),
-      note: this._formBuilder.control(item?.note, Validators.maxLength(200)),
-    });
-  }
+    const counts = [...(this.counts() || [])];
+    // get the index of the existing count with the same ID
+    const existingIndex = counts.findIndex((m) => m.id === this.edited!.id);
+    // append or replace
+    if (this.editedIndex === -1) {
+      counts.push(this.edited);
+    } else {
+      counts[this.editedIndex] = this.edited;
+    }
 
-  public addCount(item?: DecoratedCount): void {
-    const g = this.getCountGroup(item);
-    this._subs.push(
-      g.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-        this.saveCounts();
-      })
-    );
-    this.entries.push(g);
-    this.entries.updateValueAndValidity();
-    this.entries.markAsDirty();
-    this.saveCounts();
-  }
+    // if distinct, remove another existing count with the same ID
+    if (
+      existingIndex > -1 &&
+      existingIndex !== this.editedIndex &&
+      this.distinct()
+    ) {
+      counts.splice(existingIndex, 1);
+    }
 
-  public removeCount(index: number): void {
-    this._subs[index].unsubscribe();
-    this._subs.splice(index, 1);
-    this.entries.removeAt(index);
-    this.entries.updateValueAndValidity();
-    this.entries.markAsDirty();
-    this.saveCounts();
+    this.counts.set(counts);
+
+    // close the editor
+    this.closeCount();
   }
 
   public moveCountUp(index: number): void {
     if (index < 1) {
       return;
     }
-    this.swapArrElems(this._subs, index, index - 1);
+    const counts = [...this.counts()!];
+    const item = counts[index];
+    counts.splice(index, 1);
+    counts.splice(index - 1, 0, item);
 
-    const item = this.entries.controls[index];
-    this.entries.removeAt(index);
-    this.entries.insert(index - 1, item);
-    this.entries.markAsDirty();
-    this.entries.updateValueAndValidity();
-    this.saveCounts();
+    this.counts.set(counts);
   }
 
   public moveCountDown(index: number): void {
-    if (index + 1 >= this.entries.length) {
+    if (index + 1 >= this.counts()!.length) {
       return;
     }
-    this.swapArrElems(this._subs, index, index + 1);
+    const counts = [...this.counts()!];
+    const item = counts[index];
+    counts.splice(index, 1);
+    counts.splice(index + 1, 0, item);
 
-    const item = this.entries.controls[index];
-    this.entries.removeAt(index);
-    this.entries.insert(index + 1, item);
-    this.entries.markAsDirty();
-    this.entries.updateValueAndValidity();
-    this.saveCounts();
+    this.counts.set(counts);
   }
 
-  private getCounts(): DecoratedCount[] | undefined {
-    const counts: DecoratedCount[] = [];
-    for (let i = 0; i < this.entries.length; i++) {
-      const g = this.entries.at(i) as FormGroup;
-      counts.push({
-        id: g.controls['id'].value,
-        value: g.controls['value'].value || 0,
-        tag: g.controls['tag'].value?.trim(),
-        note: g.controls['note'].value?.trim(),
-      });
-    }
-    return counts.length ? counts : undefined;
-  }
+  public deleteCount(index: number) {
+    const counts = [...this.counts()!];
+    counts.splice(index, 1);
 
-  public saveCounts(): void {
-    if (this.form.invalid) {
-      return;
-    }
-    this._dropNextInput = true;
-    this.counts.set(this.getCounts());
+    this.counts.set(counts);
   }
 }

@@ -2,6 +2,9 @@
   width: 100%;
   max-width: 800px;
 }
+.nr {
+  width: 8em;
+}
 .form-row {
   display: flex;
   gap: 8px;
@@ -11,9 +14,34 @@
 .form-row * {
   flex: 0 0 auto;
 }
-.row {
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+tbody tr:nth-child(odd) {
+  background-color: #e2e2e2;
+}
+th {
+  text-align: left;
+  font-weight: normal;
+  color: silver;
+}
+td.fit-width {
+  width: 1px;
+  white-space: nowrap;
+}
+fieldset {
+  margin: 8px 0;
   border: 1px solid silver;
-  border-radius: 4px;
-  padding: 6px;
-  margin: 6px 0;
+  border-radius: 6px;
+  padding: 4px;
+}
+fieldset legend {
+  color: silver;
+}
+#list {
+  margin-top: 6px;
+}
+tr.selected {
+  background-color: #d0d0d0 !important;
 }

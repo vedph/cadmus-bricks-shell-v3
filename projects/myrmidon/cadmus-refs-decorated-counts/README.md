@@ -14,8 +14,18 @@ Each decorated count is a count (thus a numeric value) decorated with the ID of 
 - 🚩 `cadmus-refs-decorated-counts`
 - ▶️ input:
   - counts (`DecoratedCount[]`)
+  - allowCustomId (`boolean`, default is `true`)
+  - distinct (`boolean`)
 - 📚 thesauri:
   - `decorated-count-ids` (idEntries)
   - `decorated-count-tags` (tagEntries)
 - 🔥 output:
   - countsChange (`DecoratedCount[]`)
+
+## History
+
+### 8.0.1
+
+- 2025-01-23:
+  - refactored UI.
+  - added `allowCustomId` and `distinct` properties.
