@@ -41,6 +41,9 @@ export interface DecoratedCount {
   note?: string;
 }
 
+/**
+ * Decorated counts component.
+ */
 @Component({
   selector: 'cadmus-refs-decorated-counts',
   templateUrl: './decorated-counts.component.html',
