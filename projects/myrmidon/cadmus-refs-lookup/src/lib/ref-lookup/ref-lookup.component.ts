@@ -170,7 +170,7 @@ export class RefLookupComponent {
           return this.service()!
             .lookup(
               {
-                ...(this.baseFilter || {}),
+                ...(this.baseFilter() || {}),
                 limit: this.limit(),
                 text: value,
               },
@@ -190,10 +190,8 @@ export class RefLookupComponent {
 
     // when service changes, clear
     effect(() => {
-      // const dirty = this.service() ? true : false;
-      // if (dirty) {
+      console.log('service changed', this.service());
       this.clear();
-      // }
     });
 
     // when item changes, update validity
@@ -214,7 +212,9 @@ export class RefLookupComponent {
   }
 
   public getLookupName(item: any): string {
-    const service = this.service ? this.service() : undefined;
+    const service: RefLookupService | undefined = this.service
+      ? this.service()
+      : undefined;
     if (service) {
       return service.getName(item) || '';
     } else {
@@ -273,7 +273,7 @@ export class RefLookupComponent {
       // if not found (defensive)
       i = this.linkTemplate()!.indexOf('}', i + 1);
       if (i === -1) {
-        i = this.linkTemplate.length;
+        i = this.linkTemplate()!.length;
         break;
       }
       // append the resolved placeholder
@@ -294,7 +294,7 @@ export class RefLookupComponent {
   }
 
   public showOptions(): void {
-    if (!this.optDialog) {
+    if (!this.optDialog()) {
       return;
     }
     // open the lookup options dialog using optDialog as its content

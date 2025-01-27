@@ -11,6 +11,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Usage](#usage)
   - [Lookup Set](#lookup-set)
     - [Configuring Set](#configuring-set)
+  - [History](#history)
 
 ## RefLookupComponent
 
@@ -240,3 +241,7 @@ constructor(
   ] as RefLookupConfig[]);
 }
 ```
+
+## History
+
+- 2025-01-27: fix `baseFilter` accessor (and similar signalized properties) in [ref-lookup-component](./src/lib/ref-lookup/ref-lookup.component.ts).
