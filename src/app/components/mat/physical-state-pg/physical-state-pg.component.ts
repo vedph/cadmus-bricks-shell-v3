@@ -8,11 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
+import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+
 import {
   PhysicalStateComponent,
   PhysicalState,
 } from '../../../../../projects/myrmidon/cadmus-mat-physical-state/src/public-api';
-import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
 @Component({
   selector: 'app-physical-state-pg',
@@ -67,7 +68,7 @@ export class PhysicalStatePgComponent {
   public state: PhysicalState = {
     type: 'q2',
     features: ['broken', 'scratched'],
-    date: '2021-01-01',
+    date: '2021-12-01',
     reporter: 'John Doe',
     note: 'A note about this state.',
   };

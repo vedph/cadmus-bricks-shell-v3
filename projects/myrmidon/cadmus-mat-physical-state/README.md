@@ -6,6 +6,10 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## History
 
+### 8.0.3
+
+- 2025-01-27: fix to date format.
+
 ### 8.0.2
 
 - 2025-01-27: fix to reporter.

@@ -146,11 +146,25 @@ export class PhysicalStateComponent {
     this.features.updateValueAndValidity();
   }
 
+  private dateToYmd(date: string | null): string | undefined {
+    if (!date) {
+      return undefined;
+    }
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
   private getState(): PhysicalState {
     return {
       type: this.type.value?.trim(),
       features: this.features.value?.length ? this.features.value : undefined,
-      date: this.hasDate.value && this.date.value ? this.date.value : undefined,
+      date:
+        this.hasDate.value && this.date.value
+          ? this.dateToYmd(this.date.value)
+          : undefined,
       reporter: this.reporter.value?.trim(),
       note: this.note.value?.trim(),
     };
