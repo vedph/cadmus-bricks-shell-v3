@@ -23,3 +23,9 @@ td.fit-width {
   width: 1px;
   white-space: nowrap;
 }
+.nr {
+  width: 7em;
+}
+.unit {
+  width: 8em;
+}

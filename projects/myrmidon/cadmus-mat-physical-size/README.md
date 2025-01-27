@@ -57,3 +57,7 @@ This component allows you to edit a set of physical measurements. For each one y
   - defaultUnit (`string`)
 - 🔥 output:
   - measurementsChange (`PhysicalMeasurement[]`)
+
+## History
+
+- 2025-01-27: fix to physical measurement set.

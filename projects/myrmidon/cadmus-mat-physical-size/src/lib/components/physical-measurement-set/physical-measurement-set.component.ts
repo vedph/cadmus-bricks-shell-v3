@@ -61,8 +61,6 @@ export interface PhysicalMeasurement extends PhysicalDimension {
     MatTooltipModule,
     // myrmidon
     FlatLookupPipe,
-    // local
-    PhysicalDimensionComponent,
   ],
   templateUrl: './physical-measurement-set.component.html',
   styleUrl: './physical-measurement-set.component.css',
@@ -93,6 +91,8 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
    */
   public readonly distinct = input<boolean>();
 
+  public readonly hideTag = input<boolean>();
+
   // physical-size-units
   public readonly unitEntries = input<ThesaurusEntry[]>([]);
   // physical-size-dim-tags
@@ -109,6 +109,11 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   public batch: FormControl<string | null>;
   public form: FormGroup;
 
+  public value: FormControl<number>;
+  public unit: FormControl<string | null>;
+  public tag: FormControl<string | null>;
+  public editedForm: FormGroup;
+
   public editedIndex: number = -1;
   public edited?: PhysicalMeasurement;
 
@@ -122,6 +127,15 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       hasCustom: this.hasCustom,
       custom: this.custom,
       batch: this.batch,
+    });
+
+    this.value = formBuilder.control(0, { nonNullable: true });
+    this.unit = formBuilder.control(null);
+    this.tag = formBuilder.control(null);
+    this.editedForm = formBuilder.group({
+      value: this.value,
+      unit: this.unit,
+      tag: this.tag,
     });
   }
 
@@ -147,12 +161,30 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     this.edited = undefined;
   }
 
+  private updateEditedForm(): void {
+    if (!this.edited) {
+      this.editedForm.reset();
+    } else {
+      this.value.setValue(this.edited.value);
+      this.unit.setValue(this.edited.unit);
+      this.tag.setValue(this.edited.tag || null);
+      this.editedForm.markAsPristine();
+    }
+  }
+
   public editMeasurement(index: number): void {
+    if (this.editedIndex === index) {
+      return;
+    }
     this.editedIndex = index;
     this.edited = this.measurements()[index];
+
+    this.updateEditedForm();
   }
 
   public addMeasurement(event?: Event): void {
+    this.closeMeasurement();
+
     if (this.hasCustom.value) {
       this.addCustomMeasurement(event);
       return;
@@ -175,6 +207,8 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     if (!this.nameEntries?.length) {
       this.name.reset();
     }
+
+    this.updateEditedForm();
   }
 
   public addCustomMeasurement(event?: Event): void {
@@ -193,6 +227,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       unit: this.defaultUnit() || this.unitEntries()?.[0]?.id || 'cm',
     } as PhysicalMeasurement;
 
+    this.updateEditedForm();
     this.custom.reset();
   }
 
@@ -244,9 +279,12 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   }
 
   public saveMeasurement(): void {
-    if (!this.edited) {
-      return;
-    }
+    this.edited = {
+      name: this.edited!.name,
+      value: this.value.value,
+      unit: this.unit.value,
+      tag: this.tag.value || undefined,
+    } as PhysicalMeasurement;
 
     const measurements = [...this.measurements()];
     // get the index of the existing measurement with the same name

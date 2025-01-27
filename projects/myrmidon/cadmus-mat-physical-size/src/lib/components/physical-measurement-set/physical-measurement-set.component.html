@@ -160,12 +160,61 @@
         }}</mat-panel-title>
       </mat-expansion-panel-header>
       <div class="form-row">
-        <cadmus-physical-dimension
-          [tagEntries]="dimTagEntries()"
-          [unitEntries]="unitEntries()"
-          [dimension]="edited"
-          (dimensionChange)="onDimensionChange($event)"
-        />
+        <!-- value -->
+        <mat-form-field class="value" class="nr">
+          <mat-label>value</mat-label>
+          <input
+            matInput
+            type="number"
+            step="any"
+            min="0"
+            [formControl]="value"
+          />
+        </mat-form-field>
+
+        <!-- unit -->
+        <mat-form-field class="unit" class="unit">
+          <mat-label>unit</mat-label>
+          <mat-select [formControl]="unit">
+            @for (e of unitEntries(); track e) {
+            <mat-option [value]="e.id">{{ e.value }}</mat-option>
+            }
+          </mat-select>
+          @if ($any(unit).errors?.required && (unit.dirty || unit.touched)) {
+          <mat-error>unit required</mat-error>
+          }
+        </mat-form-field>
+
+        @if (!hideTag()) {
+        <!-- tag (bound) -->
+        @if (dimTagEntries()?.length) {
+        <mat-form-field class="tag">
+          <mat-label>tag</mat-label>
+          <mat-select [formControl]="tag">
+            @for (e of dimTagEntries(); track e) {
+            <mat-option [value]="e.id">{{ e.value }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        }
+        <!-- tag (free) -->
+        @else {
+        <mat-form-field class="tag">
+          <mat-label>tag</mat-label>
+          <input matInput [formControl]="tag" />
+          @if ($any(tag).errors?.maxLength && (tag.dirty || tag.touched)) {
+          <mat-error>tag too long</mat-error>
+          }
+        </mat-form-field>
+        } }
+        <button
+          type="button"
+          mat-icon-button
+          matTooltip="Close measurement"
+          (click)="closeMeasurement()"
+        >
+          <mat-icon class="mat-warn">close</mat-icon>
+        </button>
         <button
           type="submit"
           mat-icon-button
