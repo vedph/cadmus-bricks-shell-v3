@@ -1,6 +1,19 @@
 {
   "name": "@myrmidon/cadmus-refs-citation",
   "version": "0.0.1",
+  "description": "Cadmus - literary citations component.",
+  "keywords": [
+    "Cadmus",
+    "bricks"
+  ],
+  "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vedph/cadmus-bricks-shell-v3"
+  },
+  "author": {
+    "name": "Daniele Fusi"
+  },
   "peerDependencies": {
     "@angular/common": "^19.1.0",
     "@angular/core": "^19.1.0"
