@@ -85,6 +85,7 @@ ng g library @myrmidon/cadmus-refs-asserted-chronotope --prefix cadmus
 ng g library @myrmidon/cadmus-refs-asserted-ids --prefix cadmus
 ng g library @myrmidon/cadmus-refs-assertion --prefix cadmus
 ng g library @myrmidon/cadmus-refs-chronotope --prefix cadmus
+ng g library @myrmidon/cadmus-refs-citation --prefix cadmus
 ng g library @myrmidon/cadmus-refs-dbpedia-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-decorated-counts --prefix cadmus
 ng g library @myrmidon/cadmus-refs-decorated-ids --prefix cadmus
@@ -131,4 +132,5 @@ Remember to run these commands in your terminal from your project's root directo
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-02-09: adding [@myrmidon/cadmus-refs-citation](projects/myrmidon/cadmus-refs-citation/README.md)
 - 2025-01-22: updated Angular and packages.

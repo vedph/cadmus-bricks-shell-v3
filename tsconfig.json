@@ -37,6 +37,9 @@
       "@myrmidon/cadmus-refs-chronotope": [
         "./dist/myrmidon/cadmus-refs-chronotope"
       ],
+      "@myrmidon/cadmus-refs-citation": [
+        "./dist/myrmidon/cadmus-refs-citation"
+      ],
       "@myrmidon/cadmus-refs-dbpedia-lookup": [
         "./dist/myrmidon/cadmus-refs-dbpedia-lookup"
       ],
