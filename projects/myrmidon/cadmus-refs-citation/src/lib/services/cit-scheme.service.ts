@@ -1,50 +1,13 @@
 import { Injectable } from '@angular/core';
 
-import { CitScheme, CitSchemeSet, CitTextOptions } from '../models';
+import {
+  CitationModel,
+  CitScheme,
+  CitSchemeSet,
+  CitTextOptions,
+  SuffixedNumber,
+} from '../models';
 import { RomanNumberFormatter } from './roman-number.formatter';
-
-/**
- * A number with an optional suffix.
- */
-export type SuffixedNumber = {
-  n: number;
-  suffix?: string;
-};
-
-/**
- * A citation model's component.
- */
-export type CitComponent = {
-  /**
-   * The step in the citation scheme's path (e.g. "book").
-   */
-  step: string;
-  /**
-   * The value of the step (e.g. "1", "If.", etc.).
-   */
-  value: string;
-  /**
-   * The numeric value of the step. When the step has a numeric value,
-   * it is this value without its any suffix. When the step has a string
-   * value coming from a set, this is the ordinal of the value in the set.
-   * Otherwise, it is undefined.
-   */
-  n?: number;
-  /**
-   * The optional suffix of the numeric value.
-   */
-  suffix?: string;
-  /**
-   * The optional formatter to use for this step when it is numeric.
-   */
-  formatter?: string;
-};
-
-/**
- * A citation model. This is the result of parsing a compact text
- * citation, or building it via the UI.
- */
-export type CitationModel = CitComponent[];
 
 /**
  * A number formatter for citations.
@@ -185,7 +148,11 @@ export class CitSchemeService {
    * @param scheme The citation scheme.
    * @returns The rendered citation.
    */
-  public toString(key: string, citation: CitationModel, scheme: CitScheme): string {
+  public toString(
+    key: string,
+    citation: CitationModel,
+    scheme: CitScheme
+  ): string {
     const parser = this._parsers.get(key);
     return parser ? parser.toString(citation, scheme) : citation.join('');
   }

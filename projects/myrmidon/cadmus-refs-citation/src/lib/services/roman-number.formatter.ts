@@ -54,12 +54,12 @@ export class RomanNumberFormatter implements CitNumberFormatter {
       return result;
     }
 
-    if (options?.suffix) {
+    if (options?.suffixPattern) {
       // match suffix regex and remove it from text
-      const m = text.match(new RegExp(options.suffix));
+      const m = text.match(new RegExp(options.suffixPattern));
       if (m) {
         result.suffix = m[0];
-        text = text.replace(new RegExp(options.suffix), '');
+        text = text.replace(new RegExp(options.suffixPattern), '');
       }
     }
 

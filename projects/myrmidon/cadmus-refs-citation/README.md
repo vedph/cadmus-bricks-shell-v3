@@ -53,8 +53,8 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
       "name": "Iliad",
       "path": ["book", "verse"],
       "optionalFrom": "verse",
-      "parser": {
-        "suffix": "[a-z]$",
+      "textOptions": {
+        "suffixPattern": "[a-z]$",
         "separators": {
           "book": {
             "suffix": " "
@@ -98,7 +98,7 @@ The `steps` section contains most of the parameters driving the UI behavior:
   - in the case of `book`, we have just 1: its display format refers a custom alphabetic numbering using capital letters from the Classical Greek alphabet (`alpha_greek_upper`), and its values are included between 1 and 24.
   - in the case of `verse`, we used a lazier approach which just allows any positive integer number starting from 1 as the verse number. Also, we allow for a suffix after it, which must match the given regular expression pattern: `^[a-z]$`. This means that we allow only a single letter a-z after the number (if the suffix is an empty string, it will allow for any text). Anyway, here we could be more granular and define the maximum verse number for each canto in each cantica. This way, users won't be allowed to enter a verse number which does not exist. Of course this requires us to specify conditioned ranges for each combination of ascendants: e.g. when `book` is 1, the `verse`'s `max` is 611, and so forth (see the example about Dante).
 
-Additionally, to provide [text rendition for citations](#additional-services), we add under `parser` the rendering options:
+Additionally, to provide [text rendition for citations](#additional-services), we add under `textOptions` the rendering options:
 
 - `suffix`: the regular expression to extract suffixes from verse values.
 - `separators`: the separators to add before/after each step. Here we just add a space after each `book`.
@@ -169,7 +169,6 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
           {
             "color": "BB4142",
             "step": {
-              "format": "$roman_upper",
               "set": ["If.", "Purg.", "Par."]
             }
           }
@@ -177,6 +176,7 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
         "canto": [
           {
             "color": "7EC8B1",
+            "format": "$roman_upper",
             "ascendants": [
               {
                 "name": "cantica",
@@ -264,4 +264,4 @@ To this end, the citation scheme service provides among others two methods:
 - `toString` to render the citation as text.
 - `parse` to parse the rendered citation text.
 
-Generic options for these functions (`CitTextOptions`) can be defined in the `parser` property of the citation scheme definition.
+Generic options for these functions (`CitTextOptions`) can be defined in the `textOptions` property of the citation scheme definition.

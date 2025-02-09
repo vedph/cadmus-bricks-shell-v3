@@ -42,10 +42,25 @@ export type CitSchemeStepValue =
  * The definition of a single step in a citation scheme's path.
  */
 export interface CitSchemeStep {
+  /**
+   * The clauses to be matched for the steps' ascendants, from
+   * its parent step upwards.
+   */
   ascendants?: CitSchemeConditionClause[];
+  /**
+   * The numeric format to use to display the value of this step.
+   * This is meaningful only when the step is numeric (i.e. it has
+   * a range property in its value definition).
+   */
   format?: string;
+  /**
+   * The color to use for this step in the UI.
+   */
   color?: string;
-  step: CitSchemeStepValue;
+  /**
+   * The definition of the step's value domain.
+   */
+  value: CitSchemeStepValue;
 }
 
 /**
@@ -54,9 +69,15 @@ export interface CitSchemeStep {
  */
 export interface CitTextOptions {
   /**
+   * The regex pattern to extract the steps from a path.
+   * Each step is a match group and their order matches
+   * the order of the steps in the path.
+   */
+  pathPattern?: string;
+  /**
    * The regex pattern to extract the suffix from a text.
    */
-  suffix?: string;
+  suffixPattern?: string;
   /**
    * The separators for the various parts of the citation. Each part
    * is identified by a key, which is the name of the part (e.g. 'verse'),
@@ -70,11 +91,33 @@ export interface CitTextOptions {
  * The definition of a single citation scheme.
  */
 export interface CitScheme {
+  /**
+   * The human-friendly name of the scheme.
+   */
   name: string;
+  /**
+   * The path of steps to follow in this scheme.
+   */
   path: string[];
+  /**
+   * The optional name of the step from which it and all the following
+   * steps can be optional. For instance, in a 2-steps path having
+   * "book" and "verse", we can use a shorter path with book only by
+   * setting this property to "verse".
+   */
   optionalFrom?: string;
+  /**
+   * The optional color to use for the scheme in the UI.
+   */
   color?: string;
-  parser?: CitTextOptions;
+  /**
+   * The options for the textual rendition of the citation.
+   */
+  textOptions?: CitTextOptions;
+  /**
+   * The steps of the scheme, indexed by their name, as defined in
+   * the scheme's path.
+   */
   steps: { [key: string]: CitSchemeStep[] };
 }
 
@@ -82,6 +125,55 @@ export interface CitScheme {
  * A set of citation schemes definitions.
  */
 export interface CitSchemeSet {
+  /**
+   * The numeric formats to use for the various steps in the schemes.
+   */
   formats?: { [key: string]: CitMappedValue[] };
+  /**
+   * The citation schemes, indexed by their ID.
+   */
   schemes: { [key: string]: CitScheme };
 }
+
+/**
+ * A number with an optional suffix.
+ */
+export type SuffixedNumber = {
+  n: number;
+  suffix?: string;
+};
+
+/**
+ * A citation model's component.
+ */
+export type CitComponent = {
+  /**
+   * The step in the citation scheme's path (e.g. "book").
+   */
+  step: string;
+  /**
+   * The value of the step (e.g. "1", "If.", etc.).
+   */
+  value: string;
+  /**
+   * The numeric value of the step. When the step has a numeric value,
+   * it is this value without its any suffix. When the step has a string
+   * value coming from a set, this is the ordinal of the value in the set.
+   * Otherwise, it is undefined.
+   */
+  n?: number;
+  /**
+   * The optional suffix of the numeric value.
+   */
+  suffix?: string;
+  /**
+   * The optional formatter to use for this step when it is numeric.
+   */
+  formatter?: string;
+};
+
+/**
+ * A citation model. This is the result of parsing a compact text
+ * citation, or building it via the UI.
+ */
+export type CitationModel = CitComponent[];
