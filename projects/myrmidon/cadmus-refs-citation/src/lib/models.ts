@@ -19,10 +19,12 @@ export type CitRange = { min?: number; max?: number };
  * by any text as a suffix; when it is a regular expression, the suffix
  * after the number must match it.
  */
-export type CitSchemeStepValue =
-  | { set: string[] }
-  | { range: CitRange; suffix?: string }
-  | { mask: string };
+export type CitSchemeStepValue = {
+  set?: string[];
+  range?: CitRange;
+  suffix?: string;
+  mask?: string;
+};
 
 /**
  * The definition of a single condition clause in a citation scheme.
@@ -130,7 +132,7 @@ export interface CitScheme {
    * The steps of the scheme, indexed by their name, as defined in
    * the scheme's path.
    */
-  steps: { [key: string]: CitSchemeStep[] };
+  steps: { [key: string]: CitSchemeStep };
 }
 
 /**
@@ -179,9 +181,9 @@ export type CitComponent = {
    */
   suffix?: string;
   /**
-   * The optional formatter to use for this step when it is numeric.
+   * The optional format to use for this step when it is numeric.
    */
-  formatter?: string;
+  format?: string;
 };
 
 /**

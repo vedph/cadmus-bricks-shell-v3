@@ -264,7 +264,7 @@ The `steps` section contains most of the parameters driving the UI behavior:
 }
 ```
 
-The same should be done for each combination of cantica and canto.
+The same should be done for each combination of `cantica` and `canto`.
 
 >Note that ascendants are given starting from the current step upwards: so, stepping up from `verso` we first find its parent `canto`, and then its grandparent `cantica`.
 
