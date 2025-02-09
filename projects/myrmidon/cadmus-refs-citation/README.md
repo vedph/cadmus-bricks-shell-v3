@@ -4,6 +4,8 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.0.
 
+## Editing Citations
+
 This library provides services and components for entering structured literary citations in an interactive and partially constrained UI. Such citations are defined as a hierarchy of structures, from the largest to the smallest, in a specific order.
 
 For instance, the Iliad is cited by book number first, and then by verse number. So, the hierarchy here is:
@@ -51,6 +53,14 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
       "name": "Iliad",
       "path": ["book", "verse"],
       "optionalFrom": "verse",
+      "parser": {
+        "suffix": "[a-z]$",
+        "separators": {
+          "book": {
+            "suffix": " "
+          }
+        }
+      },
       "steps": {
         "book": [
           {
@@ -87,6 +97,11 @@ The `steps` section contains most of the parameters driving the UI behavior:
 - each of these step configurations contains any number of step objects:
   - in the case of `book`, we have just 1: its display format refers a custom alphabetic numbering using capital letters from the Classical Greek alphabet (`alpha_greek_upper`), and its values are included between 1 and 24.
   - in the case of `verse`, we used a lazier approach which just allows any positive integer number starting from 1 as the verse number. Also, we allow for a suffix after it, which must match the given regular expression pattern: `^[a-z]$`. This means that we allow only a single letter a-z after the number (if the suffix is an empty string, it will allow for any text). Anyway, here we could be more granular and define the maximum verse number for each canto in each cantica. This way, users won't be allowed to enter a verse number which does not exist. Of course this requires us to specify conditioned ranges for each combination of ascendants: e.g. when `book` is 1, the `verse`'s `max` is 611, and so forth (see the example about Dante).
+
+Additionally, to provide [text rendition for citations](#additional-services), we add under `parser` the rendering options:
+
+- `suffix`: the regular expression to extract suffixes from verse values.
+- `separators`: the separators to add before/after each step. Here we just add a space after each `book`.
 
 ### Homer - Odyssey
 
@@ -239,3 +254,14 @@ The `steps` section contains most of the parameters driving the UI behavior:
 The same should be done for each combination of cantica and canto.
 
 >Note that ascendants are given starting from the current step upwards: so, stepping up from `verso` we first find its parent `canto`, and then its grandparent `cantica`.
+
+## Additional Services
+
+A citation by definition is an array of strings, each representing a step in the scheme's path. Anyway, you may want to represent this citation into a compact text form. For instance, we might have `α 12` to represent Odyssey book 1, verse 12.
+
+To this end, the citation scheme service provides among others two methods:
+
+- `toString` to render the citation as text.
+- `parse` to parse the rendered citation text.
+
+Generic options for these functions (`CitTextOptions`) can be defined in the `parser` property of the citation scheme definition.

@@ -49,6 +49,24 @@ export interface CitSchemeStep {
 }
 
 /**
+ * The options for the textual rendition of a citation. These are
+ * used by formatters and parsers.
+ */
+export interface CitTextOptions {
+  /**
+   * The regex pattern to extract the suffix from a text.
+   */
+  suffix?: string;
+  /**
+   * The separators for the various parts of the citation. Each part
+   * is identified by a key, which is the name of the part (e.g. 'verse'),
+   * and has a prefix and a suffix. The key '_suffix' is used for the
+   * optional suffix of numeric values.
+   */
+  separators: { [key: string]: { prefix?: string; suffix?: string } };
+}
+
+/**
  * The definition of a single citation scheme.
  */
 export interface CitScheme {
@@ -56,6 +74,7 @@ export interface CitScheme {
   path: string[];
   optionalFrom?: string;
   color?: string;
+  parser?: CitTextOptions;
   steps: { [key: string]: CitSchemeStep[] };
 }
 
