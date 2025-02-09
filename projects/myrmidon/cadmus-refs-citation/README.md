@@ -62,27 +62,25 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
         }
       },
       "steps": {
-        "book": [
-          {
-            "format": "alpha_greek_upper",
-            "step": {
-              "range": {
-                "min": 1,
-                "max": 24,
-              }
+        "book": {
+          "numeric": true,
+          "format": "alpha_greek_upper",
+          "value": {
+            "range": {
+              "min": 1,
+              "max": 24
             }
           }
-        ],
-        "verse": [
-          {
-            "step": {
-              "range": {
-                "min": 1,
-                "suffix": "^[a-z]$"
-              }
+        },
+        "verse": {
+          "numeric": true,
+          "value": {
+            "range": {
+              "min": 1,
+              "suffix": "^[a-z]$"
             }
           }
-        ]
+        }
       }
     }
   }
@@ -122,28 +120,34 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
       "name": "Odyssey",
       "path": ["book", "verse"],
       "optionalFrom": "verse",
+      "textOptions": {
+        "suffixPattern": "[a-z]$",
+        "separators": {
+          "book": {
+            "suffix": " "
+          }
+        }
+      },
       "steps": {
-        "book": [
-          {
-            "format": "alpha_greek_lower",
-            "step": {
-              "range": {
-                "min": 1,
-                "max": 24,
-              }
+        "book": {
+          "numeric": true,
+          "format": "alpha_greek_lower",
+          "value": {
+            "range": {
+              "min": 1,
+              "max": 24
             }
           }
-        ],
-        "verse": [
-          {
-            "step": {
-              "range": {
-                "min": 1,
-                "suffix": "^[a-z]$"
-              }
+        },
+        "verse": {
+          "numeric": true,
+          "value": {
+            "range": {
+              "min": 1,
+              "suffix": "^[a-z]$"
             }
           }
-        ]
+        }
       }
     }
   }
@@ -165,51 +169,51 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
       "optionalFrom": "canto",
       "color": "BB4142",
       "steps": {
-        "cantica": [
-          {
-            "color": "BB4142",
-            "step": {
-              "set": ["If.", "Purg.", "Par."]
-            }
-          }
-        ],
-        "canto": [
-          {
-            "color": "7EC8B1",
-            "format": "$roman_upper",
-            "ascendants": [
-              {
-                "name": "cantica",
-                "op": "=",
-                "value": "If."
-              }
-            ],
-            "step": {
-              "range": {
-                "min": 1,
-                "max": 34
-              }
-            }
+        "cantica": {
+          "color": "BB4142",
+          "value": {
+            "set": ["If.", "Purg.", "Par."]
           },
-          {
-            "step": {
-              "range": {
-                "min": 1,
-                "max": 33
+        },
+        "canto": {
+          "color": "7EC8B1",
+          "numeric": true,
+          "format": "$roman_upper",
+          "conditions": [
+            {
+              "ascendants": [
+                {
+                  "name": "cantica",
+                  "op": "=",
+                  "value": "If."
+                }
+              ],
+              "value": {
+                "range": {
+                  "min": 1,
+                  "max": 34
+                }
+              }
+            },
+            {
+              "value": {
+                "range": {
+                  "min": 1,
+                  "max": 33
+                }
               }
             }
-          }
-        ],
-        "verso": [
-          {
-            "color": "EFE6CC",
-            "step": {
-              "range": {
-                "min": 1
-              }
+          ]
+        },
+        "verso": {
+          "color": "EFE6CC",
+          "numeric": true,
+          "value": {
+            "range": {
+              "min": 1
             }
           }
-        ]
+        }
       }
     }
   }
@@ -227,9 +231,16 @@ The `steps` section contains most of the parameters driving the UI behavior:
   - in the case of `verso`, we used a lazier approach which just allows any positive integer number starting from 1 as the verse number. Yet, we could be more granular and define the maximum verse number for each canto in each cantica. This way, users won't be allowed to enter a verse number which does not exist. Of course this requires specifies conditioned ranges for each combination of ascendants, e.g. for "If. I 1" (having 136 verses):
 
 ```json
-"verso": [
-  {
-    "step": {
+"verso": {
+  "color": "EFE6CC",
+  "numeric": true,
+  "value": {
+    "range": {
+      "min": 1
+    }
+  },
+  "conditions": [
+    {
       "ascendants": [
         {
           "name": "canto",
@@ -242,13 +253,15 @@ The `steps` section contains most of the parameters driving the UI behavior:
           "value": "If."
         }
       ],
-      "range": {
-        "min": 1,
-        "max": 136
+      "value": {
+        "range": {
+          "min": 1,
+          "max": 136
+        }
       }
     }
-  }
-]
+  ]
+}
 ```
 
 The same should be done for each combination of cantica and canto.

@@ -18,7 +18,8 @@ export class PatternCitParser implements CitParser {
       const step = scheme.steps[scheme.path[i]];
       const value = match[i];
 
-      // calculate n: if the step is numeric, this is the numeric value;
+      // calculate n: if the step is numeric, this is the numeric value
+      // (parsed from its formatted representation if there is a formatter);
       // if it is a string coming from a set, this is the ordinal of the
       // value in the set; otherwise, it is undefined.
       let n: number | undefined;

@@ -10,6 +10,21 @@ export type CitMappedValue = { [key: string]: number };
 export type CitRange = { min?: number; max?: number };
 
 /**
+ * The definition of the domain of a citation scheme step value.
+ * This can be a closed set of string values, a numeric range, or a mask
+ * as defined by a regular expression (or empty when the value is just
+ * any string).
+ * The numeric range can have a suffix, which is either an empty string
+ * or a regular expression. When it is empty, the number can be followed
+ * by any text as a suffix; when it is a regular expression, the suffix
+ * after the number must match it.
+ */
+export type CitSchemeStepValue =
+  | { set: string[] }
+  | { range: CitRange; suffix?: string }
+  | { mask: string };
+
+/**
  * The definition of a single condition clause in a citation scheme.
  * When not specified, the operator is assumed to be '=' (string equality).
  * Other operators are: '!=' (string inequality), '~' (string matches regex),
@@ -24,43 +39,40 @@ export interface CitSchemeConditionClause {
 }
 
 /**
- * The definition of the domain of a citation scheme step value.
- * This can be a closed set of string values, a numeric range, or a mask
- * as defined by a regular expression (or empty when the value is just
- * any string).
- * The numeric range can have a suffix, which is either an empty string
- * or a regular expression. When it is empty, the number can be followed
- * by any text as a suffix; when it is a regular expression, the suffix
- * after the number must match it.
+ * The definition of a conditional value in a citation scheme step.
  */
-export type CitSchemeStepValue =
-  | { set: string[] }
-  | { range: CitRange, suffix?: string }
-  | { mask: string };
+export interface CitSchemeCondition {
+  ascendants: CitSchemeConditionClause[];
+  value: CitSchemeStepValue;
+}
 
 /**
  * The definition of a single step in a citation scheme's path.
  */
 export interface CitSchemeStep {
   /**
-   * The clauses to be matched for the steps' ascendants, from
-   * its parent step upwards.
-   */
-  ascendants?: CitSchemeConditionClause[];
-  /**
-   * The numeric format to use to display the value of this step.
-   * This is meaningful only when the step is numeric (i.e. it has
-   * a range property in its value definition).
-   */
-  format?: string;
-  /**
    * The color to use for this step in the UI.
    */
   color?: string;
   /**
-   * The definition of the step's value domain.
+   * True if this step value is numeric, false if it is a string.
+   */
+  numeric?: boolean;
+  /**
+   * The numeric format to use to display the value of this step.
+   * This is meaningful only when the step is numeric. If not set,
+   * the default is Arabic numerals.
+   */
+  format?: string;
+  /**
+   * The definition of the default step's value domain.
    */
   value: CitSchemeStepValue;
+  /**
+   * The optional conditions for this step with their corresponding
+   * conditional value.
+   */
+  conditions?: CitSchemeCondition[];
 }
 
 /**

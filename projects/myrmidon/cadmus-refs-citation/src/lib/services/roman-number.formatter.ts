@@ -1,7 +1,7 @@
 import { RomanNumber } from '@myrmidon/ngx-tools';
 
-import { CitNumberFormatter, SuffixedNumber } from './cit-scheme.service';
-import { CitTextOptions } from '../models';
+import { CitTextOptions, SuffixedNumber } from '../models';
+import { CitNumberFormatter } from './cit-scheme.service';
 
 /**
  * A citation number formatter for Roman numbers plus an optional
