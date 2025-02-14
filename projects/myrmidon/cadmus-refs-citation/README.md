@@ -54,8 +54,7 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
       "path": ["book", "verse"],
       "optionalFrom": "verse",
       "textOptions": {
-        "pathPattern": "^\\s*([Α-Ω])\\s+(\\d+(?:[a-z])?)\\s*$",
-        "suffixPattern": "([a-z])$",
+        "pathPattern": "^\\s*([Α-Ω])\\s+(\\d+(?:[a-z])?)\\s*$",       
         "template": "{book} {verse}"
       },
       "steps": {
@@ -71,10 +70,10 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
         },
         "verse": {
           "numeric": true,
+          "suffixPattern": "([a-z])$",
           "value": {
             "range": {
-              "min": 1,
-              "suffix": "^[a-z]$"
+              "min": 1
             }
           }
         }
@@ -119,7 +118,6 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
       "optionalFrom": "verse",
       "textOptions": {
         "pathPattern": "^\\s*([α-ω])\\s+(\\d+(?:[a-z])?)\\s*$",
-        "suffixPattern": "([a-z])$",
         "template": "{book} {verse}"
       },
       "steps": {
@@ -135,10 +133,10 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
         },
         "verse": {
           "numeric": true,
+          "suffixPattern": "([a-z])$",
           "value": {
             "range": {
               "min": 1,
-              "suffix": "^[a-z]$"
             }
           }
         }
@@ -280,7 +278,6 @@ These functions use one or more instances of `CitParser` services, which can be 
 Unless your logic is more complex, in most cases you can use the `PatternCitParser` as a generic parser, configured via patterns defined in the scheme's text options (`CitTextOptions`, defined in the `textOptions` property of the citation scheme definition). These options include:
 
 - _path pattern_: the regular expression used to extract steps from a path. Each step is a match group, and their order matches the order of the steps in the path.
-- _suffix pattern_: the regex pattern to extract the suffix from a text.
 - _template_: the template to render the citation text. Each step is a placeholder between braces, e.g. `{book} {verse}`. Placeholders can get these suffixes for numeric values:
   - `:n` to render the numeric value only;
   - `:s` to render the suffix only.
@@ -288,8 +285,9 @@ Unless your logic is more complex, in most cases you can use the `PatternCitPars
 For instance, for Homer's Odyssey these parameters would be:
 
 - path pattern: `^\s*([α-ω])\s+(\d+(?:[a-z])?)\s*$`. In a string like `α 123a`, the match groups corresponding to paths book and verse would be 1=`α` and 2=`123a`.
-- suffix pattern: `([a-z])$`.
 - template: `{book} {verse}`.
+
+The verse step also has this suffix pattern: `([a-z])$`.
 
 For Dante's _Commedia_:
 
