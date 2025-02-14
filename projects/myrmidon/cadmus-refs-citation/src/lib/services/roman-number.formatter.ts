@@ -30,14 +30,17 @@ export class RomanNumberFormatter implements CitNumberFormatter {
    * @param options The options.
    * @returns The parsed value.
    */
-  public parse(text?: string | null, suffixPattern?: string): SuffixedNumber {
+  public parse(
+    text?: string | null,
+    suffixPattern?: string
+  ): SuffixedNumber | undefined {
+    if (!text) {
+      return undefined;
+    }
+
     const result: SuffixedNumber = {
       n: 0,
     };
-    if (!text) {
-      return result;
-    }
-
     if (suffixPattern) {
       // match suffix regex and remove it from text
       const m = text.match(new RegExp(suffixPattern));

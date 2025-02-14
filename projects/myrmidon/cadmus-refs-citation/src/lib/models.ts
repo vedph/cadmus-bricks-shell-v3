@@ -2,7 +2,7 @@
  * A numeric value mapped to some label. This is used in defining
  * citation formats.
  */
-export type CitMappedValue = { [key: string]: number };
+export type CitMappedValues = { [key: string]: number };
 
 /**
  * The definition of a numeric range in a numeric citation value.
@@ -146,7 +146,7 @@ export interface CitSchemeSet {
   /**
    * The numeric formats to use for the various steps in the schemes.
    */
-  formats?: { [key: string]: CitMappedValue[] };
+  formats?: { [key: string]: CitMappedValues };
   /**
    * The citation schemes, indexed by their ID.
    */
