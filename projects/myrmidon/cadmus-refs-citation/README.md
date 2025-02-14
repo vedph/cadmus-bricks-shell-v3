@@ -163,7 +163,7 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
       "optionalFrom": "canto",
       "textOptions": {
         "pathPattern": "^\\s*(If\\.|Purg\\.|Par\\.)\\s*([IVX]+)\\s+(\\d+)\\s*$",
-        "template": "{cantica} {canto%$ru} {verso}"
+        "template": "{cantica} {canto} {verso}"
       },
       "color": "BB4142",
       "steps": {
@@ -281,7 +281,7 @@ Unless your logic is more complex, in most cases you can use the `PatternCitPars
 
 - _path pattern_: the regular expression used to extract steps from a path. Each step is a match group, and their order matches the order of the steps in the path.
 - _suffix pattern_: the regex pattern to extract the suffix from a text.
-- _template_: the template to render the citation text. Each step is a placeholder between braces, e.g. `{book} {verse}`. Placeholders can get these suffixes:
+- _template_: the template to render the citation text. Each step is a placeholder between braces, e.g. `{book} {verse}`. Placeholders can get these suffixes for numeric values:
   - `:n` to render the numeric value only;
   - `:s` to render the suffix only.
 
@@ -294,4 +294,4 @@ For instance, for Homer's Odyssey these parameters would be:
 For Dante's _Commedia_:
 
 - path pattern: `^\s*(If\.|Purg\.|Par\.)\s*([IVX]+)\s+(\d+)\s*$`
-- template: `{cantica} {canto%$ru} {verso}`.
+- template: `{cantica} {canto} {verso}`.
