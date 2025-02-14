@@ -8,6 +8,7 @@ import {
   SuffixedNumber,
 } from '../models';
 import { RomanNumberFormatter } from './roman-number.formatter';
+import { MapFormatter } from './map.formatter';
 
 /**
  * A number formatter for citations.
@@ -81,6 +82,15 @@ export class CitSchemeService {
 
   public configure(set: CitSchemeSet): void {
     this._set = set;
+    // if formats are defined, add a MapFormatter for each,
+    // configuring it according to its CitMappedValues
+    if (set.formats) {
+      for (const key in set.formats) {
+        const formatter = new MapFormatter();
+        formatter.configure(set.formats[key]);
+        this.addFormatter(key, formatter);
+      }
+    }
   }
 
   public getStepAt(index: number, schemeId: string): string {
