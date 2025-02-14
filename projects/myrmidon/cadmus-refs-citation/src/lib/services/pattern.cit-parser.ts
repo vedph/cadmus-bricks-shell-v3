@@ -75,12 +75,17 @@ export class PatternCitParser implements CitParser {
    */
   public toString(citation: CitationModel, scheme: CitScheme): string {
     const sb: string[] = [];
+    if (!scheme.textOptions?.template) {
+      console.warn('No text options template in citation scheme');
+      return '';
+    }
+    const template = scheme.textOptions.template;
 
     // replace each step placeholder in template with the corresponding
     // step value
     // for each matching {step} in template, replace it with the value
     // of the step, if any
-    const matches = scheme.textOptions?.template.match(/{(\w+)}/g);
+    const matches = template.match(/{(\w+)}/g);
     if (!matches) {
       console.warn('No text options template in citation scheme');
       return scheme.textOptions?.template || '';
@@ -124,6 +129,19 @@ export class PatternCitParser implements CitParser {
         }
       } else {
         console.warn(`Citation scheme step not found: ${stepName}`);
+      }
+
+      // get index of match in matchIndex
+      const matchIndex = template.indexOf(match);
+
+      // add all what is after the match before the next one
+      const nextMatch = matches[i + 1];
+      const start = matchIndex + match.length;
+      const nextStart = nextMatch
+        ? template.indexOf(nextMatch, start)
+        : template.length;
+      if (nextStart > start) {
+        sb.push(template.substring(nextStart, nextStart));
       }
     }
 
