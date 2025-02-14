@@ -36,15 +36,26 @@ export interface CitParser {
    * Parse the specified citation text.
    * @param text The citation text to parse.
    * @param scheme The citation scheme.
+   * @returns The citation model.
    */
   parse(text: string, scheme: CitScheme): CitationModel;
   /**
    * Render the specified citation model into text.
    * @param citation The citation model to render into text.
    * @param scheme The citation scheme.
+   * @returns The rendered citation.
    */
   toString(citation: CitationModel, scheme: CitScheme): string;
 }
+
+/**
+ * The default key for the Roman upper case formatter.
+ */
+export const CIT_FORMATTER_ROMAN_UPPER = '$ru';
+/**
+ * The default key for the Roman lower case formatter.
+ */
+export const CIT_FORMATTER_ROMAN_LOWER = '$rl';
 
 /**
  * Citation scheme service.
@@ -58,8 +69,11 @@ export class CitSchemeService {
   private _set?: CitSchemeSet;
 
   constructor() {
-    this.addFormatter('$roman_upper', new RomanNumberFormatter());
-    this.addFormatter('$roman_lower', new RomanNumberFormatter(true));
+    this.addFormatter(CIT_FORMATTER_ROMAN_UPPER, new RomanNumberFormatter());
+    this.addFormatter(
+      CIT_FORMATTER_ROMAN_LOWER,
+      new RomanNumberFormatter(true)
+    );
   }
 
   public configure(set: CitSchemeSet): void {
@@ -79,6 +93,8 @@ export class CitSchemeService {
 
   /**
    * Add a formatter to the service under the specified key.
+   * Note that by default the service already provides two formatters for
+   * Roman numbers, with keys `$ru` and `$rl`.
    * @param key The key of the formatter.
    * @param formatter The formatter.
    */

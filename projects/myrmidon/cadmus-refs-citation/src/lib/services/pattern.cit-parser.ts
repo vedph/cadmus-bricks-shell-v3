@@ -13,10 +13,10 @@ export class PatternCitParser implements CitParser {
   }
 
   /**
-   * Parse the specified text according to the specified citation scheme.
-   * @param text The text to parse.
+   * Parse the specified citation text.
+   * @param text The citation text to parse.
    * @param scheme The citation scheme.
-   * @returns The parsed citation model.
+   * @returns The citation model.
    */
   public parse(text: string, scheme: CitScheme): CitationModel {
     const result: CitationModel = [];
@@ -67,17 +67,65 @@ export class PatternCitParser implements CitParser {
     return result;
   }
 
+  /**
+   * Render the specified citation model into text.
+   * @param citation The citation model to render into text.
+   * @param scheme The citation scheme.
+   * @returns The rendered citation.
+   */
   public toString(citation: CitationModel, scheme: CitScheme): string {
     const sb: string[] = [];
 
     // replace each step placeholder in template with the corresponding
     // step value
-    scheme.textOptions?.template.split(/\{(\w+)\}/).forEach((part, index) => {
-      sb.push(part);
-      if (index < citation.length) {
-        sb.push(citation[index].value);
+    // for each matching {step} in template, replace it with the value
+    // of the step, if any
+    const matches = scheme.textOptions?.template.match(/{(\w+)}/g);
+    if (!matches) {
+      console.warn('No text options template in citation scheme');
+      return scheme.textOptions?.template || '';
+    }
+    for (let i = 0; i < matches?.length; i++) {
+      // extract step name from {}
+      const match = matches[i];
+      let stepName = match.substring(1, match.length - 1);
+
+      // extract optional suffix :n or :s from step name
+      const colon = stepName.indexOf(':');
+      let suffix: string | undefined;
+      if (colon > -1) {
+        suffix = stepName.substring(colon + 1);
+        stepName = stepName.substring(0, colon);
       }
-    });
+
+      // find the step in the citation model
+      const step = citation.find((s) => s.step === stepName);
+      if (step) {
+        // render n if any and the suffix is falsy or not 's',
+        // as we want to render n+s by default, else just n for
+        // suffix ':n', and just s for suffix ':s'
+        if (step.n !== undefined && step.n !== null) {
+          // omit n if suffix is ':s'
+          if (!suffix || suffix !== 's') {
+            // use formatter if specified
+            if (step.format) {
+              const formatter = this._service.getFormatter(step.format);
+              sb.push(formatter?.format(step.n) || step.n.toString());
+            } else {
+              sb.push(step.value);
+            }
+          }
+          // render suffix if any
+          if (step.suffix && (!suffix || suffix !== 'n')) {
+            sb.push(step.suffix);
+          }
+        } else {
+          sb.push(step.value);
+        }
+      } else {
+        console.warn(`Citation scheme step not found: ${stepName}`);
+      }
+    }
 
     return sb.join('');
   }

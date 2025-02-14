@@ -161,6 +161,10 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
       "name": "Commedia",
       "path": ["cantica", "canto", "verso"],
       "optionalFrom": "canto",
+      "textOptions": {
+        "pathPattern": "^\\s*(If\\.|Purg\\.|Par\\.)\\s*([IVX]+)\\s+(\\d+)\\s*$",
+        "template": "{cantica} {canto%$ru} {verso}"
+      },
       "color": "BB4142",
       "steps": {
         "cantica": {
@@ -279,8 +283,7 @@ Unless your logic is more complex, in most cases you can use the `PatternCitPars
 - _suffix pattern_: the regex pattern to extract the suffix from a text.
 - _template_: the template to render the citation text. Each step is a placeholder between braces, e.g. `{book} {verse}`. Placeholders can get these suffixes:
   - `:n` to render the numeric value only;
-  - `:s` to render the suffix only;
-  - `%FMT` to render the numeric value with the specified format. Here `FMT` is the formatter's ID.
+  - `:s` to render the suffix only.
 
 For instance, for Homer's Odyssey these parameters would be:
 
