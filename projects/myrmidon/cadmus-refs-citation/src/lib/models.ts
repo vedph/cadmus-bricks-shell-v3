@@ -61,6 +61,12 @@ export interface CitSchemeStep {
    */
   numeric?: boolean;
   /**
+   * The regex pattern to extract the suffix from a numeric
+   * value in a step.
+   * The suffix is the first (and only) match group.
+   */
+  suffixPattern?: string;
+  /**
    * The numeric format to use to display the value of this step.
    * This is meaningful only when the step is numeric. If not set,
    * the default is Arabic numerals.
@@ -88,12 +94,6 @@ export interface CitTextOptions {
    * the order of the steps in the path.
    */
   pathPattern: string;
-  /**
-   * The regex pattern to extract the suffix from a numeric
-   * value in a step.
-   * The suffix is the first (and only) match group.
-   */
-  suffixPattern?: string;
   /**
    * The template to render the citation text.
    * Each step is a placeholder between braces, e.g. "{book} {verse}".

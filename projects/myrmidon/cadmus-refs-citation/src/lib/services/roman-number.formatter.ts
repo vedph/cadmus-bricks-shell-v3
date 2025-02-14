@@ -1,6 +1,6 @@
 import { RomanNumber } from '@myrmidon/ngx-tools';
 
-import { CitTextOptions, SuffixedNumber } from '../models';
+import { SuffixedNumber } from '../models';
 import { CitNumberFormatter } from './cit-scheme.service';
 
 /**
@@ -30,7 +30,7 @@ export class RomanNumberFormatter implements CitNumberFormatter {
    * @param options The options.
    * @returns The parsed value.
    */
-  public parse(text?: string | null, options?: CitTextOptions): SuffixedNumber {
+  public parse(text?: string | null, suffixPattern?: string): SuffixedNumber {
     const result: SuffixedNumber = {
       n: 0,
     };
@@ -38,12 +38,12 @@ export class RomanNumberFormatter implements CitNumberFormatter {
       return result;
     }
 
-    if (options?.suffixPattern) {
+    if (suffixPattern) {
       // match suffix regex and remove it from text
-      const m = text.match(new RegExp(options.suffixPattern));
+      const m = text.match(new RegExp(suffixPattern));
       if (m) {
         result.suffix = m[0];
-        text = text.replace(new RegExp(options.suffixPattern), '');
+        text = text.replace(new RegExp(suffixPattern), '');
       }
     }
 

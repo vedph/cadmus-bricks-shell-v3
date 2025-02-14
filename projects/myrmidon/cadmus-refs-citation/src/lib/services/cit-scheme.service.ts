@@ -25,7 +25,7 @@ export interface CitNumberFormatter {
    * @param text The text to parse.
    * @param options The optional text options.
    */
-  parse(text?: string | null, options?: CitTextOptions): SuffixedNumber;
+  parse(text?: string | null, suffixPattern?: string): SuffixedNumber;
 }
 
 /**
