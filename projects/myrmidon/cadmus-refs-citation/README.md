@@ -41,7 +41,7 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
 ```json
 {
   "formats": {
-    "alpha_greek_upper": {
+    "agu": {
       "Α": 1,
       "Β": 2,
       "Γ": 3,
@@ -54,17 +54,14 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
       "path": ["book", "verse"],
       "optionalFrom": "verse",
       "textOptions": {
-        "suffixPattern": "[a-z]$",
-        "separators": {
-          "book": {
-            "suffix": " "
-          }
-        }
+        "pathPattern": "^\\s*([Α-Ω])\\s+(\\d+(?:[a-z])?)\\s*$",
+        "suffixPattern": "([a-z])$",
+        "template": "{book} {verse}"
       },
       "steps": {
         "book": {
           "numeric": true,
-          "format": "alpha_greek_upper",
+          "format": "agu",
           "value": {
             "range": {
               "min": 1,
@@ -108,7 +105,7 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
 ```json
 {
   "formats": {
-    "alpha_greek_lower": {
+    "agl": {
       "α": 1,
       "β": 2,
       "γ": 3,
@@ -121,17 +118,14 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
       "path": ["book", "verse"],
       "optionalFrom": "verse",
       "textOptions": {
-        "suffixPattern": "[a-z]$",
-        "separators": {
-          "book": {
-            "suffix": " "
-          }
-        }
+        "pathPattern": "^\\s*([α-ω])\\s+(\\d+(?:[a-z])?)\\s*$",
+        "suffixPattern": "([a-z])$",
+        "template": "{book} {verse}"
       },
       "steps": {
         "book": {
           "numeric": true,
-          "format": "alpha_greek_lower",
+          "format": "agl",
           "value": {
             "range": {
               "min": 1,
@@ -158,7 +152,7 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
 
 Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), canto (1-34 or 1-33), verso (number). Often, and this is reflected by this example, the numeric format for canti is Roman (with uppercase letters), while verse numbers use the Arabic format.
 
->In this specific example, we allow citations targeting just a cantica; so the first optional step is defined as canto.Also, by convention preset numeric formats are identified by names starting with `$`. In this example `$roman_upper` refers to a Roman numeric system with uppercase letters.
+>In this specific example, we allow citations targeting just a cantica; so the first optional step is defined as canto.Also, by convention preset numeric formats are identified by names starting with `$`. In this example `$ru` (Roman, uppercase) refers to a Roman numeric system with uppercase letters.
 
 ```json
 {
@@ -178,7 +172,7 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
         "canto": {
           "color": "7EC8B1",
           "numeric": true,
-          "format": "$roman_upper",
+          "format": "$ru",
           "conditions": [
             {
               "ascendants": [
@@ -277,4 +271,24 @@ To this end, the citation scheme service provides among others two methods:
 - `toString` to render the citation as text.
 - `parse` to parse the rendered citation text.
 
-Generic options for these functions (`CitTextOptions`) can be defined in the `textOptions` property of the citation scheme definition.
+These functions use one or more instances of `CitParser` services, which can be added to the citation scheme service (via `addParser`). Each parser is added with an arbitrary key, which is then used to select it.
+
+Unless your logic is more complex, in most cases you can use the `PatternCitParser` as a generic parser, configured via patterns defined in the scheme's text options (`CitTextOptions`, defined in the `textOptions` property of the citation scheme definition). These options include:
+
+- _path pattern_: the regular expression used to extract steps from a path. Each step is a match group, and their order matches the order of the steps in the path.
+- _suffix pattern_: the regex pattern to extract the suffix from a text.
+- _template_: the template to render the citation text. Each step is a placeholder between braces, e.g. `{book} {verse}`. Placeholders can get these suffixes:
+  - `:n` to render the numeric value only;
+  - `:s` to render the suffix only;
+  - `%FMT` to render the numeric value with the specified format. Here `FMT` is the formatter's ID.
+
+For instance, for Homer's Odyssey these parameters would be:
+
+- path pattern: `^\s*([α-ω])\s+(\d+(?:[a-z])?)\s*$`. In a string like `α 123a`, the match groups corresponding to paths book and verse would be 1=`α` and 2=`123a`.
+- suffix pattern: `([a-z])$`.
+- template: `{book} {verse}`.
+
+For Dante's _Commedia_:
+
+- path pattern: `^\s*(If\.|Purg\.|Par\.)\s*([IVX]+)\s+(\d+)\s*$`
+- template: `{cantica} {canto%$ru} {verso}`.

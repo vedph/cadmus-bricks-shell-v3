@@ -17,26 +17,10 @@ export class RomanNumberFormatter implements CitNumberFormatter {
   /**
    * Format the specified value as a Roman number.
    * @param value The value to format.
-   * @param suffix The optional suffix to append.
-   * @param options The options.
    * @returns The formatted value.
    */
-  public format(
-    value: number,
-    suffix?: string,
-    options?: CitTextOptions
-  ): string {
+  public format(value: number): string {
     const r = RomanNumber.toRoman(value);
-    if (suffix) {
-      if (options?.separators['_suffix']) {
-        return (
-          r +
-          (options.separators['_suffix'].prefix || '') +
-          suffix +
-          (options.separators['_suffix'].suffix || '')
-        );
-      }
-    }
     return this.lowercase ? r.toLowerCase() : r;
   }
 

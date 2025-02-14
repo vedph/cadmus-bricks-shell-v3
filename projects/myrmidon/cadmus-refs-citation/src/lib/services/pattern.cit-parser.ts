@@ -3,7 +3,7 @@ import { CitParser, CitSchemeService } from './cit-scheme.service';
 
 /**
  * Pattern-based citation parser. This relies on the path pattern defined
- * in the scheme's parser options to parse the citation text.
+ * in the scheme's textOptions to parse the citation text.
  */
 export class PatternCitParser implements CitParser {
   private readonly _service: CitSchemeService;
@@ -12,6 +12,12 @@ export class PatternCitParser implements CitParser {
     this._service = schemeService;
   }
 
+  /**
+   * Parse the specified text according to the specified citation scheme.
+   * @param text The text to parse.
+   * @param scheme The citation scheme.
+   * @returns The parsed citation model.
+   */
   public parse(text: string, scheme: CitScheme): CitationModel {
     const result: CitationModel = [];
     const pattern = new RegExp(scheme.textOptions?.pathPattern || '', 'g');
@@ -64,19 +70,14 @@ export class PatternCitParser implements CitParser {
   public toString(citation: CitationModel, scheme: CitScheme): string {
     const sb: string[] = [];
 
-    for (let i = 0; i < citation.length; i++) {
-      // prepend prefix if any
-      const seps = scheme.textOptions?.separators[citation[i].step];
-      if (seps?.prefix) {
-        sb.push(seps.prefix);
+    // replace each step placeholder in template with the corresponding
+    // step value
+    scheme.textOptions?.template.split(/\{(\w+)\}/).forEach((part, index) => {
+      sb.push(part);
+      if (index < citation.length) {
+        sb.push(citation[index].value);
       }
-      // append step
-      sb.push(citation[i].value);
-      // append suffix if any
-      if (seps?.suffix) {
-        sb.push(seps.suffix);
-      }
-    }
+    });
 
     return sb.join('');
   }

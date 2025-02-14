@@ -16,10 +16,9 @@ export interface CitNumberFormatter {
   /**
    * Format the specified value.
    * @param value The value to format.
-   * @param suffix The optional value suffix.
    * @param options The optional text options.
    */
-  format(value: number, suffix?: string, options?: CitTextOptions): string;
+  format(value: number, options?: CitTextOptions): string;
 
   /**
    * Parse the specified text representing a citation number.
@@ -103,11 +102,9 @@ export class CitSchemeService {
    * @param suffix The optional value suffix.
    * @returns The formatted value.
    */
-  public format(key: string, value: number, suffix?: string): string {
+  public format(key: string, value: number): string {
     const formatter = this._formatters.get(key);
-    return formatter
-      ? formatter.format(value, suffix)
-      : `${value}${suffix || ''}`;
+    return formatter ? formatter.format(value) : `${value}`;
   }
 
   /**

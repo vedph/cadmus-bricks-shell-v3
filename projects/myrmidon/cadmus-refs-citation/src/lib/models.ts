@@ -87,18 +87,22 @@ export interface CitTextOptions {
    * Each step is a match group and their order matches
    * the order of the steps in the path.
    */
-  pathPattern?: string;
+  pathPattern: string;
   /**
-   * The regex pattern to extract the suffix from a text.
+   * The regex pattern to extract the suffix from a numeric
+   * value in a step.
+   * The suffix is the first (and only) match group.
    */
   suffixPattern?: string;
   /**
-   * The separators for the various parts of the citation. Each part
-   * is identified by a key, which is the name of the part (e.g. 'verse'),
-   * and has a prefix and a suffix. The key '_suffix' is used for the
-   * optional suffix of numeric values.
+   * The template to render the citation text.
+   * Each step is a placeholder between braces, e.g. "{book} {verse}".
+   * Also, the placeholder can have suffixes:
+   *   - `:n` to render the numeric value only;
+   *   - `:s` to render the suffix only;
+   *   - `%FMT` to render the numeric value with the specified format.
    */
-  separators: { [key: string]: { prefix?: string; suffix?: string } };
+  template: string;
 }
 
 /**
