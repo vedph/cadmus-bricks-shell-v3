@@ -44,7 +44,7 @@ export class PatternCitParser implements CitParser {
         // TODO handle suffix
         if (step.format) {
           const formatter = this._service.getFormatter(step.format);
-          n = formatter?.parse(value).n || undefined;
+          n = formatter?.parse(value)?.n || undefined;
         }
       } else {
         // this is a string from a set
