@@ -5,6 +5,7 @@ import {
 import { CitationModel, CitScheme, CitSchemeSet } from '../models';
 import { PatternCitParser } from './pattern.cit-parser';
 
+//#region Schemes
 const OD_SCHEME: CitScheme = {
   name: 'Odyssey',
   path: ['book', 'verse'],
@@ -91,6 +92,7 @@ const DC_SCHEME: CitScheme = {
     },
   },
 };
+//#endregion
 
 describe('CitSchemeService', () => {
   const service: CitSchemeService = new CitSchemeService();

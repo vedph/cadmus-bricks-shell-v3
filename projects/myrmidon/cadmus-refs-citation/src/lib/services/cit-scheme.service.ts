@@ -4,10 +4,8 @@ import {
   CitationModel,
   CitComponent,
   CitScheme,
-  CitSchemeCondition,
   CitSchemeConditionClause,
   CitSchemeSet,
-  CitSchemeStep,
   CitSchemeStepValue,
   CitTextOptions,
   SuffixedNumber,
@@ -222,16 +220,30 @@ export class CitSchemeService {
    * @param id The scheme ID.
    * @returns The scheme with the specified ID, or undefined.
    */
-  public getScheme(id: string): CitScheme | undefined {
+  public getScheme(id: string): Readonly<CitScheme> | undefined {
     return this._set?.schemes[id];
   }
 
   /**
-   * Get the IDs of all the schemes configured in this service.
-   * @returns The scheme IDs.
+   * Get the keys of all the schemes configured in this service.
+   * @returns The scheme keys.
    */
-  public getSchemeIds(): string[] {
+  public getSchemeKeys(): string[] {
     return this._set ? Object.keys(this._set.schemes) : [];
+  }
+
+  /**
+   * Get the schemes configured in this service.
+   * @param keys Optional keys to filter the schemes.
+   * @returns The schemes.
+   */
+  public getSchemes(keys?: string[]): Readonly<CitScheme[]> {
+    if (!this._set) {
+      return [];
+    }
+    return keys?.length
+      ? keys.map((k) => this._set!.schemes[k])
+      : Object.values(this._set.schemes);
   }
 
   /**

@@ -1,10 +1,21 @@
-import { Component, computed, Inject, InjectionToken, input } from '@angular/core';
+import {
+  Component,
+  computed,
+  Inject,
+  InjectionToken,
+  input,
+} from '@angular/core';
+import { NgFor } from '@angular/common';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { CitSchemeService } from '../../services/cit-scheme.service';
+import { CitScheme } from '../../models';
 
 /**
  * Injection token for the citation scheme service.
@@ -19,19 +30,42 @@ export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
  */
 @Component({
   selector: 'cadmus-citation',
-  imports: [MatButtonModule, MatIconModule, MatSelectModule, MatTooltipModule],
+  imports: [
+    ReactiveFormsModule,
+    NgFor,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatSelectModule,
+    MatTooltipModule,
+  ],
   templateUrl: './citation.component.html',
   styleUrl: './citation.component.css',
 })
 export class CitationComponent {
   /**
-   * The scheme IDs to use in this component. The full list of schemes is
+   * The scheme keys to use in this component. The full list of schemes is
    * drawn from the service, but users might want to restrict the list to
    * a subset of schemes.
    */
-  public readonly schemeIds = input<string[]>();
+  public readonly schemeKeys = input<string[]>();
+
+  /**
+   * The schemes to use in this component.
+   */
+  public readonly schemes = computed<Readonly<CitScheme[]>>(() => {
+    return this.citSchemeService.getSchemes(this.schemeKeys());
+  });
+
+  /**
+   * The current scheme.
+   */
+  public scheme: FormControl<CitScheme>;
 
   constructor(
+    formBuilder: FormBuilder,
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private citSchemeService: CitSchemeService
-  ) {}
+  ) {
+    this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
+  }
 }

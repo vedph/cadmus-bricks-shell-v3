@@ -203,16 +203,16 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
         "pathPattern": "^\\s*(If\\.|Purg\\.|Par\\.)\\s*([IVX]+)\\s+(\\d+)\\s*$",
         "template": "{cantica} {canto} {verso}"
       },
-      "color": "BB4142",
+      "color": "#BB4142",
       "steps": {
         "cantica": {
-          "color": "BB4142",
+          "color": "#BB4142",
           "value": {
             "set": ["If.", "Purg.", "Par."]
           },
         },
         "canto": {
-          "color": "7EC8B1",
+          "color": "#7EC8B1",
           "numeric": true,
           "format": "$ru",
           "conditions": [
@@ -242,7 +242,7 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
           }
         },
         "verso": {
-          "color": "EFE6CC",
+          "color": "#EFE6CC",
           "numeric": true,
           "value": {
             "range": {
