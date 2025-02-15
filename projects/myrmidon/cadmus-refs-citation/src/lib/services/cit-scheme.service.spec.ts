@@ -115,7 +115,7 @@ describe('CitSchemeService', () => {
     const d = parser.parse('Par. I 1', scheme);
 
     const citations: CitationModel[] = [d, a, c, b];
-    service.sortCitations(citations, scheme);
+    service.sortCitations(citations, 'dc');
 
     expect(citations[0]).toBe(a);
     expect(citations[1]).toBe(b);
@@ -131,7 +131,7 @@ describe('CitSchemeService', () => {
     const c = parser.parse('α 12c', scheme);
 
     const citations: CitationModel[] = [c, a, b];
-    service.sortCitations(citations, scheme);
+    service.sortCitations(citations, 'od');
 
     expect(citations[0]).toBe(a);
     expect(citations[1]).toBe(b);
@@ -149,7 +149,7 @@ describe('CitSchemeService', () => {
     const c = parser.parse('If. IV 1', scheme);
 
     const citations: CitationModel[] = [c, a, b];
-    service.sortCitations(citations, scheme);
+    service.sortCitations(citations, 'dc');
 
     expect(citations[0]).toBe(a);
     expect(citations[1]).toBe(b);
@@ -164,7 +164,7 @@ describe('CitSchemeService', () => {
     const c = parser.parse('If. IV 1', scheme);
 
     const citations: CitationModel[] = [c, a, [], b];
-    service.sortCitations(citations, scheme);
+    service.sortCitations(citations, 'dc');
 
     expect(citations[0]).toBe(a);
     expect(citations[1]).toBe(b);

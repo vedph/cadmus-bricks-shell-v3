@@ -356,6 +356,6 @@ For the UI, configure your citation schemes in your app configuration using the 
 - 🟢 `format(key: string, value: number): string`
 - 🟢 `addParser(key: string, parser: CitParser): void`
 - 🟢 `getParser(key: string): CitParser | undefined`
-- 🟢 `parse(key: string, text: string, scheme: CitScheme): CitationModel`
-- 🟢 `toString(key: string, citation: CitationModel, scheme: CitScheme): string`
-- 🟢 `sortCitations(citations: CitationModel[], scheme: CitScheme): void`
+- 🟢 `parse(key: string, text: string, schemeId: string): CitationModel`
+- 🟢 `toString(key: string, citation: CitationModel, schemeId: string): string`
+- 🟢 `sortCitations(citations: CitationModel[], schemeId: string): void`

@@ -195,10 +195,14 @@ export class CitSchemeService {
    * the specified key, in the context of the specified scheme.
    * @param key The parser's key.
    * @param text The text to parse.
-   * @param scheme The citation scheme.
+   * @param schemeId The ID of the citation scheme.
    * @returns The citation as a string array.
    */
-  public parse(key: string, text: string, scheme: CitScheme): CitationModel {
+  public parse(key: string, text: string, schemeId: string): CitationModel {
+    const scheme = this.getScheme(schemeId);
+    if (!scheme) {
+      return [];
+    }
     const parser = this._parsers.get(key);
     return parser ? parser.parse(text, scheme) : [];
   }
@@ -207,14 +211,18 @@ export class CitSchemeService {
    * Render a citation as a string, using the parser with the specified key.
    * @param key The parser's key.
    * @param citation The citation to format.
-   * @param scheme The citation scheme.
+   * @param scheme The ID of the citation scheme.
    * @returns The rendered citation.
    */
   public toString(
     key: string,
     citation: CitationModel,
-    scheme: CitScheme
+    schemeId: string
   ): string {
+    const scheme = this.getScheme(schemeId);
+    if (!scheme) {
+      return citation.join('');
+    }
     const parser = this._parsers.get(key);
     return parser ? parser.toString(citation, scheme) : citation.join('');
   }
@@ -228,9 +236,14 @@ export class CitSchemeService {
    * When a path is missing, the comparison is based on the citation's length.
    *
    * @param citations The citations to sort.
-   * @param scheme The scheme to use.
+   * @param schemeId The ID of the scheme to use.
    */
-  public sortCitations(citations: CitationModel[], scheme: CitScheme): void {
+  public sortCitations(citations: CitationModel[], schemeId: string): void {
+    const scheme = this.getScheme(schemeId);
+    if (!scheme) {
+      return;
+    }
+
     citations.sort((a, b) => {
       for (let i = 0; i < scheme.path.length; i++) {
         // compare n values
