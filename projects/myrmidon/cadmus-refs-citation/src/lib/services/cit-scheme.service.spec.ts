@@ -5,6 +5,37 @@ import {
 import { CitationModel, CitScheme, CitSchemeSet } from '../models';
 import { PatternCitParser } from './pattern.cit-parser';
 
+const OD_SCHEME: CitScheme = {
+  name: 'Odyssey',
+  path: ['book', 'verse'],
+  optionalFrom: 'verse',
+  textOptions: {
+    pathPattern: '^\\s*([αβγδεζηθικλμνξοπρστυφχψω])\\s+(\\d+(?:[a-z])?)\\s*$',
+    template: '{book} {verse}',
+  },
+  steps: {
+    book: {
+      numeric: true,
+      format: 'agl',
+      value: {
+        range: {
+          min: 1,
+          max: 24,
+        },
+      },
+    },
+    verse: {
+      numeric: true,
+      suffixPattern: '([a-z])$',
+      value: {
+        range: {
+          min: 1,
+        },
+      },
+    },
+  },
+};
+
 const DC_SCHEME: CitScheme = {
   name: 'Commedia',
   path: ['cantica', 'canto', 'verso'],
@@ -67,6 +98,7 @@ describe('CitSchemeService', () => {
     formats: {},
     schemes: {
       dc: DC_SCHEME,
+      od: OD_SCHEME,
     },
   } as CitSchemeSet);
 
@@ -89,6 +121,21 @@ describe('CitSchemeService', () => {
     expect(citations[1]).toBe(b);
     expect(citations[2]).toBe(c);
     expect(citations[3]).toBe(d);
+  });
+
+  it('should sort citations with suffixes', () => {
+    const parser = new PatternCitParser(service);
+    const scheme = service.getScheme('od')!;
+    const a = parser.parse('α 12', scheme);
+    const b = parser.parse('α 12a', scheme);
+    const c = parser.parse('α 12c', scheme);
+
+    const citations: CitationModel[] = [c, a, b];
+    service.sortCitations(citations, scheme);
+
+    expect(citations[0]).toBe(a);
+    expect(citations[1]).toBe(b);
+    expect(citations[2]).toBe(c);
   });
 
   it('should handle citations with different lengths', () => {

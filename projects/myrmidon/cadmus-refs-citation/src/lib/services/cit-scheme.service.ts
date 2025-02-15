@@ -233,12 +233,25 @@ export class CitSchemeService {
   public sortCitations(citations: CitationModel[], scheme: CitScheme): void {
     citations.sort((a, b) => {
       for (let i = 0; i < scheme.path.length; i++) {
+        // compare n values
         const nA = a[i]?.n || 0;
         const nB = b[i]?.n || 0;
         if (nA !== nB) {
           return nA - nB;
         }
+
+        // if n values are equal, compare suffixes
+        const suffixA = a[i]?.suffix || '';
+        const suffixB = b[i]?.suffix || '';
+        if (suffixA !== suffixB) {
+          // n without suffix comes before one with suffix
+          if (!suffixA) return -1;
+          if (!suffixB) return 1;
+          return suffixA.localeCompare(suffixB);
+        }
       }
+
+      // if we get here, the two citations are equal up to the path length
       return a.length - b.length;
     });
   }

@@ -306,6 +306,8 @@ The same should be done for each combination of `cantica` and `canto`.
 
 ## Additional Services
 
+### Citation as Text
+
 A citation by definition is an array of strings, each representing a step in the scheme's path. Anyway, you may want to represent this citation into a compact text form. For instance, we might have `α 12` to represent Odyssey book 1, verse 12.
 
 To this end, the citation scheme service provides among others two methods:
@@ -333,3 +335,7 @@ For Dante's _Commedia_:
 
 - path pattern: `^\s*(If\.|Purg\.|Par\.)\s*([IVX]+)\s+(\d+)\s*$`
 - template: `{cantica} {canto} {verso}`.
+
+### Sorting Citations
+
+An additional benefit of this model is that citations can be sorted. Whatever their step form (sets or numbers in any format with or without suffix), the model always provides a numeric value for each; so, sorting them is just a matter of comparing them step by step.
