@@ -348,6 +348,7 @@ For the UI, configure your citation schemes in your app configuration using the 
 
 - 🟢 `configure(set: ChitSchemeSet)`
 - 🟢 `getStepAt(index: number, schemeId: string): string`
+- 🟢 `getStepDomain(schemeId: string, stepId: string, citation?: CitationModel): CitSchemeStepValue | undefined`
 - 🟢 `hasScheme(id: string): boolean`
 - 🟢 `getScheme(id: string): CitScheme | undefined`
 - 🟢 `getSchemeIds(): string[]`

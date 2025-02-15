@@ -106,6 +106,7 @@ describe('CitSchemeService', () => {
     expect(service).toBeTruthy();
   });
 
+  //#region sortCitations
   it('should sort citations correctly based on the dc scheme', () => {
     const parser = new PatternCitParser(service);
     const scheme = service.getScheme('dc')!;
@@ -171,4 +172,48 @@ describe('CitSchemeService', () => {
     expect(citations[2]).toBe(c);
     expect(citations[3]).toEqual([]);
   });
+  // #endregion
+
+  // #region getStepDomain
+  it('should return undefined if the scheme is not found', () => {
+    const result = service.getStepDomain('nonexistent', 'step');
+    expect(result).toBeUndefined();
+  });
+
+  it('should return step value if no conditions or citation are provided', () => {
+    const result = service.getStepDomain('dc', 'cantica');
+    expect(result).toEqual({ set: ['If.', 'Purg.', 'Par.'] });
+  });
+
+  it('should return step value if citation is empty', () => {
+    const result = service.getStepDomain('dc', 'cantica', []);
+    expect(result).toEqual({ set: ['If.', 'Purg.', 'Par.'] });
+  });
+
+  it('should return undefined if step is not found', () => {
+    const result = service.getStepDomain('dc', 'nonexistent');
+    expect(result).toBeUndefined();
+  });
+
+  it('should return step value if conditions are not met', () => {
+    const citation: CitationModel = [{ step: 'cantica', value: 'Purg.', n: 2 }];
+    const result = service.getStepDomain('dc', 'canto', citation);
+    expect(result).toEqual({ range: { min: 1, max: 33 } });
+  });
+
+  it('should return step value if conditions are met', () => {
+    const citation: CitationModel = [{ step: 'cantica', value: 'If.', n: 1 }];
+    const result = service.getStepDomain('dc', 'canto', citation);
+    expect(result).toEqual({ range: { min: 1, max: 34 } });
+  });
+
+  it('should return step value if multiple conditions are met', () => {
+    const citation: CitationModel = [
+      { step: 'cantica', value: 'If.', n: 1 },
+      { step: 'canto', value: 'III', n: 3 },
+    ];
+    const result = service.getStepDomain('dc', 'verso', citation);
+    expect(result).toEqual({ range: { min: 1 } });
+  });
+  // #endregion
 });
