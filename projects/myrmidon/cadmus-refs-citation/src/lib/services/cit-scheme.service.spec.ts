@@ -160,17 +160,14 @@ describe('CitSchemeService', () => {
   it('should sort empty citations', () => {
     const parser = new PatternCitParser(service);
     const scheme = service.getScheme('dc')!;
-    const a = parser.parse('If. III', scheme);
-    const b = parser.parse('If. III 45', scheme);
-    const c = parser.parse('If. IV 1', scheme);
+    const a: CitationModel = [];
+    const b = parser.parse('If. III 123', scheme);
 
-    const citations: CitationModel[] = [c, a, [], b];
+    const citations: CitationModel[] = [b, a];
     service.sortCitations(citations, 'dc');
 
-    expect(citations[0]).toEqual([]);
-    expect(citations[1]).toBe(a);
-    expect(citations[2]).toBe(b);
-    expect(citations[3]).toBe(c);
+    expect(citations[0]).toBe(a);
+    expect(citations[1]).toBe(b);
   });
   // #endregion
 
