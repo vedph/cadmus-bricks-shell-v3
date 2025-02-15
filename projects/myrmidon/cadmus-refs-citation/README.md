@@ -339,3 +339,23 @@ For Dante's _Commedia_:
 ### Sorting Citations
 
 An additional benefit of this model is that citations can be sorted. Whatever their step form (sets or numbers in any format with or without suffix), the model always provides a numeric value for each; so, sorting them is just a matter of comparing them step by step.
+
+## Usage
+
+For the UI, configure your citation schemes in your app configuration using the `CIT_SCHEME_SERVICE_TOKEN` injection token.To configure the schemes, use `CitSchemeService.configure`.
+
+`CitSchemeService` API:
+
+- 🟢 `configure(set: ChitSchemeSet)`
+- 🟢 `getStepAt(index: number, schemeId: string): string`
+- 🟢 `hasScheme(id: string): boolean`
+- 🟢 `getScheme(id: string): CitScheme | undefined`
+- 🟢 `getSchemeIds(): string[]`
+- 🟢 `addFormatter(key: string, formatter: CitNumberFormatter): void`
+- 🟢 `getFormatter(key: string): CitNumberFormatter | undefined`
+- 🟢 `format(key: string, value: number): string`
+- 🟢 `addParser(key: string, parser: CitParser): void`
+- 🟢 `getParser(key: string): CitParser | undefined`
+- 🟢 `parse(key: string, text: string, scheme: CitScheme): CitationModel`
+- 🟢 `toString(key: string, citation: CitationModel, scheme: CitScheme): string`
+- 🟢 `sortCitations(citations: CitationModel[], scheme: CitScheme): void`
