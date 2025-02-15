@@ -54,7 +54,7 @@ export class CitationComponent {
    * The schemes to use in this component.
    */
   public readonly schemes = computed<Readonly<CitScheme[]>>(() => {
-    return this.citSchemeService.getSchemes(this.schemeKeys());
+    return this._schemeService.getSchemes(this.schemeKeys());
   });
 
   /**
@@ -64,7 +64,7 @@ export class CitationComponent {
 
   constructor(
     formBuilder: FormBuilder,
-    @Inject(CIT_SCHEME_SERVICE_TOKEN) private citSchemeService: CitSchemeService
+    @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
   ) {
     this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
   }

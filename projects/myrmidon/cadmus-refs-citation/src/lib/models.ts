@@ -170,6 +170,10 @@ export type CitComponent = {
    */
   step: string;
   /**
+   * The optional color to use for this step in the UI.
+   */
+  color?: string;
+  /**
    * The value of the step (e.g. "1", "If.", etc.).
    */
   value: string;

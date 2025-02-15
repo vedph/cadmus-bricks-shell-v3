@@ -74,6 +74,7 @@ export class PatternCitParser implements CitParser {
 
       result.push({
         step: stepId,
+        color: step.color,
         value: value,
         suffix: suffix,
         n: n,
