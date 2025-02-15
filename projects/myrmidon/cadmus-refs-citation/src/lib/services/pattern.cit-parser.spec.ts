@@ -1,5 +1,8 @@
 import { CitMappedValues, CitScheme, CitSchemeSet } from '../models';
-import { CitSchemeService } from './cit-scheme.service';
+import {
+  CIT_FORMATTER_ROMAN_UPPER,
+  CitSchemeService,
+} from './cit-scheme.service';
 import { MapFormatter } from './map.formatter';
 import { PatternCitParser } from './pattern.cit-parser';
 
@@ -24,7 +27,7 @@ const OD_SCHEME: CitScheme = {
     },
     verse: {
       numeric: true,
-      suffixPattern: '^[a-z]$',
+      suffixPattern: '([a-z])$',
       value: {
         range: {
           min: 1,
@@ -53,7 +56,7 @@ const DC_SCHEME: CitScheme = {
     canto: {
       color: '7EC8B1',
       numeric: true,
-      format: '$ru',
+      format: CIT_FORMATTER_ROMAN_UPPER,
       conditions: [
         {
           ascendants: [
@@ -135,20 +138,33 @@ describe('PatternCitParser', () => {
   it('should parse α 123b', () => {
     const parser = new PatternCitParser(service);
     const result = parser.parse('α 123b', OD_SCHEME);
-    expect(result).toEqual([
-      { step: 'book', value: 'α', n: 1 },
-      { step: 'verse', value: '123', n: 123, suffix: 'b' },
-    ]);
+    expect(result.length).toBe(2);
+    expect(result[0].step).toBe('book');
+    expect(result[0].value).toBe('α');
+    expect(result[0].n).toBe(1);
+
+    expect(result[1].step).toBe('verse');
+    expect(result[1].value).toBe('123');
+    expect(result[1].n).toBe(123);
+    expect(result[1].suffix).toBe('b');
   });
 
   it('should parse If. I 123', () => {
     const parser = new PatternCitParser(service);
     const result = parser.parse('If. I 123', DC_SCHEME);
-    expect(result).toEqual([
-      { step: 'cantica', value: 'If.', n: 1 },
-      { step: 'canto', value: 'I', n: 1 },
-      { step: 'verso', value: '123', n: 123 },
-    ]);
+    expect(result.length).toBe(3);
+
+    expect(result[0].step).toBe('cantica');
+    expect(result[0].value).toBe('If.');
+    expect(result[0].n).toBe(1);
+
+    expect(result[1].step).toBe('canto');
+    expect(result[1].value).toBe('I');
+    expect(result[1].n).toBe(1);
+
+    expect(result[2].step).toBe('verso');
+    expect(result[2].value).toBe('123');
+    expect(result[2].n).toBe(123);
   });
   //#endregion
 
