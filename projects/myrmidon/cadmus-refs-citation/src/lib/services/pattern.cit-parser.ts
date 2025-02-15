@@ -20,17 +20,23 @@ export class PatternCitParser implements CitParser {
    */
   public parse(text: string, scheme: CitScheme): CitationModel {
     const result: CitationModel = [];
-    const pattern = new RegExp(scheme.textOptions?.pathPattern || '', 'g');
+    if (!scheme.textOptions?.pathPattern) {
+      return result;
+    }
+
+    // match the pattern from the scheme's text options against the text
+    const pattern = new RegExp(scheme.textOptions.pathPattern, 'g');
     const match = pattern.exec(text);
     if (!match) {
       return result;
     }
 
+    // for each step in the scheme's path, parse the corresponding match
     for (let i = 0; i < scheme.path.length; i++) {
-      // get the step and its value
-      const stepName = scheme.path[i];
-      const step: CitSchemeStep = scheme.steps[stepName];
-      const value = match[i];
+      // get the step definition from scheme, and its value from the match
+      const stepId = scheme.path[i];
+      const step: CitSchemeStep = scheme.steps[stepId];
+      let value = match[i + 1];
       if (!value) {
         break;
       }
@@ -38,13 +44,24 @@ export class PatternCitParser implements CitParser {
       // calculate n: if the step is numeric, this is the numeric value
       // (parsed from its formatted representation if there is a formatter);
       // if it is a string coming from a set, this is the ordinal of the
-      // value in the set; otherwise, it is undefined.
+      // value in the set; otherwise, it is the value from a formatter.
       let n: number | undefined;
+      let suffix: string | undefined;
+
       if (step.numeric) {
-        // TODO handle suffix
+        // suffix
+        if (step.suffixPattern) {
+          const suffixMatch = new RegExp(step.suffixPattern).exec(value);
+          if (suffixMatch) {
+            suffix = suffixMatch[0];
+            value = value.substring(0, value.length - suffix.length);
+          }
+        }
         if (step.format) {
           const formatter = this._service.getFormatter(step.format);
           n = formatter?.parse(value)?.n || undefined;
+        } else {
+          n = parseInt(value, 10);
         }
       } else {
         // this is a string from a set
@@ -56,9 +73,9 @@ export class PatternCitParser implements CitParser {
       }
 
       result.push({
-        step: stepName,
+        step: stepId,
         value: value,
-        // TODO suffix
+        suffix: suffix,
         n: n,
         format: step.format,
       });

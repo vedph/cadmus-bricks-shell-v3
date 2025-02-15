@@ -36,8 +36,6 @@ The model which defines the data entry behavior for a citation scheme ([CitDefin
 
 The Iliad has 2 levels: book (24, identified by uppercase letters of the classical Greek alphabet Α-Ω) and verse. Notice that some verses might have a letter as a suffix, e.g. `124a`.
 
->The alphabetic numbering requires the definition of a custom format; here for brevity we just define the first 4 values, but in a real-world example we would define all the 24 values.
-
 ```json
 {
   "formats": {
@@ -45,7 +43,27 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
       "Α": 1,
       "Β": 2,
       "Γ": 3,
-      "Δ": 4
+      "Δ": 4,
+      "Ε": 5,
+      "Ζ": 6,
+      "Η": 7,
+      "Θ": 8,
+      "Ι": 9,
+      "Κ": 10,
+      "Λ": 11,
+      "Μ": 12,
+      "Ν": 13,
+      "Ξ": 14,
+      "Ο": 15,
+      "Π": 16,
+      "Ρ": 17,
+      "Σ": 18,
+      "Τ": 19,
+      "Υ": 20,
+      "Φ": 21,
+      "Χ": 22,
+      "Ψ": 23,
+      "Ω": 24,
     }
   },
   "schemes": {
@@ -54,7 +72,7 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
       "path": ["book", "verse"],
       "optionalFrom": "verse",
       "textOptions": {
-        "pathPattern": "^\\s*([Α-Ω])\\s+(\\d+(?:[a-z])?)\\s*$",       
+        "pathPattern": "^\\s*([ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ])\\s+(\\d+(?:[a-z])?)\\s*$",       
         "template": "{book} {verse}"
       },
       "steps": {
@@ -89,7 +107,7 @@ The `steps` section contains most of the parameters driving the UI behavior:
 
 - each property in it defines the configuration of the corresponding step in the path. So here we have 2 properties for `book` and `verse`.
 - each of these step configurations contains any number of step objects:
-  - in the case of `book`, we have just 1: its display format refers a custom alphabetic numbering using capital letters from the Classical Greek alphabet (`alpha_greek_upper`), and its values are included between 1 and 24.
+  - in the case of `book`, we have just 1: its display format refers a custom alphabetic numbering using capital letters from the Classical Greek alphabet (`agu`), and its values are included between 1 and 24.
   - in the case of `verse`, we used a lazier approach which just allows any positive integer number starting from 1 as the verse number. Also, we allow for a suffix after it, which must match the given regular expression pattern: `^[a-z]$`. This means that we allow only a single letter a-z after the number (if the suffix is an empty string, it will allow for any text). Anyway, here we could be more granular and define the maximum verse number for each canto in each cantica. This way, users won't be allowed to enter a verse number which does not exist. Of course this requires us to specify conditioned ranges for each combination of ascendants: e.g. when `book` is 1, the `verse`'s `max` is 611, and so forth (see the example about Dante).
 
 Additionally, to provide [text rendition for citations](#additional-services), we add under `textOptions` the rendering options:
@@ -108,7 +126,27 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
       "α": 1,
       "β": 2,
       "γ": 3,
-      "δ": 4
+      "δ": 4,
+      "ε": 5,
+      "ζ": 6,
+      "η": 7,
+      "θ": 8,
+      "ι": 9,
+      "κ": 10,
+      "λ": 11,
+      "μ": 12,
+      "ν": 13,
+      "ξ": 14,
+      "ο": 15,
+      "π": 16,
+      "ρ": 17,
+      "σ": 18,
+      "τ": 19,
+      "υ": 20,
+      "φ": 21,
+      "χ": 22,
+      "ψ": 23,
+      "ω": 24,
     }
   },
   "schemes": {
@@ -117,7 +155,7 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
       "path": ["book", "verse"],
       "optionalFrom": "verse",
       "textOptions": {
-        "pathPattern": "^\\s*([α-ω])\\s+(\\d+(?:[a-z])?)\\s*$",
+        "pathPattern": "^\\s*([αβγδεζηθικλμνξοπρστυφχψω])\\s+(\\d+(?:[a-z])?)\\s*$",
         "template": "{book} {verse}"
       },
       "steps": {
@@ -145,6 +183,8 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
   }
 }
 ```
+
+>Note that in path patterns we do not simply use expressions like `[α-ω]`, because these would include also an additional character which in Unicode is included in such range (e.g. for lowercase this is the final sigma).
 
 ### Dante - Commedia
 

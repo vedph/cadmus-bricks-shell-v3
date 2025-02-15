@@ -8,7 +8,7 @@ const OD_SCHEME: CitScheme = {
   path: ['book', 'verse'],
   optionalFrom: 'verse',
   textOptions: {
-    pathPattern: '^\\s*([α-ω])\\s+(\\d+(?:[a-z])?)\\s*$',
+    pathPattern: '^\\s*([αβγδεζηθικλμνξοπρστυφχψω])\\s+(\\d+(?:[a-z])?)\\s*$',
     template: '{book} {verse}',
   },
   steps: {
@@ -103,9 +103,54 @@ describe('PatternCitParser', () => {
   const aglFormatter = new MapFormatter();
   const aglMap: CitMappedValues = {};
   for (let n = 0x3b1; n <= 0x3c9; n++) {
+    // skip final sigma
+    if (n === 0x3c2) {
+      continue;
+    }
     aglMap[String.fromCharCode(n)] = n - 0x3b0;
   }
+  aglFormatter.configure(aglMap);
   service.addFormatter('agl', aglFormatter);
+
+  //#region parse
+  it('should parse empty text', () => {
+    const parser = new PatternCitParser(service);
+    const result = parser.parse('', OD_SCHEME);
+    expect(result).toEqual([]);
+  });
+
+  it('should parse α 123', () => {
+    const parser = new PatternCitParser(service);
+    const result = parser.parse('α 123', OD_SCHEME);
+    expect(result.length).toBe(2);
+    expect(result[0].step).toBe('book');
+    expect(result[0].value).toBe('α');
+    expect(result[0].n).toBe(1);
+
+    expect(result[1].step).toBe('verse');
+    expect(result[1].value).toBe('123');
+    expect(result[1].n).toBe(123);
+  });
+
+  it('should parse α 123b', () => {
+    const parser = new PatternCitParser(service);
+    const result = parser.parse('α 123b', OD_SCHEME);
+    expect(result).toEqual([
+      { step: 'book', value: 'α', n: 1 },
+      { step: 'verse', value: '123', n: 123, suffix: 'b' },
+    ]);
+  });
+
+  it('should parse If. I 123', () => {
+    const parser = new PatternCitParser(service);
+    const result = parser.parse('If. I 123', DC_SCHEME);
+    expect(result).toEqual([
+      { step: 'cantica', value: 'If.', n: 1 },
+      { step: 'canto', value: 'I', n: 1 },
+      { step: 'verso', value: '123', n: 123 },
+    ]);
+  });
+  //#endregion
 
   //#region toString
   it('should return empty string for empty citation', () => {
@@ -124,6 +169,31 @@ describe('PatternCitParser', () => {
       OD_SCHEME
     );
     expect(result).toBe('α 123');
+  });
+
+  it('should return citation text for α 123b', () => {
+    const parser = new PatternCitParser(service);
+    const result = parser.toString(
+      [
+        { step: 'book', value: 'α', n: 1 },
+        { step: 'verse', value: '123', n: 123, suffix: 'b' },
+      ],
+      OD_SCHEME
+    );
+    expect(result).toBe('α 123b');
+  });
+
+  it('should return citation text for If. I 123', () => {
+    const parser = new PatternCitParser(service);
+    const result = parser.toString(
+      [
+        { step: 'cantica', value: 'If.', n: 1 },
+        { step: 'canto', value: 'I', n: 1 },
+        { step: 'verso', value: '123', n: 123 },
+      ],
+      DC_SCHEME
+    );
+    expect(result).toBe('If. I 123');
   });
   //#endregion
 });
