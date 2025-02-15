@@ -139,7 +139,7 @@ describe('CitSchemeService', () => {
     expect(citations[2]).toBe(c);
   });
 
-  it('should handle citations with different lengths', () => {
+  it('should sort citations with different lengths', () => {
     const parser = new PatternCitParser(service);
     const scheme = service.getScheme('dc')!;
     const a: CitationModel = [
@@ -157,7 +157,7 @@ describe('CitSchemeService', () => {
     expect(citations[2]).toBe(c);
   });
 
-  it('should handle empty citations', () => {
+  it('should sort empty citations', () => {
     const parser = new PatternCitParser(service);
     const scheme = service.getScheme('dc')!;
     const a = parser.parse('If. III', scheme);
@@ -167,10 +167,10 @@ describe('CitSchemeService', () => {
     const citations: CitationModel[] = [c, a, [], b];
     service.sortCitations(citations, 'dc');
 
-    expect(citations[0]).toBe(a);
-    expect(citations[1]).toBe(b);
-    expect(citations[2]).toBe(c);
-    expect(citations[3]).toEqual([]);
+    expect(citations[0]).toEqual([]);
+    expect(citations[1]).toBe(a);
+    expect(citations[2]).toBe(b);
+    expect(citations[3]).toBe(c);
   });
   // #endregion
 

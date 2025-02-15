@@ -201,7 +201,7 @@ export class CitSchemeService {
       }
       // if we reached the end of the ascendants, we have a match
       if (citIndex === -1) {
-        return step.value;
+        return condition.value;
       }
     }
 
