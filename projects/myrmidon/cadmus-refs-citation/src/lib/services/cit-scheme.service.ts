@@ -218,4 +218,28 @@ export class CitSchemeService {
     const parser = this._parsers.get(key);
     return parser ? parser.toString(citation, scheme) : citation.join('');
   }
+
+  /**
+   * Sort the received citations according to the specified scheme.
+   * Sorting criteria are based on the scheme's path: the n value of each step
+   * in the path is compared in the two citations, and if they differ, the
+   * comparison result is returned; otherwise, the next step in the path is
+   * considered, and so on.
+   * When a path is missing, the comparison is based on the citation's length.
+   *
+   * @param citations The citations to sort.
+   * @param scheme The scheme to use.
+   */
+  public sortCitations(citations: CitationModel[], scheme: CitScheme): void {
+    citations.sort((a, b) => {
+      for (let i = 0; i < scheme.path.length; i++) {
+        const nA = a[i]?.n || 0;
+        const nB = b[i]?.n || 0;
+        if (nA !== nB) {
+          return nA - nB;
+        }
+      }
+      return a.length - b.length;
+    });
+  }
 }
