@@ -74,6 +74,9 @@ export class PatternCitParser implements CitParser {
    * @returns The rendered citation.
    */
   public toString(citation: CitationModel, scheme: CitScheme): string {
+    if (!citation.length) {
+      return '';
+    }
     const sb: string[] = [];
     if (!scheme.textOptions?.template) {
       console.warn('No text options template in citation scheme');
@@ -141,7 +144,7 @@ export class PatternCitParser implements CitParser {
         ? template.indexOf(nextMatch, start)
         : template.length;
       if (nextStart > start) {
-        sb.push(template.substring(nextStart, nextStart));
+        sb.push(template.substring(start, nextStart));
       }
     }
 
