@@ -14,8 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitScheme } from '../../models';
+import { CitSchemeService } from '../../services/cit-scheme.service';
 
 /**
  * Injection token for the citation scheme service.

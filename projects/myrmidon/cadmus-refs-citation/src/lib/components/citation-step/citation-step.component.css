@@ -1,0 +1,13 @@
+div.step-container {
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 6px;
+}
+div.step-label {
+  font-size: 90%;
+  color: silver;
+  margin-bottom: 6px;
+}
+div.step-content {
+  font-weight: bold;
+}

@@ -1,0 +1,14 @@
+@if (step()) {
+<div class="step-container" (click)="handleClick()" matRipple>
+  <div class="step-label">
+    {{ label() }}
+  </div>
+  <div
+    class="step-content"
+    [style.background-color]="color() || 'transparent'"
+    [style.color]="color() || 'white' | colorToContrast"
+  >
+    {{ step()!.value }}
+  </div>
+</div>
+}
