@@ -41,8 +41,9 @@ export class RomanNumberFormatter implements CitNumberFormatter {
     const result: SuffixedNumber = {
       n: 0,
     };
+
+    // match suffix regex and remove it from text
     if (suffixPattern) {
-      // match suffix regex and remove it from text
       const m = text.match(new RegExp(suffixPattern));
       if (m) {
         result.suffix = m[0];
@@ -50,10 +51,7 @@ export class RomanNumberFormatter implements CitNumberFormatter {
       }
     }
 
-    const m = text.toUpperCase().match(/^(\d+)/);
-    if (m) {
-      result.n = RomanNumber.fromRoman(m[1]);
-    }
+    result.n = RomanNumber.fromRoman(text);
 
     return result;
   }
