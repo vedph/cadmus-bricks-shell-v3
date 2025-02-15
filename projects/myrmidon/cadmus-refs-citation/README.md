@@ -179,7 +179,7 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
             {
               "ascendants": [
                 {
-                  "name": "cantica",
+                  "id": "cantica",
                   "op": "=",
                   "value": "If."
                 }
@@ -191,15 +191,15 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
                 }
               }
             },
-            {
-              "value": {
-                "range": {
-                  "min": 1,
-                  "max": 33
-                }
+          ],
+          {
+            "value": {
+              "range": {
+                "min": 1,
+                "max": 33
               }
             }
-          ]
+          }
         },
         "verso": {
           "color": "EFE6CC",
