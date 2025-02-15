@@ -80,6 +80,10 @@ export class CitSchemeService {
     );
   }
 
+  /**
+   * Configure this service with the specified scheme set.
+   * @param set The scheme set to configure this service with.
+   */
   public configure(set: CitSchemeSet): void {
     this._set = set;
     // if formats are defined, add a MapFormatter for each,
@@ -93,6 +97,12 @@ export class CitSchemeService {
     }
   }
 
+  /**
+   * Get the step ID at the specified index in the scheme's path.
+   * @param index The index of the step in the scheme's path.
+   * @param schemeId The scheme ID.
+   * @returns The step ID at the specified index in the scheme's path.
+   */
   public getStepAt(index: number, schemeId: string): string {
     if (!this._set) {
       throw new Error('Scheme set not configured');
@@ -102,6 +112,32 @@ export class CitSchemeService {
       throw new Error(`Scheme ${schemeId} not found`);
     }
     return scheme.path[index];
+  }
+
+  /**
+   * True if the service is configured for the specified scheme.
+   * @param id The scheme ID.
+   * @returns True if the scheme with the specified ID is defined.
+   */
+  public hasScheme(id: string): boolean {
+    return !!this._set?.schemes[id];
+  }
+
+  /**
+   * Get the scheme with the specified ID.
+   * @param id The scheme ID.
+   * @returns The scheme with the specified ID, or undefined.
+   */
+  public getScheme(id: string): CitScheme | undefined {
+    return this._set?.schemes[id];
+  }
+
+  /**
+   * Get the IDs of all the schemes configured in this service.
+   * @returns The scheme IDs.
+   */
+  public getSchemeIds(): string[] {
+    return this._set ? Object.keys(this._set.schemes) : [];
   }
 
   /**
