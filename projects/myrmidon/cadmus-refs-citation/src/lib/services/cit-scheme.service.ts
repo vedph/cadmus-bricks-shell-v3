@@ -188,18 +188,18 @@ export class CitSchemeService {
     // (citation instead goes from the first step to the last before
     // the targeted step).
     for (const condition of step.conditions) {
-      // match each citation component from last to first against
+      // match each citation component from first to last against
       // the condition clauses, stopping at the first non-matching
-      let citIndex = citation.length - 1;
+      let citIndex = 0;
       for (let i = 0; i < condition.ascendants.length; i++) {
         const clause = condition.ascendants[i];
         if (!this.matchClause(citation[citIndex], clause)) {
           break;
         }
-        citIndex--;
+        citIndex++;
       }
       // if we reached the end of the ascendants, we have a match
-      if (citIndex === -1) {
+      if (citIndex === condition.ascendants.length) {
         return condition.value;
       }
     }

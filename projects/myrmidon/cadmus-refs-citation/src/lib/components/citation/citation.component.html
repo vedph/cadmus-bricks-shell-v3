@@ -124,12 +124,11 @@
       (submit)="saveNumberStep()"
     >
       <!-- number -->
-      <mat-form-field>
+      <mat-form-field class="nr">
         <mat-label>number</mat-label>
         <input
           matInput
           type="number"
-          class="nr"
           [formControl]="nrEditorValue"
           [min]="minNrValue || null"
           [max]="maxNrValue || null"
