@@ -57,7 +57,7 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
     MatSelectModule,
     MatTooltipModule,
     CitationStepComponent,
-    ColorToContrastPipe
+    ColorToContrastPipe,
   ],
   templateUrl: './citation.component.html',
   styleUrl: './citation.component.css',
@@ -186,22 +186,45 @@ export class CitationComponent implements OnInit, OnDestroy {
     )!;
 
     if (stepDef.value.set) {
+      // closed set of strings
       this.setEditorItems = stepDomain.set!;
       this.stepEditMode = 'set';
       this.setEditorItem.setValue(step.value);
     } else if (stepDef.numeric) {
+      // numeric with min/max and optional suffix
       this.stepEditMode = 'number';
+      const validators = [Validators.required];
       if (stepDef.value.range) {
         let n = stepDomain.range?.min;
         this.minNrValue = n !== undefined && n !== null ? n : undefined;
+        if (this.minNrValue !== undefined) {
+          validators.push(Validators.min(this.minNrValue));
+        }
         n = stepDomain.range?.max;
         this.maxNrValue = n !== undefined && n !== null ? n : undefined;
+        if (this.maxNrValue !== undefined) {
+          validators.push(Validators.max(this.maxNrValue));
+        }
       }
-      // TODO
+      this.nrEditorValue.setValidators(validators);
+      this.nrEditorValue.updateValueAndValidity();
+
+      // if there is a suffix validation pattern, add it to the validators
+      // of nrEditorSuffix; else, remove any existing pattern validators from it
+      if (stepDef.suffixValidPattern) {
+        this.nrEditorSuffix.setValidators([
+          Validators.pattern(stepDef.suffixValidPattern),
+        ]);
+        this.nrEditorSuffix.updateValueAndValidity();
+      } else {
+        this.nrEditorSuffix.clearValidators();
+      }
     } else if (stepDef.maskPattern) {
+      // masked string
       this.stepEditMode = 'masked';
       // TODO
     } else {
+      // free string
       this.stepEditMode = 'string';
       // TODO
     }
