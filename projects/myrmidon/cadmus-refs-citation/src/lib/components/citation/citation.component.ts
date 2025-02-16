@@ -57,7 +57,7 @@ export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
   styleUrl: './citation.component.css',
 })
 export class CitationComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
+  private readonly _subs: Subscription[] = [];
 
   /**
    * The scheme keys to use in this component. The full list of schemes is
@@ -88,11 +88,11 @@ export class CitationComponent implements OnInit, OnDestroy {
    * The current scheme.
    */
   public scheme: FormControl<CitScheme>;
-  public freeMode: FormControl<boolean>;
 
   /**
    * The free text input.
    */
+  public freeMode: boolean = false;
   public text: FormControl<string | null>;
   public textForm: FormGroup;
 
@@ -101,7 +101,6 @@ export class CitationComponent implements OnInit, OnDestroy {
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
   ) {
     this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
-    this.freeMode = formBuilder.control(false, { nonNullable: true });
     this.text = formBuilder.control(null, [
       Validators.required,
       Validators.maxLength(100),
@@ -112,26 +111,40 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    // reset citation on scheme change
-    this._sub = this.scheme.valueChanges.subscribe((scheme) => {
-      const cit: CitationModel = [];
-      for (let i = 0; i < scheme.path.length; i++) {
-        cit.push({
-          step: scheme.path[i],
-          color: scheme.steps[scheme.path[i]].color,
-          value: '',
-        });
-      }
-      this.citation.set(cit);
-    });
+    // reset citation and free text on scheme change
+    this._subs.push(
+      this.scheme.valueChanges.subscribe((scheme) => {
+        const cit: CitationModel = [];
+        for (let i = 0; i < scheme.path.length; i++) {
+          cit.push({
+            step: scheme.path[i],
+            color: scheme.steps[scheme.path[i]].color,
+            value: '',
+          });
+        }
+        this.citation.set(cit);
+        this.text.reset();
+      })
+    );
   }
 
   public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
+    this._subs.forEach((s) => s.unsubscribe());
   }
 
   public onStepClick(step: CitComponent): void {
     console.log(step);
     // ...
+  }
+
+  public setFreeMode(on: boolean): void {
+    this.freeMode = on;
+    // if was toggled on, render current citation into string
+    if (on && this.citation()) {
+      this.text.setValue(
+        ''
+        // TODO this._schemeService.toString(this.citation()!, )
+      );
+    }
   }
 }

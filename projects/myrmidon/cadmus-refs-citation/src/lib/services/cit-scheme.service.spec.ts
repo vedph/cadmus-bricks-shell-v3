@@ -11,6 +11,7 @@ const OD_SCHEME: CitScheme = {
   path: ['book', 'verse'],
   optionalFrom: 'verse',
   textOptions: {
+    parserKey: 'od',
     pathPattern: '^\\s*([αβγδεζηθικλμνξοπρστυφχψω])\\s+(\\d+(?:[a-z])?)\\s*$',
     template: '{book} {verse}',
   },

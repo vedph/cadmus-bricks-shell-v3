@@ -89,6 +89,12 @@ export interface CitSchemeStep {
  */
 export interface CitTextOptions {
   /**
+   * The key of the parser to use for this scheme. If not specified,
+   * it defaults to the PatternCitParser using the options specified
+   * in this object.
+   */
+  parserKey?: string;
+  /**
    * The regex pattern to extract the steps from a path.
    * Each step is a match group and their order matches
    * the order of the steps in the path.

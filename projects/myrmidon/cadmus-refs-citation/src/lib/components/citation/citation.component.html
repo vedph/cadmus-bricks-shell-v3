@@ -1,6 +1,6 @@
 <div class="form-row">
   <!-- citation steps -->
-  @if (!freeMode.value) {
+  @if (!freeMode) {
   <div class="form-row">
     @for (c of citation(); track c.step; let last = $last) {
     <cadmus-citation-step [step]="c" (stepClick)="onStepClick($event)" />
@@ -12,7 +12,7 @@
     <button
       type="button"
       mat-icon-button
-      (click)="freeMode.setValue(true)"
+      (click)="setFreeMode(true)"
       matTooltip="Toggle free text mode"
     >
       <mat-icon class="mat-primary">edit</mat-icon>
@@ -37,7 +37,7 @@
         type="button"
         mat-icon-button
         matSuffix
-        (click)="freeMode.setValue(false)"
+        (click)="setFreeMode(false)"
       >
         <mat-icon class="mat-warn">cancel</mat-icon>
       </button>

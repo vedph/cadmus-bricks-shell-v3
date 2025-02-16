@@ -12,6 +12,7 @@ import {
 } from '../models';
 import { RomanNumberFormatter } from './roman-number.formatter';
 import { MapFormatter } from './map.formatter';
+import { PatternCitParser } from './pattern.cit-parser';
 
 /**
  * A number formatter for citations.
@@ -296,40 +297,43 @@ export class CitSchemeService {
     return this._parsers.get(key);
   }
 
+  private ensureDefaultParser(): void {
+    if (!this._parsers.has('')) {
+      const parser = new PatternCitParser(this);
+      this.addParser('', parser);
+    }
+  }
+
   /**
-   * Parse the specified text representing a citation, using the parser with
-   * the specified key, in the context of the specified scheme.
-   * @param key The parser's key.
+   * Parse the specified text representing a citation, in the context of
+   * the specified scheme.
    * @param text The text to parse.
    * @param schemeId The ID of the citation scheme.
    * @returns The citation as a string array.
    */
-  public parse(key: string, text: string, schemeId: string): CitationModel {
+  public parse(text: string, schemeId: string): CitationModel {
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
       return [];
     }
-    const parser = this._parsers.get(key);
+    this.ensureDefaultParser();
+    const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
     return parser ? parser.parse(text, scheme) : [];
   }
 
   /**
-   * Render a citation as a string, using the parser with the specified key.
-   * @param key The parser's key.
+   * Render a citation as a string, in the context of the specified scheme.
    * @param citation The citation to format.
-   * @param scheme The ID of the citation scheme.
+   * @param schemeId The ID of the citation scheme.
    * @returns The rendered citation.
    */
-  public toString(
-    key: string,
-    citation: CitationModel,
-    schemeId: string
-  ): string {
+  public toString(citation: CitationModel, schemeId: string): string {
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
       return citation.join('');
     }
-    const parser = this._parsers.get(key);
+    this.ensureDefaultParser();
+    const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
     return parser ? parser.toString(citation, scheme) : citation.join('');
   }
 
