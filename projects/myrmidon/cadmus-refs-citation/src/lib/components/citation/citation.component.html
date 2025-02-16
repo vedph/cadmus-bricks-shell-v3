@@ -80,7 +80,9 @@
   @if (editedStep) {
   <fieldset>
     <legend>{{ editedStep.step }}</legend>
-    @switch (stepEditMode) { @case ('set') {
+    @switch (stepEditMode) {
+    <!-- set mode -->
+    @case ('set') {
     <form [formGroup]="setEditorForm" class="form-row" (submit)="saveSetStep()">
       <!-- set item -->
       <mat-form-field>
@@ -96,6 +98,54 @@
         }
       </mat-form-field>
       <!-- set buttons -->
+      <button
+        type="button"
+        mat-icon-button
+        (click)="editStep(null)"
+        matTooltip="Cancel"
+      >
+        <mat-icon class="mat-warn">cancel</mat-icon>
+      </button>
+      <button type="submit" mat-icon-button matTooltip="Save step">
+        <mat-icon class="mat-primary">check_circle</mat-icon>
+      </button>
+    </form>
+    }
+    <!-- number mode -->
+    @case ('number') {
+    <form
+      [formGroup]="nrEditorForm"
+      class="form-row"
+      (submit)="saveNumberStep()"
+    >
+      <!-- number -->
+      <mat-form-field>
+        <mat-label>number</mat-label>
+        <input
+          matInput
+          type="number"
+          class="nr"
+          [formControl]="nrEditorValue"
+          [min]="minNrValue || null"
+          [max]="maxNrValue || null"
+        />
+        @if ($any(nrEditorValue).errors?.required && (nrEditorValue.dirty ||
+        nrEditorValue.touched)) {
+        <mat-error>number required</mat-error>
+        } @if (minNrValue || maxNrValue) {
+        <mat-hint>{{ minNrValue }} - {{ maxNrValue }}</mat-hint>
+        }
+      </mat-form-field>
+      <!-- suffix -->
+      <mat-form-field>
+        <mat-label>suffix</mat-label>
+        <input matInput [formControl]="nrEditorSuffix" />
+        @if ($any(nrEditorSuffix).errors?.maxLength && (nrEditorSuffix.dirty ||
+        nrEditorSuffix.touched)) {
+        <mat-error>suffix too long</mat-error>
+        }
+      </mat-form-field>
+      <!-- number buttons -->
       <button
         type="button"
         mat-icon-button

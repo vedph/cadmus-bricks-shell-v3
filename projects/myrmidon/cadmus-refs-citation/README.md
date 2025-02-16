@@ -267,39 +267,41 @@ The `steps` section contains most of the parameters driving the UI behavior:
 - each of these step configurations contains any number of step objects:
   - in the case of `cantica`, we have just 1: its display format refers to uppercase Roman numerals, and its values are a closed set including `If.`, `Purg.`, and `Par.`.
   - in the case of `canto`, we have 2 steps: the first is conditioned by its ascendants: when `cantica` is equal to `If.`, the numeric range for `canto` is 1-34; otherwise (there are no conditions here as defined by ascendants), the numeric range is 1-33.
-  - in the case of `verso`, we used a lazier approach which just allows any positive integer number starting from 1 as the verse number. Yet, we could be more granular and define the maximum verse number for each canto in each cantica. This way, users won't be allowed to enter a verse number which does not exist. Of course this requires specifies conditioned ranges for each combination of ascendants, e.g. for "If. I 1" (having 136 verses):
+  - in the case of `verso`, we used a lazier approach which just allows any positive integer number starting from 1 as the verse number. Yet, we could be more granular and define the maximum verse number for each canto in each cantica. This way, users won't be allowed to enter a verse number which does not exist. Of course this requires specifies conditioned ranges for each combination of ascendants, e.g. for "If. XXVI" (having 142 verses):
 
 ```json
-"verso": {
-  "color": "EFE6CC",
-  "numeric": true,
-  "value": {
-    "range": {
-      "min": 1
-    }
-  },
-  "conditions": [
-    {
-      "ascendants": [
-        {
-          "name": "canto",
-          "op": "=",
-          "value": "1"
-        },
-        {
-          "name": "cantica",
-          "op": "=",
-          "value": "If."
-        }
-      ],
-      "value": {
-        "range": {
-          "min": 1,
-          "max": 136
+{
+  "verso": {
+    "color": "#EFE6CC",
+    "numeric": true,
+    "conditions": [
+      {
+        "ascendants": [
+          {
+            "id": "cantica",
+            "op": "=",
+            "value": "If."
+          },
+          {
+            "id": "canto",
+            "op": "=",
+            "value": "26"
+          }
+        ],
+        "value": {
+          "range": {
+            "min": 1,
+            "max": 142
+          }
         }
       }
+    ],
+    "value": {
+      "range": {
+        "min": 1
+      }
     }
-  ]
+  }
 }
 ```
 

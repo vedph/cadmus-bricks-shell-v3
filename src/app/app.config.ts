@@ -138,6 +138,28 @@ const DC_SCHEME: CitScheme = {
     verso: {
       color: '#EFE6CC',
       numeric: true,
+      conditions: [
+        {
+          ascendants: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '=',
+              value: '26',
+            },
+          ],
+          value: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+      ],
       value: {
         range: {
           min: 1,

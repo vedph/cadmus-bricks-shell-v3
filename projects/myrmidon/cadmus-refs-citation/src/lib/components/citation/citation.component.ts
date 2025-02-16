@@ -107,6 +107,12 @@ export class CitationComponent implements OnInit, OnDestroy {
   public setEditorItems: string[] = [];
   public setEditorItem: FormControl<string | null>;
   public setEditorForm: FormGroup;
+  // number-editor form
+  public minNrValue?: number;
+  public maxNrValue?: number;
+  public nrEditorValue: FormControl<number>;
+  public nrEditorSuffix: FormControl<string | null>;
+  public nrEditorForm: FormGroup;
 
   constructor(
     formBuilder: FormBuilder,
@@ -125,6 +131,16 @@ export class CitationComponent implements OnInit, OnDestroy {
     this.setEditorItem = formBuilder.control(null, Validators.required);
     this.setEditorForm = formBuilder.group({
       item: this.setEditorItem,
+    });
+    // number editor form
+    this.nrEditorValue = formBuilder.control(0, {
+      validators: Validators.required,
+      nonNullable: true,
+    });
+    this.nrEditorSuffix = formBuilder.control(null);
+    this.nrEditorForm = formBuilder.group({
+      value: this.nrEditorValue,
+      suffix: this.nrEditorSuffix,
     });
   }
 
@@ -167,10 +183,19 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.setEditorItem.setValue(step.value);
     } else if (stepDef.numeric) {
       this.stepEditMode = 'number';
+      if (stepDef.value.range) {
+        let n = stepDef.value.range.min;
+        this.minNrValue = n !== undefined && n !== null? n : undefined;
+        n = stepDef.value.range.max;
+        this.maxNrValue = n !== undefined && n !== null? n : undefined;
+      }
+      // TODO
     } else if (stepDef.maskPattern) {
       this.stepEditMode = 'masked';
+      // TODO
     } else {
       this.stepEditMode = 'string';
+      // TODO
     }
   }
 
@@ -186,7 +211,29 @@ export class CitationComponent implements OnInit, OnDestroy {
       return;
     }
     this.editedStep.value = this.setEditorItem.value!;
-    this.editedStep.n = 1 + this.setEditorItems.indexOf(this.setEditorItem.value!);
+    this.editedStep.n =
+      1 + this.setEditorItems.indexOf(this.setEditorItem.value!);
+
+    // update citation
+    cit[index] = this.editedStep;
+    this.citation.set(cit);
+    this.editedStep = undefined;
+  }
+
+  public saveNumberStep(): void {
+    if (!this.editedStep || this.nrEditorForm.invalid) {
+      return;
+    }
+
+    // update step value in new citation
+    const cit: CitationModel = [...(this.citation() || [])];
+    const index = cit.findIndex((s) => s.step === this.editedStep!.step);
+    if (index === -1) {
+      return;
+    }
+    this.editedStep.value = this.nrEditorValue.value.toString();
+    this.editedStep.n = this.nrEditorValue.value;
+    this.editedStep.suffix = this.nrEditorSuffix.value || undefined;
 
     // update citation
     cit[index] = this.editedStep;
