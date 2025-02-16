@@ -103,6 +103,11 @@ export interface CitTextOptions {
    *   - `%FMT` to render the numeric value with the specified format.
    */
   template: string;
+  /**
+   * An optional hint to show in the UI providing the guidelines for
+   * typing a citation.
+   */
+  hint?: string;
 }
 
 /**

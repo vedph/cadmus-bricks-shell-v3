@@ -1,12 +1,52 @@
 <div class="form-row">
   <!-- citation steps -->
+  @if (!freeMode.value) {
   <div class="form-row">
     @for (c of citation(); track c.step; let last = $last) {
     <cadmus-citation-step [step]="c" (stepClick)="onStepClick($event)" />
     @if (!last) {
     <div class="separator">&#x25b6;</div>
     } }
+    <!-- toggler -->
+    @if (hasFreeMode() && scheme.value.textOptions) {
+    <button
+      type="button"
+      mat-icon-button
+      (click)="freeMode.setValue(true)"
+      matTooltip="Toggle free text mode"
+    >
+      <mat-icon class="mat-primary">edit</mat-icon>
+    </button>
+    }
   </div>
+  } @else {
+  <!-- free text editor -->
+  <form [formGroup]="textForm">
+    <mat-form-field id="free-text-field">
+      <mat-label>free text</mat-label>
+      <input matInput [formControl]="text" />
+      @if ($any(text).errors?.required && (text.dirty || text.touched)) {
+      <mat-error>text required</mat-error>
+      } @if ($any(text).errors?.maxLength && (text.dirty || text.touched)) {
+      <mat-error>text too long</mat-error>
+      }
+      <mat-hint>{{
+        scheme.value.textOptions!.hint || "type citation"
+      }}</mat-hint>
+      <button
+        type="button"
+        mat-icon-button
+        matSuffix
+        (click)="freeMode.setValue(false)"
+      >
+        <mat-icon class="mat-warn">cancel</mat-icon>
+      </button>
+      <button type="submit" mat-icon-button matSuffix>
+        <mat-icon class="mat-primary">check_circle</mat-icon>
+      </button>
+    </mat-form-field>
+  </form>
+  }
 
   <!-- scheme -->
   @if (!schemes().length) {

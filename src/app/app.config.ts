@@ -60,6 +60,7 @@ const OD_SCHEME: CitScheme = {
   textOptions: {
     pathPattern: '^\\s*([αβγδεζηθικλμνξοπρστυφχψω])\\s+(\\d+(?:[a-z])?)\\s*$',
     template: '{book} {verse}',
+    hint: 'book (α-ω) verse (1-N[a-z])',
   },
   color: '#4287f5',
   steps: {
@@ -94,6 +95,7 @@ const DC_SCHEME: CitScheme = {
   textOptions: {
     pathPattern: '^\\s*(If\\.|Purg\\.|Par\\.)\\s*([IVX]+)\\s+(\\d+)\\s*$',
     template: '{cantica} {canto} {verso}',
+    hint: 'cantica (If., Purg., Par.) canto (1-33) verso (1-N)',
   },
   color: '#BB4142',
   steps: {
