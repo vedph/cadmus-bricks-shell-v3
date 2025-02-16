@@ -65,6 +65,7 @@ const OD_SCHEME: CitScheme = {
   steps: {
     book: {
       numeric: true,
+      color: '#4287f5',
       format: 'agl',
       value: {
         range: {
@@ -75,6 +76,7 @@ const OD_SCHEME: CitScheme = {
     },
     verse: {
       numeric: true,
+      color: '#1ECBE1',
       suffixPattern: '([a-z])$',
       value: {
         range: {

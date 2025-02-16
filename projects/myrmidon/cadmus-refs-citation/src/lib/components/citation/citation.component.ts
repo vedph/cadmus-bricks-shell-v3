@@ -5,6 +5,8 @@ import {
   InjectionToken,
   input,
   model,
+  OnDestroy,
+  OnInit,
 } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -18,6 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CitationModel, CitComponent, CitScheme } from '../../models';
 import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
+import { Subscription } from 'rxjs';
 
 /**
  * Injection token for the citation scheme service.
@@ -45,7 +48,9 @@ export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
   templateUrl: './citation.component.html',
   styleUrl: './citation.component.css',
 })
-export class CitationComponent {
+export class CitationComponent implements OnInit, OnDestroy {
+  private _sub?: Subscription;
+
   /**
    * The scheme keys to use in this component. The full list of schemes is
    * drawn from the service, but users might want to restrict the list to
@@ -75,6 +80,25 @@ export class CitationComponent {
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
   ) {
     this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
+  }
+
+  public ngOnInit(): void {
+    // reset citation on scheme change
+    this._sub = this.scheme.valueChanges.subscribe((scheme) => {
+      const cit: CitationModel = [];
+      for (let i = 0; i < scheme.path.length; i++) {
+        cit.push({
+          step: scheme.path[i],
+          color: scheme.steps[scheme.path[i]].color,
+          value: '',
+        });
+      }
+      this.citation.set(cit);
+    });
+  }
+
+  public ngOnDestroy(): void {
+    this._sub?.unsubscribe();
   }
 
   public onStepClick(step: CitComponent): void {
