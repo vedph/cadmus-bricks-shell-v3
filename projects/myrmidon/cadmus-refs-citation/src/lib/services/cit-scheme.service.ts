@@ -118,6 +118,24 @@ export class CitSchemeService {
     return scheme.path[index];
   }
 
+  private compareSuffixedN(
+    an: number,
+    bn: number,
+    as?: string,
+    bs?: string
+  ): number {
+    if (an !== bn) {
+      return an - bn;
+    }
+    if (!as && bs) {
+      return -1;
+    }
+    if (as && !bs) {
+      return 1;
+    }
+    return as!.localeCompare(bs!);
+  }
+
   private matchClause(
     component: CitComponent,
     clause: CitSchemeConditionClause
@@ -131,17 +149,59 @@ export class CitSchemeService {
         const r = new RegExp(clause.value);
         return r.test(component.value);
       case '==':
-        return component.n === +clause.value;
+        return (
+          this.compareSuffixedN(
+            component.n || 0,
+            +clause.value,
+            component.suffix,
+            clause.suffix
+          ) === 0
+        );
       case '<>':
-        return component.n !== +clause.value;
+        return (
+          this.compareSuffixedN(
+            component.n || 0,
+            +clause.value,
+            component.suffix,
+            clause.suffix
+          ) !== 0
+        );
       case '<':
-        return component.n! < +clause.value!;
+        return (
+          this.compareSuffixedN(
+            component.n || 0,
+            +clause.value,
+            component.suffix,
+            clause.suffix
+          ) < 0
+        );
       case '>':
-        return component.n! > +clause.value!;
+        return (
+          this.compareSuffixedN(
+            component.n || 0,
+            +clause.value,
+            component.suffix,
+            clause.suffix
+          ) > 0
+        );
       case '<=':
-        return component.n! <= +clause.value!;
+        return (
+          this.compareSuffixedN(
+            component.n || 0,
+            +clause.value,
+            component.suffix,
+            clause.suffix
+          ) <= 0
+        );
       case '>=':
-        return component.n! >= +clause.value!;
+        return (
+          this.compareSuffixedN(
+            component.n || 0,
+            +clause.value,
+            component.suffix,
+            clause.suffix
+          ) >= 0
+        );
     }
     return false;
   }

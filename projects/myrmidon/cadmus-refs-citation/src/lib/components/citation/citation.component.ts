@@ -8,9 +8,9 @@ import {
   model,
   OnDestroy,
   OnInit,
+  output,
   ViewChild,
 } from '@angular/core';
-import { Subscription } from 'rxjs';
 import {
   FormBuilder,
   FormControl,
@@ -18,6 +18,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { NgFor } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,11 +28,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
+
 import { CitationModel, CitComponent, CitScheme } from '../../models';
 import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
-import { NgFor } from '@angular/common';
-import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 
 /**
  * Injection token for the citation scheme service.
@@ -38,6 +40,12 @@ import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
   'CitSchemeService'
 );
+
+export type CitationError = {
+  citation?: CitationModel;
+  step?: string;
+  error: string;
+};
 
 type StepEditMode = 'string' | 'masked' | 'number' | 'set';
 
@@ -89,6 +97,11 @@ export class CitationComponent implements OnInit, OnDestroy {
   public readonly schemes = computed<Readonly<CitScheme[]>>(() => {
     return this._schemeService.getSchemes(this.schemeKeys());
   });
+
+  /**
+   * Emitted when the citation is validated, with an error if any.
+   */
+  public readonly citationValidate = output<CitationError | null>();
 
   @ViewChild('free', { static: false }) freeInput?: ElementRef;
 
@@ -264,6 +277,9 @@ export class CitationComponent implements OnInit, OnDestroy {
     cit[index] = this.editedStep;
     this.citation.set(cit);
     this.editedStep = undefined;
+
+    // validate citation
+    this.validateAndEmit();
   }
 
   public saveNumberStep(): void {
@@ -285,6 +301,9 @@ export class CitationComponent implements OnInit, OnDestroy {
     cit[index] = this.editedStep;
     this.citation.set(cit);
     this.editedStep = undefined;
+
+    // validate citation
+    this.validateAndEmit();
   }
 
   public setFreeMode(on: boolean): void {
@@ -333,5 +352,65 @@ export class CitationComponent implements OnInit, OnDestroy {
     cit[index] = this.editedStep;
     this.citation.set(cit);
     this.editedStep = undefined;
+
+    // validate citation
+    this.validateAndEmit();
+  }
+
+  public validateCitation(): { step?: string; error: string } | null {
+    const citation = this.citation();
+    if (!citation?.length) {
+      return { error: 'No citation' };
+    }
+
+    for (let i = 0; i < this.scheme.value.path.length; i++) {
+      const c = citation[i];
+      const domain = this._schemeService.getStepDomain(
+        this.scheme.value.id,
+        c.step,
+        citation
+      )!;
+
+      // compare citation value with domain and return false if not valid
+      if (domain.set?.length) {
+        if (!domain.set.includes(c.value)) {
+          return { step: c.step, error: `Invalid set value: ${c.step}` };
+        }
+      } else if (domain.range) {
+        const n = c.n || 0;
+        if (
+          domain.range.min !== undefined &&
+          domain.range.min !== null &&
+          n < domain.range.min
+        ) {
+          return { step: c.step, error: `Value below min: ${c.step}` };
+        }
+        if (
+          domain.range.max !== undefined &&
+          domain.range.max !== null &&
+          n > domain.range.max
+        ) {
+          return { step: c.step, error: `Value above max: ${c.step}` };
+        }
+        if (domain.suffix && !new RegExp(domain.suffix).test(c.suffix || '')) {
+          return { step: c.step, error: `Invalid suffix: ${c.step}` };
+        }
+      } else if (domain.mask) {
+        if (!new RegExp(domain.mask).test(c.value)) {
+          return { step: c.step, error: `Invalid string: ${c.step}` };
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private validateAndEmit(): void {
+    const error = this.validateCitation();
+    if (!error) {
+      this.citationValidate.emit(null);
+    } else {
+      this.citationValidate.emit({ ...error, citation: this.citation() });
+    }
   }
 }

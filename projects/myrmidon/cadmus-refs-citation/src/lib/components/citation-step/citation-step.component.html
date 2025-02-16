@@ -5,6 +5,7 @@
   matRipple
   [style.background-color]="step()!.color || 'transparent'"
   [style.color]="step()!.color || 'white' | colorToContrast"
+  [style.border-color]="error() ? 'red' : 'transparent'"
 >
   <div class="step-label">
     {{ step()!.step }}
