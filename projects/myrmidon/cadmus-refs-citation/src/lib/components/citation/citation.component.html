@@ -136,6 +136,12 @@
         @if ($any(nrEditorValue).errors?.required && (nrEditorValue.dirty ||
         nrEditorValue.touched)) {
         <mat-error>number required</mat-error>
+        } @if ($any(nrEditorValue).errors?.min && (nrEditorValue.dirty ||
+        nrEditorValue.touched)) {
+        <mat-error>min {{ minNrValue }}</mat-error>
+        } @if ($any(nrEditorValue).errors?.max && (nrEditorValue.dirty ||
+        nrEditorValue.touched)) {
+        <mat-error>max {{ maxNrValue }}</mat-error>
         } @if (minNrValue || maxNrValue) {
         <mat-hint>{{ minNrValue }} - {{ maxNrValue }}</mat-hint>
         }
@@ -144,9 +150,9 @@
       <mat-form-field class="nr">
         <mat-label>suffix</mat-label>
         <input matInput [formControl]="nrEditorSuffix" />
-        @if ($any(nrEditorSuffix).errors?.maxLength && (nrEditorSuffix.dirty ||
+        @if ($any(nrEditorSuffix).errors?.pattern && (nrEditorSuffix.dirty ||
         nrEditorSuffix.touched)) {
-        <mat-error>suffix too long</mat-error>
+        <mat-error>invalid suffix</mat-error>
         }
       </mat-form-field>
       <!-- number buttons -->

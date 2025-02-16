@@ -286,7 +286,7 @@ The `steps` section contains most of the parameters driving the UI behavior:
           },
           {
             "id": "canto",
-            "op": "=",
+            "op": "==",
             "value": "26"
           },
         ],
@@ -306,6 +306,8 @@ The `steps` section contains most of the parameters driving the UI behavior:
   }
 }
 ```
+
+>Note that the operator used for `canto` is `==` because this implies a numeric comparison; `cantica` instead is based on a closed set of strings, and uses the string comparison operator (`=`).
 
 The same should be done for each combination of `cantica` and `canto`.
 

@@ -149,7 +149,7 @@ const DC_SCHEME: CitScheme = {
             },
             {
               id: 'canto',
-              op: '=',
+              op: '==',
               value: '26',
             },
           ],
