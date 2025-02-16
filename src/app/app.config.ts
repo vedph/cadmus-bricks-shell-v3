@@ -33,10 +33,12 @@ import { routes } from './app.routes';
 import {
   CIT_FORMATTER_ROMAN_UPPER,
   CIT_SCHEME_SERVICE_TOKEN,
+  CitMappedValues,
   CitScheme,
   CitSchemeService,
   CitSchemeSet,
 } from '../../projects/myrmidon/cadmus-refs-citation/src/public-api';
+import { MapFormatter } from '../../projects/myrmidon/cadmus-refs-citation/src/lib/services/map.formatter';
 
 // for lookup in asserted IDs - note that this would require a backend
 const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
@@ -59,6 +61,7 @@ const OD_SCHEME: CitScheme = {
     pathPattern: '^\\s*([αβγδεζηθικλμνξοπρστυφχψω])\\s+(\\d+(?:[a-z])?)\\s*$',
     template: '{book} {verse}',
   },
+  color: '#4287f5',
   steps: {
     book: {
       numeric: true,
@@ -90,16 +93,16 @@ const DC_SCHEME: CitScheme = {
     pathPattern: '^\\s*(If\\.|Purg\\.|Par\\.)\\s*([IVX]+)\\s+(\\d+)\\s*$',
     template: '{cantica} {canto} {verso}',
   },
-  color: 'BB4142',
+  color: '#BB4142',
   steps: {
     cantica: {
-      color: 'BB4142',
+      color: '#BB4142',
       value: {
         set: ['If.', 'Purg.', 'Par.'],
       },
     },
     canto: {
-      color: '7EC8B1',
+      color: '#7EC8B1',
       numeric: true,
       format: CIT_FORMATTER_ROMAN_UPPER,
       conditions: [
@@ -127,7 +130,7 @@ const DC_SCHEME: CitScheme = {
       },
     },
     verso: {
-      color: 'EFE6CC',
+      color: '#EFE6CC',
       numeric: true,
       value: {
         range: {
@@ -200,6 +203,19 @@ export const appConfig: ApplicationConfig = {
             od: OD_SCHEME,
           },
         } as CitSchemeSet);
+        // agl formatter for Odyssey
+        const aglFormatter = new MapFormatter();
+        const aglMap: CitMappedValues = {};
+        for (let n = 0x3b1; n <= 0x3c9; n++) {
+          // skip final sigma
+          if (n === 0x3c2) {
+            continue;
+          }
+          aglMap[String.fromCharCode(n)] = n - 0x3b0;
+        }
+        aglFormatter.configure(aglMap);
+        service.addFormatter('agl', aglFormatter);
+
         return service;
       },
     },

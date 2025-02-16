@@ -342,7 +342,38 @@ An additional benefit of this model is that citations can be sorted. Whatever th
 
 ## Usage
 
-For the UI, configure your citation schemes in your app configuration using the `CIT_SCHEME_SERVICE_TOKEN` injection token.To configure the schemes, use `CitSchemeService.configure`.
+For the UI, configure your citation schemes in your app configuration using the `CIT_SCHEME_SERVICE_TOKEN` injection token.To configure the schemes, use `CitSchemeService.configure`, e.g.:
+
+```ts
+// citation schemes
+{
+  provide: CIT_SCHEME_SERVICE_TOKEN,
+  useFactory: () => {
+    const service = new CitSchemeService();
+    service.configure({
+      formats: {},
+      schemes: {
+        dc: DC_SCHEME,
+        od: OD_SCHEME,
+      },
+    } as CitSchemeSet);
+    // agl formatter for Odyssey
+    const aglFormatter = new MapFormatter();
+    const aglMap: CitMappedValues = {};
+    for (let n = 0x3b1; n <= 0x3c9; n++) {
+      // skip final sigma
+      if (n === 0x3c2) {
+        continue;
+      }
+      aglMap[String.fromCharCode(n)] = n - 0x3b0;
+    }
+    aglFormatter.configure(aglMap);
+    service.addFormatter('agl', aglFormatter);
+
+    return service;
+  },
+},
+```
 
 `CitSchemeService` API:
 
