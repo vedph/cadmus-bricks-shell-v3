@@ -141,7 +141,7 @@
         }
       </mat-form-field>
       <!-- suffix -->
-      <mat-form-field>
+      <mat-form-field class="nr">
         <mat-label>suffix</mat-label>
         <input matInput [formControl]="nrEditorSuffix" />
         @if ($any(nrEditorSuffix).errors?.maxLength && (nrEditorSuffix.dirty ||
