@@ -29,6 +29,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CitationModel, CitComponent, CitScheme } from '../../models';
 import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
+import { NgFor } from '@angular/common';
 
 /**
  * Injection token for the citation scheme service.
@@ -47,6 +48,7 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
   selector: 'cadmus-refs-citation',
   imports: [
     ReactiveFormsModule,
+    NgFor,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,

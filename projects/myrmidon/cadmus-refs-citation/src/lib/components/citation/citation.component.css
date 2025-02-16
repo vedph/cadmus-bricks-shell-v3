@@ -19,3 +19,13 @@
 #scheme-field mat-hint {
   color: silver;
 }
+fieldset {
+  border: 1px solid silver;
+  border-radius: 4px;
+  padding: 6px;
+  margin: 8px 0;
+}
+legend {
+  font-size: 0.8em;
+  color: silver;
+}

@@ -77,33 +77,38 @@
     } }
   </div>
   <!-- STEP EDITOR -->
-  @switch (stepEditMode) { @case ('set') {
-  <form [formGroup]="setEditorForm" class="form-row" (submit)="saveStep()">
-    <!-- set item -->
-    <mat-form-field>
-      <mat-label>set</mat-label>
-      <mat-select [formControl]="setEditorItem">
-        <mat-option *ngFor="let item of setEditorItems" [value]="item">{{
-          item
-        }}</mat-option>
-      </mat-select>
-      @if ($any(setEditorItem).errors?.required && (setEditorItem.dirty ||
-      setEditorItem.touched)) {
-      <mat-error>item required</mat-error>
-      }
-    </mat-form-field>
-    <!-- set buttons -->
-    <button
-      type="button"
-      mat-icon-button
-      (click)="editStep(null)"
-      matTooltip="Cancel"
-    >
-      <mat-icon class="mat-warn">cancel</mat-icon>
-    </button>
-    <button type="submit" mat-icon-button matTooltip="Save step">
-      <mat-icon class="mat-primary">check_circle</mat-icon>
-    </button>
-  </form>
-  } }
+  @if (editedStep) {
+  <fieldset>
+    <legend>{{ editedStep.step }}</legend>
+    @switch (stepEditMode) { @case ('set') {
+    <form [formGroup]="setEditorForm" class="form-row" (submit)="saveStep()">
+      <!-- set item -->
+      <mat-form-field>
+        <mat-label>set</mat-label>
+        <mat-select [formControl]="setEditorItem">
+          <mat-option *ngFor="let item of setEditorItems" [value]="item">{{
+            item
+          }}</mat-option>
+        </mat-select>
+        @if ($any(setEditorItem).errors?.required && (setEditorItem.dirty ||
+        setEditorItem.touched)) {
+        <mat-error>item required</mat-error>
+        }
+      </mat-form-field>
+      <!-- set buttons -->
+      <button
+        type="button"
+        mat-icon-button
+        (click)="editStep(null)"
+        matTooltip="Cancel"
+      >
+        <mat-icon class="mat-warn">cancel</mat-icon>
+      </button>
+      <button type="submit" mat-icon-button matTooltip="Save step">
+        <mat-icon class="mat-primary">check_circle</mat-icon>
+      </button>
+    </form>
+    } }
+  </fieldset>
+  }
 </div>
