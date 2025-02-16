@@ -61,6 +61,12 @@ export interface CitSchemeStep {
    */
   numeric?: boolean;
   /**
+   * The optional mask to use for this step when it is a string
+   * which does not belong to a closed set, but must still conform
+   * to a specific pattern.
+   */
+  maskPattern?: string;
+  /**
    * The regex pattern to extract the suffix from a numeric
    * value in a step.
    * The suffix is the first (and only) match group.

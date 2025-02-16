@@ -37,6 +37,8 @@ export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
   'CitSchemeService'
 );
 
+type StepEditMode = 'string' | 'masked' | 'number' | 'set';
+
 /**
  * A component for editing a literary citation using a citation scheme.
  * The citation scheme service is injected using CIT_SCHEME_SERVICE_TOKEN.
@@ -90,7 +92,6 @@ export class CitationComponent implements OnInit, OnDestroy {
    * The current scheme.
    */
   public scheme: FormControl<CitScheme>;
-
   /**
    * The free text input.
    */
@@ -98,17 +99,30 @@ export class CitationComponent implements OnInit, OnDestroy {
   public text: FormControl<string | null>;
   public textForm: FormGroup;
 
+  public editedStep?: CitComponent;
+  public stepEditMode: StepEditMode = 'string';
+  // set-editor form
+  public setEditorItems: string[] = [];
+  public setEditorItem: FormControl<string | null>;
+  public setEditorForm: FormGroup;
+
   constructor(
     formBuilder: FormBuilder,
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
   ) {
     this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
+    // free text form
     this.text = formBuilder.control(null, [
       Validators.required,
       Validators.maxLength(100),
     ]);
     this.textForm = formBuilder.group({
       text: this.text,
+    });
+    // set editor form
+    this.setEditorItem = formBuilder.control(null, Validators.required);
+    this.setEditorForm = formBuilder.group({
+      item: this.setEditorItem,
     });
   }
 
@@ -134,9 +148,42 @@ export class CitationComponent implements OnInit, OnDestroy {
     this._subs.forEach((s) => s.unsubscribe());
   }
 
-  public onStepClick(step: CitComponent): void {
+  public editStep(step: CitComponent | null): void {
+    if (!step) {
+      this.editedStep = undefined;
+      return;
+    }
+
     console.log(step);
-    // ...
+    this.editedStep = step;
+
+    // set edit mode according to step type
+    const stepDef = this.scheme.value.steps[step.step];
+    if (stepDef.value.set) {
+      this.setEditorItems = stepDef.value.set;
+      this.stepEditMode = 'set';
+      this.setEditorItem.setValue(step.value);
+    } else if (stepDef.numeric) {
+      this.stepEditMode = 'number';
+    } else if (stepDef.maskPattern) {
+      this.stepEditMode = 'masked';
+    } else {
+      this.stepEditMode = 'string';
+    }
+  }
+
+  public saveStep(): void {
+    if (!this.editedStep) {
+      return;
+    }
+    const cit: CitationModel = [...(this.citation() || [])];
+    const index = cit.findIndex((s) => s.step === this.editedStep!.step);
+    if (index === -1) {
+      return;
+    }
+    cit[index] = this.editedStep;
+    this.citation.set(cit);
+    this.editedStep = undefined;
   }
 
   public setFreeMode(on: boolean): void {
@@ -155,7 +202,7 @@ export class CitationComponent implements OnInit, OnDestroy {
         }
       }
     } else {
-      // if was toggled on, render current citation into string
+      // if was toggled on, render citation into string
       this.freeMode = true;
       if (this.citation()) {
         this.text.setValue(

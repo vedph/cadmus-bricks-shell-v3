@@ -1,76 +1,109 @@
-<div class="form-row">
-  <!-- citation steps -->
-  @if (!freeMode) {
+<div>
+  <!-- CITATION -->
   <div class="form-row">
-    @for (c of citation(); track c.step; let last = $last) {
-    <cadmus-citation-step [step]="c" (stepClick)="onStepClick($event)" />
-    @if (!last) {
-    <div class="separator">&#x25b6;</div>
-    } }
-    <!-- toggler -->
-    @if (hasFreeMode() && scheme.value.textOptions) {
-    <button
-      type="button"
-      mat-icon-button
-      (click)="setFreeMode(true)"
-      matTooltip="Toggle free text mode"
-    >
-      <mat-icon class="mat-primary">edit</mat-icon>
-    </button>
-    }
-  </div>
-  } @else {
-  <!-- free text editor -->
-  <form [formGroup]="textForm" (submit)="setFreeMode(false)">
-    <mat-form-field id="free-text-field">
-      <mat-label>free text</mat-label>
-      <input matInput [formControl]="text" #free />
-      @if ($any(text).errors?.required && (text.dirty || text.touched)) {
-      <mat-error>text required</mat-error>
-      } @if ($any(text).errors?.maxLength && (text.dirty || text.touched)) {
-      <mat-error>text too long</mat-error>
-      }
-      <mat-hint>{{
-        scheme.value.textOptions!.hint || "type citation"
-      }}</mat-hint>
+    <!-- citation steps -->
+    @if (!freeMode) {
+    <div class="form-row">
+      @for (c of citation(); track c.step; let last = $last) {
+      <cadmus-citation-step [step]="c" (stepClick)="editStep($event)" />
+      @if (!last) {
+      <div class="separator">&#x25b6;</div>
+      } }
+      <!-- toggler -->
+      @if (hasFreeMode() && scheme.value.textOptions) {
       <button
         type="button"
         mat-icon-button
-        matSuffix
-        (click)="setFreeMode(false)"
+        (click)="setFreeMode(true)"
+        matTooltip="Toggle free text mode"
       >
-        <mat-icon class="mat-warn">cancel</mat-icon>
+        <mat-icon class="mat-primary">edit</mat-icon>
       </button>
-      <button type="submit" mat-icon-button matSuffix>
-        <mat-icon class="mat-primary">check_circle</mat-icon>
-      </button>
-    </mat-form-field>
-  </form>
-  }
-
-  <!-- scheme -->
-  @if (!schemes().length) {
-  <span class="muted">(no schemes)</span>
-  } @else { @if (schemes().length > 1) {
-  <mat-form-field
-    [style.border-top]="'2px solid ' + scheme.value.color"
-    id="scheme-field"
-  >
-    <mat-label>scheme</mat-label>
-    <mat-select [formControl]="scheme">
-      @for (s of schemes(); track s.id) {
-      <mat-option [value]="s">
-        @if (s.color) {
-        <span [style.color]="s.color">&#x23fa;</span>
-        }
-        {{ s.name }}
-      </mat-option>
       }
-    </mat-select>
-    @if ($any(scheme).errors?.required && (scheme.dirty || scheme.touched)) {
-    <mat-error>scheme required</mat-error>
+    </div>
+    } @else {
+    <!-- free text editor -->
+    <form [formGroup]="textForm" (submit)="setFreeMode(false)">
+      <mat-form-field id="free-text-field">
+        <mat-label>free text</mat-label>
+        <input matInput [formControl]="text" #free />
+        @if ($any(text).errors?.required && (text.dirty || text.touched)) {
+        <mat-error>text required</mat-error>
+        } @if ($any(text).errors?.maxLength && (text.dirty || text.touched)) {
+        <mat-error>text too long</mat-error>
+        }
+        <mat-hint>{{
+          scheme.value.textOptions!.hint || "type citation"
+        }}</mat-hint>
+        <button
+          type="button"
+          mat-icon-button
+          matSuffix
+          (click)="setFreeMode(false)"
+        >
+          <mat-icon class="mat-warn">cancel</mat-icon>
+        </button>
+        <button type="submit" mat-icon-button matSuffix>
+          <mat-icon class="mat-primary">check_circle</mat-icon>
+        </button>
+      </mat-form-field>
+    </form>
     }
-    <mat-hint>schemes: {{ schemes().length }}</mat-hint>
-  </mat-form-field>
+
+    <!-- scheme -->
+    @if (!schemes().length) {
+    <span class="muted">(no schemes)</span>
+    } @else { @if (schemes().length > 1) {
+    <mat-form-field
+      [style.border-top]="'2px solid ' + scheme.value.color"
+      id="scheme-field"
+    >
+      <mat-label>scheme</mat-label>
+      <mat-select [formControl]="scheme">
+        @for (s of schemes(); track s.id) {
+        <mat-option [value]="s">
+          @if (s.color) {
+          <span [style.color]="s.color">&#x23fa;</span>
+          }
+          {{ s.name }}
+        </mat-option>
+        }
+      </mat-select>
+      @if ($any(scheme).errors?.required && (scheme.dirty || scheme.touched)) {
+      <mat-error>scheme required</mat-error>
+      }
+      <mat-hint>schemes: {{ schemes().length }}</mat-hint>
+    </mat-form-field>
+    } }
+  </div>
+  <!-- STEP EDITOR -->
+  @switch (stepEditMode) { @case ('set') {
+  <form [formGroup]="setEditorForm" class="form-row" (submit)="saveStep()">
+    <!-- set item -->
+    <mat-form-field>
+      <mat-label>set</mat-label>
+      <mat-select [formControl]="setEditorItem">
+        <mat-option *ngFor="let item of setEditorItems" [value]="item">{{
+          item
+        }}</mat-option>
+      </mat-select>
+      @if ($any(setEditorItem).errors?.required && (setEditorItem.dirty ||
+      setEditorItem.touched)) {
+      <mat-error>item required</mat-error>
+      }
+    </mat-form-field>
+    <!-- set buttons -->
+    <button
+      type="button"
+      mat-icon-button
+      (click)="editStep(null)"
+      matTooltip="Cancel"
+    >
+      <mat-icon class="mat-warn">cancel</mat-icon>
+    </button>
+    <button type="submit" mat-icon-button matTooltip="Save step">
+      <mat-icon class="mat-primary">check_circle</mat-icon>
+    </button>
+  </form>
   } }
 </div>
