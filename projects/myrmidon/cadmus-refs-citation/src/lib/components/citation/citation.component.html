@@ -12,7 +12,10 @@
   @if (!schemes().length) {
   <span class="muted">(no schemes)</span>
   } @else { @if (schemes().length > 1) {
-  <mat-form-field>
+  <mat-form-field
+    [style.border-top]="'2px solid ' + scheme.value.color"
+    id="scheme-field"
+  >
     <mat-label>scheme</mat-label>
     <mat-select [formControl]="scheme">
       <mat-option *ngFor="let s of schemes()" [value]="s">
@@ -25,6 +28,7 @@
     @if ($any(scheme).errors?.required && (scheme.dirty || scheme.touched)) {
     <mat-error>scheme required</mat-error>
     }
+    <mat-hint>schemes: {{ schemes().length }}</mat-hint>
   </mat-form-field>
   } }
 </div>

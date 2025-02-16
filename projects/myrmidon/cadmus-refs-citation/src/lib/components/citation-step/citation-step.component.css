@@ -3,6 +3,7 @@ div.step-container {
   border-radius: 6px;
   padding: 6px;
   cursor: pointer;
+  text-align: center;
 }
 div.step-label {
   font-size: 80%;

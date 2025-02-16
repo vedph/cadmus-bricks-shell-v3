@@ -13,3 +13,9 @@
 .separator {
   color: silver;
 }
+#scheme-field {
+  margin-left: 12px;
+}
+#scheme-field mat-hint {
+  color: silver;
+}
