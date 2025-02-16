@@ -226,24 +226,24 @@ export class CitSchemeService {
   }
 
   /**
-   * Get the keys of all the schemes configured in this service.
-   * @returns The scheme keys.
+   * Get the IDs of all the schemes configured in this service.
+   * @returns The scheme IDs.
    */
-  public getSchemeKeys(): string[] {
+  public getSchemeIds(): string[] {
     return this._set ? Object.keys(this._set.schemes) : [];
   }
 
   /**
    * Get the schemes configured in this service.
-   * @param keys Optional keys to filter the schemes.
+   * @param ids Optional scheme IDs filter.
    * @returns The schemes.
    */
-  public getSchemes(keys?: string[]): Readonly<CitScheme[]> {
+  public getSchemes(ids?: string[]): Readonly<CitScheme[]> {
     if (!this._set) {
       return [];
     }
-    return keys?.length
-      ? keys.map((k) => this._set!.schemes[k])
+    return ids?.length
+      ? ids.map((k) => this._set!.schemes[k])
       : Object.values(this._set.schemes);
   }
 

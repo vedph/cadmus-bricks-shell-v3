@@ -121,6 +121,11 @@ export interface CitTextOptions {
  */
 export interface CitScheme {
   /**
+   * The unique ID of the scheme. This should be equal to the key
+   * used to store the scheme in a set of schemes.
+   */
+  id: string;
+  /**
    * The human-friendly name of the scheme.
    */
   name: string;

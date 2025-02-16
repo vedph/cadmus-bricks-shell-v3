@@ -54,6 +54,7 @@ const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
 
 //#region Schemes
 const OD_SCHEME: CitScheme = {
+  id: 'od',
   name: 'Odyssey',
   path: ['book', 'verse'],
   optionalFrom: 'verse',
@@ -89,6 +90,7 @@ const OD_SCHEME: CitScheme = {
 };
 
 const DC_SCHEME: CitScheme = {
+  id: 'dc',
   name: 'Commedia',
   path: ['cantica', 'canto', 'verso'],
   optionalFrom: 'canto',

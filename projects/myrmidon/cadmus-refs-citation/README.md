@@ -68,6 +68,7 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
   },
   "schemes": {
     "il": {
+      "id": "il",
       "name": "Iliad",
       "path": ["book", "verse"],
       "optionalFrom": "verse",
@@ -151,6 +152,7 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
   },
   "schemes": {
     "od": {
+      "id": "od",
       "name": "Odyssey",
       "path": ["book", "verse"],
       "optionalFrom": "verse",
@@ -196,6 +198,7 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
 {
   "schemes": {
     "dc": {
+      "id": "dc",
       "name": "Commedia",
       "path": ["cantica", "canto", "verso"],
       "optionalFrom": "canto",
@@ -382,12 +385,12 @@ For the UI, configure your citation schemes in your app configuration using the 
 - 🟢 `getStepDomain(schemeId: string, stepId: string, citation?: CitationModel): CitSchemeStepValue | undefined`
 - 🟢 `hasScheme(id: string): boolean`
 - 🟢 `getScheme(id: string): CitScheme | undefined`
-- 🟢 `getSchemeIds(): string[]`
+- 🟢 `getSchemeIds(ids?: string[]): string[]`
 - 🟢 `addFormatter(key: string, formatter: CitNumberFormatter): void`
 - 🟢 `getFormatter(key: string): CitNumberFormatter | undefined`
 - 🟢 `format(key: string, value: number): string`
 - 🟢 `addParser(key: string, parser: CitParser): void`
 - 🟢 `getParser(key: string): CitParser | undefined`
-- 🟢 `parse(key: string, text: string, schemeId: string): CitationModel`
-- 🟢 `toString(key: string, citation: CitationModel, schemeId: string): string`
+- 🟢 `parse(text: string, schemeId: string): CitationModel`
+- 🟢 `toString(citation: CitationModel, schemeId: string): string`
 - 🟢 `sortCitations(citations: CitationModel[], schemeId: string): void`
