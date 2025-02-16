@@ -30,6 +30,13 @@ import { WHG_USERNAME_TOKEN } from '../../projects/myrmidon/cadmus-refs-whg-look
 import { MockItemService } from './services/mock-item.service';
 import { MockThesaurusService } from './services/mock-thesaurus.service';
 import { routes } from './app.routes';
+import {
+  CIT_FORMATTER_ROMAN_UPPER,
+  CIT_SCHEME_SERVICE_TOKEN,
+  CitScheme,
+  CitSchemeService,
+  CitSchemeSet,
+} from '../../projects/myrmidon/cadmus-refs-citation/src/public-api';
 
 // for lookup in asserted IDs - note that this would require a backend
 const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
@@ -42,6 +49,95 @@ const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
     name: 'eid',
   },
 };
+
+//#region Schemes
+const OD_SCHEME: CitScheme = {
+  name: 'Odyssey',
+  path: ['book', 'verse'],
+  optionalFrom: 'verse',
+  textOptions: {
+    pathPattern: '^\\s*([αβγδεζηθικλμνξοπρστυφχψω])\\s+(\\d+(?:[a-z])?)\\s*$',
+    template: '{book} {verse}',
+  },
+  steps: {
+    book: {
+      numeric: true,
+      format: 'agl',
+      value: {
+        range: {
+          min: 1,
+          max: 24,
+        },
+      },
+    },
+    verse: {
+      numeric: true,
+      suffixPattern: '([a-z])$',
+      value: {
+        range: {
+          min: 1,
+        },
+      },
+    },
+  },
+};
+
+const DC_SCHEME: CitScheme = {
+  name: 'Commedia',
+  path: ['cantica', 'canto', 'verso'],
+  optionalFrom: 'canto',
+  textOptions: {
+    pathPattern: '^\\s*(If\\.|Purg\\.|Par\\.)\\s*([IVX]+)\\s+(\\d+)\\s*$',
+    template: '{cantica} {canto} {verso}',
+  },
+  color: 'BB4142',
+  steps: {
+    cantica: {
+      color: 'BB4142',
+      value: {
+        set: ['If.', 'Purg.', 'Par.'],
+      },
+    },
+    canto: {
+      color: '7EC8B1',
+      numeric: true,
+      format: CIT_FORMATTER_ROMAN_UPPER,
+      conditions: [
+        {
+          ascendants: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+          ],
+          value: {
+            range: {
+              min: 1,
+              max: 34,
+            },
+          },
+        },
+      ],
+      value: {
+        range: {
+          min: 1,
+          max: 33,
+        },
+      },
+    },
+    verso: {
+      color: 'EFE6CC',
+      numeric: true,
+      value: {
+        range: {
+          min: 1,
+        },
+      },
+    },
+  },
+};
+//#endregion
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -91,6 +187,21 @@ export const appConfig: ApplicationConfig = {
     {
       provide: WHG_USERNAME_TOKEN,
       useValue: 'myrmex',
+    },
+    // citation schemes
+    {
+      provide: CIT_SCHEME_SERVICE_TOKEN,
+      useFactory: () => {
+        const service = new CitSchemeService();
+        service.configure({
+          formats: {},
+          schemes: {
+            dc: DC_SCHEME,
+            od: OD_SCHEME,
+          },
+        } as CitSchemeSet);
+        return service;
+      },
     },
   ],
 };

@@ -31,7 +31,7 @@ export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
  * The citation scheme service is injected using CIT_SCHEME_SERVICE_TOKEN.
  */
 @Component({
-  selector: 'cadmus-citation',
+  selector: 'cadmus-refs-citation',
   imports: [
     ReactiveFormsModule,
     NgFor,

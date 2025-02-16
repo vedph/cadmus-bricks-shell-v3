@@ -108,6 +108,14 @@ export const routes: Routes = [
         (m) => m.ChronotopePgComponent
       ),
   },
+  // refs/citation
+  {
+    path: 'refs/citation',
+    loadComponent: () =>
+      import('./components/refs/citation-pg/citation-pg.component').then(
+        (m) => m.CitationPgComponent
+      ),
+  },
   // refs/dbpedia-ref-lookup
   {
     path: 'refs/dbpedia-ref-lookup',

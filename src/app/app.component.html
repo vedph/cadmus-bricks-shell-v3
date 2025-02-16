@@ -21,6 +21,7 @@
         <a mat-menu-item routerLink="/refs/decorated-ids">Decorated IDs</a>
         <a mat-menu-item routerLink="/refs/proper-name">Proper name</a>
         <a mat-menu-item routerLink="/refs/assertion">Assertion</a>
+        <a mat-menu-item routerLink="refs/citation">Citation</a>
         <a mat-menu-item [matMenuTriggerFor]="refsAssIds">Asserted IDs</a>
         <a mat-menu-item [matMenuTriggerFor]="refsChron">Chronology</a>
         <a mat-menu-item [matMenuTriggerFor]="refsLookup">Lookup</a>
@@ -29,8 +30,10 @@
       <mat-menu #refsAssIds>
         <a mat-menu-item routerLink="/refs/asserted-id">Asserted ID</a>
         <a mat-menu-item routerLink="/refs/asserted-ids">Asserted IDs</a>
-        <mat-divider/>
-        <a mat-menu-item routerLink="/refs/pin-target-lookup">Pin target lookup</a>
+        <mat-divider />
+        <a mat-menu-item routerLink="/refs/pin-target-lookup"
+          >Pin target lookup</a
+        >
         <a mat-menu-item routerLink="/refs/asserted-composite-id"
           >Asserted composite ID</a
         >
@@ -53,8 +56,12 @@
       <mat-menu #refsLookup>
         <a mat-menu-item routerLink="/refs/ref-lookup">Ref lookup</a>
         <a mat-menu-item routerLink="/refs/ref-lookup-set">Ref lookup set</a>
-        <a mat-menu-item routerLink="/refs/dbpedia-ref-lookup">DBPedia lookup</a>
-        <a mat-menu-item routerLink="/refs/geonames-ref-lookup">GeoNames lookup</a>
+        <a mat-menu-item routerLink="/refs/dbpedia-ref-lookup"
+          >DBPedia lookup</a
+        >
+        <a mat-menu-item routerLink="/refs/geonames-ref-lookup"
+          >GeoNames lookup</a
+        >
         <a mat-menu-item routerLink="/refs/whg-ref-lookup">WHG lookup</a>
         <a mat-menu-item routerLink="/refs/viaf-ref-lookup">VIAF lookup</a>
       </mat-menu>
@@ -94,7 +101,9 @@
       <mat-menu #matMenu>
         <a mat-menu-item routerLink="/mat/physical-grid">Physical grid</a>
         <a mat-menu-item routerLink="/mat/physical-state">Physical state</a>
-        <a mat-menu-item routerLink="/mat/physical-measurement-set">Physical measurements set</a>
+        <a mat-menu-item routerLink="/mat/physical-measurement-set"
+          >Physical measurements set</a
+        >
         <a mat-menu-item routerLink="/mat/physical-size">Physical size</a>
       </mat-menu>
     </mat-toolbar>
