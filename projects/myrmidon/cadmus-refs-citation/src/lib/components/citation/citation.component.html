@@ -79,7 +79,12 @@
   <!-- STEP EDITOR -->
   @if (editedStep) {
   <fieldset>
-    <legend>{{ editedStep.step }}</legend>
+    <legend
+      [style.background-color]="editedStep.color || 'transparent'"
+      [style.color]="editedStep.color || 'transparent' | colorToContrast"
+    >
+      {{ editedStep.step }}
+    </legend>
     @switch (stepEditMode) {
     <!-- set mode -->
     @case ('set') {

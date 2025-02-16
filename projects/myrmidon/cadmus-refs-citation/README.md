@@ -90,6 +90,7 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
         "verse": {
           "numeric": true,
           "suffixPattern": "([a-z])$",
+          "suffixValidPattern": "^[a-z]$",
           "value": {
             "range": {
               "min": 1
@@ -174,6 +175,7 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
         "verse": {
           "numeric": true,
           "suffixPattern": "([a-z])$",
+          "suffixValidPattern": "^[a-z]$",
           "value": {
             "range": {
               "min": 1,

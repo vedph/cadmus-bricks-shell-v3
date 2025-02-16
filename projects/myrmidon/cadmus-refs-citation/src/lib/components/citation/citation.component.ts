@@ -30,6 +30,7 @@ import { CitationModel, CitComponent, CitScheme } from '../../models';
 import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
 import { NgFor } from '@angular/common';
+import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 
 /**
  * Injection token for the citation scheme service.
@@ -56,6 +57,7 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
     MatSelectModule,
     MatTooltipModule,
     CitationStepComponent,
+    ColorToContrastPipe
   ],
   templateUrl: './citation.component.html',
   styleUrl: './citation.component.css',
@@ -177,17 +179,23 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // set edit mode according to step type
     const stepDef = this.scheme.value.steps[step.step];
+    const stepDomain = this._schemeService.getStepDomain(
+      this.scheme.value.id,
+      step.step,
+      this.citation()
+    )!;
+
     if (stepDef.value.set) {
-      this.setEditorItems = stepDef.value.set;
+      this.setEditorItems = stepDomain.set!;
       this.stepEditMode = 'set';
       this.setEditorItem.setValue(step.value);
     } else if (stepDef.numeric) {
       this.stepEditMode = 'number';
       if (stepDef.value.range) {
-        let n = stepDef.value.range.min;
-        this.minNrValue = n !== undefined && n !== null? n : undefined;
-        n = stepDef.value.range.max;
-        this.maxNrValue = n !== undefined && n !== null? n : undefined;
+        let n = stepDomain.range?.min;
+        this.minNrValue = n !== undefined && n !== null ? n : undefined;
+        n = stepDomain.range?.max;
+        this.maxNrValue = n !== undefined && n !== null ? n : undefined;
       }
       // TODO
     } else if (stepDef.maskPattern) {

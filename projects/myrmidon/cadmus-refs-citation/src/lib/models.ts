@@ -73,6 +73,11 @@ export interface CitSchemeStep {
    */
   suffixPattern?: string;
   /**
+   * The regex pattern to validate the suffix of a numeric value
+   * in a step. If not set, the suffix is not validated.
+   */
+  suffixValidPattern?: string;
+  /**
    * The numeric format to use to display the value of this step.
    * This is meaningful only when the step is numeric. If not set,
    * the default is Arabic numerals.

@@ -80,6 +80,7 @@ const OD_SCHEME: CitScheme = {
       numeric: true,
       color: '#1ECBE1',
       suffixPattern: '([a-z])$',
+      suffixValidPattern: '^[a-z]$',
       value: {
         range: {
           min: 1,
