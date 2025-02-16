@@ -174,15 +174,21 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
   }
 
-  public saveStep(): void {
-    if (!this.editedStep) {
+  public saveSetStep(): void {
+    if (!this.editedStep || this.setEditorForm.invalid) {
       return;
     }
+
+    // update step value in new citation
     const cit: CitationModel = [...(this.citation() || [])];
     const index = cit.findIndex((s) => s.step === this.editedStep!.step);
     if (index === -1) {
       return;
     }
+    this.editedStep.value = this.setEditorItem.value!;
+    this.editedStep.n = 1 + this.setEditorItems.indexOf(this.setEditorItem.value!);
+
+    // update citation
     cit[index] = this.editedStep;
     this.citation.set(cit);
     this.editedStep = undefined;

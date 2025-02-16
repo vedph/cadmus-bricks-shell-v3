@@ -81,7 +81,7 @@
   <fieldset>
     <legend>{{ editedStep.step }}</legend>
     @switch (stepEditMode) { @case ('set') {
-    <form [formGroup]="setEditorForm" class="form-row" (submit)="saveStep()">
+    <form [formGroup]="setEditorForm" class="form-row" (submit)="saveSetStep()">
       <!-- set item -->
       <mat-form-field>
         <mat-label>set</mat-label>
