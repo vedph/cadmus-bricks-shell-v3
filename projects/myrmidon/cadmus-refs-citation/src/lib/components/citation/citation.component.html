@@ -111,7 +111,12 @@
       >
         <mat-icon class="mat-warn">cancel</mat-icon>
       </button>
-      <button type="submit" mat-icon-button matTooltip="Save step">
+      <button
+        type="submit"
+        mat-icon-button
+        matTooltip="Save step"
+        [disabled]="setEditorForm.invalid"
+      >
         <mat-icon class="mat-primary">check_circle</mat-icon>
       </button>
     </form>
@@ -164,7 +169,50 @@
       >
         <mat-icon class="mat-warn">cancel</mat-icon>
       </button>
-      <button type="submit" mat-icon-button matTooltip="Save step">
+      <button
+        type="submit"
+        mat-icon-button
+        matTooltip="Save step"
+        [disabled]="nrEditorForm.invalid"
+      >
+        <mat-icon class="mat-primary">check_circle</mat-icon>
+      </button>
+    </form>
+    }
+    <!-- string/masked string mode -->
+    @default {
+    <form
+      [formGroup]="strEditorForm"
+      class="form-row"
+      (submit)="saveStringStep()"
+    >
+      <!-- string -->
+      <mat-form-field>
+        <mat-label>string</mat-label>
+        <input matInput [formControl]="strEditorValue" />
+        @if ($any(strEditorValue).errors?.required && (strEditorValue.dirty ||
+        strEditorValue.touched)) {
+        <mat-error>string required</mat-error>
+        } @if ($any(strEditorValue).errors?.pattern && (strEditorValue.dirty ||
+        strEditorValue.touched)) {
+        <mat-error>invalid string</mat-error>
+        }
+      </mat-form-field>
+      <!-- string buttons -->
+      <button
+        type="button"
+        mat-icon-button
+        (click)="editStep(null)"
+        matTooltip="Cancel"
+      >
+        <mat-icon class="mat-warn"> cancel </mat-icon>
+      </button>
+      <button
+        type="submit"
+        mat-icon-button
+        matTooltip="Save step"
+        [disabled]="strEditorForm.invalid"
+      >
         <mat-icon class="mat-primary">check_circle</mat-icon>
       </button>
     </form>

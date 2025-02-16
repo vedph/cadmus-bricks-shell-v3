@@ -115,6 +115,9 @@ export class CitationComponent implements OnInit, OnDestroy {
   public nrEditorValue: FormControl<number>;
   public nrEditorSuffix: FormControl<string | null>;
   public nrEditorForm: FormGroup;
+  // string-editor form
+  public strEditorValue: FormControl<string | null>;
+  public strEditorForm: FormGroup;
 
   constructor(
     formBuilder: FormBuilder,
@@ -143,6 +146,11 @@ export class CitationComponent implements OnInit, OnDestroy {
     this.nrEditorForm = formBuilder.group({
       value: this.nrEditorValue,
       suffix: this.nrEditorSuffix,
+    });
+    // string editor form
+    this.strEditorValue = formBuilder.control(null, Validators.required);
+    this.strEditorForm = formBuilder.group({
+      value: this.strEditorValue,
     });
   }
 
@@ -222,11 +230,18 @@ export class CitationComponent implements OnInit, OnDestroy {
     } else if (stepDef.maskPattern) {
       // masked string
       this.stepEditMode = 'masked';
-      // TODO
+      this.strEditorValue.setValidators([
+        Validators.required,
+        Validators.pattern(stepDef.maskPattern),
+      ]);
+      this.strEditorValue.setValue(step.value);
+      this.strEditorValue.updateValueAndValidity();
     } else {
       // free string
       this.stepEditMode = 'string';
-      // TODO
+      this.strEditorValue.setValidators([Validators.required]);
+      this.strEditorValue.setValue(step.value);
+      this.strEditorValue.updateValueAndValidity();
     }
   }
 
@@ -299,5 +314,24 @@ export class CitationComponent implements OnInit, OnDestroy {
         }, 100);
       }
     }
+  }
+
+  public saveStringStep(): void {
+    if (!this.editedStep || this.strEditorForm.invalid) {
+      return;
+    }
+
+    // update step value in new citation
+    const cit: CitationModel = [...(this.citation() || [])];
+    const index = cit.findIndex((s) => s.step === this.editedStep!.step);
+    if (index === -1) {
+      return;
+    }
+    this.editedStep.value = this.strEditorValue.value || '';
+
+    // update citation
+    cit[index] = this.editedStep;
+    this.citation.set(cit);
+    this.editedStep = undefined;
   }
 }
