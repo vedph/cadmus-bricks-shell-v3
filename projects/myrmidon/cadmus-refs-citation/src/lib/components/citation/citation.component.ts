@@ -1,15 +1,16 @@
 import {
   Component,
   computed,
+  ElementRef,
   Inject,
   InjectionToken,
   input,
   model,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { NgFor } from '@angular/common';
 import {
   FormBuilder,
   FormControl,
@@ -44,7 +45,6 @@ export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
   selector: 'cadmus-refs-citation',
   imports: [
     ReactiveFormsModule,
-    NgFor,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -83,6 +83,8 @@ export class CitationComponent implements OnInit, OnDestroy {
   public readonly schemes = computed<Readonly<CitScheme[]>>(() => {
     return this._schemeService.getSchemes(this.schemeKeys());
   });
+
+  @ViewChild('free', { static: false }) freeInput?: ElementRef;
 
   /**
    * The current scheme.
@@ -138,13 +140,31 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public setFreeMode(on: boolean): void {
-    this.freeMode = on;
-    // if was toggled on, render current citation into string
-    if (on && this.citation()) {
-      this.text.setValue(
-        ''
-        // TODO this._schemeService.toString(this.citation()!, )
-      );
+    // if was toggled off, parse text into citation
+    if (!on) {
+      if (this.text.value) {
+        const cit = this._schemeService.parse(
+          this.text.value,
+          this.scheme.value.id
+        );
+        if (cit.length) {
+          this.citation.set(cit);
+          this.freeMode = false;
+        } else {
+          return;
+        }
+      }
+    } else {
+      // if was toggled on, render current citation into string
+      this.freeMode = true;
+      if (this.citation()) {
+        this.text.setValue(
+          this._schemeService.toString(this.citation()!, this.scheme.value.id)
+        );
+        setTimeout(() => {
+          this.freeInput?.nativeElement.focus();
+        }, 100);
+      }
     }
   }
 }

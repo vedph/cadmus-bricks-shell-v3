@@ -21,10 +21,10 @@
   </div>
   } @else {
   <!-- free text editor -->
-  <form [formGroup]="textForm">
+  <form [formGroup]="textForm" (submit)="setFreeMode(false)">
     <mat-form-field id="free-text-field">
       <mat-label>free text</mat-label>
-      <input matInput [formControl]="text" />
+      <input matInput [formControl]="text" #free />
       @if ($any(text).errors?.required && (text.dirty || text.touched)) {
       <mat-error>text required</mat-error>
       } @if ($any(text).errors?.maxLength && (text.dirty || text.touched)) {
@@ -58,12 +58,14 @@
   >
     <mat-label>scheme</mat-label>
     <mat-select [formControl]="scheme">
-      <mat-option *ngFor="let s of schemes()" [value]="s">
+      @for (s of schemes(); track s.id) {
+      <mat-option [value]="s">
         @if (s.color) {
         <span [style.color]="s.color">&#x23fa;</span>
         }
         {{ s.name }}
       </mat-option>
+      }
     </mat-select>
     @if ($any(scheme).errors?.required && (scheme.dirty || scheme.touched)) {
     <mat-error>scheme required</mat-error>
