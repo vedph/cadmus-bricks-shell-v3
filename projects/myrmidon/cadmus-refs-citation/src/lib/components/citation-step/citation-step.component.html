@@ -10,5 +10,8 @@
   >
     {{ step()!.value }}
   </div>
+  @if (error()) {
+  <div class="error">{{ error() }}</div>
+  }
 </div>
 }

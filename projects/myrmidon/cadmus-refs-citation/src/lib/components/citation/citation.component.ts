@@ -4,6 +4,7 @@ import {
   Inject,
   InjectionToken,
   input,
+  model,
 } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -14,8 +15,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { CitScheme } from '../../models';
+import { CitationModel, CitComponent, CitScheme } from '../../models';
 import { CitSchemeService } from '../../services/cit-scheme.service';
+import { CitationStepComponent } from '../citation-step/citation-step.component';
 
 /**
  * Injection token for the citation scheme service.
@@ -38,6 +40,7 @@ export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
     MatIconModule,
     MatSelectModule,
     MatTooltipModule,
+    CitationStepComponent,
   ],
   templateUrl: './citation.component.html',
   styleUrl: './citation.component.css',
@@ -49,6 +52,11 @@ export class CitationComponent {
    * a subset of schemes.
    */
   public readonly schemeKeys = input<string[]>();
+
+  /**
+   * The citation to edit.
+   */
+  public readonly citation = model<CitationModel>();
 
   /**
    * The schemes to use in this component.
@@ -67,5 +75,10 @@ export class CitationComponent {
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
   ) {
     this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
+  }
+
+  public onStepClick(step: CitComponent): void {
+    console.log(step);
+    // ...
   }
 }

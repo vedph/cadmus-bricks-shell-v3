@@ -11,3 +11,8 @@ div.step-label {
 div.step-content {
   font-weight: bold;
 }
+div.error {
+  font-size: 90%;
+  color: red;
+  margin-top: 6px;
+}

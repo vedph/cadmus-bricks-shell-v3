@@ -1,9 +1,17 @@
-<div>
+<div class="form-row">
+  <!-- citation steps -->
+  <div class="form-row">
+    @for (c of citation(); track c.step; let last = $last) {
+    <cadmus-citation-step [step]="c" (stepClick)="onStepClick($event)" />
+    @if (!last) {
+    <div class="separator">&#x25b6;</div>
+    } }
+  </div>
+
+  <!-- scheme -->
   @if (!schemes().length) {
   <span class="muted">(no schemes)</span>
-  } @else {
-  <!-- scheme -->
-  @if (schemes().length > 1) {
+  } @else { @if (schemes().length > 1) {
   <mat-form-field>
     <mat-label>scheme</mat-label>
     <mat-select [formControl]="scheme">

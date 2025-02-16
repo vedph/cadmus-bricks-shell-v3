@@ -15,6 +15,7 @@ import { CitComponent } from '../../models';
 export class CitationStepComponent {
   public readonly step = input<CitComponent>();
   public readonly stepClick = output<CitComponent>();
+  public readonly error = input<string>();
 
   public handleClick(): void {
     this.stepClick.emit(this.step()!);
