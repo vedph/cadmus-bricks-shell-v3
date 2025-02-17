@@ -10,7 +10,7 @@
       <div class="separator">&#x25b6;</div>
       } }
       <!-- toggler -->
-      @if (hasFreeMode() && scheme.value.textOptions) {
+      @if (allowFreeMode() && scheme.value.textOptions) {
       <button
         type="button"
         mat-icon-button
@@ -152,6 +152,7 @@
         }
       </mat-form-field>
       <!-- suffix -->
+      @if (hasSuffix) {
       <mat-form-field class="nr">
         <mat-label>suffix</mat-label>
         <input matInput [formControl]="nrEditorSuffix" />
@@ -160,6 +161,7 @@
         <mat-error>invalid suffix</mat-error>
         }
       </mat-form-field>
+      }
       <!-- number buttons -->
       <button
         type="button"

@@ -6,6 +6,7 @@
   [style.background-color]="step()!.color || 'transparent'"
   [style.color]="step()!.color || 'white' | colorToContrast"
   [style.border-color]="error() ? 'red' : 'transparent'"
+  [matTooltip]="error() || null"
 >
   <div class="step-label">
     {{ step()!.step }}
@@ -13,8 +14,5 @@
   <div class="step-content">
     {{ step()!.value }}
   </div>
-  @if (error()) {
-  <div class="error">{{ error() }}</div>
-  }
 </div>
 }

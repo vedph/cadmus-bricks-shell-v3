@@ -14,9 +14,3 @@ div.step-content {
   font-weight: bold;
   cursor: pointer;
 }
-div.error {
-  font-size: 90%;
-  color: red;
-  margin-top: 6px;
-  background-color: transparent;
-}

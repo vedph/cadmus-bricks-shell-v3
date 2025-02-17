@@ -1,6 +1,7 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 
@@ -8,14 +9,19 @@ import { CitComponent } from '../../models';
 
 @Component({
   selector: 'cadmus-citation-step',
-  imports: [MatRippleModule, ColorToContrastPipe],
+  imports: [MatRippleModule, MatTooltipModule, ColorToContrastPipe],
   templateUrl: './citation-step.component.html',
   styleUrl: './citation-step.component.css',
 })
 export class CitationStepComponent {
   public readonly step = input<CitComponent>();
   public readonly stepClick = output<CitComponent>();
-  public readonly error = input<string>();
+  public readonly errors = input<{ [key: string]: string }>();
+  public readonly error = computed<string | undefined>(() => {
+    const errors = this.errors();
+    const step = this.step();
+    return !errors || !step ? undefined : errors[step.step];
+  });
 
   public handleClick(): void {
     this.stepClick.emit(this.step()!);

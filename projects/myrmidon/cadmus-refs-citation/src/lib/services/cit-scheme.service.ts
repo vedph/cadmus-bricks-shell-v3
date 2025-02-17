@@ -133,6 +133,9 @@ export class CitSchemeService {
     if (as && !bs) {
       return 1;
     }
+    if (!as && !bs) {
+      return 0;
+    }
     return as!.localeCompare(bs!);
   }
 

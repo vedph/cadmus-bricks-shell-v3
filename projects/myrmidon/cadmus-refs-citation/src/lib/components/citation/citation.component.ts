@@ -19,7 +19,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgFor } from '@angular/common';
-import { Subscription } from 'rxjs';
+import {
+  debounceTime,
+  distinct,
+  distinctUntilChanged,
+  Subscription,
+} from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -84,7 +89,14 @@ export class CitationComponent implements OnInit, OnDestroy {
    * True if the component allows free mode, where the user can type the
    * citation as a free text, using the scheme parser.
    */
-  public readonly hasFreeMode = input<boolean>();
+  public readonly allowFreeMode = input<boolean>();
+
+  /**
+   * True if the component allows a partial citation, i.e. a citation
+   * missing the final step(s) starting from the first one defined as
+   * optional in the scheme.
+   */
+  public readonly allowPartial = input<boolean>();
 
   /**
    * The citation to edit.
@@ -109,6 +121,9 @@ export class CitationComponent implements OnInit, OnDestroy {
    * The current scheme.
    */
   public scheme: FormControl<CitScheme>;
+  public lastStep: FormControl<string | null>;
+  public lastStepIndex: number;
+
   /**
    * The free text input.
    */
@@ -128,6 +143,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   public nrEditorValue: FormControl<number>;
   public nrEditorSuffix: FormControl<string | null>;
   public nrEditorForm: FormGroup;
+  public hasSuffix?: boolean;
   // string-editor form
   public strEditorValue: FormControl<string | null>;
   public strEditorForm: FormGroup;
@@ -137,6 +153,9 @@ export class CitationComponent implements OnInit, OnDestroy {
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
   ) {
     this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
+    this.lastStep = formBuilder.control(null);
+    this.lastStepIndex = this.scheme.value.path.length - 1;
+
     // free text form
     this.text = formBuilder.control(null, [
       Validators.required,
@@ -168,20 +187,37 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    // reset citation and free text on scheme change
+    // on scheme change, reset citation and free text and
+    // reset allowPartial if the scheme does not allow it
     this._subs.push(
-      this.scheme.valueChanges.subscribe((scheme) => {
-        const cit: CitationModel = [];
-        for (let i = 0; i < scheme.path.length; i++) {
-          cit.push({
-            step: scheme.path[i],
-            color: scheme.steps[scheme.path[i]].color,
-            value: '',
-          });
-        }
-        this.citation.set(cit);
-        this.text.reset();
-      })
+      this.scheme.valueChanges
+        .pipe(distinctUntilChanged(), debounceTime(100))
+        .subscribe((scheme) => {
+          const cit: CitationModel = [];
+          for (let i = 0; i < scheme.path.length; i++) {
+            cit.push({
+              step: scheme.path[i],
+              color: scheme.steps[scheme.path[i]].color,
+              value: '',
+            });
+          }
+          this.citation.set(cit);
+          this.text.reset();
+
+          this.lastStep.setValue(
+            this.scheme.value.path[this.scheme.value.path.length - 1]
+          );
+          this.lastStepIndex = this.scheme.value.path.length - 1;
+        })
+    );
+
+    // when last step changes, update last step index
+    this._subs.push(
+      this.lastStep.valueChanges
+        .pipe(distinctUntilChanged(), debounceTime(100))
+        .subscribe((s) => {
+          this.lastStepIndex = this.scheme.value.path.indexOf(s || '');
+        })
     );
   }
 
@@ -240,6 +276,8 @@ export class CitationComponent implements OnInit, OnDestroy {
       } else {
         this.nrEditorSuffix.clearValidators();
       }
+
+      this.hasSuffix = !!stepDef.suffixPattern;
     } else if (stepDef.maskPattern) {
       // masked string
       this.stepEditMode = 'masked';

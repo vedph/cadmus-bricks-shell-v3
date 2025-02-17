@@ -7,7 +7,8 @@
   <mat-card-content>
     <cadmus-refs-citation
       [citation]="citation"
-      [hasFreeMode]="true"
+      [allowFreeMode]="true"
+      [allowPartial]="true"
       (citationChange)="onCitationChange($event)"
     />
     @if (citation) {

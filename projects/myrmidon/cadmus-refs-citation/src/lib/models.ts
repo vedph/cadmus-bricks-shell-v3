@@ -38,6 +38,7 @@ export interface CitSchemeConditionClause {
   id: string;
   op?: '=' | '!=' | `~` | '==' | '<>' | '<' | '>' | '<=' | '>=';
   value: string;
+  suffix?: string;
 }
 
 /**
