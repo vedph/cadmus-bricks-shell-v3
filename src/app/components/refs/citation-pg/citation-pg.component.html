@@ -12,19 +12,43 @@
       (citationChange)="onCitationChange($event)"
       (citationValidate)="onCitationValidate($event)"
     />
-    <hr>
+    <hr />
     @if (citation) {
+    <div class="text-cit">{{ citText }}</div>
     <div>
       <pre>{{ citation | json }}</pre>
     </div>
     }
-    <hr>
+    <hr />
     @if (error) {
     <div class="error">
       <pre>{{ error | json }}</pre>
     </div>
     } @else {
-      <div class="valid">(valid)</div>
+    <div class="valid">(valid)</div>
+    <fieldset>
+      <legend>list</legend>
+      <div>
+        <button
+          type="button"
+          mat-flat-button
+          (click)="addCitation()"
+          matTooltip="Add citation to list"
+        >
+          add
+        </button>
+      </div>
+      <div>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>citation</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </fieldset>
     }
   </mat-card-content>
 </mat-card>

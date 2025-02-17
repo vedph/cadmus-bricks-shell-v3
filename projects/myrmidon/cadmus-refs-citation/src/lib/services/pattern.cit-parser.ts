@@ -30,7 +30,7 @@ export class PatternCitParser implements CitParser {
    * @returns The citation model.
    */
   public parse(text: string, schemeId?: string): CitationModel {
-    const result: CitationModel = [];
+    const result: CitationModel = { schemeId: schemeId, steps: [] };
 
     // extract scheme ID from text if any
     const prefix = this.extractSchemeId(text);
@@ -103,7 +103,7 @@ export class PatternCitParser implements CitParser {
           break;
       }
 
-      result.push({
+      result.steps.push({
         step: stepId,
         color: step.color,
         value: value,
@@ -123,7 +123,7 @@ export class PatternCitParser implements CitParser {
    * @returns The rendered citation.
    */
   public toString(citation: CitationModel, schemeId: string): string {
-    if (!citation.length) {
+    if (!citation.steps.length) {
       return '';
     }
     const scheme = this._service.getScheme(schemeId);
@@ -167,7 +167,7 @@ export class PatternCitParser implements CitParser {
       }
 
       // find the step in the citation model
-      const step = citation.find((s) => s.step === stepName);
+      const step = citation.steps.find((s) => s.step === stepName);
       if (step) {
         // render n if any and the suffix is falsy or not 's',
         // as we want to render n+s by default, else just n for

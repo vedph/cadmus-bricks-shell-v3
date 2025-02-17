@@ -190,9 +190,9 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.scheme.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(100))
         .subscribe((scheme) => {
-          const cit: CitationModel = [];
+          const cit: CitationModel = { schemeId: scheme.id, steps: [] };
           for (let i = 0; i < scheme.path.length; i++) {
-            cit.push({
+            cit.steps.push({
               step: scheme.path[i],
               color: scheme.steps[scheme.path[i]].color,
               value: '',
@@ -220,9 +220,12 @@ export class CitationComponent implements OnInit, OnDestroy {
           if (!cit) {
             return;
           }
-          const newCit = cit.slice(0, this.lastStepIndex + 1);
-          for (let i = cit.length; i <= this.lastStepIndex; i++) {
-            newCit.push({
+          const newCit: CitationModel = {
+            schemeId: cit.schemeId,
+            steps: cit.steps.slice(0, this.lastStepIndex + 1),
+          };
+          for (let i = cit.steps.length; i <= this.lastStepIndex; i++) {
+            newCit.steps.push({
               step: this.scheme.value.path[i],
               color: this.scheme.value.steps[this.scheme.value.path[i]].color,
               value: '',
@@ -246,7 +249,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           this.text.value,
           this.scheme.value.id
         );
-        if (cit.length) {
+        if (cit.steps.length) {
           this.citation.set(cit);
           this.freeMode = false;
         } else {
@@ -359,8 +362,10 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
 
     // update step value in new citation
-    const cit: CitationModel = [...(this.citation() || [])];
-    const index = cit.findIndex((s) => s.step === this.editedStep!.step);
+    const cit: CitationModel = {
+      ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
+    };
+    const index = cit.steps.findIndex((s) => s.step === this.editedStep!.step);
     if (index === -1) {
       return;
     }
@@ -369,7 +374,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       1 + this.setEditorItems.indexOf(this.setEditorItem.value!);
 
     // update citation
-    cit[index] = this.editedStep;
+    cit.steps[index] = this.editedStep;
     this.citation.set(cit);
     this.editedStep = undefined;
 
@@ -383,13 +388,15 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
 
     // update step value in new citation
-    const cit: CitationModel = [...(this.citation() || [])];
-    const index = cit.findIndex((s) => s.step === this.editedStep!.step);
+    const cit: CitationModel = {
+      ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
+    };
+    const index = cit.steps.findIndex((s) => s.step === this.editedStep!.step);
     if (index === -1) {
       return;
     }
 
-    const format = cit[index].format;
+    const format = cit.steps[index].format;
     if (format) {
       const formatter = this._schemeService.getFormatter(format);
       this.editedStep.value =
@@ -402,7 +409,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     this.editedStep.suffix = this.nrEditorSuffix.value || undefined;
 
     // update citation
-    cit[index] = this.editedStep;
+    cit.steps[index] = this.editedStep;
     this.citation.set(cit);
     this.editedStep = undefined;
 
@@ -416,15 +423,17 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
 
     // update step value in new citation
-    const cit: CitationModel = [...(this.citation() || [])];
-    const index = cit.findIndex((s) => s.step === this.editedStep!.step);
+    const cit: CitationModel = {
+      ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
+    };
+    const index = cit.steps.findIndex((s) => s.step === this.editedStep!.step);
     if (index === -1) {
       return;
     }
     this.editedStep.value = this.strEditorValue.value || '';
 
     // update citation
-    cit[index] = this.editedStep;
+    cit.steps[index] = this.editedStep;
     this.citation.set(cit);
     this.editedStep = undefined;
 
@@ -438,55 +447,55 @@ export class CitationComponent implements OnInit, OnDestroy {
     const citation = this.citation();
     const errors: { [key: string]: string } = {};
 
-    if (!citation?.length) {
+    if (!citation?.steps.length) {
       errors[''] = 'No citation';
       this.errors = errors;
       return { error: 'No citation' };
     }
 
     for (let i = 0; i < this.scheme.value.path.length; i++) {
-      const c = citation[i];
+      const s = citation.steps[i];
       const domain = this._schemeService.getStepDomain(
         this.scheme.value.id,
-        c.step,
+        s.step,
         citation
       )!;
 
       // compare citation value with domain and return false if not valid
       if (domain.set?.length) {
-        if (!domain.set.includes(c.value)) {
-          errors[c.step] = `Invalid set value: ${c.value}`;
+        if (!domain.set.includes(s.value)) {
+          errors[s.step] = `Invalid set value: ${s.value}`;
           this.errors = errors;
-          return { step: c.step, error: `Invalid set value: ${c.step}` };
+          return { step: s.step, error: `Invalid set value: ${s.step}` };
         }
       } else if (domain.range) {
-        const n = c.n || 0;
+        const n = s.n || 0;
         if (
           domain.range.min !== undefined &&
           domain.range.min !== null &&
           n < domain.range.min
         ) {
-          errors[c.step] = `Value below min: ${c.step}`;
+          errors[s.step] = `Value below min: ${s.step}`;
           this.errors = errors;
-          return { step: c.step, error: `Value below min: ${c.step}` };
+          return { step: s.step, error: `Value below min: ${s.step}` };
         }
         if (
           domain.range.max !== undefined &&
           domain.range.max !== null &&
           n > domain.range.max
         ) {
-          errors[c.step] = `Value above max: ${c.step}`;
+          errors[s.step] = `Value above max: ${s.step}`;
           this.errors = errors;
-          return { step: c.step, error: `Value above max: ${c.step}` };
+          return { step: s.step, error: `Value above max: ${s.step}` };
         }
-        if (domain.suffix && !new RegExp(domain.suffix).test(c.suffix || '')) {
-          return { step: c.step, error: `Invalid suffix: ${c.step}` };
+        if (domain.suffix && !new RegExp(domain.suffix).test(s.suffix || '')) {
+          return { step: s.step, error: `Invalid suffix: ${s.step}` };
         }
       } else if (domain.mask) {
-        if (!new RegExp(domain.mask).test(c.value)) {
-          errors[c.step] = `Invalid string: ${c.step}`;
+        if (!new RegExp(domain.mask).test(s.value)) {
+          errors[s.step] = `Invalid string: ${s.step}`;
           this.errors = errors;
-          return { step: c.step, error: `Invalid string: ${c.step}` };
+          return { step: s.step, error: `Invalid string: ${s.step}` };
         }
       }
     }

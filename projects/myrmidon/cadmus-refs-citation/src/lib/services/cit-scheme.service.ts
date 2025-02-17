@@ -255,7 +255,7 @@ export class CitSchemeService {
     // get step definition and just return its value if no conditions
     // or no citation to check, or when the step is not found
     const step = scheme.steps[stepId];
-    if (!citation?.length || !step.conditions || !step) {
+    if (!citation?.steps.length || !step.conditions || !step) {
       return step?.domain;
     }
 
@@ -270,7 +270,7 @@ export class CitSchemeService {
       let citIndex = 0;
       for (let i = 0; i < condition.clauses.length; i++) {
         const clause = condition.clauses[i];
-        if (!this.matchClause(citation[citIndex], clause)) {
+        if (!this.matchClause(citation.steps[citIndex], clause)) {
           break;
         }
         citIndex++;
@@ -391,11 +391,11 @@ export class CitSchemeService {
   public parse(text: string, schemeId: string): CitationModel {
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
-      return [];
+      return { schemeId, steps: [] };
     }
     this.ensureDefaultParser();
     const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
-    return parser ? parser.parse(text, scheme.id) : [];
+    return parser ? parser.parse(text, scheme.id) : { schemeId, steps: [] };
   }
 
   /**
@@ -407,11 +407,13 @@ export class CitSchemeService {
   public toString(citation: CitationModel, schemeId: string): string {
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
-      return citation.join('');
+      return citation.steps.join('');
     }
     this.ensureDefaultParser();
     const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
-    return parser ? parser.toString(citation, scheme.id) : citation.join('');
+    return parser
+      ? parser.toString(citation, scheme.id)
+      : citation.steps.join('');
   }
 
   /**
@@ -433,16 +435,25 @@ export class CitSchemeService {
 
     citations.sort((a, b) => {
       for (let i = 0; i < scheme.path.length; i++) {
+        // compare schemes
+        if (a.schemeId !== b.schemeId) {
+          if (!a.schemeId) return -1;
+          if (!b.schemeId) return 1;
+          if (a || b) {
+            return a.schemeId.localeCompare(b.schemeId);
+          }
+        }
+
         // compare n values
-        const nA = a[i]?.n || 0;
-        const nB = b[i]?.n || 0;
+        const nA = a.steps[i]?.n || 0;
+        const nB = b.steps[i]?.n || 0;
         if (nA !== nB) {
           return nA - nB;
         }
 
         // if n values are equal, compare suffixes
-        const suffixA = a[i]?.suffix || '';
-        const suffixB = b[i]?.suffix || '';
+        const suffixA = a.steps[i]?.suffix || '';
+        const suffixB = b.steps[i]?.suffix || '';
         if (suffixA !== suffixB) {
           // n without suffix comes before one with suffix
           if (!suffixA) return -1;
@@ -452,7 +463,7 @@ export class CitSchemeService {
       }
 
       // if we get here, the two citations are equal up to the path length
-      return a.length - b.length;
+      return a.steps.length - b.steps.length;
     });
   }
 }
