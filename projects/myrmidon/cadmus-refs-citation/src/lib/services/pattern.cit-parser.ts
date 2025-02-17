@@ -69,35 +69,38 @@ export class PatternCitParser implements CitParser {
         break;
       }
 
-      // calculate n: if the step is numeric, this is the numeric value
-      // (parsed from its formatted representation if there is a formatter);
-      // if it is a string coming from a set, this is the ordinal of the
-      // value in the set; otherwise, it is the value from a formatter.
+      // calculate n
       let n: number | undefined;
       let suffix: string | undefined;
 
-      if (step.numeric) {
-        // suffix
-        if (step.suffixPattern) {
-          const suffixMatch = new RegExp(step.suffixPattern).exec(value);
-          if (suffixMatch) {
-            suffix = suffixMatch[0];
-            value = value.substring(0, value.length - suffix.length);
+      switch (step.type) {
+        case 'set':
+          // n is the ordinal of the value in the set
+          const set = step.domain.set;
+          if (set?.length) {
+            const index = set.indexOf(value);
+            n = index > -1 ? index + 1 : undefined;
           }
-        }
-        if (step.format) {
-          const formatter = this._service.getFormatter(step.format);
-          n = formatter?.parse(value)?.n || undefined;
-        } else {
-          n = parseInt(value, 10);
-        }
-      } else {
-        // this is a string from a set
-        const set = step.value.set;
-        if (set?.length) {
-          const index = set.indexOf(value);
-          n = index > -1 ? index + 1 : undefined;
-        }
+          break;
+
+        case 'numeric':
+          // n is the numeric value (without suffix)
+          // extract suffix if any
+          if (step.suffixPattern) {
+            const suffixMatch = new RegExp(step.suffixPattern).exec(value);
+            if (suffixMatch) {
+              suffix = suffixMatch[0];
+              value = value.substring(0, value.length - suffix.length);
+            }
+          }
+          // parse value using formatter if required
+          if (step.format) {
+            const formatter = this._service.getFormatter(step.format);
+            n = formatter?.parse(value)?.n || undefined;
+          } else {
+            n = parseInt(value, 10);
+          }
+          break;
       }
 
       result.push({

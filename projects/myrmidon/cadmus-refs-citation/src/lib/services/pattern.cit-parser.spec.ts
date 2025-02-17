@@ -6,6 +6,7 @@ import {
 import { MapFormatter } from './map.formatter';
 import { PatternCitParser } from './pattern.cit-parser';
 
+//#region Schemes
 const OD_SCHEME: CitScheme = {
   id: 'od',
   name: 'Odyssey',
@@ -17,9 +18,9 @@ const OD_SCHEME: CitScheme = {
   },
   steps: {
     book: {
-      numeric: true,
+      type: 'numeric',
       format: 'agl',
-      value: {
+      domain: {
         range: {
           min: 1,
           max: 24,
@@ -27,9 +28,9 @@ const OD_SCHEME: CitScheme = {
       },
     },
     verse: {
-      numeric: true,
+      type: 'numeric',
       suffixPattern: '([a-z])$',
-      value: {
+      domain: {
         range: {
           min: 1,
         },
@@ -50,25 +51,26 @@ const DC_SCHEME: CitScheme = {
   color: 'BB4142',
   steps: {
     cantica: {
+      type: 'set',
       color: 'BB4142',
-      value: {
+      domain: {
         set: ['If.', 'Purg.', 'Par.'],
       },
     },
     canto: {
+      type: 'numeric',
       color: '7EC8B1',
-      numeric: true,
       format: CIT_FORMATTER_ROMAN_UPPER,
       conditions: [
         {
-          ascendants: [
+          clauses: [
             {
               id: 'cantica',
               op: '=',
               value: 'If.',
             },
           ],
-          value: {
+          domain: {
             range: {
               min: 1,
               max: 34,
@@ -76,7 +78,7 @@ const DC_SCHEME: CitScheme = {
           },
         },
       ],
-      value: {
+      domain: {
         range: {
           min: 1,
           max: 33,
@@ -84,9 +86,9 @@ const DC_SCHEME: CitScheme = {
       },
     },
     verso: {
+      type: 'numeric',
       color: 'EFE6CC',
-      numeric: true,
-      value: {
+      domain: {
         range: {
           min: 1,
         },
@@ -94,6 +96,7 @@ const DC_SCHEME: CitScheme = {
     },
   },
 };
+//#endregion
 
 describe('PatternCitParser', () => {
   const service: CitSchemeService = new CitSchemeService();
@@ -186,7 +189,7 @@ describe('PatternCitParser', () => {
       ],
       OD_SCHEME.id
     );
-    expect(result).toBe('α 123');
+    expect(result).toBe('@od:α 123');
   });
 
   it('should return citation text for α 123b', () => {
@@ -198,7 +201,7 @@ describe('PatternCitParser', () => {
       ],
       OD_SCHEME.id
     );
-    expect(result).toBe('α 123b');
+    expect(result).toBe('@od:α 123b');
   });
 
   it('should return citation text for If. I 123', () => {
@@ -211,7 +214,7 @@ describe('PatternCitParser', () => {
       ],
       DC_SCHEME.id
     );
-    expect(result).toBe('If. I 123');
+    expect(result).toBe('@dc:If. I 123');
   });
   //#endregion
 });

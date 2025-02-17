@@ -6,6 +6,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 - [CadmusRefsCitation](#cadmusrefscitation)
   - [Editing Citations](#editing-citations)
+    - [User Experience](#user-experience)
   - [Scheme Examples](#scheme-examples)
     - [Homer - Iliad](#homer---iliad)
     - [Homer - Odyssey](#homer---odyssey)
@@ -19,29 +20,41 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Editing Citations
 
-This library provides services and components for entering structured literary citations in an interactive and partially constrained UI. Such citations are defined as a hierarchy of structures, from the largest to the smallest, in a specific order.
+This library provides services and components for entering structured literary citations in an interactive and partially constrained UI.
 
-For instance, the _Iliad_ is cited by book number first, and then by verse number. So, the hierarchy here is:
+Such citations are defined as a **hierarchy**, from the largest to the smallest work's structure, in a specific order. For instance, the _Iliad_ is cited by book number first, and then by verse number. So, the hierarchy here is:
 
 1. book
 2. verse
 
-Dante's _Commedia_ instead has 3 levels, as it is cited by cantica, canto and verse.
+Dante's _Commedia_ instead has 3 levels, as it is cited by _cantica_, _canto_ and verse.
 
-We can thus say that such hierarchies define _paths_, where each _step_ brings closer to the portion of the text we want to address. This is our terminology here.
+These hierarchies define **paths**, where each **step** brings us closer to the portion of the text we want to address: for instance, book 1 (first step) and verse 123 (second step).
+
+The hierarchy has these features:
+
+- **no holes** can be present in the path steps, but starting from a specific level one might _omit_ all the following steps up to the end. So we can never have a step without its ascendant, but (if allowed) we can have a step without its descendants.
+- steps **types** are:
+  - textual:
+    - closed: this is the usual case: the text values belong to a closed ordered set, e.g. the 3 parts of Dante's _Commedia_ (`If.`, `Purg.`, `Par.`).
+    - masked: a free text just constrained by a mask pattern.
+    - free: a free text without any constraints.
+  - numeric, using many formats: Arabic, Roman, alphabetic, etc.; in the end, whatever the system we just have a number which is to be displayed in some format.
+- value domains can be **conditioned**: the value we can pick for a step is dependent on the step type (e.g. one of "If.", "Purg." or "Par." for a _cantica_, but a number for canto or verse) and optionally on the value of its ascendant steps. For instance, given that If. has 34 _canti_ while Purg. and Par. have 33, one could set the allowed range of numeric values to 1-34 and 1-33 respectively according to the _cantica_.
+
+The model which defines the data entry behavior for a citation scheme ([CitScheme](models.ts)) is defined in the settings of the component consuming the brick. This is formally defined in [models](models.ts); here we just show examples in their JSON encoding.
+
+### User Experience
 
 This brick displays the hierarchy in a selectable form: each step in the path of a citation is shown, and you can click on it to edit its value. When editing, the UI varies according to the citation scheme used for that citation, so we can have:
 
-- a positive integer number, free or constrained into a range (min and/or max).
-- a string, free, partially free (=constrained by a regexp mask), or bound to a closed set (e.g. "If." = Inferno from the cantica set including "If.", "Purg.", "Par.").
+- a string belonging to a closed set, to be picked from a list.
+- a positive integer number, free or constrained into a range (min and/or max). Optionally we can add an alphanumeric suffix to this number.
+- a free or pattern-constrained (masked) string, typed in a textbox.
 
-To provide a UI which eases data entry of such citations, constraining the choices where required, we must take into account that:
+Additionally, the hierarchy tail can be cut starting from the first optional step in its path; so, if in Dante this is equal to `cantica`, in the context of the path `cantica - canto - verso` this means that we can enter just `cantica`, or `cantica` and `verso`, or all the three steps.
 
-- no hole can be present in the path steps, but starting from a specific level one might omit all the following steps up to the end. So we can never have a step without its ascendant, but (if allowed) we can have a step without its descendants.
-- steps can be either labelled with a conventional string or numbered. Numbering can belong to different formats: Arabic, Roman, alphabetic, etc.; but in the end, we just have a number which is to be displayed in some format.
-- constraining the value we can pick for a step is dependent on the step type (e.g. one of "If.", "Purg." or "Par." for a cantica, but a number for canto or verse) and optionally on the value of its ascendant steps. For instance, given that If. has 34 canti while Purg. and Par. have 33, one could set the allowed range of numeric values to 1-34 and 1-33 respectively according to the cantica.
-
-The model which defines the data entry behavior for a citation scheme ([CitDefinition](models.ts)) is defined in the settings of the component consuming the brick. This is formally defined in [models](models.ts); here we just show examples in their JSON encoding.
+In most cases you also have the option of directly typing the textual form of a citation and let the component parse it into the citation model.
 
 ## Scheme Examples
 
@@ -123,7 +136,7 @@ The `steps` section contains most of the parameters driving the UI behavior:
 - each property in it defines the configuration of the corresponding step in the path. So here we have 2 properties for `book` and `verse`.
 - each of these step configurations contains any number of step objects:
   - in the case of `book`, we have just 1: its display format refers a custom alphabetic numbering using capital letters from the Classical Greek alphabet (`agu`), and its values are included between 1 and 24.
-  - in the case of `verse`, we used a lazier approach which just allows any positive integer number starting from 1 as the verse number. Also, we allow for a suffix after it, which must match the given regular expression pattern: `^[a-z]$`. This means that we allow only a single letter a-z after the number (if the suffix is an empty string, it will allow for any text). Anyway, here we could be more granular and define the maximum verse number for each canto in each cantica. This way, users won't be allowed to enter a verse number which does not exist. Of course this requires us to specify conditioned ranges for each combination of ascendants: e.g. when `book` is 1, the `verse`'s `max` is 611, and so forth (see the example about Dante).
+  - in the case of `verse`, we used a lazier approach which just allows any positive integer number starting from 1 as the verse number. Also, we allow for a suffix after it, which must match the given regular expression pattern: `^[a-z]$`. This means that we allow only a single letter a-z after the number (if the suffix is an empty string, it will allow for any text). Anyway, here we could be more granular and define the maximum verse number for each canto in each cantica. This way, users won't be allowed to enter a verse number which does not exist. Of course this requires us to specify conditioned ranges for each combination of ascendants: e.g. when `book` is 1, the `verse`'s `max` is 611, and so forth (see the [example about Dante](#dante---commedia)).
 
 Additionally, to provide [text rendition for citations](#additional-services), we add under `textOptions` the rendering options:
 
@@ -361,6 +374,8 @@ By default, the rendered citation text starts with its **scheme ID prefix** betw
 ### Sorting Citations
 
 An additional benefit of this model is that citations can be sorted. Whatever their step form (sets or numbers in any format with or without suffix), the model always provides a numeric value for each; so, sorting them is just a matter of comparing them step by step.
+
+>Note that sorting cannot apply to citation steps having as type a free or masked text, because in this case there is no rule to infer an order from the citation itself. These are corner cases, provided for wider compatibility, but in most (if not all) the cases you will use other step types; otherwise, the citation model itself wouldn't make much sense, given that it is used to constrain user's input.
 
 ## Usage
 

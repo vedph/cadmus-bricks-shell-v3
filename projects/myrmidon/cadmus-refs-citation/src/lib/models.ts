@@ -10,6 +10,11 @@ export type CitMappedValues = { [key: string]: number };
 export type CitRange = { min?: number; max?: number };
 
 /**
+ * The type of a citation scheme step value.
+ */
+export type CitStepType = 'set' | 'masked' | 'free' | 'numeric';
+
+/**
  * The definition of the domain of a citation scheme step value.
  * This can be a closed set of string values, a numeric range, or a mask
  * as defined by a regular expression (or empty when the value is just
@@ -19,7 +24,7 @@ export type CitRange = { min?: number; max?: number };
  * by any text as a suffix; when it is a regular expression, the suffix
  * after the number must match it.
  */
-export type CitSchemeStepValue = {
+export type CitSchemeStepDomain = {
   set?: string[];
   range?: CitRange;
   suffix?: string;
@@ -34,7 +39,7 @@ export type CitSchemeStepValue = {
  * '>' (numeric greater than), '<=' (numeric less or equal), '>=' (numeric
  * greater or equal).
  */
-export interface CitSchemeConditionClause {
+export interface CitSchemeClause {
   id: string;
   op?: '=' | '!=' | `~` | '==' | '<>' | '<' | '>' | '<=' | '>=';
   value: string;
@@ -45,22 +50,28 @@ export interface CitSchemeConditionClause {
  * The definition of a conditional value in a citation scheme step.
  */
 export interface CitSchemeCondition {
-  ascendants: CitSchemeConditionClause[];
-  value: CitSchemeStepValue;
+  /**
+   * The clauses to match for this condition to apply.
+   */
+  clauses: CitSchemeClause[];
+  /**
+   * The domain of the value when the condition is met.
+   */
+  domain: CitSchemeStepDomain;
 }
 
 /**
- * The definition of a single step in a citation scheme's path.
+ * The definition of a step instance in a citation scheme's path.
  */
 export interface CitSchemeStep {
+  /**
+   * The type of the step value.
+   */
+  type: CitStepType;
   /**
    * The color to use for this step in the UI.
    */
   color?: string;
-  /**
-   * True if this step value is numeric, false if it is a string.
-   */
-  numeric?: boolean;
   /**
    * The optional mask to use for this step when it is a string
    * which does not belong to a closed set, but must still conform
@@ -87,7 +98,7 @@ export interface CitSchemeStep {
   /**
    * The definition of the default step's value domain.
    */
-  value: CitSchemeStepValue;
+  domain: CitSchemeStepDomain;
   /**
    * The optional conditions for this step with their corresponding
    * conditional value.
@@ -198,9 +209,9 @@ export type SuffixedNumber = {
 };
 
 /**
- * A citation model's component.
+ * A citation model's step.
  */
-export type CitComponent = {
+export type CitStep = {
   /**
    * The step in the citation scheme's path (e.g. "book").
    */
@@ -214,10 +225,10 @@ export type CitComponent = {
    */
   value: string;
   /**
-   * The numeric value of the step. When the step has a numeric value,
-   * it is this value without its any suffix. When the step has a string
-   * value coming from a set, this is the ordinal of the value in the set.
-   * Otherwise, it is undefined.
+   * The numeric value of the step, according to the step's type:
+   * - set: the ordinal number of the value in the set;
+   * - numeric: the numeric value;
+   * - masked or string: undefined.
    */
   n?: number;
   /**
@@ -234,4 +245,4 @@ export type CitComponent = {
  * A citation model. This is the result of parsing a compact text
  * citation, or building it via the UI.
  */
-export type CitationModel = CitComponent[];
+export type CitationModel = CitStep[];

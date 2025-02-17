@@ -5,7 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 
-import { CitComponent } from '../../models';
+import { CitStep } from '../../models';
 
 @Component({
   selector: 'cadmus-citation-step',
@@ -14,8 +14,8 @@ import { CitComponent } from '../../models';
   styleUrl: './citation-step.component.css',
 })
 export class CitationStepComponent {
-  public readonly step = input<CitComponent>();
-  public readonly stepClick = output<CitComponent>();
+  public readonly step = input<CitStep>();
+  public readonly stepClick = output<CitStep>();
   public readonly errors = input<{ [key: string]: string }>();
   public readonly error = computed<string | undefined>(() => {
     const errors = this.errors();

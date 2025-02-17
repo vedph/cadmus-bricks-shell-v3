@@ -30,7 +30,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 
-import { CitationModel, CitComponent, CitScheme } from '../../models';
+import { CitationModel, CitStep, CitScheme } from '../../models';
 import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
 
@@ -126,7 +126,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   public text: FormControl<string | null>;
   public textForm: FormGroup;
 
-  public editedStep?: CitComponent;
+  public editedStep?: CitStep;
   public stepEditMode: StepEditMode = 'string';
   // set-editor form
   public setEditorItems: string[] = [];
@@ -273,7 +273,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   //#region Step editing
-  public editStep(step: CitComponent | null): void {
+  public editStep(step: CitStep | null): void {
     if (!step) {
       this.editedStep = undefined;
       return;
@@ -290,58 +290,66 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.citation()
     )!;
 
-    if (stepDef.value.set) {
-      // closed set of strings
-      this.setEditorItems = stepDomain.set!;
-      this.stepEditMode = 'set';
-      this.setEditorItem.setValue(step.value);
-    } else if (stepDef.numeric) {
-      // numeric with min/max and optional suffix
-      this.stepEditMode = 'number';
-      const validators = [Validators.required];
-      if (stepDef.value.range) {
-        let n = stepDomain.range?.min;
-        this.minNrValue = n !== undefined && n !== null ? n : undefined;
-        if (this.minNrValue !== undefined) {
-          validators.push(Validators.min(this.minNrValue));
-        }
-        n = stepDomain.range?.max;
-        this.maxNrValue = n !== undefined && n !== null ? n : undefined;
-        if (this.maxNrValue !== undefined) {
-          validators.push(Validators.max(this.maxNrValue));
-        }
-      }
-      this.nrEditorValue.setValue(step.n!);
-      this.nrEditorValue.setValidators(validators);
-      this.nrEditorValue.updateValueAndValidity();
+    switch (stepDef.type) {
+      case 'set':
+        // closed set of strings
+        this.setEditorItems = stepDomain.set!;
+        this.stepEditMode = 'set';
+        this.setEditorItem.setValue(step.value);
+        break;
 
-      // if there is a suffix validation pattern, add it to the validators
-      // of nrEditorSuffix; else, remove any existing pattern validators from it
-      if (stepDef.suffixValidPattern) {
-        this.nrEditorSuffix.setValidators([
-          Validators.pattern(stepDef.suffixValidPattern),
+      case 'numeric':
+        // numeric with min/max and optional suffix
+        this.stepEditMode = 'number';
+        const validators = [Validators.required];
+        if (stepDef.domain.range) {
+          let n = stepDomain.range?.min;
+          this.minNrValue = n !== undefined && n !== null ? n : undefined;
+          if (this.minNrValue !== undefined) {
+            validators.push(Validators.min(this.minNrValue));
+          }
+          n = stepDomain.range?.max;
+          this.maxNrValue = n !== undefined && n !== null ? n : undefined;
+          if (this.maxNrValue !== undefined) {
+            validators.push(Validators.max(this.maxNrValue));
+          }
+        }
+        this.nrEditorValue.setValue(step.n!);
+        this.nrEditorValue.setValidators(validators);
+        this.nrEditorValue.updateValueAndValidity();
+
+        // if there is a suffix validation pattern, add it to the validators
+        // of nrEditorSuffix; else, remove any existing pattern validators from it
+        if (stepDef.suffixValidPattern) {
+          this.nrEditorSuffix.setValidators([
+            Validators.pattern(stepDef.suffixValidPattern),
+          ]);
+          this.nrEditorSuffix.updateValueAndValidity();
+        } else {
+          this.nrEditorSuffix.clearValidators();
+        }
+
+        this.hasSuffix = !!stepDef.suffixPattern;
+        break;
+
+      case 'masked':
+        // masked string
+        this.stepEditMode = 'masked';
+        this.strEditorValue.setValidators([
+          Validators.required,
+          Validators.pattern(stepDef.maskPattern!),
         ]);
-        this.nrEditorSuffix.updateValueAndValidity();
-      } else {
-        this.nrEditorSuffix.clearValidators();
-      }
+        this.strEditorValue.setValue(step.value);
+        this.strEditorValue.updateValueAndValidity();
+        break;
 
-      this.hasSuffix = !!stepDef.suffixPattern;
-    } else if (stepDef.maskPattern) {
-      // masked string
-      this.stepEditMode = 'masked';
-      this.strEditorValue.setValidators([
-        Validators.required,
-        Validators.pattern(stepDef.maskPattern),
-      ]);
-      this.strEditorValue.setValue(step.value);
-      this.strEditorValue.updateValueAndValidity();
-    } else {
-      // free string
-      this.stepEditMode = 'string';
-      this.strEditorValue.setValidators([Validators.required]);
-      this.strEditorValue.setValue(step.value);
-      this.strEditorValue.updateValueAndValidity();
+      default:
+        // free string
+        this.stepEditMode = 'string';
+        this.strEditorValue.setValidators([Validators.required]);
+        this.strEditorValue.setValue(step.value);
+        this.strEditorValue.updateValueAndValidity();
+        break;
     }
   }
 

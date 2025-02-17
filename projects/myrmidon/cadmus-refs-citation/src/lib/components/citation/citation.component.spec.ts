@@ -26,10 +26,10 @@ const OD_SCHEME: CitScheme = {
   color: '#4287f5',
   steps: {
     book: {
-      numeric: true,
+      type: 'numeric',
       color: '#4287f5',
       format: 'agl',
-      value: {
+      domain: {
         range: {
           min: 1,
           max: 24,
@@ -37,11 +37,11 @@ const OD_SCHEME: CitScheme = {
       },
     },
     verse: {
-      numeric: true,
+      type: 'numeric',
       color: '#1ECBE1',
       suffixPattern: '([a-z])$',
       suffixValidPattern: '^[a-z]$',
-      value: {
+      domain: {
         range: {
           min: 1,
         },
@@ -63,25 +63,26 @@ const DC_SCHEME: CitScheme = {
   color: '#BB4142',
   steps: {
     cantica: {
+      type: 'set',
       color: '#BB4142',
-      value: {
+      domain: {
         set: ['If.', 'Purg.', 'Par.'],
       },
     },
     canto: {
+      type: 'numeric',
       color: '#7EC8B1',
-      numeric: true,
       format: CIT_FORMATTER_ROMAN_UPPER,
       conditions: [
         {
-          ascendants: [
+          clauses: [
             {
               id: 'cantica',
               op: '=',
               value: 'If.',
             },
           ],
-          value: {
+          domain: {
             range: {
               min: 1,
               max: 34,
@@ -89,7 +90,7 @@ const DC_SCHEME: CitScheme = {
           },
         },
       ],
-      value: {
+      domain: {
         range: {
           min: 1,
           max: 33,
@@ -97,11 +98,11 @@ const DC_SCHEME: CitScheme = {
       },
     },
     verso: {
+      type: 'numeric',
       color: '#EFE6CC',
-      numeric: true,
       conditions: [
         {
-          ascendants: [
+          clauses: [
             {
               id: 'cantica',
               op: '=',
@@ -113,7 +114,7 @@ const DC_SCHEME: CitScheme = {
               value: '26',
             },
           ],
-          value: {
+          domain: {
             range: {
               min: 1,
               max: 142,
@@ -121,7 +122,7 @@ const DC_SCHEME: CitScheme = {
           },
         },
       ],
-      value: {
+      domain: {
         range: {
           min: 1,
         },
@@ -178,6 +179,4 @@ describe('CitationComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-
 });

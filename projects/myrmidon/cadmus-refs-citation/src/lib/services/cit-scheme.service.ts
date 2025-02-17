@@ -3,11 +3,11 @@ import { BehaviorSubject } from 'rxjs';
 
 import {
   CitationModel,
-  CitComponent,
+  CitStep,
   CitScheme,
-  CitSchemeConditionClause,
+  CitSchemeClause,
   CitSchemeSet,
-  CitSchemeStepValue,
+  CitSchemeStepDomain,
   CitTextOptions,
   SuffixedNumber,
 } from '../models';
@@ -156,10 +156,7 @@ export class CitSchemeService {
     return as!.localeCompare(bs!);
   }
 
-  private matchClause(
-    component: CitComponent,
-    clause: CitSchemeConditionClause
-  ): boolean {
+  private matchClause(component: CitStep, clause: CitSchemeClause): boolean {
     switch (clause.op) {
       case '=':
         return component.value === clause.value;
@@ -248,7 +245,7 @@ export class CitSchemeService {
     schemeId: string,
     stepId: string,
     citation?: CitationModel
-  ): CitSchemeStepValue | undefined {
+  ): CitSchemeStepDomain | undefined {
     // get scheme
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
@@ -259,7 +256,7 @@ export class CitSchemeService {
     // or no citation to check, or when the step is not found
     const step = scheme.steps[stepId];
     if (!citation?.length || !step.conditions || !step) {
-      return step?.value;
+      return step?.domain;
     }
 
     // else check conditions stopping at the first matching one;
@@ -271,20 +268,20 @@ export class CitSchemeService {
       // match each citation component from first to last against
       // the condition clauses, stopping at the first non-matching
       let citIndex = 0;
-      for (let i = 0; i < condition.ascendants.length; i++) {
-        const clause = condition.ascendants[i];
+      for (let i = 0; i < condition.clauses.length; i++) {
+        const clause = condition.clauses[i];
         if (!this.matchClause(citation[citIndex], clause)) {
           break;
         }
         citIndex++;
       }
       // if we reached the end of the ascendants, we have a match
-      if (citIndex === condition.ascendants.length) {
-        return condition.value;
+      if (citIndex === condition.clauses.length) {
+        return condition.domain;
       }
     }
 
-    return step.value;
+    return step.domain;
   }
 
   /**
