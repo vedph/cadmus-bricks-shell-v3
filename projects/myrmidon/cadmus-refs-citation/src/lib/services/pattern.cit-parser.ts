@@ -1,4 +1,4 @@
-import { CitationModel, CitScheme, CitSchemeStep } from '../models';
+import { CitationModel, CitSchemeStep } from '../models';
 import { CitParser, CitSchemeService } from './cit-scheme.service';
 
 /**
@@ -15,12 +15,16 @@ export class PatternCitParser implements CitParser {
   /**
    * Parse the specified citation text.
    * @param text The citation text to parse.
-   * @param scheme The citation scheme.
+   * @param scheme The citation scheme ID.
    * @returns The citation model.
    */
-  public parse(text: string, scheme: CitScheme): CitationModel {
+  public parse(text: string, schemeId: string): CitationModel {
     const result: CitationModel = [];
-    if (!scheme.textOptions?.pathPattern) {
+    const scheme = this._service.getScheme(schemeId);
+    if (!scheme?.textOptions?.pathPattern) {
+      console.warn(
+        'No path pattern in citation scheme text options for ' + schemeId
+      );
       return result;
     }
 
@@ -91,13 +95,16 @@ export class PatternCitParser implements CitParser {
    * @param scheme The citation scheme.
    * @returns The rendered citation.
    */
-  public toString(citation: CitationModel, scheme: CitScheme): string {
+  public toString(citation: CitationModel, schemeId: string): string {
     if (!citation.length) {
       return '';
     }
+    const scheme = this._service.getScheme(schemeId);
     const sb: string[] = [];
-    if (!scheme.textOptions?.template) {
-      console.warn('No text options template in citation scheme');
+    if (!scheme?.textOptions?.template) {
+      console.warn(
+        'No text options template in citation scheme for ' + schemeId
+      );
       return '';
     }
     const template = scheme.textOptions.template;
@@ -108,7 +115,9 @@ export class PatternCitParser implements CitParser {
     // of the step, if any
     const matches = template.match(/{(\w+)}/g);
     if (!matches) {
-      console.warn('No text options template in citation scheme');
+      console.warn(
+        'No text options template in citation scheme for ' + schemeId
+      );
       return scheme.textOptions?.template || '';
     }
     for (let i = 0; i < matches?.length; i++) {

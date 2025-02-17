@@ -115,10 +115,10 @@ describe('CitSchemeService', () => {
   it('should sort citations correctly based on the dc scheme', () => {
     const parser = new PatternCitParser(service);
     const scheme = service.getScheme('dc')!;
-    const a = parser.parse('If. III 12', scheme);
-    const b = parser.parse('If. III 45', scheme);
-    const c = parser.parse('If. IV 1', scheme);
-    const d = parser.parse('Par. I 1', scheme);
+    const a = parser.parse('If. III 12', scheme.id);
+    const b = parser.parse('If. III 45', scheme.id);
+    const c = parser.parse('If. IV 1', scheme.id);
+    const d = parser.parse('Par. I 1', scheme.id);
 
     const citations: CitationModel[] = [d, a, c, b];
     service.sortCitations(citations, 'dc');
@@ -132,9 +132,9 @@ describe('CitSchemeService', () => {
   it('should sort citations with suffixes', () => {
     const parser = new PatternCitParser(service);
     const scheme = service.getScheme('od')!;
-    const a = parser.parse('α 12', scheme);
-    const b = parser.parse('α 12a', scheme);
-    const c = parser.parse('α 12c', scheme);
+    const a = parser.parse('α 12', scheme.id);
+    const b = parser.parse('α 12a', scheme.id);
+    const c = parser.parse('α 12c', scheme.id);
 
     const citations: CitationModel[] = [c, a, b];
     service.sortCitations(citations, 'od');
@@ -151,8 +151,8 @@ describe('CitSchemeService', () => {
       { step: 'cantica', value: 'If.', n: 1 },
       { step: 'canto', value: 'III', n: 3 },
     ];
-    const b = parser.parse('If. III 45', scheme);
-    const c = parser.parse('If. IV 1', scheme);
+    const b = parser.parse('If. III 45', scheme.id);
+    const c = parser.parse('If. IV 1', scheme.id);
 
     const citations: CitationModel[] = [c, a, b];
     service.sortCitations(citations, 'dc');
@@ -166,7 +166,7 @@ describe('CitSchemeService', () => {
     const parser = new PatternCitParser(service);
     const scheme = service.getScheme('dc')!;
     const a: CitationModel = [];
-    const b = parser.parse('If. III 123', scheme);
+    const b = parser.parse('If. III 123', scheme.id);
 
     const citations: CitationModel[] = [b, a];
     service.sortCitations(citations, 'dc');

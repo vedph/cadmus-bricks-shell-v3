@@ -44,17 +44,17 @@ export interface CitParser {
   /**
    * Parse the specified citation text.
    * @param text The citation text to parse.
-   * @param scheme The citation scheme.
+   * @param schemeId The citation scheme ID.
    * @returns The citation model.
    */
-  parse(text: string, scheme: CitScheme): CitationModel;
+  parse(text: string, schemeId: string): CitationModel;
   /**
    * Render the specified citation model into text.
    * @param citation The citation model to render into text.
-   * @param scheme The citation scheme.
+   * @param schemeId The citation scheme ID.
    * @returns The rendered citation.
    */
-  toString(citation: CitationModel, scheme: CitScheme): string;
+  toString(citation: CitationModel, schemeId: string): string;
 }
 
 /**
@@ -389,7 +389,7 @@ export class CitSchemeService {
     }
     this.ensureDefaultParser();
     const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
-    return parser ? parser.parse(text, scheme) : [];
+    return parser ? parser.parse(text, scheme.id) : [];
   }
 
   /**
@@ -405,7 +405,7 @@ export class CitSchemeService {
     }
     this.ensureDefaultParser();
     const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
-    return parser ? parser.toString(citation, scheme) : citation.join('');
+    return parser ? parser.toString(citation, scheme.id) : citation.join('');
   }
 
   /**

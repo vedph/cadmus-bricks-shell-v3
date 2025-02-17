@@ -39,7 +39,7 @@ export class CitationPgComponent {
 
   constructor(@Inject(CIT_SCHEME_SERVICE_TOKEN) service: CitSchemeService) {
     const parser = new PatternCitParser(service);
-    this.citation = parser.parse('If. XXVI 112', service.getScheme('dc')!);
+    this.citation = parser.parse('If. XXVI 112', 'dc');
   }
 
   public onCitationChange(citation?: CitationModel): void {
