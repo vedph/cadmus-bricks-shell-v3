@@ -477,15 +477,6 @@ export class CitSchemeService {
       const groupScheme = this.getScheme(id) || scheme;
       group.sort((a, b) => {
         for (let i = 0; i < groupScheme.path.length; i++) {
-          // compare schemes
-          if (a.schemeId !== b.schemeId) {
-            if (!a.schemeId) return -1;
-            if (!b.schemeId) return 1;
-            if (a || b) {
-              return a.schemeId.localeCompare(b.schemeId);
-            }
-          }
-
           // compare n values
           const nA = a.steps[i]?.n || 0;
           const nB = b.steps[i]?.n || 0;
