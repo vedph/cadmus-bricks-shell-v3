@@ -4,6 +4,19 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.0.
 
+- [CadmusRefsCitation](#cadmusrefscitation)
+  - [Editing Citations](#editing-citations)
+  - [Scheme Examples](#scheme-examples)
+    - [Homer - Iliad](#homer---iliad)
+    - [Homer - Odyssey](#homer---odyssey)
+    - [Dante - Commedia](#dante---commedia)
+  - [Additional Services](#additional-services)
+    - [Citation as Text](#citation-as-text)
+    - [Sorting Citations](#sorting-citations)
+  - [Usage](#usage)
+    - [CitSchemeService](#citschemeservice)
+    - [CitationComponent](#citationcomponent)
+
 ## Editing Citations
 
 This library provides services and components for entering structured literary citations in an interactive and partially constrained UI. Such citations are defined as a hierarchy of structures, from the largest to the smallest, in a specific order.
@@ -13,7 +26,7 @@ For instance, the Iliad is cited by book number first, and then by verse number.
 1. book
 2. verse
 
-Dante's Commedia instead has 3 levels, as it is cited by cantica, canto and verse.
+Dante's _Commedia_ instead has 3 levels, as it is cited by cantica, canto and verse.
 
 We can thus say that such hierarchies define _paths_, where each _step_ brings closer to the portion of the text we want to address. This is our terminology here.
 
@@ -103,7 +116,7 @@ The Iliad has 2 levels: book (24, identified by uppercase letters of the classic
 }
 ```
 
-In this example, the schema is identified by `il` (Iliad); its human-friendly name is `Iliad`, and its path contains 2 steps, which are optional from the second one.
+In this example, the schema is identified by `il` (_Iliad_); its human-friendly name is `Iliad`, and its path contains 2 steps, which are optional from the second one.
 
 The `steps` section contains most of the parameters driving the UI behavior:
 
@@ -119,7 +132,7 @@ Additionally, to provide [text rendition for citations](#additional-services), w
 
 ### Homer - Odyssey
 
-For Odyssey, the sample is almost equal, except that we use lowercase letters to number the books:
+For _Odyssey_, the sample is almost equal, except that we use lowercase letters to number the books:
 
 ```json
 {
@@ -192,7 +205,7 @@ For Odyssey, the sample is almost equal, except that we use lowercase letters to
 
 ### Dante - Commedia
 
-Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), canto (1-34 or 1-33), verso (number). Often, and this is reflected by this example, the numeric format for canti is Roman (with uppercase letters), while verse numbers use the Arabic format.
+Dante's _Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), canto (1-34 or 1-33), verso (number). Often, and this is reflected by this example, the numeric format for canti is Roman (with uppercase letters), while verse numbers use the Arabic format.
 
 >In this specific example, we allow citations targeting just a cantica; so the first optional step is defined as canto.Also, by convention preset numeric formats are identified by names starting with `$`. In this example `$ru` (Roman, uppercase) refers to a Roman numeric system with uppercase letters.
 
@@ -261,7 +274,7 @@ Dante's _(Divina) Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), cant
 }
 ```
 
-In this example, the schema is identified by `dc` (Divina Commedia); its human-friendly name is `Commedia`, and its path contains 3 steps, which are optional from the second one. Additionally, here we added color keys for the scheme and each of its steps. These can be displayed in the UI.
+In this example, the schema is identified by `dc` (_Divina Commedia_); its human-friendly name is `Commedia`, and its path contains 3 steps, which are optional from the second one. Additionally, here we added color keys for the scheme and each of its steps. These can be displayed in the UI.
 
 The `steps` section contains most of the parameters driving the UI behavior:
 
@@ -331,7 +344,7 @@ Unless your logic is more complex, in most cases you can use the `PatternCitPars
   - `:n` to render the numeric value only;
   - `:s` to render the suffix only.
 
-For instance, for Homer's Odyssey these parameters would be:
+For instance, for Homer's _Odyssey_ these parameters would be:
 
 - path pattern: `^\s*([α-ω])\s+(\d+(?:[a-z])?)\s*$`. In a string like `α 123a`, the match groups corresponding to paths book and verse would be 1=`α` and 2=`123a`.
 - template: `{book} {verse}`.
@@ -409,7 +422,6 @@ For the UI, configure your citation schemes in your app configuration using the 
   - `allowFreeMode` (`boolean`): true if the component allows free mode, where the user can type the citation as a free text, using the scheme parser.
   - `allowPartial` (`boolean`): true if the component allows a partial citation, i.e. a citation missing the final step(s) starting from the first one defined as optional in the scheme.
   - `citation` (`citationModel`): the citation to edit.
-- ⚙️ settings
 - 🔥 output:
   - `citationChange` (`citationModel`)
   - `citationValidate` (`citationError | null`)
