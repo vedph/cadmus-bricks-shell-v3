@@ -100,13 +100,16 @@ The _Iliad_ has 2 levels: book (24, identified by uppercase letters of the class
       "optionalFrom": "verse",
       "textOptions": {
         "pathPattern": "^\\s*([ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ])\\s+(\\d+(?:[a-z])?)\\s*$",       
-        "template": "{book} {verse}"
+        "template": "{book} {verse}",
+        "hint": "book (α-ω) verse (1-N[a-z])",
       },
+      "color": "#4287f5",
       "steps": {
         "book": {
-          "numeric": true,
+          "type": "numeric",
+          "color": "#4287f5",
           "format": "agu",
-          "value": {
+          "domain": {
             "range": {
               "min": 1,
               "max": 24
@@ -114,7 +117,8 @@ The _Iliad_ has 2 levels: book (24, identified by uppercase letters of the class
           }
         },
         "verse": {
-          "numeric": true,
+          "type": "numeric",
+          "color": "#1ECBE1",
           "suffixPattern": "([a-z])$",
           "suffixValidPattern": "^[a-z]$",
           "value": {
@@ -185,13 +189,16 @@ For the _Odyssey_, the sample is almost equal, except that we use lowercase lett
       "optionalFrom": "verse",
       "textOptions": {
         "pathPattern": "^\\s*([αβγδεζηθικλμνξοπρστυφχψω])\\s+(\\d+(?:[a-z])?)\\s*$",
-        "template": "{book} {verse}"
+        "template": "{book} {verse}",
+        "hint": "book (α-ω) verse (1-N[a-z])",
       },
+      "color": "#4287f5",
       "steps": {
         "book": {
-          "numeric": true,
+          "type": "numeric",
+          "color": "#4287f5",
           "format": "agl",
-          "value": {
+          "domain": {
             "range": {
               "min": 1,
               "max": 24
@@ -199,10 +206,11 @@ For the _Odyssey_, the sample is almost equal, except that we use lowercase lett
           }
         },
         "verse": {
-          "numeric": true,
+          "type": "numeric",
+          "color": "#1ECBE1",
           "suffixPattern": "([a-z])$",
           "suffixValidPattern": "^[a-z]$",
-          "value": {
+          "domain": {
             "range": {
               "min": 1,
             }
@@ -232,30 +240,32 @@ Dante's _Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), canto (1-34 o
       "optionalFrom": "canto",
       "textOptions": {
         "pathPattern": "^\\s*(If\\.|Purg\\.|Par\\.)\\s*([IVX]+)\\s+(\\d+)\\s*$",
-        "template": "{cantica} {canto} {verso}"
+        "template": "{cantica} {canto} {verso}",
+        "hint": "cantica (If., Purg., Par.) canto (1-33) verso (1-N)",
       },
       "color": "#BB4142",
       "steps": {
         "cantica": {
+          "type": "set",
           "color": "#BB4142",
-          "value": {
+          "domain": {
             "set": ["If.", "Purg.", "Par."]
           },
         },
         "canto": {
+          "type": "numeric",
           "color": "#7EC8B1",
-          "numeric": true,
           "format": "$ru",
           "conditions": [
             {
-              "ascendants": [
+              "clauses": [
                 {
                   "id": "cantica",
                   "op": "=",
                   "value": "If."
                 }
               ],
-              "value": {
+              "domain": {
                 "range": {
                   "min": 1,
                   "max": 34
@@ -264,7 +274,7 @@ Dante's _Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), canto (1-34 o
             },
           ],
           {
-            "value": {
+            "domain": {
               "range": {
                 "min": 1,
                 "max": 33
@@ -273,9 +283,9 @@ Dante's _Commedia_ has 3 levels: cantica (`If.`, `Purg.`, `Par.`), canto (1-34 o
           }
         },
         "verso": {
+          "type": "numeric",
           "color": "#EFE6CC",
-          "numeric": true,
-          "value": {
+          "domain": {
             "range": {
               "min": 1
             }
@@ -300,11 +310,12 @@ The `steps` section contains most of the parameters driving the UI behavior:
 ```json
 {
   "verso": {
+    "type": "numeric",
     "color": "#EFE6CC",
     "numeric": true,
     "conditions": [
       {
-        "ascendants": [
+        "clauses": [
           {
             "id": "cantica",
             "op": "=",
@@ -316,7 +327,7 @@ The `steps` section contains most of the parameters driving the UI behavior:
             "value": "26"
           },
         ],
-        "value": {
+        "domain": {
           "range": {
             "min": 1,
             "max": 142
@@ -324,7 +335,7 @@ The `steps` section contains most of the parameters driving the UI behavior:
         }
       }
     ],
-    "value": {
+    "domain": {
       "range": {
         "min": 1
       }
