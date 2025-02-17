@@ -15,31 +15,31 @@ export class PatternCitParser implements CitParser {
   /**
    * Parse the specified citation text.
    * @param text The citation text to parse.
-   * @param schemeId The citation scheme ID. This can be omitted
-   * when the citation ID is part of the text (e.g. `@dc:If. XX 2`).
+   * @param defaultSchemeId The default citation scheme ID, supplied when
+   * the citation ID is not part of the text (e.g. `If. XX 2`).
    * @returns The citation or undefined.
    */
-  public parse(text: string, schemeId?: string): Citation | undefined {
+  public parse(text: string, defaultSchemeId: string): Citation | undefined {
     // extract scheme ID from text if any
     const prefix = this._service.extractSchemeId(text);
     if (prefix) {
-      schemeId = prefix.id;
+      defaultSchemeId = prefix.id;
       text = prefix.text;
     }
 
     // if no scheme ID is provided, we can't proceed
-    if (!schemeId) {
+    if (!defaultSchemeId) {
       console.warn('No scheme ID in citation text: ' + text);
       return undefined;
     }
 
     // create a new citation
-    const citation: Citation = { schemeId: schemeId, steps: [] };
+    const citation: Citation = { schemeId: defaultSchemeId, steps: [] };
 
-    const scheme = this._service.getScheme(schemeId);
+    const scheme = this._service.getScheme(defaultSchemeId);
     if (!scheme?.textOptions?.pathPattern) {
       console.warn(
-        'No path pattern in citation scheme text options for ' + schemeId
+        'No path pattern in citation scheme text options for ' + defaultSchemeId
       );
       return citation;
     }
@@ -114,22 +114,22 @@ export class PatternCitParser implements CitParser {
    * @param scheme The citation scheme.
    * @returns The rendered citation.
    */
-  public toString(citation: Citation, schemeId: string): string {
+  public toString(citation: Citation): string {
     if (!citation.steps.length) {
       return '';
     }
-    const scheme = this._service.getScheme(schemeId);
+    const scheme = this._service.getScheme(citation.schemeId);
     const sb: string[] = [];
     if (!scheme?.textOptions?.template) {
       console.warn(
-        'No text options template in citation scheme for ' + schemeId
+        'No text options template in citation scheme for ' + citation.schemeId
       );
       return '';
     }
 
     // add scheme ID prefix if required
     if (this._service.hasSchemePrefix()) {
-      sb.push('@' + schemeId + ':');
+      sb.push('@' + citation.schemeId + ':');
     }
 
     const template = scheme.textOptions.template;
@@ -141,7 +141,7 @@ export class PatternCitParser implements CitParser {
     const matches = template.match(/{(\w+)}/g);
     if (!matches) {
       console.warn(
-        'No text options template in citation scheme for ' + schemeId
+        'No text options template in citation scheme for ' + citation.schemeId
       );
       return scheme.textOptions?.template || '';
     }

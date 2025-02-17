@@ -48,12 +48,12 @@ export class CitationPgComponent {
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _service: CitSchemeService
   ) {
     this.citation = this._service.parse('If. XXVI 112', 'dc')!;
-    this.citText = this._service.toString(this.citation, 'dc');
+    this.citText = this._service.toString(this.citation);
   }
 
   public onCitationChange(citation?: Citation): void {
     this.citation = citation;
-    this.citText = citation ? this._service.toString(citation, 'dc') : '';
+    this.citText = citation ? this._service.toString(citation) : '';
   }
 
   public onCitationValidate(error: CitationError | null): void {

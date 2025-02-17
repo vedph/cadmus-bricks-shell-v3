@@ -191,56 +191,44 @@ describe('PatternCitParser', () => {
   //#region toString
   it('should return empty string for empty citation', () => {
     const parser = new PatternCitParser(service);
-    const result = parser.toString(
-      { schemeId: OD_SCHEME.id, steps: [] },
-      OD_SCHEME.id
-    );
+    const result = parser.toString({ schemeId: OD_SCHEME.id, steps: [] });
     expect(result).toBe('');
   });
 
   it('should return citation text for α 123', () => {
     const parser = new PatternCitParser(service);
-    const result = parser.toString(
-      {
-        schemeId: OD_SCHEME.id,
-        steps: [
-          { step: 'book', value: 'α', n: 1 },
-          { step: 'verse', value: '123', n: 123 },
-        ],
-      },
-      OD_SCHEME.id
-    );
+    const result = parser.toString({
+      schemeId: OD_SCHEME.id,
+      steps: [
+        { step: 'book', value: 'α', n: 1 },
+        { step: 'verse', value: '123', n: 123 },
+      ],
+    });
     expect(result).toBe('@od:α 123');
   });
 
   it('should return citation text for α 123b', () => {
     const parser = new PatternCitParser(service);
-    const result = parser.toString(
-      {
-        schemeId: OD_SCHEME.id,
-        steps: [
-          { step: 'book', value: 'α', n: 1 },
-          { step: 'verse', value: '123', n: 123, suffix: 'b' },
-        ],
-      },
-      OD_SCHEME.id
-    );
+    const result = parser.toString({
+      schemeId: OD_SCHEME.id,
+      steps: [
+        { step: 'book', value: 'α', n: 1 },
+        { step: 'verse', value: '123', n: 123, suffix: 'b' },
+      ],
+    });
     expect(result).toBe('@od:α 123b');
   });
 
   it('should return citation text for If. I 123', () => {
     const parser = new PatternCitParser(service);
-    const result = parser.toString(
-      {
-        schemeId: DC_SCHEME.id,
-        steps: [
-          { step: 'cantica', value: 'If.', n: 1 },
-          { step: 'canto', value: 'I', n: 1 },
-          { step: 'verso', value: '123', n: 123 },
-        ],
-      },
-      DC_SCHEME.id
-    );
+    const result = parser.toString({
+      schemeId: DC_SCHEME.id,
+      steps: [
+        { step: 'cantica', value: 'If.', n: 1 },
+        { step: 'canto', value: 'I', n: 1 },
+        { step: 'verso', value: '123', n: 123 },
+      ],
+    });
     expect(result).toBe('@dc:If. I 123');
   });
   //#endregion

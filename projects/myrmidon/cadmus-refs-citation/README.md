@@ -453,7 +453,7 @@ For the UI, configure your citation schemes in your [app configuration](../../..
   - 🟢 `getParser(key: string): CitParser | undefined`
   - 🟢 `extractSchemeId(text): { id: string; text: string } | undefined`
   - 🟢 `parse(text: string, defaultSchemeId: string): Citation | undefined`
-  - 🟢 `toString(citation: Citation, defaultSchemeId: string): string`
+  - 🟢 `toString(citation: Citation): string`
   - 🟢 `sortCitations(citations: Citation[], defaultSchemeId: string): void`
 
 ### CitationComponent

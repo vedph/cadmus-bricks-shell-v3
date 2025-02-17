@@ -10,7 +10,7 @@ import {
  * A pipe to format a citation as a string. Usage:
  *
  * ```html
- * {{ citation | citation: 'dc' }}
+ * {{ cit | citation }}
  * ```
  */
 @Pipe({
@@ -21,13 +21,10 @@ export class CitationPipe implements PipeTransform {
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
   ) {}
 
-  public transform(
-    citation: Citation | null | undefined,
-    defaultSchemeId: string
-  ): string {
+  public transform(citation: Citation | null | undefined): string {
     if (!citation) {
       return '';
     }
-    return this._schemeService.toString(citation, defaultSchemeId);
+    return this._schemeService.toString(citation);
   }
 }

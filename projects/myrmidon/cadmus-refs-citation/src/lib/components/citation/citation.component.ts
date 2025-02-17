@@ -258,7 +258,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.freeMode = true;
       if (this.citation()) {
         this.text.setValue(
-          this._schemeService.toString(this.citation()!, this.scheme.value.id)
+          this._schemeService.toString(this.citation()!)
         );
         setTimeout(() => {
           this.freeInput?.nativeElement.focus();

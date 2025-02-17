@@ -51,18 +51,18 @@ export interface CitParser {
   /**
    * Parse the specified citation text.
    * @param text The citation text to parse.
-   * @param schemeId The citation scheme ID. This can be omitted
-   * when the citation ID is part of the text (e.g. `@dc:If. XX 2`).
+   * @param defaultSchemeId The default citation scheme ID, supplied when
+   * the citation ID is not part of the text (e.g. `If. XX 2`).
    * @returns The citation model.
    */
-  parse(text: string, schemeId?: string): Citation | undefined;
+  parse(text: string, defaultSchemeId?: string): Citation | undefined;
   /**
    * Render the specified citation model into text.
    * @param citation The citation model to render into text.
    * @param schemeId The citation scheme ID.
    * @returns The rendered citation.
    */
-  toString(citation: Citation, schemeId: string): string;
+  toString(citation: Citation): string;
 }
 
 /**
@@ -432,20 +432,16 @@ export class CitSchemeService {
   /**
    * Render a citation as a string, in the context of the specified scheme.
    * @param citation The citation to format.
-   * @param defaultSchemeId The ID of the default citation scheme when the
-   * citation does not specify one.
    * @returns The rendered citation.
    */
-  public toString(citation: Citation, defaultSchemeId: string): string {
-    const scheme = this.getScheme(citation.schemeId || defaultSchemeId);
+  public toString(citation: Citation): string {
+    const scheme = this.getScheme(citation.schemeId);
     if (!scheme) {
       return citation.steps.join('');
     }
     this.ensureDefaultParser();
     const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
-    return parser
-      ? parser.toString(citation, scheme.id)
-      : citation.steps.join('');
+    return parser ? parser.toString(citation) : citation.steps.join('');
   }
 
   /**
