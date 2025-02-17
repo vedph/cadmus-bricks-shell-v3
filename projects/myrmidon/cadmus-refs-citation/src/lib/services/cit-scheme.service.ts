@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 import {
   CitationModel,
@@ -74,7 +75,14 @@ export const CIT_FORMATTER_ROMAN_LOWER = '$rl';
 export class CitSchemeService {
   private readonly _formatters = new Map<string, CitNumberFormatter>();
   private readonly _parsers = new Map<string, CitParser>();
-  private _set?: CitSchemeSet;
+  private readonly _set$ = new BehaviorSubject<
+    Readonly<CitSchemeSet> | undefined
+  >(undefined);
+
+  /**
+   * The current scheme set.
+   */
+  public readonly schemeSet$ = this._set$.asObservable();
 
   constructor() {
     this.addFormatter(CIT_FORMATTER_ROMAN_UPPER, new RomanNumberFormatter());
@@ -89,7 +97,7 @@ export class CitSchemeService {
    * @param set The scheme set to configure this service with.
    */
   public configure(set: CitSchemeSet): void {
-    this._set = set;
+    this._set$.next(set);
     // if formats are defined, add a MapFormatter for each,
     // configuring it according to its CitMappedValues
     if (set.formats) {
@@ -108,10 +116,10 @@ export class CitSchemeService {
    * @returns The step ID at the specified index in the scheme's path.
    */
   public getStepAt(index: number, schemeId: string): string {
-    if (!this._set) {
+    if (!this._set$.value) {
       throw new Error('Scheme set not configured');
     }
-    const scheme = this._set.schemes[schemeId];
+    const scheme = this._set$.value.schemes[schemeId];
     if (!scheme) {
       throw new Error(`Scheme ${schemeId} not found`);
     }
@@ -276,7 +284,7 @@ export class CitSchemeService {
    * @returns True if the scheme with the specified ID is defined.
    */
   public hasScheme(id: string): boolean {
-    return !!this._set?.schemes[id];
+    return !!this._set$.value?.schemes[id];
   }
 
   /**
@@ -285,7 +293,7 @@ export class CitSchemeService {
    * @returns The scheme with the specified ID, or undefined.
    */
   public getScheme(id: string): Readonly<CitScheme> | undefined {
-    return this._set?.schemes[id];
+    return this._set$.value?.schemes[id];
   }
 
   /**
@@ -293,7 +301,7 @@ export class CitSchemeService {
    * @returns The scheme IDs.
    */
   public getSchemeIds(): string[] {
-    return this._set ? Object.keys(this._set.schemes) : [];
+    return this._set$.value ? Object.keys(this._set$.value.schemes) : [];
   }
 
   /**
@@ -302,12 +310,12 @@ export class CitSchemeService {
    * @returns The schemes.
    */
   public getSchemes(ids?: string[]): Readonly<CitScheme[]> {
-    if (!this._set) {
+    if (!this._set$.value) {
       return [];
     }
     return ids?.length
-      ? ids.map((k) => this._set!.schemes[k])
-      : Object.values(this._set.schemes);
+      ? ids.map((k) => this._set$.value!.schemes[k])
+      : Object.values(this._set$.value.schemes);
   }
 
   /**
