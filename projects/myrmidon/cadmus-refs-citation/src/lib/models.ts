@@ -172,6 +172,14 @@ export interface CitScheme {
  */
 export interface CitSchemeSet {
   /**
+   * True to omit the scheme prefix in the citation text. By default,
+   * each citation in its text form starts with `@` plus the scheme ID
+   * followed by colon, e.g. `@dc:If. XX 2`. When this is set to true, the
+   * scheme prefix is omitted, and the citation text starts directly
+   * with the first step value, e.g. `If. XX 2`.
+   */
+  noSchemePrefix?: boolean;
+  /**
    * The numeric formats to use for the various steps in the schemes.
    */
   formats?: { [key: string]: CitMappedValues };

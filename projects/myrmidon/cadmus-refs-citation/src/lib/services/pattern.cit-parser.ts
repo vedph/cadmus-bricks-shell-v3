@@ -12,14 +12,38 @@ export class PatternCitParser implements CitParser {
     this._service = schemeService;
   }
 
+  private extractSchemeId(
+    text: string
+  ): { id: string; text: string } | undefined {
+    // if the text starts with a citation ID, extract it
+    const match = /^@([^:]+):/.exec(text);
+    return match
+      ? { id: match[1], text: text.substring(match.length) }
+      : undefined;
+  }
+
   /**
    * Parse the specified citation text.
    * @param text The citation text to parse.
-   * @param scheme The citation scheme ID.
+   * @param schemeId The citation scheme ID. This can be omitted
+   * when the citation ID is part of the text (e.g. `@dc:If. XX 2`).
    * @returns The citation model.
    */
-  public parse(text: string, schemeId: string): CitationModel {
+  public parse(text: string, schemeId?: string): CitationModel {
     const result: CitationModel = [];
+
+    // extract scheme ID from text if any
+    const prefix = this.extractSchemeId(text);
+    if (prefix) {
+      schemeId = prefix.id;
+      text = prefix.text;
+    }
+    // if no scheme ID is provided, we can't proceed
+    if (!schemeId) {
+      console.warn('No scheme ID in citation text: ' + text);
+      return result;
+    }
+
     const scheme = this._service.getScheme(schemeId);
     if (!scheme?.textOptions?.pathPattern) {
       console.warn(
@@ -107,6 +131,12 @@ export class PatternCitParser implements CitParser {
       );
       return '';
     }
+
+    // add scheme ID prefix if required
+    if (this._service.hasSchemePrefix()) {
+      sb.push('@' + schemeId + ':');
+    }
+
     const template = scheme.textOptions.template;
 
     // replace each step placeholder in template with the corresponding

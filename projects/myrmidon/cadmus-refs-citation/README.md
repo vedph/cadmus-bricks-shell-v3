@@ -356,6 +356,8 @@ For Dante's _Commedia_:
 - path pattern: `^\s*(If\.|Purg\.|Par\.)\s*([IVX]+)\s+(\d+)\s*$`
 - template: `{cantica} {canto} {verso}`.
 
+By default, the rendered citation text starts with its **scheme ID prefix** between `@` and `:`. So, for instance we would have `@dc:If. XX 2` for the scheme identified by `dc`. If you are going to use a single scheme for all your citations, you can omit the prefix by setting the corresponding citation scheme set option (`CitSchemeSet.noSchemePrefix`).
+
 ### Sorting Citations
 
 An additional benefit of this model is that citations can be sorted. Whatever their step form (sets or numbers in any format with or without suffix), the model always provides a numeric value for each; so, sorting them is just a matter of comparing them step by step.
@@ -403,6 +405,7 @@ For the UI, configure your citation schemes in your [app configuration](../../..
   - 🟢 `getStepAt(index: number, schemeId: string): string`
   - 🟢 `getStepDomain(schemeId: string, stepId: string, citation?: CitationModel): CitSchemeStepValue | undefined`
   - 🟢 `hasScheme(id: string): boolean`
+  - 🟢 `hasSchemePrefix(): boolean`
   - 🟢 `getScheme(id: string): CitScheme | undefined`
   - 🟢 `getSchemeIds(ids?: string[]): string[]`
   - 🟢 `addFormatter(key: string, formatter: CitNumberFormatter): void`

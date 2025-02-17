@@ -44,10 +44,11 @@ export interface CitParser {
   /**
    * Parse the specified citation text.
    * @param text The citation text to parse.
-   * @param schemeId The citation scheme ID.
+   * @param schemeId The citation scheme ID. This can be omitted
+   * when the citation ID is part of the text (e.g. `@dc:If. XX 2`).
    * @returns The citation model.
    */
-  parse(text: string, schemeId: string): CitationModel;
+  parse(text: string, schemeId?: string): CitationModel;
   /**
    * Render the specified citation model into text.
    * @param citation The citation model to render into text.
@@ -107,6 +108,14 @@ export class CitSchemeService {
         this.addFormatter(key, formatter);
       }
     }
+  }
+
+  /**
+   * Returns true if the scheme set is enabled.
+   * @returns True if scheme prefix is enabled.
+   */
+  public hasSchemePrefix(): boolean {
+    return this._set$.value?.noSchemePrefix !== true;
   }
 
   /**

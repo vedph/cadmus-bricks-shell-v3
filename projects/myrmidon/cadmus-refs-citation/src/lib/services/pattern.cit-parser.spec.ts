@@ -120,13 +120,13 @@ describe('PatternCitParser', () => {
   //#region parse
   it('should parse empty text', () => {
     const parser = new PatternCitParser(service);
-    const result = parser.parse('', OD_SCHEME);
+    const result = parser.parse('', OD_SCHEME.id);
     expect(result).toEqual([]);
   });
 
   it('should parse α 123', () => {
     const parser = new PatternCitParser(service);
-    const result = parser.parse('α 123', OD_SCHEME);
+    const result = parser.parse('α 123', OD_SCHEME.id);
     expect(result.length).toBe(2);
     expect(result[0].step).toBe('book');
     expect(result[0].value).toBe('α');
@@ -139,7 +139,7 @@ describe('PatternCitParser', () => {
 
   it('should parse α 123b', () => {
     const parser = new PatternCitParser(service);
-    const result = parser.parse('α 123b', OD_SCHEME);
+    const result = parser.parse('α 123b', OD_SCHEME.id);
     expect(result.length).toBe(2);
     expect(result[0].step).toBe('book');
     expect(result[0].value).toBe('α');
@@ -153,7 +153,7 @@ describe('PatternCitParser', () => {
 
   it('should parse If. I 123', () => {
     const parser = new PatternCitParser(service);
-    const result = parser.parse('If. I 123', DC_SCHEME);
+    const result = parser.parse('If. I 123', DC_SCHEME.id);
     expect(result.length).toBe(3);
 
     expect(result[0].step).toBe('cantica');
@@ -173,7 +173,7 @@ describe('PatternCitParser', () => {
   //#region toString
   it('should return empty string for empty citation', () => {
     const parser = new PatternCitParser(service);
-    const result = parser.toString([], OD_SCHEME);
+    const result = parser.toString([], OD_SCHEME.id);
     expect(result).toBe('');
   });
 
@@ -184,7 +184,7 @@ describe('PatternCitParser', () => {
         { step: 'book', value: 'α', n: 1 },
         { step: 'verse', value: '123', n: 123 },
       ],
-      OD_SCHEME
+      OD_SCHEME.id
     );
     expect(result).toBe('α 123');
   });
@@ -196,7 +196,7 @@ describe('PatternCitParser', () => {
         { step: 'book', value: 'α', n: 1 },
         { step: 'verse', value: '123', n: 123, suffix: 'b' },
       ],
-      OD_SCHEME
+      OD_SCHEME.id
     );
     expect(result).toBe('α 123b');
   });
@@ -209,7 +209,7 @@ describe('PatternCitParser', () => {
         { step: 'canto', value: 'I', n: 1 },
         { step: 'verso', value: '123', n: 123 },
       ],
-      DC_SCHEME
+      DC_SCHEME.id
     );
     expect(result).toBe('If. I 123');
   });
