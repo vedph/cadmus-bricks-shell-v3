@@ -6,7 +6,11 @@
     <div class="form-row">
       @for (c of citation(); track c.step; let index = $index; let last = $last)
       { @if (index <= lastStepIndex) {
-      <cadmus-citation-step [step]="c" (stepClick)="editStep($event)" />
+      <cadmus-citation-step
+        [step]="c"
+        [errors]="errors"
+        (stepClick)="editStep($event)"
+      />
       @if (!last) {
       <div class="separator">&#x25b6;</div>
       } } }

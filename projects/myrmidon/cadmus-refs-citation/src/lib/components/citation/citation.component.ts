@@ -143,6 +143,8 @@ export class CitationComponent implements OnInit, OnDestroy {
   public strEditorValue: FormControl<string | null>;
   public strEditorForm: FormGroup;
 
+  public errors: { [key: string]: string } = {};
+
   constructor(
     formBuilder: FormBuilder,
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
@@ -412,7 +414,11 @@ export class CitationComponent implements OnInit, OnDestroy {
   //#region Validation
   public validateCitation(): { step?: string; error: string } | null {
     const citation = this.citation();
+    const errors: { [key: string]: string } = {};
+
     if (!citation?.length) {
+      errors[''] = 'No citation';
+      this.errors = errors;
       return { error: 'No citation' };
     }
 
@@ -427,6 +433,8 @@ export class CitationComponent implements OnInit, OnDestroy {
       // compare citation value with domain and return false if not valid
       if (domain.set?.length) {
         if (!domain.set.includes(c.value)) {
+          errors[c.step] = `Invalid set value: ${c.value}`;
+          this.errors = errors;
           return { step: c.step, error: `Invalid set value: ${c.step}` };
         }
       } else if (domain.range) {
@@ -436,6 +444,8 @@ export class CitationComponent implements OnInit, OnDestroy {
           domain.range.min !== null &&
           n < domain.range.min
         ) {
+          errors[c.step] = `Value below min: ${c.step}`;
+          this.errors = errors;
           return { step: c.step, error: `Value below min: ${c.step}` };
         }
         if (
@@ -443,6 +453,8 @@ export class CitationComponent implements OnInit, OnDestroy {
           domain.range.max !== null &&
           n > domain.range.max
         ) {
+          errors[c.step] = `Value above max: ${c.step}`;
+          this.errors = errors;
           return { step: c.step, error: `Value above max: ${c.step}` };
         }
         if (domain.suffix && !new RegExp(domain.suffix).test(c.suffix || '')) {
@@ -450,11 +462,14 @@ export class CitationComponent implements OnInit, OnDestroy {
         }
       } else if (domain.mask) {
         if (!new RegExp(domain.mask).test(c.value)) {
+          errors[c.step] = `Invalid string: ${c.step}`;
+          this.errors = errors;
           return { step: c.step, error: `Invalid string: ${c.step}` };
         }
       }
     }
 
+    this.errors = errors;
     return null;
   }
 

@@ -17,12 +17,14 @@
     <div>
       <pre>{{ citation | json }}</pre>
     </div>
-    } @if (error) {
-    <div>
+    }
+    <hr>
+    @if (error) {
+    <div class="error">
       <pre>{{ error | json }}</pre>
     </div>
     } @else {
-      <span>(valid)</span>
+      <div class="valid">(valid)</div>
     }
   </mat-card-content>
 </mat-card>
