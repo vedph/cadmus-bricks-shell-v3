@@ -255,6 +255,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       }
     } else {
       // if was toggled on, render citation into string
+      this.editedStep = undefined;
       this.freeMode = true;
       if (this.citation()) {
         this.text.setValue(
@@ -265,6 +266,10 @@ export class CitationComponent implements OnInit, OnDestroy {
         }, 100);
       }
     }
+  }
+
+  public closeFreeMode(): void {
+    this.freeMode = false;
   }
 
   //#region Step editing
