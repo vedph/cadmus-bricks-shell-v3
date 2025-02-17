@@ -21,7 +21,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 This library provides services and components for entering structured literary citations in an interactive and partially constrained UI. Such citations are defined as a hierarchy of structures, from the largest to the smallest, in a specific order.
 
-For instance, the Iliad is cited by book number first, and then by verse number. So, the hierarchy here is:
+For instance, the _Iliad_ is cited by book number first, and then by verse number. So, the hierarchy here is:
 
 1. book
 2. verse
@@ -47,7 +47,7 @@ The model which defines the data entry behavior for a citation scheme ([CitDefin
 
 ### Homer - Iliad
 
-The Iliad has 2 levels: book (24, identified by uppercase letters of the classical Greek alphabet Α-Ω) and verse. Notice that some verses might have a letter as a suffix, e.g. `124a`.
+The _Iliad_ has 2 levels: book (24, identified by uppercase letters of the classical Greek alphabet Α-Ω) and verse. Notice that some verses might have a letter as a suffix, e.g. `124a`.
 
 ```json
 {
@@ -132,7 +132,7 @@ Additionally, to provide [text rendition for citations](#additional-services), w
 
 ### Homer - Odyssey
 
-For _Odyssey_, the sample is almost equal, except that we use lowercase letters to number the books:
+For the _Odyssey_, the sample is almost equal, except that we use lowercase letters to number the books:
 
 ```json
 {
@@ -362,7 +362,7 @@ An additional benefit of this model is that citations can be sorted. Whatever th
 
 ## Usage
 
-For the UI, configure your citation schemes in your app configuration using the `CIT_SCHEME_SERVICE_TOKEN` injection token.To configure the schemes, use `CitSchemeService.configure`, e.g.:
+For the UI, configure your citation schemes in your [app configuration](../../../src/app/app.config.ts) using the `CIT_SCHEME_SERVICE_TOKEN` injection token.To configure the schemes, use `CitSchemeService.configure`, e.g.:
 
 ```ts
 // citation schemes
