@@ -407,17 +407,26 @@ export class CitSchemeService {
    * Parse the specified text representing a citation, in the context of
    * the specified scheme.
    * @param text The text to parse.
-   * @param schemeId The ID of the citation scheme.
+   * @param defaultSchemeId The ID of the default citation scheme to use
+   * when the citation text has no scheme ID prefix.
    * @returns The citation or undefined.
    */
-  public parse(text: string, schemeId: string): Citation | undefined {
-    const scheme = this.getScheme(schemeId);
+  public parse(text: string, defaultSchemeId: string): Citation | undefined {
+    const idAndText = this.extractSchemeId(text);
+    if (idAndText) {
+      defaultSchemeId = idAndText.id;
+      text = idAndText.text;
+    }
+
+    const scheme = this.getScheme(defaultSchemeId);
     if (!scheme) {
-      return { schemeId, steps: [] };
+      return { schemeId: defaultSchemeId, steps: [] };
     }
     this.ensureDefaultParser();
     const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
-    return parser ? parser.parse(text, scheme.id) : { schemeId, steps: [] };
+    return parser
+      ? parser.parse(text, scheme.id)
+      : { schemeId: defaultSchemeId, steps: [] };
   }
 
   /**

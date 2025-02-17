@@ -451,9 +451,10 @@ For the UI, configure your citation schemes in your [app configuration](../../..
   - 🟢 `format(key: string, value: number): string`
   - 🟢 `addParser(key: string, parser: CitParser): void`
   - 🟢 `getParser(key: string): CitParser | undefined`
-  - 🟢 `parse(text: string, schemeId: string): CitationModel`
-  - 🟢 `toString(citation: CitationModel, schemeId: string): string`
-  - 🟢 `sortCitations(citations: CitationModel[], schemeId: string): void`
+  - 🟢 `extractSchemeId(text): { id: string; text: string } | undefined`
+  - 🟢 `parse(text: string, defaultSchemeId: string): Citation | undefined`
+  - 🟢 `toString(citation: Citation, defaultSchemeId: string): string`
+  - 🟢 `sortCitations(citations: Citation[], defaultSchemeId: string): void`
 
 ### CitationComponent
 
@@ -463,7 +464,7 @@ For the UI, configure your citation schemes in your [app configuration](../../..
   - `schemeKeys` (`string[]`): the scheme keys to use in this component. The full list of schemes is drawn from the service, but users might want to restrict the list to a subset of schemes.
   - `allowFreeMode` (`boolean`): true if the component allows free mode, where the user can type the citation as a free text, using the scheme parser.
   - `allowPartial` (`boolean`): true if the component allows a partial citation, i.e. a citation missing the final step(s) starting from the first one defined as optional in the scheme.
-  - `citation` (`citationModel`): the citation to edit.
+  - `citation` (`Citation`): the citation to edit.
 - 🔥 output:
-  - `citationChange` (`citationModel`)
-  - `citationValidate` (`citationError | null`)
+  - `citationChange` (`Citation`)
+  - `citationValidate` (`CitationError | null`)
