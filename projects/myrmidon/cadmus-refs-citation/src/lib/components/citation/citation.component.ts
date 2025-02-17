@@ -198,6 +198,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           }
           this.citation.set(cit);
           this.text.reset();
+          this.editedStep = undefined;
 
           this.lastStep.setValue(
             this.scheme.value.path[this.scheme.value.path.length - 1]
