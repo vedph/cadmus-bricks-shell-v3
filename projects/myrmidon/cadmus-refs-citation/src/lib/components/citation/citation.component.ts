@@ -380,7 +380,16 @@ export class CitationComponent implements OnInit, OnDestroy {
     if (index === -1) {
       return;
     }
-    this.editedStep.value = this.nrEditorValue.value.toString();
+
+    const format = cit[index].format;
+    if (format) {
+      const formatter = this._schemeService.getFormatter(format);
+      this.editedStep.value =
+        formatter?.format(this.nrEditorValue.value) ||
+        this.nrEditorValue.value.toString();
+    } else {
+      this.editedStep.value = this.nrEditorValue.value.toString();
+    }
     this.editedStep.n = this.nrEditorValue.value;
     this.editedStep.suffix = this.nrEditorSuffix.value || undefined;
 
