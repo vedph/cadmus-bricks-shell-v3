@@ -10,11 +10,18 @@
       [allowFreeMode]="true"
       [allowPartial]="true"
       (citationChange)="onCitationChange($event)"
+      (citationValidate)="onCitationValidate($event)"
     />
     @if (citation) {
     <div>
       <pre>{{ citation | json }}</pre>
     </div>
+    } @if (error) {
+    <div>
+      <pre>{{ error | json }}</pre>
+    </div>
+    } @else {
+      <span>(valid)</span>
     }
   </mat-card-content>
 </mat-card>

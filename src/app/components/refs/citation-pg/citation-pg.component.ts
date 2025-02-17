@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import {
   CIT_SCHEME_SERVICE_TOKEN,
   CitationComponent,
+  CitationError,
   CitationModel,
   CitSchemeService,
 } from '../../../../../projects/myrmidon/cadmus-refs-citation/src/public-api';
@@ -34,6 +35,7 @@ import { PatternCitParser } from '../../../../../projects/myrmidon/cadmus-refs-c
 })
 export class CitationPgComponent {
   public citation?: CitationModel;
+  public error?: CitationError;
 
   constructor(@Inject(CIT_SCHEME_SERVICE_TOKEN) service: CitSchemeService) {
     const parser = new PatternCitParser(service);
@@ -42,5 +44,9 @@ export class CitationPgComponent {
 
   public onCitationChange(citation?: CitationModel): void {
     this.citation = citation;
+  }
+
+  public onCitationValidate(error: CitationError | null): void {
+    this.error = error || undefined;
   }
 }

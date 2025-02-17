@@ -19,12 +19,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgFor } from '@angular/common';
-import {
-  debounceTime,
-  distinct,
-  distinctUntilChanged,
-  Subscription,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -217,6 +212,21 @@ export class CitationComponent implements OnInit, OnDestroy {
         .pipe(distinctUntilChanged(), debounceTime(100))
         .subscribe((s) => {
           this.lastStepIndex = this.scheme.value.path.indexOf(s || '');
+          // truncate or extend citation steps according to last step index
+          const cit = this.citation();
+          if (!cit) {
+            return;
+          }
+          const newCit = cit.slice(0, this.lastStepIndex + 1);
+          for (let i = cit.length; i <= this.lastStepIndex; i++) {
+            newCit.push({
+              step: this.scheme.value.path[i],
+              color: this.scheme.value.steps[this.scheme.value.path[i]].color,
+              value: '',
+            });
+          }
+          this.citation.set(newCit);
+          this.validateAndEmit();
         })
     );
   }

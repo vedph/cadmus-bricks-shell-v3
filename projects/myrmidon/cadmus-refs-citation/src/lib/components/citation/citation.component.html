@@ -4,11 +4,12 @@
     <!-- citation steps -->
     @if (!freeMode) {
     <div class="form-row">
-      @for (c of citation(); track c.step; let last = $last) {
+      @for (c of citation(); track c.step; let index = $index; let last = $last)
+      { @if (index <= lastStepIndex) {
       <cadmus-citation-step [step]="c" (stepClick)="editStep($event)" />
       @if (!last) {
       <div class="separator">&#x25b6;</div>
-      } }
+      } } }
       <!-- toggler -->
       @if (allowFreeMode() && scheme.value.textOptions) {
       <button
@@ -53,7 +54,9 @@
     <!-- scheme -->
     @if (!schemes().length) {
     <span class="muted">(no schemes)</span>
-    } @else { @if (schemes().length > 1) {
+    } @else {
+    <!-- scheme selector -->
+    @if (schemes().length > 1) {
     <mat-form-field
       [style.border-top]="'2px solid ' + scheme.value.color"
       id="scheme-field"
@@ -73,6 +76,17 @@
       <mat-error>scheme required</mat-error>
       }
       <mat-hint>schemes: {{ schemes().length }}</mat-hint>
+    </mat-form-field>
+    }
+    <!-- last step -->
+    @if (allowPartial()) {
+    <mat-form-field>
+      <mat-label>last step</mat-label>
+      <mat-select [formControl]="lastStep">
+        <mat-option *ngFor="let p of scheme.value.path" [value]="p">{{
+          p
+        }}</mat-option>
+      </mat-select>
     </mat-form-field>
     } }
   </div>
