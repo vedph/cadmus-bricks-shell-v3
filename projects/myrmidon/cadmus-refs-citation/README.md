@@ -44,6 +44,18 @@ The hierarchy has these features:
 
 The model which defines the data entry behavior for a citation scheme ([CitScheme](models.ts)) is defined in the settings of the component consuming the brick. This is formally defined in [models](models.ts); here we just show examples in their JSON encoding.
 
+The whole purpose of the model is providing a highly interactive and helpful UI for entering a valid citation. In the end, unless you have specific requirements, all what you will store in the backend is just a string with the textual representation of a citation. You might well type this string directly, but the UI provides a friendlier and more controlled environment for data entry. Additionally, once you parse the text into this model you get additional benefits, like e.g. being able to sort citations, whatever their format.
+
+Given that this is a generic library, it is designed to be flexible and extensible. The core logic is implemented by the [citation scheme service](#citschemeservice), which can be configured with any number of citation schemes. The set of schemes used for this configuration can define additional components:
+
+- parsers, to parse the textual representation of a citation, and render a citation model into this textual representation.
+- formatters, to format a numeric value using a specific system, or parse the formatted text into the corresponding numeric value.
+
+In most cases you won't need to write your own parsers and formatters, even if this is possible. You will just stick to these prebuilt services:
+
+- [pattern-based citation parser](src/lib/services/pattern.cit-parser.ts): this parser is totally driven by the scheme configuration and allows you to parse the textual representation of a citation, or generate this textual representation from a citation.
+- [Roman number formatter](src/lib/services/roman-number.formatter.ts): this formatter provides the Roman numeral system for numeric values, for both parsing or formatting them.
+
 ### User Experience
 
 This brick displays the hierarchy in a selectable form: each step in the path of a citation is shown, and you can click on it to edit its value. When editing, the UI varies according to the citation scheme used for that citation, so we can have:
