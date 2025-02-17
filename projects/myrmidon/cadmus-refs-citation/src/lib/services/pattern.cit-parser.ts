@@ -12,51 +12,43 @@ export class PatternCitParser implements CitParser {
     this._service = schemeService;
   }
 
-  private extractSchemeId(
-    text: string
-  ): { id: string; text: string } | undefined {
-    // if the text starts with a citation ID, extract it
-    const match = /^@([^:]+):/.exec(text);
-    return match
-      ? { id: match[1], text: text.substring(match.length) }
-      : undefined;
-  }
-
   /**
    * Parse the specified citation text.
    * @param text The citation text to parse.
    * @param schemeId The citation scheme ID. This can be omitted
    * when the citation ID is part of the text (e.g. `@dc:If. XX 2`).
-   * @returns The citation model.
+   * @returns The citation or undefined.
    */
-  public parse(text: string, schemeId?: string): Citation {
-    const result: Citation = { schemeId: schemeId, steps: [] };
-
+  public parse(text: string, schemeId?: string): Citation | undefined {
     // extract scheme ID from text if any
-    const prefix = this.extractSchemeId(text);
+    const prefix = this._service.extractSchemeId(text);
     if (prefix) {
       schemeId = prefix.id;
       text = prefix.text;
     }
+
     // if no scheme ID is provided, we can't proceed
     if (!schemeId) {
       console.warn('No scheme ID in citation text: ' + text);
-      return result;
+      return undefined;
     }
+
+    // create a new citation
+    const citation: Citation = { schemeId: schemeId, steps: [] };
 
     const scheme = this._service.getScheme(schemeId);
     if (!scheme?.textOptions?.pathPattern) {
       console.warn(
         'No path pattern in citation scheme text options for ' + schemeId
       );
-      return result;
+      return citation;
     }
 
     // match the pattern from the scheme's text options against the text
     const pattern = new RegExp(scheme.textOptions.pathPattern, 'g');
     const match = pattern.exec(text);
     if (!match) {
-      return result;
+      return citation;
     }
 
     // for each step in the scheme's path, parse the corresponding match
@@ -103,7 +95,7 @@ export class PatternCitParser implements CitParser {
           break;
       }
 
-      result.steps.push({
+      citation.steps.push({
         step: stepId,
         color: step.color,
         value: value,
@@ -113,7 +105,7 @@ export class PatternCitParser implements CitParser {
       });
     }
 
-    return result;
+    return citation;
   }
 
   /**

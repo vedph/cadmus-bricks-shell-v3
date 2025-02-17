@@ -31,15 +31,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 
 import { Citation, CitStep, CitScheme } from '../../models';
-import { CitSchemeService } from '../../services/cit-scheme.service';
+import {
+  CIT_SCHEME_SERVICE_TOKEN,
+  CitSchemeService,
+} from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
-
-/**
- * Injection token for the citation scheme service.
- */
-export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
-  'CitSchemeService'
-);
 
 export type CitationError = {
   citation?: Citation;
@@ -249,7 +245,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           this.text.value,
           this.scheme.value.id
         );
-        if (cit.steps.length) {
+        if (cit?.steps?.length) {
           this.citation.set(cit);
           this.freeMode = false;
         } else {

@@ -249,7 +249,7 @@ export type Citation = {
   /**
    * The ID of the citation scheme.
    */
-  schemeId?: string;
+  schemeId: string;
   /**
    * The ordered steps of the citation.
    */

@@ -46,6 +46,23 @@
               <th>citation</th>
             </tr>
           </thead>
+          <tbody>
+            @for (c of citations; track c) {
+            <tr>
+              <td class="fit-width">
+                <button
+                  type="button"
+                  mat-icon-button
+                  (click)="removeCitation(0)"
+                  matTooltip="Remove citation from list"
+                >
+                  <mat-icon class="mat-warn">delete</mat-icon>
+                </button>
+              </td>
+              <td>{{ c | citation : "dc" }}</td>
+            </tr>
+            }
+          </tbody>
         </table>
       </div>
     </fieldset>

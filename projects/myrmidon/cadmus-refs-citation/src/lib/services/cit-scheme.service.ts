@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, InjectionToken } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 import {
@@ -14,6 +14,13 @@ import {
 import { RomanNumberFormatter } from './roman-number.formatter';
 import { MapFormatter } from './map.formatter';
 import { PatternCitParser } from './pattern.cit-parser';
+
+/**
+ * Injection token for the citation scheme service.
+ */
+export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
+  'CitSchemeService'
+);
 
 /**
  * A number formatter for citations.
@@ -48,7 +55,7 @@ export interface CitParser {
    * when the citation ID is part of the text (e.g. `@dc:If. XX 2`).
    * @returns The citation model.
    */
-  parse(text: string, schemeId?: string): Citation;
+  parse(text: string, schemeId?: string): Citation | undefined;
   /**
    * Render the specified citation model into text.
    * @param citation The citation model to render into text.
@@ -382,13 +389,28 @@ export class CitSchemeService {
   }
 
   /**
+   * Extract the scheme ID from the specified citation text, if any.
+   * @param text The text of the citation, which may start with a scheme ID.
+   * @returns The extracted scheme ID and the text without it, or undefined.
+   */
+  public extractSchemeId(
+    text: string
+  ): { id: string; text: string } | undefined {
+    // if the text starts with a citation ID, extract it
+    const match = /^@([^:]+):/.exec(text);
+    return match
+      ? { id: match[1], text: text.substring(match.length) }
+      : undefined;
+  }
+
+  /**
    * Parse the specified text representing a citation, in the context of
    * the specified scheme.
    * @param text The text to parse.
    * @param schemeId The ID of the citation scheme.
-   * @returns The citation as a string array.
+   * @returns The citation or undefined.
    */
-  public parse(text: string, schemeId: string): Citation {
+  public parse(text: string, schemeId: string): Citation | undefined {
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
       return { schemeId, steps: [] };
@@ -401,11 +423,12 @@ export class CitSchemeService {
   /**
    * Render a citation as a string, in the context of the specified scheme.
    * @param citation The citation to format.
-   * @param schemeId The ID of the citation scheme.
+   * @param defaultSchemeId The ID of the default citation scheme when the
+   * citation does not specify one.
    * @returns The rendered citation.
    */
-  public toString(citation: Citation, schemeId: string): string {
-    const scheme = this.getScheme(schemeId);
+  public toString(citation: Citation, defaultSchemeId: string): string {
+    const scheme = this.getScheme(citation.schemeId || defaultSchemeId);
     if (!scheme) {
       return citation.steps.join('');
     }
@@ -425,45 +448,67 @@ export class CitSchemeService {
    * When a path is missing, the comparison is based on the citation's length.
    *
    * @param citations The citations to sort.
-   * @param schemeId The ID of the scheme to use.
+   * @param defaultSchemeId The default scheme ID to assign to citations
+   * without an explicit scheme ID.
    */
-  public sortCitations(citations: Citation[], schemeId: string): void {
-    const scheme = this.getScheme(schemeId);
+  public sortCitations(citations: Citation[], defaultSchemeId: string): void {
+    const scheme = this.getScheme(defaultSchemeId);
     if (!scheme) {
       return;
     }
 
-    citations.sort((a, b) => {
-      for (let i = 0; i < scheme.path.length; i++) {
-        // compare schemes
-        if (a.schemeId !== b.schemeId) {
-          if (!a.schemeId) return -1;
-          if (!b.schemeId) return 1;
-          if (a || b) {
-            return a.schemeId.localeCompare(b.schemeId);
+    // group citations by scheme ID
+    const groupedCitations = new Map<string, Citation[]>();
+    citations.forEach((citation) => {
+      const id = citation.schemeId || defaultSchemeId;
+      if (!groupedCitations.has(id)) {
+        groupedCitations.set(id, []);
+      }
+      groupedCitations.get(id)!.push(citation);
+    });
+
+    // sort each group
+    groupedCitations.forEach((group, id) => {
+      const groupScheme = this.getScheme(id) || scheme;
+      group.sort((a, b) => {
+        for (let i = 0; i < groupScheme.path.length; i++) {
+          // compare schemes
+          if (a.schemeId !== b.schemeId) {
+            if (!a.schemeId) return -1;
+            if (!b.schemeId) return 1;
+            if (a || b) {
+              return a.schemeId.localeCompare(b.schemeId);
+            }
+          }
+
+          // compare n values
+          const nA = a.steps[i]?.n || 0;
+          const nB = b.steps[i]?.n || 0;
+          if (nA !== nB) {
+            return nA - nB;
+          }
+
+          // if n values are equal, compare suffixes
+          const suffixA = a.steps[i]?.suffix || '';
+          const suffixB = b.steps[i]?.suffix || '';
+          if (suffixA !== suffixB) {
+            // n without suffix comes before one with suffix
+            if (!suffixA) return -1;
+            if (!suffixB) return 1;
+            return suffixA.localeCompare(suffixB);
           }
         }
 
-        // compare n values
-        const nA = a.steps[i]?.n || 0;
-        const nB = b.steps[i]?.n || 0;
-        if (nA !== nB) {
-          return nA - nB;
-        }
+        // if we get here, the two citations are equal up to the path length
+        return a.steps.length - b.steps.length;
+      });
+    });
 
-        // if n values are equal, compare suffixes
-        const suffixA = a.steps[i]?.suffix || '';
-        const suffixB = b.steps[i]?.suffix || '';
-        if (suffixA !== suffixB) {
-          // n without suffix comes before one with suffix
-          if (!suffixA) return -1;
-          if (!suffixB) return 1;
-          return suffixA.localeCompare(suffixB);
-        }
-      }
-
-      // if we get here, the two citations are equal up to the path length
-      return a.steps.length - b.steps.length;
+    // concatenate sorted groups in the order of sorted scheme IDs
+    const sortedSchemeIds = Array.from(groupedCitations.keys()).sort();
+    citations.length = 0;
+    sortedSchemeIds.forEach((id) => {
+      citations.push(...groupedCitations.get(id)!);
     });
   }
 }

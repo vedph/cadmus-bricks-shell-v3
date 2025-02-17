@@ -126,8 +126,8 @@ describe('PatternCitParser', () => {
     const citation = parser.parse('', OD_SCHEME.id);
 
     expect(citation).toBeTruthy();
-    expect(citation.schemeId).toBe(OD_SCHEME.id);
-    expect(citation.steps.length).toBe(0);
+    expect(citation!.schemeId).toBe(OD_SCHEME.id);
+    expect(citation!.steps.length).toBe(0);
   });
 
   it('should parse α 123', () => {
@@ -135,16 +135,16 @@ describe('PatternCitParser', () => {
     const citation = parser.parse('α 123', OD_SCHEME.id);
 
     expect(citation).toBeTruthy();
-    expect(citation.schemeId).toBe(OD_SCHEME.id);
+    expect(citation!.schemeId).toBe(OD_SCHEME.id);
 
-    expect(citation.steps.length).toBe(2);
-    expect(citation.steps[0].step).toBe('book');
-    expect(citation.steps[0].value).toBe('α');
-    expect(citation.steps[0].n).toBe(1);
+    expect(citation!.steps.length).toBe(2);
+    expect(citation!.steps[0].step).toBe('book');
+    expect(citation!.steps[0].value).toBe('α');
+    expect(citation!.steps[0].n).toBe(1);
 
-    expect(citation.steps[1].step).toBe('verse');
-    expect(citation.steps[1].value).toBe('123');
-    expect(citation.steps[1].n).toBe(123);
+    expect(citation!.steps[1].step).toBe('verse');
+    expect(citation!.steps[1].value).toBe('123');
+    expect(citation!.steps[1].n).toBe(123);
   });
 
   it('should parse α 123b', () => {
@@ -152,17 +152,17 @@ describe('PatternCitParser', () => {
     const citation = parser.parse('α 123b', OD_SCHEME.id);
 
     expect(citation).toBeTruthy();
-    expect(citation.schemeId).toBe(OD_SCHEME.id);
+    expect(citation!.schemeId).toBe(OD_SCHEME.id);
 
-    expect(citation.steps.length).toBe(2);
-    expect(citation.steps[0].step).toBe('book');
-    expect(citation.steps[0].value).toBe('α');
-    expect(citation.steps[0].n).toBe(1);
+    expect(citation!.steps.length).toBe(2);
+    expect(citation!.steps[0].step).toBe('book');
+    expect(citation!.steps[0].value).toBe('α');
+    expect(citation!.steps[0].n).toBe(1);
 
-    expect(citation.steps[1].step).toBe('verse');
-    expect(citation.steps[1].value).toBe('123');
-    expect(citation.steps[1].n).toBe(123);
-    expect(citation.steps[1].suffix).toBe('b');
+    expect(citation!.steps[1].step).toBe('verse');
+    expect(citation!.steps[1].value).toBe('123');
+    expect(citation!.steps[1].n).toBe(123);
+    expect(citation!.steps[1].suffix).toBe('b');
   });
 
   it('should parse If. I 123', () => {
@@ -170,21 +170,21 @@ describe('PatternCitParser', () => {
     const citation = parser.parse('If. I 123', DC_SCHEME.id);
 
     expect(citation).toBeTruthy();
-    expect(citation.schemeId).toBe(DC_SCHEME.id);
+    expect(citation!.schemeId).toBe(DC_SCHEME.id);
 
-    expect(citation.steps.length).toBe(3);
+    expect(citation!.steps.length).toBe(3);
 
-    expect(citation.steps[0].step).toBe('cantica');
-    expect(citation.steps[0].value).toBe('If.');
-    expect(citation.steps[0].n).toBe(1);
+    expect(citation!.steps[0].step).toBe('cantica');
+    expect(citation!.steps[0].value).toBe('If.');
+    expect(citation!.steps[0].n).toBe(1);
 
-    expect(citation.steps[1].step).toBe('canto');
-    expect(citation.steps[1].value).toBe('I');
-    expect(citation.steps[1].n).toBe(1);
+    expect(citation!.steps[1].step).toBe('canto');
+    expect(citation!.steps[1].value).toBe('I');
+    expect(citation!.steps[1].n).toBe(1);
 
-    expect(citation.steps[2].step).toBe('verso');
-    expect(citation.steps[2].value).toBe('123');
-    expect(citation.steps[2].n).toBe(123);
+    expect(citation!.steps[2].step).toBe('verso');
+    expect(citation!.steps[2].value).toBe('123');
+    expect(citation!.steps[2].n).toBe(123);
   });
   //#endregion
 

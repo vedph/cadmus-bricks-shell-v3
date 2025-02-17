@@ -4,6 +4,8 @@
 
 export * from './lib/models';
 
+export * from './lib/pipes/citation.pipe';
+
 export * from './lib/services/cit-scheme.service';
 export * from './lib/services/map.formatter';
 export * from './lib/services/pattern.cit-parser';

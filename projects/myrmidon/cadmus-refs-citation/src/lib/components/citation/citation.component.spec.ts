@@ -1,13 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-import {
-  CIT_SCHEME_SERVICE_TOKEN,
-  CitationComponent,
-} from './citation.component';
+import { CitationComponent } from './citation.component';
 import { CitScheme, CitSchemeSet, CitMappedValues } from '../../models';
 import {
   CIT_FORMATTER_ROMAN_UPPER,
+  CIT_SCHEME_SERVICE_TOKEN,
   CitSchemeService,
 } from '../../services/cit-scheme.service';
 import { MapFormatter } from '../../services/map.formatter';
