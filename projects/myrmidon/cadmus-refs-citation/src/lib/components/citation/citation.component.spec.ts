@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import {
   CIT_SCHEME_SERVICE_TOKEN,
@@ -10,7 +11,6 @@ import {
   CitSchemeService,
 } from '../../services/cit-scheme.service';
 import { MapFormatter } from '../../services/map.formatter';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 //#region Schemes
 const OD_SCHEME: CitScheme = {
@@ -178,4 +178,6 @@ describe('CitationComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+
 });

@@ -235,6 +235,36 @@ export class CitationComponent implements OnInit, OnDestroy {
     this._subs.forEach((s) => s.unsubscribe());
   }
 
+  public setFreeMode(on: boolean): void {
+    // if was toggled off, parse text into citation
+    if (!on) {
+      if (this.text.value) {
+        const cit = this._schemeService.parse(
+          this.text.value,
+          this.scheme.value.id
+        );
+        if (cit.length) {
+          this.citation.set(cit);
+          this.freeMode = false;
+        } else {
+          return;
+        }
+      }
+    } else {
+      // if was toggled on, render citation into string
+      this.freeMode = true;
+      if (this.citation()) {
+        this.text.setValue(
+          this._schemeService.toString(this.citation()!, this.scheme.value.id)
+        );
+        setTimeout(() => {
+          this.freeInput?.nativeElement.focus();
+        }, 100);
+      }
+    }
+  }
+
+  //#region Step editing
   public editStep(step: CitComponent | null): void {
     if (!step) {
       this.editedStep = undefined;
@@ -273,6 +303,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           validators.push(Validators.max(this.maxNrValue));
         }
       }
+      this.nrEditorValue.setValue(step.n!);
       this.nrEditorValue.setValidators(validators);
       this.nrEditorValue.updateValueAndValidity();
 
@@ -354,35 +385,6 @@ export class CitationComponent implements OnInit, OnDestroy {
     this.validateAndEmit();
   }
 
-  public setFreeMode(on: boolean): void {
-    // if was toggled off, parse text into citation
-    if (!on) {
-      if (this.text.value) {
-        const cit = this._schemeService.parse(
-          this.text.value,
-          this.scheme.value.id
-        );
-        if (cit.length) {
-          this.citation.set(cit);
-          this.freeMode = false;
-        } else {
-          return;
-        }
-      }
-    } else {
-      // if was toggled on, render citation into string
-      this.freeMode = true;
-      if (this.citation()) {
-        this.text.setValue(
-          this._schemeService.toString(this.citation()!, this.scheme.value.id)
-        );
-        setTimeout(() => {
-          this.freeInput?.nativeElement.focus();
-        }, 100);
-      }
-    }
-  }
-
   public saveStringStep(): void {
     if (!this.editedStep || this.strEditorForm.invalid) {
       return;
@@ -404,7 +406,9 @@ export class CitationComponent implements OnInit, OnDestroy {
     // validate citation
     this.validateAndEmit();
   }
+  //#endregion
 
+  //#region Validation
   public validateCitation(): { step?: string; error: string } | null {
     const citation = this.citation();
     if (!citation?.length) {
@@ -461,4 +465,5 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.citationValidate.emit({ ...error, citation: this.citation() });
     }
   }
+  //#endregion
 }
