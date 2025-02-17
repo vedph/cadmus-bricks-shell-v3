@@ -382,19 +382,34 @@ For the UI, configure your citation schemes in your app configuration using the 
 },
 ```
 
-`CitSchemeService` API:
+### CitSchemeService
 
-- 🟢 `configure(set: ChitSchemeSet)`
-- 🟢 `getStepAt(index: number, schemeId: string): string`
-- 🟢 `getStepDomain(schemeId: string, stepId: string, citation?: CitationModel): CitSchemeStepValue | undefined`
-- 🟢 `hasScheme(id: string): boolean`
-- 🟢 `getScheme(id: string): CitScheme | undefined`
-- 🟢 `getSchemeIds(ids?: string[]): string[]`
-- 🟢 `addFormatter(key: string, formatter: CitNumberFormatter): void`
-- 🟢 `getFormatter(key: string): CitNumberFormatter | undefined`
-- 🟢 `format(key: string, value: number): string`
-- 🟢 `addParser(key: string, parser: CitParser): void`
-- 🟢 `getParser(key: string): CitParser | undefined`
-- 🟢 `parse(text: string, schemeId: string): CitationModel`
-- 🟢 `toString(citation: CitationModel, schemeId: string): string`
-- 🟢 `sortCitations(citations: CitationModel[], schemeId: string): void`
+- `CitSchemeService`:
+  - 🟢 `configure(set: ChitSchemeSet)`
+  - 🟢 `getStepAt(index: number, schemeId: string): string`
+  - 🟢 `getStepDomain(schemeId: string, stepId: string, citation?: CitationModel): CitSchemeStepValue | undefined`
+  - 🟢 `hasScheme(id: string): boolean`
+  - 🟢 `getScheme(id: string): CitScheme | undefined`
+  - 🟢 `getSchemeIds(ids?: string[]): string[]`
+  - 🟢 `addFormatter(key: string, formatter: CitNumberFormatter): void`
+  - 🟢 `getFormatter(key: string): CitNumberFormatter | undefined`
+  - 🟢 `format(key: string, value: number): string`
+  - 🟢 `addParser(key: string, parser: CitParser): void`
+  - 🟢 `getParser(key: string): CitParser | undefined`
+  - 🟢 `parse(text: string, schemeId: string): CitationModel`
+  - 🟢 `toString(citation: CitationModel, schemeId: string): string`
+  - 🟢 `sortCitations(citations: CitationModel[], schemeId: string): void`
+
+### CitationComponent
+
+- 🔑 `CitationComponent`
+- 🚩 `cadmus-refs-citation`
+- ▶️ input:
+  - `schemeKeys` (`string[]`): the scheme keys to use in this component. The full list of schemes is drawn from the service, but users might want to restrict the list to a subset of schemes.
+  - `allowFreeMode` (`boolean`): true if the component allows free mode, where the user can type the citation as a free text, using the scheme parser.
+  - `allowPartial` (`boolean`): true if the component allows a partial citation, i.e. a citation missing the final step(s) starting from the first one defined as optional in the scheme.
+  - `citation` (`citationModel`): the citation to edit.
+- ⚙️ settings
+- 🔥 output:
+  - `citationChange` (`citationModel`)
+  - `citationValidate` (`citationError | null`)
