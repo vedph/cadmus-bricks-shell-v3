@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 import {
-  CitationModel,
+  Citation,
   CitStep,
   CitScheme,
   CitSchemeClause,
@@ -48,14 +48,14 @@ export interface CitParser {
    * when the citation ID is part of the text (e.g. `@dc:If. XX 2`).
    * @returns The citation model.
    */
-  parse(text: string, schemeId?: string): CitationModel;
+  parse(text: string, schemeId?: string): Citation;
   /**
    * Render the specified citation model into text.
    * @param citation The citation model to render into text.
    * @param schemeId The citation scheme ID.
    * @returns The rendered citation.
    */
-  toString(citation: CitationModel, schemeId: string): string;
+  toString(citation: Citation, schemeId: string): string;
 }
 
 /**
@@ -244,7 +244,7 @@ export class CitSchemeService {
   public getStepDomain(
     schemeId: string,
     stepId: string,
-    citation?: CitationModel
+    citation?: Citation
   ): CitSchemeStepDomain | undefined {
     // get scheme
     const scheme = this.getScheme(schemeId);
@@ -388,7 +388,7 @@ export class CitSchemeService {
    * @param schemeId The ID of the citation scheme.
    * @returns The citation as a string array.
    */
-  public parse(text: string, schemeId: string): CitationModel {
+  public parse(text: string, schemeId: string): Citation {
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
       return { schemeId, steps: [] };
@@ -404,7 +404,7 @@ export class CitSchemeService {
    * @param schemeId The ID of the citation scheme.
    * @returns The rendered citation.
    */
-  public toString(citation: CitationModel, schemeId: string): string {
+  public toString(citation: Citation, schemeId: string): string {
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
       return citation.steps.join('');
@@ -427,7 +427,7 @@ export class CitSchemeService {
    * @param citations The citations to sort.
    * @param schemeId The ID of the scheme to use.
    */
-  public sortCitations(citations: CitationModel[], schemeId: string): void {
+  public sortCitations(citations: Citation[], schemeId: string): void {
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
       return;

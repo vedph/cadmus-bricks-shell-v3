@@ -1,4 +1,4 @@
-import { CitationModel, CitSchemeStep } from '../models';
+import { Citation, CitSchemeStep } from '../models';
 import { CitParser, CitSchemeService } from './cit-scheme.service';
 
 /**
@@ -29,8 +29,8 @@ export class PatternCitParser implements CitParser {
    * when the citation ID is part of the text (e.g. `@dc:If. XX 2`).
    * @returns The citation model.
    */
-  public parse(text: string, schemeId?: string): CitationModel {
-    const result: CitationModel = { schemeId: schemeId, steps: [] };
+  public parse(text: string, schemeId?: string): Citation {
+    const result: Citation = { schemeId: schemeId, steps: [] };
 
     // extract scheme ID from text if any
     const prefix = this.extractSchemeId(text);
@@ -122,7 +122,7 @@ export class PatternCitParser implements CitParser {
    * @param scheme The citation scheme.
    * @returns The rendered citation.
    */
-  public toString(citation: CitationModel, schemeId: string): string {
+  public toString(citation: Citation, schemeId: string): string {
     if (!citation.steps.length) {
       return '';
     }

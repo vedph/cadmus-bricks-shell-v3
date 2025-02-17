@@ -13,7 +13,7 @@ import {
   CIT_SCHEME_SERVICE_TOKEN,
   CitationComponent,
   CitationError,
-  CitationModel,
+  Citation,
   CitSchemeService,
 } from '../../../../../projects/myrmidon/cadmus-refs-citation/src/public-api';
 
@@ -35,10 +35,10 @@ import {
   styleUrl: './citation-pg.component.scss',
 })
 export class CitationPgComponent {
-  public citation?: CitationModel;
+  public citation?: Citation;
   public citText?: string;
   public error?: CitationError;
-  public citations: CitationModel[] = [];
+  public citations: Citation[] = [];
 
   constructor(
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _service: CitSchemeService
@@ -47,7 +47,7 @@ export class CitationPgComponent {
     this.citText = this._service.toString(this.citation, 'dc');
   }
 
-  public onCitationChange(citation?: CitationModel): void {
+  public onCitationChange(citation?: Citation): void {
     this.citation = citation;
     this.citText = citation ? this._service.toString(citation, 'dc') : '';
   }

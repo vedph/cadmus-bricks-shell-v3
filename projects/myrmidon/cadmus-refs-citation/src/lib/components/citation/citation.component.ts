@@ -30,7 +30,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 
-import { CitationModel, CitStep, CitScheme } from '../../models';
+import { Citation, CitStep, CitScheme } from '../../models';
 import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
 
@@ -42,7 +42,7 @@ export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
 );
 
 export type CitationError = {
-  citation?: CitationModel;
+  citation?: Citation;
   step?: string;
   error: string;
 };
@@ -96,7 +96,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   /**
    * The citation to edit.
    */
-  public readonly citation = model<CitationModel>();
+  public readonly citation = model<Citation>();
 
   /**
    * The schemes to use in this component.
@@ -190,7 +190,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.scheme.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(100))
         .subscribe((scheme) => {
-          const cit: CitationModel = { schemeId: scheme.id, steps: [] };
+          const cit: Citation = { schemeId: scheme.id, steps: [] };
           for (let i = 0; i < scheme.path.length; i++) {
             cit.steps.push({
               step: scheme.path[i],
@@ -220,7 +220,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           if (!cit) {
             return;
           }
-          const newCit: CitationModel = {
+          const newCit: Citation = {
             schemeId: cit.schemeId,
             steps: cit.steps.slice(0, this.lastStepIndex + 1),
           };
@@ -362,7 +362,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
 
     // update step value in new citation
-    const cit: CitationModel = {
+    const cit: Citation = {
       ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
     };
     const index = cit.steps.findIndex((s) => s.step === this.editedStep!.step);
@@ -388,7 +388,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
 
     // update step value in new citation
-    const cit: CitationModel = {
+    const cit: Citation = {
       ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
     };
     const index = cit.steps.findIndex((s) => s.step === this.editedStep!.step);
@@ -423,7 +423,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
 
     // update step value in new citation
-    const cit: CitationModel = {
+    const cit: Citation = {
       ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
     };
     const index = cit.steps.findIndex((s) => s.step === this.editedStep!.step);

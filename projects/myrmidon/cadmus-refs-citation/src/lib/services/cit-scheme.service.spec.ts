@@ -2,7 +2,7 @@ import {
   CIT_FORMATTER_ROMAN_UPPER,
   CitSchemeService,
 } from './cit-scheme.service';
-import { CitationModel, CitScheme, CitSchemeSet } from '../models';
+import { Citation, CitScheme, CitSchemeSet } from '../models';
 import { PatternCitParser } from './pattern.cit-parser';
 
 //#region Schemes
@@ -121,7 +121,7 @@ describe('CitSchemeService', () => {
     const c = parser.parse('If. IV 1', scheme.id);
     const d = parser.parse('Par. I 1', scheme.id);
 
-    const citations: CitationModel[] = [d, a, c, b];
+    const citations: Citation[] = [d, a, c, b];
     service.sortCitations(citations, 'dc');
 
     expect(citations[0]).toBe(a);
@@ -137,7 +137,7 @@ describe('CitSchemeService', () => {
     const b = parser.parse('α 12a', scheme.id);
     const c = parser.parse('α 12c', scheme.id);
 
-    const citations: CitationModel[] = [c, a, b];
+    const citations: Citation[] = [c, a, b];
     service.sortCitations(citations, 'od');
 
     expect(citations[0]).toBe(a);
@@ -148,7 +148,7 @@ describe('CitSchemeService', () => {
   it('should sort citations with different lengths', () => {
     const parser = new PatternCitParser(service);
     const scheme = service.getScheme('dc')!;
-    const a: CitationModel = {
+    const a: Citation = {
       schemeId: 'dc',
       steps: [
         { step: 'cantica', value: 'If.', n: 1 },
@@ -158,7 +158,7 @@ describe('CitSchemeService', () => {
     const b = parser.parse('If. III 45', scheme.id);
     const c = parser.parse('If. IV 1', scheme.id);
 
-    const citations: CitationModel[] = [c, a, b];
+    const citations: Citation[] = [c, a, b];
     service.sortCitations(citations, 'dc');
 
     expect(citations[0]).toBe(a);
@@ -169,10 +169,10 @@ describe('CitSchemeService', () => {
   it('should sort empty citations', () => {
     const parser = new PatternCitParser(service);
     const scheme = service.getScheme('dc')!;
-    const a: CitationModel = { schemeId: 'dc', steps: [] };
+    const a: Citation = { schemeId: 'dc', steps: [] };
     const b = parser.parse('If. III 123', scheme.id);
 
-    const citations: CitationModel[] = [b, a];
+    const citations: Citation[] = [b, a];
     service.sortCitations(citations, 'dc');
 
     expect(citations[0]).toBe(a);
@@ -205,7 +205,7 @@ describe('CitSchemeService', () => {
   });
 
   it('should return step value if conditions are not met', () => {
-    const citation: CitationModel = {
+    const citation: Citation = {
       schemeId: 'dc',
       steps: [{ step: 'cantica', value: 'Purg.', n: 2 }],
     };
@@ -214,7 +214,7 @@ describe('CitSchemeService', () => {
   });
 
   it('should return step value if conditions are met', () => {
-    const citation: CitationModel = {
+    const citation: Citation = {
       schemeId: 'dc',
       steps: [{ step: 'cantica', value: 'If.', n: 1 }],
     };
@@ -223,7 +223,7 @@ describe('CitSchemeService', () => {
   });
 
   it('should return step value if multiple conditions are met', () => {
-    const citation: CitationModel = {
+    const citation: Citation = {
       schemeId: 'dc',
       steps: [
         { step: 'cantica', value: 'If.', n: 1 },

@@ -245,7 +245,7 @@ export type CitStep = {
  * A citation model. This is the result of parsing a compact text
  * citation, or building it via the UI.
  */
-export type CitationModel = {
+export type Citation = {
   /**
    * The ID of the citation scheme.
    */
