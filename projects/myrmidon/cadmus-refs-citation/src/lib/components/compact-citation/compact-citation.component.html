@@ -1,0 +1,36 @@
+<div class="form-row">
+  <!-- view -->
+  <cadmus-refs-citation-view
+    [citation]="citation()"
+    [defaultSchemeId]="defaultSchemeId()"
+  />
+  <!-- toggler -->
+  <button
+    type="button"
+    mat-icon-button
+    matSuffix
+    matTooltip="Toggle visual editor"
+    (click)="visualExpanded = !visualExpanded"
+  >
+    @if (visualExpanded) {
+    <mat-icon class="mat-primary">publish</mat-icon>
+    } @if (!visualExpanded) {
+    <mat-icon class="mat-primary">get_app</mat-icon>
+    }
+  </button>
+  <!-- editor -->
+  <mat-expansion-panel
+    id="visual"
+    [expanded]="visualExpanded"
+    (expandedChange)="visualExpanded = $event"
+  >
+    @if (b()) {
+    <h3>A</h3>
+    }
+    <cadmus-refs-citation [citation]="a()" />
+    @if (b()) {
+    <h3>B</h3>
+    <cadmus-refs-citation [citation]="b()" />
+    }
+  </mat-expansion-panel>
+</div>

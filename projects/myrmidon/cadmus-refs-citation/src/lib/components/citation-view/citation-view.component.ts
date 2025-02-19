@@ -14,7 +14,7 @@ import {
  * A component to display a citation or a citation range.
  */
 @Component({
-  selector: 'cadmus-citation-view',
+  selector: 'cadmus-refs-citation-view',
   imports: [MatTooltipModule, ColorToContrastPipe],
   templateUrl: './citation-view.component.html',
   styleUrl: './citation-view.component.css',
