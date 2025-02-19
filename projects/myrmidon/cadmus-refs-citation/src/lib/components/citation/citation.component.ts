@@ -3,7 +3,6 @@ import {
   computed,
   ElementRef,
   Inject,
-  InjectionToken,
   input,
   model,
   OnDestroy,
@@ -257,9 +256,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.editedStep = undefined;
       this.freeMode = true;
       if (this.citation()) {
-        this.text.setValue(
-          this._schemeService.toString(this.citation()!)
-        );
+        this.text.setValue(this._schemeService.toString(this.citation()!));
         setTimeout(() => {
           this.freeInput?.nativeElement.focus();
         }, 100);
