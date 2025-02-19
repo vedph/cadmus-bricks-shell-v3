@@ -18,6 +18,7 @@ import {
   CitSchemeService,
   CitationPipe,
 } from '../../../../../projects/myrmidon/cadmus-refs-citation/src/public-api';
+import { deepCopy } from '@myrmidon/ngx-tools';
 
 @Component({
   selector: 'app-citation-pg',
@@ -65,7 +66,7 @@ export class CitationPgComponent {
       return;
     }
     const citations = [...this.citations];
-    citations.push(this.citation);
+    citations.push(deepCopy(this.citation));
     this._service.sortCitations(citations, 'dc');
     this.citations = citations;
   }
