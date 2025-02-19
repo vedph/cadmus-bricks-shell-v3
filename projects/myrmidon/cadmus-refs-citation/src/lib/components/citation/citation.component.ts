@@ -109,8 +109,9 @@ export class CitationComponent implements OnInit, OnDestroy {
         }
         const stepId = this.scheme.value.path[i];
         cit.steps.push({
-          step: stepId,
           color: this.scheme.value.steps[stepId].color,
+          format: this.scheme.value.steps[stepId].format,
+          step: stepId,
           value: '',
         });
       }
