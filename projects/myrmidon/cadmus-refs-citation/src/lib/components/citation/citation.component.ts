@@ -383,7 +383,10 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // update step value in new citation
     const cit: Citation = {
-      ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
+      ...(this.editedCitation() || {
+        schemeId: this.scheme.value.id,
+        steps: [],
+      }),
     };
     const index = this.scheme.value.path.indexOf(this.editedStep!.step);
     if (index === -1) {
@@ -409,7 +412,10 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // update step value in new citation
     const cit: Citation = {
-      ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
+      ...(this.editedCitation() || {
+        schemeId: this.scheme.value.id,
+        steps: [],
+      }),
     };
     const index = this.scheme.value.path.indexOf(this.editedStep!.step);
     if (index === -1) {
@@ -444,7 +450,10 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // update step value in new citation
     const cit: Citation = {
-      ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
+      ...(this.editedCitation() || {
+        schemeId: this.scheme.value.id,
+        steps: [],
+      }),
     };
     const index = this.scheme.value.path.indexOf(this.editedStep!.step);
     if (index === -1) {
@@ -464,7 +473,7 @@ export class CitationComponent implements OnInit, OnDestroy {
 
   //#region Validation
   public validateCitation(): { step?: string; error: string } | null {
-    const citation = this.citation();
+    const citation = this.editedCitation();
     const errors: { [key: string]: string } = {};
 
     if (!citation?.steps.length) {
