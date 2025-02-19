@@ -10,6 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { deepCopy } from '@myrmidon/ngx-tools';
+
 import {
   CIT_SCHEME_SERVICE_TOKEN,
   CitationComponent,
@@ -17,8 +19,8 @@ import {
   Citation,
   CitSchemeService,
   CitationPipe,
+  CitationViewComponent,
 } from '../../../../../projects/myrmidon/cadmus-refs-citation/src/public-api';
-import { deepCopy } from '@myrmidon/ngx-tools';
 
 @Component({
   selector: 'app-citation-pg',
@@ -34,6 +36,7 @@ import { deepCopy } from '@myrmidon/ngx-tools';
     MatInputModule,
     MatTooltipModule,
     CitationComponent,
+    CitationViewComponent,
     CitationPipe,
   ],
   templateUrl: './citation-pg.component.html',

@@ -13,3 +13,4 @@ export * from './lib/services/roman-number.formatter';
 
 export * from './lib/components/citation/citation.component';
 export * from './lib/components/citation-step/citation-step.component';
+export * from './lib/components/citation-view/citation-view.component';

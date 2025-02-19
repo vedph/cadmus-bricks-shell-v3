@@ -1,0 +1,20 @@
+.step-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.step-row * {
+  flex: 0 0 auto;
+}
+.step {
+  border: 1px solid silver;
+  padding: 4px;
+}
+.step:first-child {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+.step:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}

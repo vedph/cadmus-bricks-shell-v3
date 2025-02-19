@@ -1,0 +1,14 @@
+@if (cit()?.steps?.length) {
+<div class="step-row">
+  @for (s of cit()!.steps; track s.step) {
+  <div
+    class="step"
+    [style.background-color]="s.color || 'transparent'"
+    [style.color]="s.color || 'white' | colorToContrast"
+    [matTooltip]="s.step"
+  >
+    {{ s.value }}
+  </div>
+  }
+</div>
+}
