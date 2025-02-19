@@ -255,3 +255,12 @@ export type Citation = {
    */
   steps: CitStep[];
 };
+
+/**
+ * A citation span, i.e. a citation with an optional second citation
+ * representing the (inclusive) end of a range.
+ */
+export type CitationSpan = {
+  a: Citation;
+  b?: Citation;
+}

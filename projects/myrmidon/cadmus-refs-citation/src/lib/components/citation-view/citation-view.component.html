@@ -1,13 +1,30 @@
-@if (cit()?.steps?.length) {
-<div class="step-row">
-  @for (s of cit()!.steps; track s.step) {
-  <div
-    class="step"
-    [style.background-color]="s.color || 'transparent'"
-    [style.color]="s.color || 'white' | colorToContrast"
-    [matTooltip]="s.step"
-  >
-    {{ s.value }}
+@if (a()?.steps?.length) {
+<div class="range">
+  <div class="step-row">
+    @for (s of a()!.steps; track s.step) {
+    <div
+      class="step"
+      [style.background-color]="s.color || 'transparent'"
+      [style.color]="s.color || 'white' | colorToContrast"
+      [matTooltip]="s.step"
+    >
+      {{ s.value }}
+    </div>
+    }
+  </div>
+  @if (b()?.steps?.length) {
+  <span> - </span>
+  <div class="step-row">
+    @for (s of b()!.steps; track s.step) {
+    <div
+      class="step"
+      [style.background-color]="s.color || 'transparent'"
+      [style.color]="s.color || 'white' | colorToContrast"
+      [matTooltip]="s.step"
+    >
+      {{ s.value }}
+    </div>
+    }
   </div>
   }
 </div>
