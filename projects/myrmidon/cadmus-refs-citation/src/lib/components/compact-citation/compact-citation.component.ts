@@ -69,10 +69,10 @@ export class CompactCitationComponent {
   public editorExpanded?: boolean;
 
   public onAChange(citation?: Citation): void {
-    if (!this.citation()) {
+    if (!citation) {
       return;
     }
-    if ((this.citation() as CitationSpan).a) {
+    if ((this.citation() as CitationSpan)?.a) {
       this.citation.set({
         ...this.citation(),
         a: citation!,
@@ -83,11 +83,11 @@ export class CompactCitationComponent {
   }
 
   public onBChange(citation?: Citation): void {
-    if (!this.citation()) {
+    if (!citation) {
       return;
     }
 
-    if ((this.citation() as CitationSpan).a) {
+    if ((this.citation() as CitationSpan)?.a) {
       this.citation.set({
         ...this.citation(),
         b: citation,
