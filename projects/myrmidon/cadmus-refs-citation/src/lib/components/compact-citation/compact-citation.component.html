@@ -33,10 +33,16 @@
     @if (b()) {
     <h3>A</h3>
     }
-    <cadmus-refs-citation [citation]="a()" />
+    <cadmus-refs-citation
+      [citation]="a()"
+      (citationChange)="onAChange($event)"
+    />
     @if (b()) {
     <h3>B</h3>
-    <cadmus-refs-citation [citation]="b()" />
+    <cadmus-refs-citation
+      [citation]="b()"
+      (citationChange)="onBChange($event)"
+    />
     }
   </mat-expansion-panel>
 </div>

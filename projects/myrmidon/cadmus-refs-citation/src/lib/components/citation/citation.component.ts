@@ -27,7 +27,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
+import { ColorToContrastPipe, deepCopy } from '@myrmidon/ngx-tools';
 
 import { Citation, CitStep, CitScheme } from '../../models';
 import {
@@ -92,6 +92,33 @@ export class CitationComponent implements OnInit, OnDestroy {
    * The citation to edit.
    */
   public readonly citation = model<Citation>();
+
+  /**
+   * The edited citation viewmodel.
+   */
+  public readonly editedCitation = computed<Citation>(() => {
+    // when undefined, return an empty citation so that user can fill it
+    if (!this.citation()) {
+      const cit: Citation = {
+        schemeId: this.scheme.value.id,
+        steps: [],
+      };
+      for (let i = 0; i < this.scheme.value.path.length; i++) {
+        if (i > this.lastStepIndex && this.allowPartial()) {
+          break;
+        }
+        const stepId = this.scheme.value.path[i];
+        cit.steps.push({
+          step: stepId,
+          color: this.scheme.value.steps[stepId].color,
+          value: '',
+        });
+      }
+      return cit;
+    } else {
+      return deepCopy(this.citation());
+    }
+  });
 
   /**
    * The schemes to use in this component.
@@ -358,7 +385,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     const cit: Citation = {
       ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
     };
-    const index = cit.steps.findIndex((s) => s.step === this.editedStep!.step);
+    const index = this.scheme.value.path.indexOf(this.editedStep!.step);
     if (index === -1) {
       return;
     }
@@ -384,7 +411,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     const cit: Citation = {
       ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
     };
-    const index = cit.steps.findIndex((s) => s.step === this.editedStep!.step);
+    const index = this.scheme.value.path.indexOf(this.editedStep!.step);
     if (index === -1) {
       return;
     }
@@ -419,7 +446,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     const cit: Citation = {
       ...(this.citation() || { schemeId: this.scheme.value.id, steps: [] }),
     };
-    const index = cit.steps.findIndex((s) => s.step === this.editedStep!.step);
+    const index = this.scheme.value.path.indexOf(this.editedStep!.step);
     if (index === -1) {
       return;
     }
@@ -446,7 +473,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       return { error: 'No citation' };
     }
 
-    for (let i = 0; i < this.scheme.value.path.length; i++) {
+    for (let i = 0; i <= this.lastStepIndex; i++) {
       const s = citation.steps[i];
       const domain = this._schemeService.getStepDomain(
         this.scheme.value.id,

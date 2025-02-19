@@ -4,8 +4,10 @@
     <!-- citation steps -->
     @if (!freeMode) {
     <div class="form-row">
-      @for (c of citation()?.steps || []; track c.step; let index = $index; let last = $last)
-      { @if (index <= lastStepIndex) {
+      @for (c of editedCitation().steps || []; track c.step; let index = $index;
+      let last = $last) {
+      <!-- step and separator -->
+      @if (index <= lastStepIndex) {
       <cadmus-citation-step
         [step]="c"
         [errors]="errors"

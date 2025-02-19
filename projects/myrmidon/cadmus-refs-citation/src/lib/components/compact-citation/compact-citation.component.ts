@@ -9,6 +9,12 @@ import { Citation, CitationSpan } from '../../models';
 import { CitationViewComponent } from '../citation-view/citation-view.component';
 import { CitationComponent } from '../citation/citation.component';
 
+/**
+ * Compact citation component.
+ * This component is used to display a citation or citation span in a compact
+ * form, and edit it in a citation editor for a single citation, or in two
+ * citation editors for a range of citations.
+ */
 @Component({
   selector: 'cadmus-refs-compact-citation',
   imports: [
