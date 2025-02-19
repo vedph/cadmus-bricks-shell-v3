@@ -1,28 +1,34 @@
-<div class="form-row">
-  <!-- view -->
-  <cadmus-refs-citation-view
-    [citation]="citation()"
-    [defaultSchemeId]="defaultSchemeId()"
-  />
-  <!-- toggler -->
-  <button
-    type="button"
-    mat-icon-button
-    matSuffix
-    matTooltip="Toggle visual editor"
-    (click)="visualExpanded = !visualExpanded"
-  >
-    @if (visualExpanded) {
-    <mat-icon class="mat-primary">publish</mat-icon>
-    } @if (!visualExpanded) {
-    <mat-icon class="mat-primary">get_app</mat-icon>
+<div>
+  <div class="form-row">
+    @if (!citation()) {
+    <div class="muted">(no citation)</div>
     }
-  </button>
+    <!-- view -->
+    <cadmus-refs-citation-view
+      [citation]="citation()"
+      [defaultSchemeId]="defaultSchemeId()"
+    />
+    <!-- editor -->
+    <button
+      type="button"
+      mat-icon-button
+      matSuffix
+      matTooltip="Toggle editor"
+      (click)="editorExpanded = !editorExpanded"
+    >
+      @if (editorExpanded) {
+      <mat-icon class="mat-primary">publish</mat-icon>
+      } @if (!editorExpanded) {
+      <mat-icon class="mat-primary">get_app</mat-icon>
+      }
+    </button>
+  </div>
+
   <!-- editor -->
   <mat-expansion-panel
     id="visual"
-    [expanded]="visualExpanded"
-    (expandedChange)="visualExpanded = $event"
+    [expanded]="editorExpanded"
+    (expandedChange)="editorExpanded = $event"
   >
     @if (b()) {
     <h3>A</h3>

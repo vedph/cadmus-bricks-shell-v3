@@ -16,7 +16,9 @@
     @if (citation) {
     <div class="text-cit">{{ citText }}</div>
     <div>
-      <pre>{{ citation | json }}</pre>
+      <code>
+        <pre>{{ citation | json }}</pre>
+      </code>
     </div>
     <div>
       <cadmus-refs-citation-view [citation]="citation" defaultSchemeId="dc" />
@@ -25,7 +27,9 @@
     <hr />
     @if (error) {
     <div class="error">
-      <pre>{{ error | json }}</pre>
+      <code>
+        <pre>{{ error | json }}</pre>
+      </code>
     </div>
     } @else {
     <div class="valid">(valid)</div>

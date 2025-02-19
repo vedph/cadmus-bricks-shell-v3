@@ -116,6 +116,14 @@ export const routes: Routes = [
         (m) => m.CitationPgComponent
       ),
   },
+  // refs/compact-citation
+  {
+    path: 'refs/compact-citation',
+    loadComponent: () =>
+      import(
+        './components/refs/compact-citation-pg/compact-citation-pg.component'
+      ).then((m) => m.CompactCitationPgComponent),
+  },
   // refs/dbpedia-ref-lookup
   {
     path: 'refs/dbpedia-ref-lookup',

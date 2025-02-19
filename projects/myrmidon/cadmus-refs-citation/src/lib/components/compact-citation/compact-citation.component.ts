@@ -60,7 +60,7 @@ export class CompactCitationComponent {
     return (this.citation() as CitationSpan).b;
   });
 
-  public visualExpanded?: boolean;
+  public editorExpanded?: boolean;
 
   public onAChange(citation?: Citation): void {
     if (!this.citation()) {

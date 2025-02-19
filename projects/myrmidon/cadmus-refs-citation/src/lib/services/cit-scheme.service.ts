@@ -10,6 +10,7 @@ import {
   CitSchemeStepDomain,
   CitTextOptions,
   SuffixedNumber,
+  CitationSpan,
 } from '../models';
 import { RomanNumberFormatter } from './roman-number.formatter';
 import { MapFormatter } from './map.formatter';
@@ -442,6 +443,36 @@ export class CitSchemeService {
     this.ensureDefaultParser();
     const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
     return parser ? parser.toString(citation) : citation.steps.join('');
+  }
+
+  /**
+   *
+   * @param text Parse the specified text representing a citation span, in
+   * the context of the specified scheme. A citation span is a pair of citations
+   * separated by " - ".
+   * @param defaultSchemeId The ID of the default citation scheme to use when
+   * the citation text has no scheme ID prefix.
+   * @returns The citation span or undefined.
+   */
+  public parseSpan(
+    text: string,
+    defaultSchemeId: string
+  ): CitationSpan | undefined {
+    if (!text) {
+      return undefined;
+    }
+    const parts = text.split(' - ');
+    if (parts.length !== 2) {
+      return undefined;
+    }
+    const a = this.parse(parts[0], defaultSchemeId);
+    if (!a) {
+      return undefined;
+    }
+    return {
+      a,
+      b: this.parse(parts[1], defaultSchemeId),
+    };
   }
 
   /**

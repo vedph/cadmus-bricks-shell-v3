@@ -1,3 +1,6 @@
+.muted {
+  color: silver;
+}
 .form-row {
   display: flex;
   gap: 8px;
