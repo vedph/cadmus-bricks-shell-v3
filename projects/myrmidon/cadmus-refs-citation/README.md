@@ -457,6 +457,7 @@ For the UI, configure your citation schemes in your [app configuration](../../..
   - 🟢 `parse(text: string, defaultSchemeId: string): Citation | undefined`
   - 🟢 `toString(citation: Citation): string`
   - 🟢 `sortCitations(citations: Citation[], defaultSchemeId: string): void`
+  - 🟢 `compactCitations(citations: (Citation | CitationSpan)[]): (Citation | CitationSpan)[]`
 
 ### CitationComponent
 
