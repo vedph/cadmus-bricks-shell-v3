@@ -56,6 +56,8 @@ In most cases you won't need to write your own parsers and formatters, even if t
 - [pattern-based citation parser](src/lib/services/pattern.cit-parser.ts): this parser is totally driven by the scheme configuration and allows you to parse the textual representation of a citation, or generate this textual representation from a citation.
 - [Roman number formatter](src/lib/services/roman-number.formatter.ts): this formatter provides the Roman numeral system for numeric values, for both parsing or formatting them.
 
+>Being able to store the citation in its compact text format has the additional benefit of allowing simpler models using citations, as they can just be represented with a string without introducing unnecessary complications in the model itself. Should the structure of each stored citation be needed, it can be easily parsed from its textual rendition. This provides the best of both worlds: we can assist and validate user input, and still deal with a simple (yet fully parsable) string in the end.
+
 ### User Experience
 
 This brick displays the hierarchy in a selectable form: each step in the path of a citation is shown, and you can click on it to edit its value. When editing, the UI varies according to the citation scheme used for that citation, so we can have:

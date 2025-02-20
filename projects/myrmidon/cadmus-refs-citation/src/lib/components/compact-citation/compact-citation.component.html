@@ -42,6 +42,7 @@
     <h3>B</h3>
     <cadmus-refs-citation
       [citation]="b()"
+      [schemeKeys]="[a()?.schemeId || defaultSchemeId()]"
       (citationChange)="onBChange($event)"
     />
     }
