@@ -20,6 +20,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [CitationViewComponent](#citationviewcomponent)
     - [CompactCitationComponent](#compactcitationcomponent)
     - [CitationSetComponent](#citationsetcomponent)
+    - [CitationPipe](#citationpipe)
 
 ## Editing Citations
 
@@ -683,3 +684,14 @@ A set of editable citations and/or citation spans.
   - `citations` (`(Citation | CitationSpan)[]`)
 - 🔥 output:
   - `citationsChange` (`(Citation | CitationSpan)[]`)
+
+### CitationPipe
+
+This pipe is used to render a citation or citation span into a string. Use like:
+
+- 🔑 `CitationPipe`
+- 🚩 `citation`
+
+```html
+{{ cit | citation }}
+```
