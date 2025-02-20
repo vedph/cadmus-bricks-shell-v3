@@ -211,7 +211,11 @@ export class CitationComponent implements OnInit, OnDestroy {
     // when editedCitation changes, validate it
     effect(() => {
       const citation = this.editedCitation();
-      if (citation && this._initialized) {
+      if (
+        citation &&
+        this._initialized &&
+        this.scheme.value.id !== citation.schemeId
+      ) {
         this._updatingCit = true;
         this.scheme.setValue(_schemeService.getScheme(citation.schemeId)!);
         this.lastStepIndex = this.scheme.value.path.length - 1;
@@ -236,6 +240,7 @@ export class CitationComponent implements OnInit, OnDestroy {
             cit.steps.push({
               stepId: scheme.path[i],
               color: scheme.steps[scheme.path[i]].color,
+              format: scheme.steps[scheme.path[i]].format,
               value: '',
             });
           }

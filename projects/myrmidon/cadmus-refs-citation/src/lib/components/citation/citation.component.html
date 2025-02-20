@@ -86,7 +86,7 @@
     }
     <!-- last step -->
     @if (allowPartial()) {
-    <mat-form-field>
+    <mat-form-field class="step">
       <mat-label>last step</mat-label>
       <mat-select [formControl]="lastStep">
         <mat-option *ngFor="let p of scheme.value.path" [value]="p">{{
