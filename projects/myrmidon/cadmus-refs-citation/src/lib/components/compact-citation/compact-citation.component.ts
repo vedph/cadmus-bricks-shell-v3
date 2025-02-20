@@ -1,4 +1,11 @@
-import { Component, computed, effect, model, OnDestroy } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  model,
+  OnDestroy,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -36,6 +43,26 @@ import { CitationComponent } from '../citation/citation.component';
 export class CompactCitationComponent implements OnDestroy {
   private _sub?: Subscription;
   private _rangeChangeFrozen?: boolean;
+
+  /**
+   * The scheme keys to use in this component. The full list of schemes is
+   * drawn from the service, but users might want to restrict the list to
+   * a subset of schemes.
+   */
+  public readonly schemeKeys = input<string[]>();
+
+  /**
+   * True if the component allows free mode, where the user can type the
+   * citation as a free text, using the scheme parser.
+   */
+  public readonly allowFreeMode = input<boolean>();
+
+  /**
+   * True if the component allows a partial citation, i.e. a citation
+   * missing the final step(s) starting from the first one defined as
+   * optional in the scheme.
+   */
+  public readonly allowPartial = input<boolean>();
 
   /**
    * The citation or citation span to edit.

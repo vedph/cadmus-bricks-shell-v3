@@ -681,6 +681,9 @@ A compact editor for a citation. This combines a citation view component and an 
 - 🔑 `CompactCitationComponent`
 - 🚩 `cadmus-refs-compact-citation`
 - ▶️ input:
+  - `schemeKeys` (`string[]`)
+  - `allowFreeMode` (`boolean`)
+  - `allowPartial` (`boolean`)
   - `citation` (`Citation | CitationSpan`)
   - `defaultSchemeId` (`string`)
 - 🔥 output:

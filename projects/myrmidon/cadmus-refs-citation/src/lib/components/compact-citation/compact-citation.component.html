@@ -35,12 +35,18 @@
     <h3>A</h3>
     }
     <cadmus-refs-citation
+      [schemeKeys]="schemeKeys()"
+      [allowFreeMode]="allowFreeMode()"
+      [allowPartial]="allowPartial()"
       [citation]="a()"
       (citationChange)="onAChange($event)"
     />
     @if (range.value) {
     <h3>B</h3>
     <cadmus-refs-citation
+      [schemeKeys]="schemeKeys()"
+      [allowFreeMode]="allowFreeMode()"
+      [allowPartial]="allowPartial()"
       [citation]="b()"
       [schemeKeys]="[a()?.schemeId || defaultSchemeId()]"
       (citationChange)="onBChange($event)"
