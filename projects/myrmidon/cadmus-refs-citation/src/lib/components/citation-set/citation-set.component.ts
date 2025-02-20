@@ -32,8 +32,14 @@ import { CompactCitationComponent } from '../compact-citation/compact-citation.c
   styleUrl: './citation-set.component.css',
 })
 export class CitationSetComponent {
+  /**
+   * The citations or citations spans to edit.
+   */
   public readonly citations = model<(Citation | CitationSpan)[]>();
 
+  /**
+   * The default scheme ID.
+   */
   public readonly defaultSchemeId = input<string>('');
 
   public readonly editedCitations = computed<(Citation | CitationSpan)[]>(

@@ -1,12 +1,6 @@
-import {
-  Component,
-  computed,
-  effect,
-  input,
-  model,
-  OnDestroy,
-} from '@angular/core';
+import { Component, computed, effect, model, OnDestroy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -17,7 +11,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Citation, CitationSpan } from '../../models';
 import { CitationViewComponent } from '../citation-view/citation-view.component';
 import { CitationComponent } from '../citation/citation.component';
-import { Subscription } from 'rxjs';
 
 /**
  * Compact citation component.

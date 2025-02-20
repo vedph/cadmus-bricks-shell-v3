@@ -18,6 +18,8 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [CitSchemeService](#citschemeservice)
     - [CitationComponent](#citationcomponent)
     - [CitationViewComponent](#citationviewcomponent)
+    - [CompactCitationComponent](#compactcitationcomponent)
+    - [CitationSetComponent](#citationsetcomponent)
 
 ## Editing Citations
 
@@ -484,3 +486,26 @@ A component to display a citation or a citation span. The input can be a string 
 - ▶️ input:
   - `citation` (`string|Citation|CitationSpan`): the citation to display, which can be its model or its textual representation. When the citation is rather a range, it can be either a `CitationSpan` or a text using " - " as separator.
   - `defaultSchemeId` (`string`)
+
+### CompactCitationComponent
+
+A compact editor for a citation. This combines a citation view component and an expandable citation editor component.
+
+- 🔑 `CompactCitationComponent`
+- 🚩 `cadmus-refs-compact-citation`
+- ▶️ input:
+  - `citation` (`Citation | CitationSpan`)
+  - `defaultSchemeId` (`string`)
+- 🔥 output:
+  - `citationChange` (`Citation | CitationSpan`)
+
+### CitationSetComponent
+
+A set of editable citations and/or citation spans.
+
+- 🔑 `CitationSetComponent`
+- 🚩 `cadmus-refs-citation-set`
+- ▶️ input:
+  - `citations` (`(Citation | CitationSpan)[]`)
+- 🔥 output:
+  - `citationsChange` (`(Citation | CitationSpan)[]`)
