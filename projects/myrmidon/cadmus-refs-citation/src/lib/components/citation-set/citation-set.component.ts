@@ -2,6 +2,7 @@ import { Component, computed, Inject, input, model } from '@angular/core';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -11,6 +12,7 @@ import {
   CitSchemeService,
 } from '../../services/cit-scheme.service';
 import { CitationViewComponent } from '../citation-view/citation-view.component';
+import { CompactCitationComponent } from '../compact-citation/compact-citation.component';
 
 /**
  * Component used to edit a set of citations or citations spans.
@@ -20,9 +22,11 @@ import { CitationViewComponent } from '../citation-view/citation-view.component'
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
+    MatExpansionModule,
     MatIconModule,
     MatTooltipModule,
     CitationViewComponent,
+    CompactCitationComponent,
   ],
   templateUrl: './citation-set.component.html',
   styleUrl: './citation-set.component.css',
@@ -77,9 +81,36 @@ export class CitationSetComponent {
     this.sortCitations(this.editedCitations());
   }
 
+  public newCitation(): void {
+    this.editedCitation = {
+      schemeId: this.defaultSchemeId(),
+      steps: [],
+    };
+    this.editedCitationIndex = -1;
+  }
+
   public editCitation(index: number): void {
     this.editedCitation = this.editedCitations()[index];
     this.editedCitationIndex = index;
+  }
+
+  public closeCitation(): void {
+    this.editedCitation = undefined;
+    this.editedCitationIndex = undefined;
+  }
+
+  public saveCitation(citation: Citation | CitationSpan): void {
+    const citations = [...this.editedCitations()];
+
+    if (this.editedCitationIndex === -1) {
+      citations.push(citation);
+    } else {
+      citations.splice(this.editedCitationIndex!, 1, citation);
+    }
+    this._schemeService.compactCitations(citations);
+    this.citations.set(citations);
+
+    this.closeCitation();
   }
 
   public moveCitationUp(index: number): void {

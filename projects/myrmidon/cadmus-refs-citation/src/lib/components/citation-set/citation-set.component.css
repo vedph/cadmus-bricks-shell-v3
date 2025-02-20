@@ -23,3 +23,11 @@ td.fit-width {
   width: 1px;
   white-space: nowrap;
 }
+tr.selected {
+  background-color: #d0d0d0 !important;
+}
+fieldset {
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 6px;
+}

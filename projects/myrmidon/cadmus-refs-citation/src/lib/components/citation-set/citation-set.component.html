@@ -1,4 +1,26 @@
 <div>
+  <!-- buttons -->
+  <div class="form-row">
+    <button
+      type="button"
+      mat-flat-button
+      class="mat-primary"
+      (click)="newCitation()"
+    >
+      <mat-icon>add_circle</mat-icon>
+      citation
+    </button>
+    <button
+      type="button"
+      mat-icon-button
+      (click)="sort()"
+      matTooltip="Sort citations"
+    >
+      <mat-icon>sort</mat-icon>
+    </button>
+  </div>
+
+  <!-- list -->
   <table>
     <thead>
       <tr>
@@ -9,7 +31,7 @@
     </thead>
     <tbody>
       @for (c of editedCitations(); track c; let index = $index) {
-      <tr>
+      <tr [class.selected]="index === editedCitationIndex">
         <td class="fit-width">
           <!-- edit -->
           <button
@@ -64,4 +86,37 @@
       }
     </tbody>
   </table>
+
+  <!-- editor -->
+  @if (editedCitation) {
+  <fieldset>
+    <mat-expansion-panel
+      [expanded]="editedCitation"
+      [disabled]="!editedCitation"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title
+          >Citation #{{ editedCitationIndex! + 1 }}</mat-panel-title
+        >
+      </mat-expansion-panel-header>
+      <cadmus-refs-compact-citation
+        [citation]="editedCitation"
+        (citationChange)="saveCitation($event!)"
+      />
+      <div class="form-row">
+        <button
+          type="button"
+          mat-icon-button
+          matTooltip="Cancel"
+          (click)="closeCitation()"
+        >
+          <mat-icon class="mat-warn">clear</mat-icon>
+        </button>
+        <button type="submit" mat-icon-button matTooltip="Save">
+          <mat-icon class="mat-primary">check_circle</mat-icon>
+        </button>
+      </div>
+    </mat-expansion-panel>
+  </fieldset>
+  }
 </div>
