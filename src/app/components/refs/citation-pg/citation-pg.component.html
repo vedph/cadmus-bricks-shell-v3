@@ -5,10 +5,15 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    <div class="form-row">
+      <mat-checkbox [formControl]="allowFreeMode">free mode</mat-checkbox>
+      <mat-checkbox [formControl]="allowPartial">partial</mat-checkbox>
+    </div>
+    <hr />
     <cadmus-refs-citation
       [citation]="citation"
-      [allowFreeMode]="true"
-      [allowPartial]="true"
+      [allowFreeMode]="allowFreeMode.value"
+      [allowPartial]="allowPartial.value"
       (citationChange)="onCitationChange($event)"
       (citationValidate)="onCitationValidate($event)"
     />

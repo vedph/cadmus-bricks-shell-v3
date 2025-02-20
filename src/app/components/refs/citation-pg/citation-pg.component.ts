@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -47,6 +47,13 @@ export class CitationPgComponent {
   public citText?: string;
   public error?: CitationError;
   public citations: Citation[] = [];
+
+  public readonly allowFreeMode: FormControl<boolean> = new FormControl(true, {
+    nonNullable: true,
+  });
+  public readonly allowPartial: FormControl<boolean> = new FormControl(true, {
+    nonNullable: true,
+  });
 
   constructor(
     @Inject(CIT_SCHEME_SERVICE_TOKEN) private _service: CitSchemeService
