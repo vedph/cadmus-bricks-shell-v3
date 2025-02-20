@@ -476,6 +476,41 @@ export class CitSchemeService {
   }
 
   /**
+   * Compare two citations.
+   * @param a The first citation to compare.
+   * @param b The second citation to compare.
+   * @returns Comparison result.
+   */
+  public compareCitations(a: Citation, b: Citation): number {
+    for (let i = 0; i < Math.max(a.steps.length, b.steps.length); i++) {
+      // compare scheme IDs
+      if (a.schemeId !== b.schemeId) {
+        return a.schemeId.localeCompare(b.schemeId);
+      }
+
+      // compare n values
+      const nA = a.steps[i]?.n || 0;
+      const nB = b.steps[i]?.n || 0;
+      if (nA !== nB) {
+        return nA - nB;
+      }
+
+      // if n values are equal, compare suffixes
+      const suffixA = a.steps[i]?.suffix || '';
+      const suffixB = b.steps[i]?.suffix || '';
+      if (suffixA !== suffixB) {
+        // n without suffix comes before one with suffix
+        if (!suffixA) return -1;
+        if (!suffixB) return 1;
+        return suffixA.localeCompare(suffixB);
+      }
+    }
+
+    // if we get here, the two citations are equal up to the path length
+    return a.steps.length - b.steps.length;
+  }
+
+  /**
    * Sort the received citations according to the specified scheme.
    * Sorting criteria are based on the scheme's path: the n value of each step
    * in the path is compared in the two citations, and if they differ, the
@@ -505,29 +540,8 @@ export class CitSchemeService {
 
     // sort each group
     groupedCitations.forEach((group, id) => {
-      const groupScheme = this.getScheme(id) || scheme;
       group.sort((a, b) => {
-        for (let i = 0; i < groupScheme.path.length; i++) {
-          // compare n values
-          const nA = a.steps[i]?.n || 0;
-          const nB = b.steps[i]?.n || 0;
-          if (nA !== nB) {
-            return nA - nB;
-          }
-
-          // if n values are equal, compare suffixes
-          const suffixA = a.steps[i]?.suffix || '';
-          const suffixB = b.steps[i]?.suffix || '';
-          if (suffixA !== suffixB) {
-            // n without suffix comes before one with suffix
-            if (!suffixA) return -1;
-            if (!suffixB) return 1;
-            return suffixA.localeCompare(suffixB);
-          }
-        }
-
-        // if we get here, the two citations are equal up to the path length
-        return a.steps.length - b.steps.length;
+        return this.compareCitations(a, b);
       });
     });
 

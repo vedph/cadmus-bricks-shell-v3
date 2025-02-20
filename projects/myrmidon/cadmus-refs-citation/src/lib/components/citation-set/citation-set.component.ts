@@ -62,25 +62,20 @@ export class CitationSetComponent {
       return span.b ? span.a! : (c as Citation);
     });
 
-    // sort the mapped citations
-    this._schemeService.sortCitations(mappedCits, this.defaultSchemeId());
+    // create an array of indexes
+    const indexes = mappedCits.map((_, index) => index);
 
-    // create a map of original indexes to sorted indexes
-    const indexMap = new Map<Citation, number>();
-    mappedCits.forEach((cit, index) => {
-      indexMap.set(cit, index);
+    // sort the mapped citations and indexes together
+    indexes.sort((a, b) => {
+      const citA = mappedCits[a];
+      const citB = mappedCits[b];
+      return this._schemeService.compareCitations(citA, citB);
     });
 
-    // sort the original citations array based on the sorted mappedCits
-    citations.sort((a, b) => {
-      const aCit = (a as CitationSpan).b
-        ? (a as CitationSpan).a!
-        : (a as Citation);
-      const bCit = (b as CitationSpan).b
-        ? (b as CitationSpan).a!
-        : (b as Citation);
-      return (indexMap.get(aCit) ?? 0) - (indexMap.get(bCit) ?? 0);
-    });
+    // sort the original citations array based on the sorted indexes
+    const sortedCitations = indexes.map((index) => citations[index]);
+
+    this.citations.set(sortedCitations);
   }
 
   public sort(): void {
