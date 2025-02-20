@@ -1,8 +1,10 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, computed, effect, input, model } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { Citation, CitationSpan } from '../../models';
@@ -18,9 +20,11 @@ import { CitationComponent } from '../citation/citation.component';
 @Component({
   selector: 'cadmus-refs-compact-citation',
   imports: [
+    ReactiveFormsModule,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
+    MatSlideToggleModule,
     MatTooltipModule,
     CitationViewComponent,
     CitationComponent,
@@ -49,6 +53,9 @@ export class CompactCitationComponent {
     return (this.citation() as Citation).schemeId;
   });
 
+  /**
+   * The from portion of the citation span, if any.
+   */
   public readonly a = computed<Citation | undefined>(() => {
     if (!this.citation()) {
       return undefined;
@@ -59,6 +66,9 @@ export class CompactCitationComponent {
     return this.citation() as Citation;
   });
 
+  /**
+   * The to portion of the citation span, if any.
+   */
   public readonly b = computed<Citation | undefined>(() => {
     if (!this.citation()) {
       return undefined;
@@ -67,33 +77,34 @@ export class CompactCitationComponent {
   });
 
   public editorExpanded?: boolean;
+  public readonly range = new FormControl<boolean>(false, {
+    nonNullable: true,
+  });
+
+  constructor() {
+    effect(() => {
+      this.range.setValue(this.citation()?.hasOwnProperty('b') === true);
+    });
+  }
 
   public onAChange(citation?: Citation): void {
     if (!citation) {
       return;
     }
-    if ((this.citation() as CitationSpan)?.a) {
-      this.citation.set({
-        ...this.citation(),
-        a: citation!,
-      });
+    if (this.range.value) {
+      const span: CitationSpan = this.citation() as CitationSpan;
+      span.a = citation!;
+      this.citation.set(span);
     } else {
       this.citation.set(citation!);
     }
   }
 
   public onBChange(citation?: Citation): void {
-    if (!citation) {
-      return;
-    }
-
-    if ((this.citation() as CitationSpan)?.a) {
-      this.citation.set({
-        ...this.citation(),
-        b: citation,
-      } as CitationSpan);
-    } else {
-      this.citation.set(citation!);
+    if (this.range.value) {
+      const span: CitationSpan = this.citation() as CitationSpan;
+      span.b = citation;
+      this.citation.set(span);
     }
   }
 }
