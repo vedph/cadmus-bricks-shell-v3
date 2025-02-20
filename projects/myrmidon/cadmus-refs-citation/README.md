@@ -363,7 +363,181 @@ The `steps` section contains most of the parameters driving the UI behavior:
 
 >Note that the operator used for `canto` is `==` because this implies a numeric comparison; `cantica` instead is based on a closed set of strings, and uses the string comparison operator (`=`).
 
-The same should be done for each combination of `cantica` and `canto`.
+The same should be done for each combination of `cantica` and `canto`. You can find the full configuration in the [sample citation schemes](../../../src/app/cit-schemes.ts). To create similar JSON code without too much hassle, just have a CSV file like:
+
+```csv
+If.,1,136
+If.,2,142
+If.,3,136
+If.,4,151
+If.,5,142
+If.,6,115
+If.,7,129
+If.,8,139
+If.,9,133
+If.,10,139
+If.,11,115
+If.,12,139
+If.,13,151
+If.,14,142
+If.,15,126
+If.,16,145
+If.,17,139
+If.,18,136
+If.,19,145
+If.,20,136
+If.,21,139
+If.,22,151
+If.,23,145
+If.,24,145
+If.,25,139
+If.,26,142
+If.,27,142
+If.,28,142
+If.,29,139
+If.,30,148
+If.,31,145
+If.,32,151
+If.,33,147
+If.,34,139
+Purg.,1,136
+Purg.,2,136
+Purg.,3,139
+Purg.,4,145
+Purg.,5,142
+Purg.,6,136
+Purg.,7,145
+Purg.,8,151
+Purg.,9,145
+Purg.,10,136
+Purg.,11,139
+Purg.,12,145
+Purg.,13,139
+Purg.,14,145
+Purg.,15,142
+Purg.,16,145
+Purg.,17,145
+Purg.,18,145
+Purg.,19,145
+Purg.,20,145
+Purg.,21,136
+Purg.,22,145
+Purg.,23,136
+Purg.,24,145
+Purg.,25,136
+Purg.,26,148
+Purg.,27,145
+Purg.,28,139
+Purg.,29,142
+Purg.,30,145
+Purg.,31,139
+Purg.,32,145
+Purg.,33,145
+Par.,1,142
+Par.,2,145
+Par.,3,148
+Par.,4,145
+Par.,5,142
+Par.,6,139
+Par.,7,145
+Par.,8,145
+Par.,9,145
+Par.,10,145
+Par.,11,145
+Par.,12,145
+Par.,13,145
+Par.,14,145
+Par.,15,142
+Par.,16,145
+Par.,17,145
+Par.,18,139
+Par.,19,148
+Par.,20,145
+Par.,21,142
+Par.,22,145
+Par.,23,148
+Par.,24,151
+Par.,25,148
+Par.,26,145
+Par.,27,148
+Par.,28,139
+Par.,29,145
+Par.,30,148
+Par.,31,145
+Par.,32,142
+Par.,33,145
+```
+
+Once you have it, just use a Python script like this:
+
+```py
+# dc.py
+# run with: python dc.py
+import csv
+import json
+
+
+def generate_json_from_csv(csv_filepath, json_filepath):
+    """Generates JSON from a CSV file.
+
+    Args:
+        csv_filepath: Path to the CSV file.
+        json_filepath: Path to the output JSON file.
+    """
+
+    data = []
+    try:
+        with open(
+            csv_filepath, "r", encoding="utf-8"
+        ) as csvfile:  # Handle potential encoding issues
+            reader = csv.DictReader(
+                csvfile, fieldnames=["cantica", "canto", "verses"]
+            )  # Specify fieldnames
+
+            for row in reader:
+                try:
+                    canto_num = int(row["canto"])  # Convert canto to integer
+                    verses_num = int(row["verses"])
+                    data.append(
+                        {
+                            "clauses": [
+                                {
+                                    "id": "cantica",
+                                    "op": "=",
+                                    "value": row["cantica"],
+                                },
+                                {
+                                    "id": "canto",
+                                    "op": "==",
+                                    "value": str(
+                                        canto_num
+                                    ),  # Keep as a string for consistency
+                                },
+                            ],
+                            "domain": {"range": {"min": 1, "max": verses_num}},
+                        }
+                    )
+                except ValueError:
+                    print(f"Skipping row due to invalid canto or verses number: {row}")
+    except FileNotFoundError:
+        print(f"Error: CSV file not found at {csv_filepath}")
+        return
+
+    try:
+        with open(json_filepath, "w", encoding="utf-8") as jsonfile:
+            json.dump(
+                data, jsonfile, indent=2, ensure_ascii=False
+            )  # Use indent for pretty formatting and ensure_ascii=False
+        print(f"JSON data written to {json_filepath}")
+    except Exception as e:
+        print(f"Error writing JSON file: {e}")
+
+
+# Example usage:
+csv_file = "commedia.csv"  # Replace with your CSV file path
+json_file = "commedia.json"  # Replace with your desired JSON file path
+generate_json_from_csv(csv_file, json_file)
+```
 
 ## Additional Services
 
