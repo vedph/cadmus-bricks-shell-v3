@@ -12,6 +12,7 @@ export * from './lib/services/pattern.cit-parser';
 export * from './lib/services/roman-number.formatter';
 
 export * from './lib/components/citation/citation.component';
+export * from './lib/components/citation-set/citation-set.component';
 export * from './lib/components/citation-step/citation-step.component';
 export * from './lib/components/citation-view/citation-view.component';
 export * from './lib/components/compact-citation/compact-citation.component';

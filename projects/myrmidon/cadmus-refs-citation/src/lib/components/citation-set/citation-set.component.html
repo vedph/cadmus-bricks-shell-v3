@@ -1,0 +1,27 @@
+<div>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>citation</th>
+        <th>scheme</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (c of editedCitations(); track c) {
+      <tr>
+        <td></td>
+        <td>
+          <cadmus-refs-citation-view
+            [citation]="c"
+            [defaultSchemeId]="defaultSchemeId()"
+          />
+        </td>
+        <td>
+          {{ $any(c).a?.schemeId || $any(c).schemeId }}
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>

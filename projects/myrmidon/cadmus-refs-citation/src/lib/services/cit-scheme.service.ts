@@ -538,4 +538,22 @@ export class CitSchemeService {
       citations.push(...groupedCitations.get(id)!);
     });
   }
+
+  /**
+   * Compact the received list of citations and/or citation spans so that
+   * all the spans having an undefined B citation are converted to simple
+   * citations.
+   * @param citations The citations and/or spans to compact.
+   */
+  public compactCitations(
+    citations: (Citation | CitationSpan)[]
+  ): (Citation | CitationSpan)[] {
+    return citations.map((c: Citation | CitationSpan) => {
+      const span = c as CitationSpan;
+      if (span.a && !span.b) {
+        return span.a;
+      }
+      return c;
+    });
+  }
 }
