@@ -17,6 +17,16 @@ To use a brick:
 2. import the component(s) you want to use.
 3. use the brick via its selector in your component template, binding it to your code as required by its API.
 
+## Docker
+
+🐋 Quick Docker image build (the only purpose of this image is letting testers play with controls in the incubator):
+
+1. `npm run build-lib`.
+2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
+3. `docker build . -t vedph2020/cadmus-bricks-v3:8.0.0 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
+
+Use [publish.bat](publish.bat) to publish the libraries to NPM.
+
 ## Codicology
 
 - [@myrmidon/cadmus-cod-location](projects/myrmidon/cadmus-cod-location/README.md)
