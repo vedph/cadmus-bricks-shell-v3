@@ -400,7 +400,7 @@ export class CitSchemeService {
     // if the text starts with a citation ID, extract it
     const match = /^@([^:]+):/.exec(text);
     return match
-      ? { id: match[1], text: text.substring(match.length) }
+      ? { id: match[1], text: text.substring(match[0].length) }
       : undefined;
   }
 

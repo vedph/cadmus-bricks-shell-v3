@@ -76,4 +76,40 @@ export class CitationSetComponent {
   public sort(): void {
     this.sortCitations(this.editedCitations());
   }
+
+  public editCitation(index: number): void {
+    this.editedCitation = this.editedCitations()[index];
+    this.editedCitationIndex = index;
+  }
+
+  public moveCitationUp(index: number): void {
+    if (index < 1) {
+      return;
+    }
+    const citations = [...this.editedCitations()];
+    const item = citations[index];
+    citations.splice(index, 1);
+    citations.splice(index - 1, 0, item);
+
+    this.citations.set(citations);
+  }
+
+  public moveCitationDown(index: number): void {
+    if (index + 1 >= this.editedCitations().length) {
+      return;
+    }
+    const citations = [...this.editedCitations()];
+    const item = citations[index];
+    citations.splice(index, 1);
+    citations.splice(index + 1, 0, item);
+
+    this.citations.set(citations);
+  }
+
+  public deleteCitation(index: number) {
+    const citations = [...this.editedCitations()];
+    citations.splice(index, 1);
+
+    this.citations.set(citations);
+  }
 }

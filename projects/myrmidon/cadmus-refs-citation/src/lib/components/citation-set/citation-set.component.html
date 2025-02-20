@@ -8,9 +8,49 @@
       </tr>
     </thead>
     <tbody>
-      @for (c of editedCitations(); track c) {
+      @for (c of editedCitations(); track c; let index = $index) {
       <tr>
-        <td></td>
+        <td class="fit-width">
+          <!-- edit -->
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Edit citation"
+            (click)="editCitation(index)"
+          >
+            <mat-icon class="mat-primary">edit</mat-icon>
+          </button>
+          <!-- move up -->
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Move citation up"
+            [disabled]="index === 0"
+            (click)="moveCitationUp(index)"
+          >
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <!-- move down -->
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Move citation down"
+            [disabled]="index === editedCitations().length - 1"
+            (click)="moveCitationDown(index)"
+          >
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+
+          <!-- delete -->
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Remove citation"
+            (click)="deleteCitation(index)"
+          >
+            <mat-icon class="mat-warn">remove_circle</mat-icon>
+          </button>
+        </td>
         <td>
           <cadmus-refs-citation-view
             [citation]="c"
