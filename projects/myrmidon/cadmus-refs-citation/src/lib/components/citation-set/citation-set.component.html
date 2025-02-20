@@ -100,6 +100,9 @@
         >
       </mat-expansion-panel-header>
       <cadmus-refs-compact-citation
+        [schemeKeys]="schemeKeys()"
+        [allowFreeMode]="allowFreeMode()"
+        [allowPartial]="allowPartial()"
         [citation]="editedCitation"
         (citationChange)="saveCitation($event!)"
       />

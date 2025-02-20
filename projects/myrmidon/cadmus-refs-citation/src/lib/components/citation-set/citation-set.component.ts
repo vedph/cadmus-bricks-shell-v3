@@ -33,6 +33,26 @@ import { CompactCitationComponent } from '../compact-citation/compact-citation.c
 })
 export class CitationSetComponent {
   /**
+   * The scheme keys to use in this component. The full list of schemes is
+   * drawn from the service, but users might want to restrict the list to
+   * a subset of schemes.
+   */
+  public readonly schemeKeys = input<string[]>();
+
+  /**
+   * True if the component allows free mode, where the user can type the
+   * citation as a free text, using the scheme parser.
+   */
+  public readonly allowFreeMode = input<boolean>();
+
+  /**
+   * True if the component allows a partial citation, i.e. a citation
+   * missing the final step(s) starting from the first one defined as
+   * optional in the scheme.
+   */
+  public readonly allowPartial = input<boolean>();
+
+  /**
    * The citations or citations spans to edit.
    */
   public readonly citations = model<(Citation | CitationSpan)[]>();

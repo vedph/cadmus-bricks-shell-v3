@@ -696,6 +696,9 @@ A set of editable citations and/or citation spans.
 - 🔑 `CitationSetComponent`
 - 🚩 `cadmus-refs-citation-set`
 - ▶️ input:
+  - `schemeKeys` (`string[]`)
+  - `allowFreeMode` (`boolean`)
+  - `allowPartial` (`boolean`)
   - `citations` (`(Citation | CitationSpan)[]`)
 - 🔥 output:
   - `citationsChange` (`(Citation | CitationSpan)[]`)
