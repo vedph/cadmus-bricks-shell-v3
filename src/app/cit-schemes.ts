@@ -101,6 +101,506 @@ export const DC_SCHEME: CitScheme = {
             {
               id: 'canto',
               op: '==',
+              value: '1',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '2',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '3',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '4',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 151,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '5',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '6',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 115,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '7',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 129,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '8',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '9',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 133,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '10',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '11',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 115,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '12',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '13',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 151,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '14',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '15',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 126,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '16',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '17',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '18',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '19',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '20',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '21',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '22',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 151,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '23',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '24',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '25',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
               value: '26',
             },
           ],
@@ -108,6 +608,1486 @@ export const DC_SCHEME: CitScheme = {
             range: {
               min: 1,
               max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '27',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '28',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '29',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '30',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 148,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '31',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '32',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 151,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '33',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 147,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'If.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '34',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '1',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '2',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '3',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '4',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '5',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '6',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '7',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '8',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 151,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '9',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '10',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '11',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '12',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '13',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '14',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '15',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '16',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '17',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '18',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '19',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '20',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '21',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '22',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '23',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '24',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '25',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 136,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '26',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 148,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '27',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '28',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '29',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '30',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '31',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '32',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Purg.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '33',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '1',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '2',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '3',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 148,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '4',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '5',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '6',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '7',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '8',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '9',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '10',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '11',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '12',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '13',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '14',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '15',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '16',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '17',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '18',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '19',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 148,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '20',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '21',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '22',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '23',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 148,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '24',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 151,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '25',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 148,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '26',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '27',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 148,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '28',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 139,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '29',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '30',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 148,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '31',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '32',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 142,
+            },
+          },
+        },
+        {
+          clauses: [
+            {
+              id: 'cantica',
+              op: '=',
+              value: 'Par.',
+            },
+            {
+              id: 'canto',
+              op: '==',
+              value: '33',
+            },
+          ],
+          domain: {
+            range: {
+              min: 1,
+              max: 145,
             },
           },
         },
