@@ -6,15 +6,15 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 - [CadmusRefsCitation](#cadmusrefscitation)
   - [Editing Citations](#editing-citations)
-    - [User Experience](#user-experience)
+    - [Model](#model)
   - [Scheme Examples](#scheme-examples)
     - [Homer - Iliad](#homer---iliad)
     - [Homer - Odyssey](#homer---odyssey)
     - [Dante - Commedia](#dante---commedia)
   - [Additional Services](#additional-services)
     - [Citation as Text](#citation-as-text)
-    - [Sorting Citations](#sorting-citations)
-  - [Usage](#usage)
+  - [Library](#library)
+    - [Usage](#usage)
     - [CitSchemeService](#citschemeservice)
     - [CitationComponent](#citationcomponent)
     - [CitationViewComponent](#citationviewcomponent)
@@ -24,14 +24,20 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Editing Citations
 
-This library provides services and components for entering structured literary citations in an interactive and partially constrained UI.
+This library provides services and components for entering **structured literary citations** (like `α 123` for verse 123 of the first book -`α`- of Homer's Odyssey) in an interactive and partially constrained UI.
 
-Such citations are defined as a **hierarchy**, from the largest to the smallest work's structure, in a specific order. For instance, the _Iliad_ is cited by book number first, and then by verse number. So, the hierarchy here is:
+### Model
 
-1. book
-2. verse
+These citations are defined as a **hierarchy**, from the largest to the smallest work's structure, in a specific order. For instance, the _Iliad_, which is structured in books which are structured in verses, is cited by book number first, and then by verse number. So, the hierarchy here is:
 
-Dante's _Commedia_ instead has 3 levels, as it is cited by _cantica_, _canto_ and verse.
+1. book;
+2. verse.
+
+Dante's _Commedia_ instead has 3 levels, as it is cited by _cantica_, _canto_ and _verso_:
+
+1. _cantica_;
+2. _canto_;
+3. _verso_.
 
 These hierarchies define **paths**, where each **step** brings us closer to the portion of the text we want to address: for instance, book 1 (first step) and verse 123 (second step).
 
@@ -39,32 +45,29 @@ The hierarchy has these features:
 
 - **no holes** can be present in the path steps, but starting from a specific level one might _omit_ all the following steps up to the end. So we can never have a step without its ascendant, but (if allowed) we can have a step without its descendants.
 - steps **types** are:
-  - textual:
-    - closed: this is the usual case: the text values belong to a closed ordered set, e.g. the 3 parts of Dante's _Commedia_ (`If.`, `Purg.`, `Par.`).
-    - masked: a free text just constrained by a mask pattern.
-    - free: a free text without any constraints.
-  - numeric, using many formats: Arabic, Roman, alphabetic, etc.; in the end, whatever the system we just have a number which is to be displayed in some format.
-- value domains can be **conditioned**: the value we can pick for a step is dependent on the step type (e.g. one of "If.", "Purg." or "Par." for a _cantica_, but a number for canto or verse) and optionally on the value of its ascendant steps. For instance, given that If. has 34 _canti_ while Purg. and Par. have 33, one could set the allowed range of numeric values to 1-34 and 1-33 respectively according to the _cantica_.
+  - **textual**:
+    - **closed**: this is the usual case: the text values belong to a closed ordered set, e.g. the 3 parts of Dante's _Commedia_ (`If.`, `Purg.`, `Par.`).
+    - **masked**: a free text just constrained by a mask pattern.
+    - **free**: a free text without any constraints.
+  - **numeric**, using many formats: Arabic, Roman, alphabetic, etc.; in the end, whatever the system we just have a number which is to be displayed in some format.
+- additionally, value domains can be **conditioned**: the value we can pick for a step is dependent on the step type (e.g. one of "If.", "Purg." or "Par." for a _cantica_, but a number for _canto_ or _verso_), and optionally on the value of its ascendant steps. For instance, given that `If.` has 34 _canti_ while `Purg.` and `Par.` have 33, one could set the allowed range of numeric values to 1-34 and 1-33 respectively, according to the _cantica_. This way, users won't be able to enter an invalid number for the _canto_ of each _cantica_.
 
-The model which defines the data entry behavior for a citation scheme ([CitScheme](models.ts)) is defined in the settings of the component consuming the brick. This is formally defined in [models](models.ts); here we just show examples in their JSON encoding.
+>The model which defines the data entry behavior for a citation scheme ([CitScheme](models.ts)) is defined in the settings of the component consuming the brick. This is formally defined in [models](models.ts); for the sake of brevity, here I just show examples in their JSON encoding.
 
-The whole purpose of the model is providing a highly interactive and helpful UI for entering a valid citation. In the end, unless you have specific requirements, all what you will store in the backend is just a string with the textual representation of a citation. You might well type this string directly, but the UI provides a friendlier and more controlled environment for data entry. Additionally, once you parse the text into this model you get additional benefits, like e.g. being able to sort citations, whatever their format.
+The whole purpose of the model is providing an interactive and helpful UI for entering a valid citation. In the end, unless you have specific requirements, all what you will store in the backend is just a **string** with the textual representation of a citation. You might well type this string directly; the UI just provides a friendlier and more controlled environment for data entry.
 
-Given that this is a generic library, it is designed to be flexible and extensible. The core logic is implemented by the [citation scheme service](#citschemeservice), which can be configured with any number of citation schemes. The set of schemes used for this configuration can define additional components:
+Being able to store the citation in its compact text format has the additional benefit of allowing simpler models using citations, as they can just be represented with a string without introducing unnecessary complications in the model itself. Should the structure of each stored citation be needed, it can be easily parsed from its textual rendition. This provides the best of both worlds: we can assist and validate user input, and still deal with a simple (yet fully parsable) string in the end.
 
-- parsers, to parse the textual representation of a citation, and render a citation model into this textual representation.
-- formatters, to format a numeric value using a specific system, or parse the formatted text into the corresponding numeric value.
+For instance, once you parse the text into this model you get additional benefits, like e.g. being able to sort citations, whatever their format. For instance, citations like:
 
-In most cases you won't need to write your own parsers and formatters, even if this is possible. You will just stick to these prebuilt services:
+- If. IX 12
+- If. VIII 1
 
-- [pattern-based citation parser](src/lib/services/pattern.cit-parser.ts): this parser is totally driven by the scheme configuration and allows you to parse the textual representation of a citation, or generate this textual representation from a citation.
-- [Roman number formatter](src/lib/services/roman-number.formatter.ts): this formatter provides the Roman numeral system for numeric values, for both parsing or formatting them.
+would sort in the wrong order when just sorting them as strings (I comes before V, yet IX=9 and VIII=8).
 
->Being able to store the citation in its compact text format has the additional benefit of allowing simpler models using citations, as they can just be represented with a string without introducing unnecessary complications in the model itself. Should the structure of each stored citation be needed, it can be easily parsed from its textual rendition. This provides the best of both worlds: we can assist and validate user input, and still deal with a simple (yet fully parsable) string in the end.
+>Note that sorting cannot apply to citation steps having as type a free or masked text, because in this case there is no rule to infer an order from the citation itself. These are corner cases, provided for wider compatibility, but in most (if not all) the cases you will use other step types; otherwise, the citation model itself wouldn't make much sense, given that it is used to constrain user's input.
 
-### User Experience
-
-This brick displays the hierarchy in a selectable form: each step in the path of a citation is shown, and you can click on it to edit its value. When editing, the UI varies according to the citation scheme used for that citation, so we can have:
+This citation editor brick displays the hierarchy in a selectable form: each step in the path of a citation is shown, and you can click on it to edit its value. When editing, the UI varies according to the citation scheme used for that citation, so we can have:
 
 - a string belonging to a closed set, to be picked from a list.
 - a positive integer number, free or constrained into a range (min and/or max). Optionally we can add an alphanumeric suffix to this number.
@@ -574,15 +577,22 @@ For Dante's _Commedia_:
 
 By default, the rendered citation text starts with its **scheme ID prefix** between `@` and `:`. So, for instance we would have `@dc:If. XX 2` for the scheme identified by `dc`. If you are going to use a single scheme for all your citations, you can omit the prefix by setting the corresponding citation scheme set option (`CitSchemeSet.noSchemePrefix`).
 
-### Sorting Citations
+## Library
 
-An additional benefit of this model is that citations can be sorted. Whatever their step form (sets or numbers in any format with or without suffix), the model always provides a numeric value for each; so, sorting them is just a matter of comparing them step by step.
+Given that this is a generic library, it is designed to be flexible and extensible. The core logic is implemented by the [citation scheme service](#citschemeservice), which can be configured with any number of citation schemes. The set of schemes used for this configuration can define additional components:
 
->Note that sorting cannot apply to citation steps having as type a free or masked text, because in this case there is no rule to infer an order from the citation itself. These are corner cases, provided for wider compatibility, but in most (if not all) the cases you will use other step types; otherwise, the citation model itself wouldn't make much sense, given that it is used to constrain user's input.
+- parsers, to parse the textual representation of a citation, and render a citation model into this textual representation.
+- formatters, to format a numeric value using a specific system, or parse the formatted text into the corresponding numeric value.
 
-## Usage
+In most cases you won't need to write your own parsers and formatters, even if this is always possible; you will just stick to these prebuilt services:
 
-For the UI, configure your citation schemes in your [app configuration](../../../src/app/app.config.ts) using the `CIT_SCHEME_SERVICE_TOKEN` injection token.To configure the schemes, use `CitSchemeService.configure`, e.g.:
+- [pattern-based citation parser](src/lib/services/pattern.cit-parser.ts): this parser is totally driven by the scheme configuration and allows you to parse the textual representation of a citation, or generate this textual representation from a citation.
+- [Roman number formatter](src/lib/services/roman-number.formatter.ts): this formatter provides the Roman numeral system for numeric values, for both parsing or formatting them.
+
+### Usage
+
+1. `npm i @myrmidon/cadmus-refs-citation`.
+2. configure citation schemes in your [app configuration](../../../src/app/app.config.ts) using the `CIT_SCHEME_SERVICE_TOKEN` injection token. To configure the schemes, use `CitSchemeService.configure`, e.g.:
 
 ```ts
 // citation schemes
@@ -614,6 +624,8 @@ For the UI, configure your citation schemes in your [app configuration](../../..
   },
 },
 ```
+
+3. inject the scheme service in your consumer component constructor, like `@Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService`, or use the UI bricks via their selectors.
 
 ### CitSchemeService
 
@@ -687,10 +699,12 @@ A set of editable citations and/or citation spans.
 
 ### CitationPipe
 
-This pipe is used to render a citation or citation span into a string. Use like:
+This pipe is used to render a citation or citation span into a string.
 
 - 🔑 `CitationPipe`
 - 🚩 `citation`
+
+Use like:
 
 ```html
 {{ cit | citation }}
