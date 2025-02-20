@@ -68,6 +68,8 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
 })
 export class CitationComponent implements OnInit, OnDestroy {
   private readonly _subs: Subscription[] = [];
+  private _updatingCit?: boolean;
+  private _initialized?: boolean;
 
   /**
    * The scheme keys to use in this component. The full list of schemes is
@@ -208,6 +210,12 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // when editedCitation changes, validate it
     effect(() => {
+      const citation = this.editedCitation();
+      if (citation && this._initialized) {
+        this._updatingCit = true;
+        this.scheme.setValue(_schemeService.getScheme(citation.schemeId)!);
+        this.lastStepIndex = this.scheme.value.path.length - 1;
+      }
       this.validateAndEmit();
     });
   }
@@ -219,6 +227,10 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.scheme.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(100))
         .subscribe((scheme) => {
+          if (this._updatingCit) {
+            this._updatingCit = false;
+            return;
+          }
           const cit: Citation = { schemeId: scheme.id, steps: [] };
           for (let i = 0; i < scheme.path.length; i++) {
             cit.steps.push({
@@ -264,6 +276,8 @@ export class CitationComponent implements OnInit, OnDestroy {
           this.validateAndEmit();
         })
     );
+
+    this._initialized = true;
   }
 
   public ngOnDestroy(): void {
@@ -492,6 +506,9 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     for (let i = 0; i <= this.lastStepIndex; i++) {
       const step = citation.steps[i];
+      if (!step) {
+        break;
+      }
       const domain = this._schemeService.getStepDomain(
         step.stepId,
         citation,
