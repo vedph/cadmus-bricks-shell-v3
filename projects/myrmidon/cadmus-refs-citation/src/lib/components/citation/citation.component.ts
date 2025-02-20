@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   ElementRef,
   Inject,
   input,
@@ -203,6 +204,11 @@ export class CitationComponent implements OnInit, OnDestroy {
     this.strEditorValue = formBuilder.control(null, Validators.required);
     this.strEditorForm = formBuilder.group({
       value: this.strEditorValue,
+    });
+
+    // when editedCitation changes, validate it
+    effect(() => {
+      this.validateAndEmit();
     });
   }
 
@@ -473,8 +479,9 @@ export class CitationComponent implements OnInit, OnDestroy {
   //#endregion
 
   //#region Validation
-  public validateCitation(): { step?: string; error: string } | null {
-    const citation = this.editedCitation();
+  public validateCitation(
+    citation?: Citation
+  ): { step?: string; error: string } | null {
     const errors: { [key: string]: string } = {};
 
     if (!citation?.steps.length) {
@@ -535,7 +542,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   private validateAndEmit(): void {
-    const error = this.validateCitation();
+    const error = this.validateCitation(this.editedCitation());
     if (!error) {
       this.citationValidate.emit(null);
     } else {

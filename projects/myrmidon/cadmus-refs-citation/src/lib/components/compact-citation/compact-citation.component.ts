@@ -1,4 +1,11 @@
-import { Component, computed, effect, input, model } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  model,
+  OnDestroy,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Citation, CitationSpan } from '../../models';
 import { CitationViewComponent } from '../citation-view/citation-view.component';
 import { CitationComponent } from '../citation/citation.component';
+import { Subscription } from 'rxjs';
 
 /**
  * Compact citation component.
@@ -32,7 +40,10 @@ import { CitationComponent } from '../citation/citation.component';
   templateUrl: './compact-citation.component.html',
   styleUrl: './compact-citation.component.css',
 })
-export class CompactCitationComponent {
+export class CompactCitationComponent implements OnDestroy {
+  private _sub?: Subscription;
+  private _rangeChangeFrozen?: boolean;
+
   /**
    * The citation or citation span to edit.
    */
@@ -60,10 +71,9 @@ export class CompactCitationComponent {
     if (!this.citation()) {
       return undefined;
     }
-    if ((this.citation() as CitationSpan).a) {
-      return (this.citation() as CitationSpan).a;
-    }
-    return this.citation() as Citation;
+    return this.range.value
+      ? (this.citation() as CitationSpan).a
+      : (this.citation() as Citation);
   });
 
   /**
@@ -82,9 +92,28 @@ export class CompactCitationComponent {
   });
 
   constructor() {
+    this._sub = this.range.valueChanges.subscribe((value) => {
+      this._rangeChangeFrozen = true;
+      if (value) {
+        this.citation.set({
+          a: this.a(),
+          b: this.b(),
+        } as CitationSpan);
+      } else {
+        this.citation.set(this.a() as Citation);
+      }
+    });
     effect(() => {
+      if (this._rangeChangeFrozen) {
+        this._rangeChangeFrozen = false;
+        return;
+      }
       this.range.setValue(this.citation()?.hasOwnProperty('b') === true);
     });
+  }
+
+  public ngOnDestroy(): void {
+    this._sub?.unsubscribe();
   }
 
   public onAChange(citation?: Citation): void {

@@ -64,6 +64,11 @@ export class CitationPgComponent {
     this.error = error || undefined;
   }
 
+  public resetCitation(): void {
+    this.citation = undefined;
+    this.citText = undefined;
+  }
+
   public addCitation(): void {
     if (!this.citation) {
       return;

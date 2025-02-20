@@ -35,11 +35,21 @@
     <div class="valid">(valid)</div>
     <fieldset>
       <legend>list</legend>
-      <div>
+      <div class="form-row">
+        <button
+          type="button"
+          mat-flat-button
+          (click)="resetCitation()"
+          class="mat-warn"
+          matTooltip="Reset citation"
+        >
+          reset
+        </button>
         <button
           type="button"
           mat-flat-button
           (click)="addCitation()"
+          class="mat-primary"
           matTooltip="Add citation to list"
         >
           add

@@ -21,6 +21,8 @@ legend {
 table {
   width: 100%;
   border-collapse: collapse;
+  border: 1px solid silver;
+  margin: 8px 0;
 }
 tbody tr:nth-child(odd) {
   background-color: #e2e2e2;
@@ -33,4 +35,13 @@ th {
 td.fit-width {
   width: 1px;
   white-space: nowrap;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
 }

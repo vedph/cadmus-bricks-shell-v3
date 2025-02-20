@@ -2,8 +2,6 @@
   <div class="form-row">
     @if (!citation()) {
     <div class="muted">(no citation)</div>
-    } @else {
-    <mat-slide-toggle [formControl]="range">range</mat-slide-toggle>
     }
     <!-- view -->
     <cadmus-refs-citation-view
@@ -28,10 +26,11 @@
 
   <!-- editor -->
   <mat-expansion-panel
-    id="visual"
+    id="editor"
     [expanded]="editorExpanded"
     (expandedChange)="editorExpanded = $event"
   >
+    <mat-slide-toggle [formControl]="range">range</mat-slide-toggle>
     @if (range.value) {
     <h3>A</h3>
     }
