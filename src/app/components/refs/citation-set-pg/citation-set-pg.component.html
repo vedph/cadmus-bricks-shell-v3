@@ -5,6 +5,13 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <cadmus-refs-citation-set [citations]="citations" />
+    <cadmus-refs-citation-set
+      [citations]="citations"
+      (citationsChange)="onCitationsChange($event!)"
+    />
+    <hr />
+    @if (citations) {
+    <pre><code>{{citations | json}}</code></pre>
+    }
   </mat-card-content>
 </mat-card>

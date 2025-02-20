@@ -48,4 +48,8 @@ export class CitationSetPgComponent {
     this.citations.push(this._schemeService.parse('@od:α 22', 'dc')!);
     this.citations.push(this._schemeService.parse('@od:γ 178', 'dc')!);
   }
+
+  public onCitationsChange(citations: (Citation | CitationSpan)[]): void {
+    this.citations = citations;
+  }
 }
