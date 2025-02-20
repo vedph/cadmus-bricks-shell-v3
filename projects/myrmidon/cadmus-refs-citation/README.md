@@ -17,6 +17,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Usage](#usage)
     - [CitSchemeService](#citschemeservice)
     - [CitationComponent](#citationcomponent)
+    - [CitationViewComponent](#citationviewcomponent)
 
 ## Editing Citations
 
@@ -461,6 +462,8 @@ For the UI, configure your citation schemes in your [app configuration](../../..
 
 ### CitationComponent
 
+This component is used for editing a single citation. The input citation can be undefined for a new citation, or just an instance of `Citation`. The output always is a `Citation`.
+
 - 🔑 `CitationComponent`
 - 🚩 `cadmus-refs-citation`
 - ▶️ input:
@@ -470,4 +473,14 @@ For the UI, configure your citation schemes in your [app configuration](../../..
   - `citation` (`Citation`): the citation to edit.
 - 🔥 output:
   - `citationChange` (`Citation`)
-  - `citationValidate` (`CitationError | null`)
+  - `citationValidate` (`CitationError | null`): emitted after `citationChange` to report the validation result for the citation.
+
+### CitationViewComponent
+
+A component to display a citation or a citation span. The input can be a string (which will be parsed), a `Citation`, or a `CitationSpan`.
+
+- 🔑 `CitationViewComponent`
+- 🚩 `cadmus-refs-citation-view`
+- ▶️ input:
+  - `citation` (`string|Citation|CitationSpan`): the citation to display, which can be its model or its textual representation. When the citation is rather a range, it can be either a `CitationSpan` or a text using " - " as separator.
+  - `defaultSchemeId` (`string`)

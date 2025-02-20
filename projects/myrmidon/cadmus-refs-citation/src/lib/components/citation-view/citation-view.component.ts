@@ -11,7 +11,7 @@ import {
 } from '../../services/cit-scheme.service';
 
 /**
- * A component to display a citation or a citation range.
+ * A component to display a citation or a citation span.
  */
 @Component({
   selector: 'cadmus-refs-citation-view',
