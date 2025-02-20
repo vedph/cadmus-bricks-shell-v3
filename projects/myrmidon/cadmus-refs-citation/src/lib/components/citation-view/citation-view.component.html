@@ -1,12 +1,12 @@
 @if (a()?.steps?.length) {
 <div class="range">
   <div class="step-row">
-    @for (s of a()!.steps; track s.step) {
+    @for (s of a()!.steps; track s.stepId) {
     <div
       class="step"
       [style.background-color]="s.color || 'transparent'"
       [style.color]="s.color || 'white' | colorToContrast"
-      [matTooltip]="s.step"
+      [matTooltip]="s.stepId"
     >
       {{ s.value }}
     </div>
@@ -15,12 +15,12 @@
   @if (b()?.steps?.length) {
   <span> - </span>
   <div class="step-row">
-    @for (s of b()!.steps; track s.step) {
+    @for (s of b()!.steps; track s.stepId) {
     <div
       class="step"
       [style.background-color]="s.color || 'transparent'"
       [style.color]="s.color || 'white' | colorToContrast"
-      [matTooltip]="s.step"
+      [matTooltip]="s.stepId"
     >
       {{ s.value }}
     </div>

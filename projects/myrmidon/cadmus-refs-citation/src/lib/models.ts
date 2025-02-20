@@ -215,7 +215,7 @@ export type CitStep = {
   /**
    * The step in the citation scheme's path (e.g. "book").
    */
-  step: string;
+  stepId: string;
   /**
    * The optional color to use for this step in the UI.
    */

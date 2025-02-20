@@ -151,8 +151,8 @@ describe('CitSchemeService', () => {
     const a: Citation = {
       schemeId: 'dc',
       steps: [
-        { step: 'cantica', value: 'If.', n: 1 },
-        { step: 'canto', value: 'III', n: 3 },
+        { stepId: 'cantica', value: 'If.', n: 1 },
+        { stepId: 'canto', value: 'III', n: 3 },
       ],
     };
     const b = parser.parse('If. III 45', scheme.id)!;
@@ -182,17 +182,17 @@ describe('CitSchemeService', () => {
 
   // #region getStepDomain
   it('should return undefined if the scheme is not found', () => {
-    const result = service.getStepDomain('nonexistent', 'step');
+    const result = service.getStepDomain('step');
     expect(result).toBeUndefined();
   });
 
   it('should return step value if no conditions or citation are provided', () => {
-    const result = service.getStepDomain('dc', 'cantica');
+    const result = service.getStepDomain('cantica', undefined, 'dc');
     expect(result).toEqual({ set: ['If.', 'Purg.', 'Par.'] });
   });
 
   it('should return step value if citation is empty', () => {
-    const result = service.getStepDomain('dc', 'cantica', {
+    const result = service.getStepDomain('cantica', {
       schemeId: 'dc',
       steps: [],
     });
@@ -200,25 +200,25 @@ describe('CitSchemeService', () => {
   });
 
   it('should return undefined if step is not found', () => {
-    const result = service.getStepDomain('dc', 'nonexistent');
+    const result = service.getStepDomain('nonexistent');
     expect(result).toBeUndefined();
   });
 
   it('should return step value if conditions are not met', () => {
     const citation: Citation = {
       schemeId: 'dc',
-      steps: [{ step: 'cantica', value: 'Purg.', n: 2 }],
+      steps: [{ stepId: 'cantica', value: 'Purg.', n: 2 }],
     };
-    const result = service.getStepDomain('dc', 'canto', citation);
+    const result = service.getStepDomain('canto', citation);
     expect(result).toEqual({ range: { min: 1, max: 33 } });
   });
 
   it('should return step value if conditions are met', () => {
     const citation: Citation = {
       schemeId: 'dc',
-      steps: [{ step: 'cantica', value: 'If.', n: 1 }],
+      steps: [{ stepId: 'cantica', value: 'If.', n: 1 }],
     };
-    const result = service.getStepDomain('dc', 'canto', citation);
+    const result = service.getStepDomain('canto', citation);
     expect(result).toEqual({ range: { min: 1, max: 34 } });
   });
 
@@ -226,11 +226,11 @@ describe('CitSchemeService', () => {
     const citation: Citation = {
       schemeId: 'dc',
       steps: [
-        { step: 'cantica', value: 'If.', n: 1 },
-        { step: 'canto', value: 'III', n: 3 },
+        { stepId: 'cantica', value: 'If.', n: 1 },
+        { stepId: 'canto', value: 'III', n: 3 },
       ],
     };
-    const result = service.getStepDomain('dc', 'verso', citation);
+    const result = service.getStepDomain('verso', citation);
     expect(result).toEqual({ range: { min: 1 } });
   });
   // #endregion

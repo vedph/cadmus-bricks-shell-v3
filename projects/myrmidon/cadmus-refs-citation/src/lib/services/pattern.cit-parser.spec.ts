@@ -138,11 +138,11 @@ describe('PatternCitParser', () => {
     expect(citation!.schemeId).toBe(OD_SCHEME.id);
 
     expect(citation!.steps.length).toBe(2);
-    expect(citation!.steps[0].step).toBe('book');
+    expect(citation!.steps[0].stepId).toBe('book');
     expect(citation!.steps[0].value).toBe('α');
     expect(citation!.steps[0].n).toBe(1);
 
-    expect(citation!.steps[1].step).toBe('verse');
+    expect(citation!.steps[1].stepId).toBe('verse');
     expect(citation!.steps[1].value).toBe('123');
     expect(citation!.steps[1].n).toBe(123);
   });
@@ -155,11 +155,11 @@ describe('PatternCitParser', () => {
     expect(citation!.schemeId).toBe(OD_SCHEME.id);
 
     expect(citation!.steps.length).toBe(2);
-    expect(citation!.steps[0].step).toBe('book');
+    expect(citation!.steps[0].stepId).toBe('book');
     expect(citation!.steps[0].value).toBe('α');
     expect(citation!.steps[0].n).toBe(1);
 
-    expect(citation!.steps[1].step).toBe('verse');
+    expect(citation!.steps[1].stepId).toBe('verse');
     expect(citation!.steps[1].value).toBe('123');
     expect(citation!.steps[1].n).toBe(123);
     expect(citation!.steps[1].suffix).toBe('b');
@@ -174,15 +174,15 @@ describe('PatternCitParser', () => {
 
     expect(citation!.steps.length).toBe(3);
 
-    expect(citation!.steps[0].step).toBe('cantica');
+    expect(citation!.steps[0].stepId).toBe('cantica');
     expect(citation!.steps[0].value).toBe('If.');
     expect(citation!.steps[0].n).toBe(1);
 
-    expect(citation!.steps[1].step).toBe('canto');
+    expect(citation!.steps[1].stepId).toBe('canto');
     expect(citation!.steps[1].value).toBe('I');
     expect(citation!.steps[1].n).toBe(1);
 
-    expect(citation!.steps[2].step).toBe('verso');
+    expect(citation!.steps[2].stepId).toBe('verso');
     expect(citation!.steps[2].value).toBe('123');
     expect(citation!.steps[2].n).toBe(123);
   });
@@ -200,8 +200,8 @@ describe('PatternCitParser', () => {
     const result = parser.toString({
       schemeId: OD_SCHEME.id,
       steps: [
-        { step: 'book', value: 'α', n: 1 },
-        { step: 'verse', value: '123', n: 123 },
+        { stepId: 'book', value: 'α', n: 1 },
+        { stepId: 'verse', value: '123', n: 123 },
       ],
     });
     expect(result).toBe('@od:α 123');
@@ -212,8 +212,8 @@ describe('PatternCitParser', () => {
     const result = parser.toString({
       schemeId: OD_SCHEME.id,
       steps: [
-        { step: 'book', value: 'α', n: 1 },
-        { step: 'verse', value: '123', n: 123, suffix: 'b' },
+        { stepId: 'book', value: 'α', n: 1 },
+        { stepId: 'verse', value: '123', n: 123, suffix: 'b' },
       ],
     });
     expect(result).toBe('@od:α 123b');
@@ -224,9 +224,9 @@ describe('PatternCitParser', () => {
     const result = parser.toString({
       schemeId: DC_SCHEME.id,
       steps: [
-        { step: 'cantica', value: 'If.', n: 1 },
-        { step: 'canto', value: 'I', n: 1 },
-        { step: 'verso', value: '123', n: 123 },
+        { stepId: 'cantica', value: 'If.', n: 1 },
+        { stepId: 'canto', value: 'I', n: 1 },
+        { stepId: 'verso', value: '123', n: 123 },
       ],
     });
     expect(result).toBe('@dc:If. I 123');

@@ -4,7 +4,7 @@
     <!-- citation steps -->
     @if (!freeMode) {
     <div class="form-row">
-      @for (c of editedCitation().steps || []; track c.step; let index = $index;
+      @for (c of editedCitation().steps || []; track c.stepId; let index = $index;
       let last = $last) {
       <!-- step and separator -->
       @if (index <= lastStepIndex) {
@@ -103,7 +103,7 @@
       [style.background-color]="editedStep.color || 'transparent'"
       [style.color]="editedStep.color || 'transparent' | colorToContrast"
     >
-      {{ editedStep.step }}
+      {{ editedStep.stepId }}
     </legend>
     @switch (stepEditMode) {
     <!-- set mode -->

@@ -96,7 +96,7 @@ export class PatternCitParser implements CitParser {
       }
 
       citation.steps.push({
-        step: stepId,
+        stepId: stepId,
         color: step.color,
         value: value,
         suffix: suffix,
@@ -159,7 +159,7 @@ export class PatternCitParser implements CitParser {
       }
 
       // find the step in the citation model
-      const step = citation.steps.find((s) => s.step === stepName);
+      const step = citation.steps.find((s) => s.stepId === stepName);
       if (step) {
         // render n if any and the suffix is falsy or not 's',
         // as we want to render n+s by default, else just n for

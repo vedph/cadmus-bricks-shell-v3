@@ -112,7 +112,7 @@ export class CitationComponent implements OnInit, OnDestroy {
         cit.steps.push({
           color: this.scheme.value.steps[stepId].color,
           format: this.scheme.value.steps[stepId].format,
-          step: stepId,
+          stepId: stepId,
           value: '',
         });
       }
@@ -222,7 +222,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           const cit: Citation = { schemeId: scheme.id, steps: [] };
           for (let i = 0; i < scheme.path.length; i++) {
             cit.steps.push({
-              step: scheme.path[i],
+              stepId: scheme.path[i],
               color: scheme.steps[scheme.path[i]].color,
               value: '',
             });
@@ -255,7 +255,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           };
           for (let i = cit.steps.length; i <= this.lastStepIndex; i++) {
             newCit.steps.push({
-              step: this.scheme.value.path[i],
+              stepId: this.scheme.value.path[i],
               color: this.scheme.value.steps[this.scheme.value.path[i]].color,
               value: '',
             });
@@ -313,11 +313,11 @@ export class CitationComponent implements OnInit, OnDestroy {
     this.editedStep = step;
 
     // set edit mode according to step type
-    const stepDef = this.scheme.value.steps[step.step];
+    const stepDef = this.scheme.value.steps[step.stepId];
     const stepDomain = this._schemeService.getStepDomain(
-      this.scheme.value.id,
-      step.step,
-      this.citation()
+      step.stepId,
+      this.citation(),
+      this.scheme.value.id
     )!;
 
     switch (stepDef.type) {
@@ -395,7 +395,7 @@ export class CitationComponent implements OnInit, OnDestroy {
         steps: [],
       }),
     };
-    const index = this.scheme.value.path.indexOf(this.editedStep!.step);
+    const index = this.scheme.value.path.indexOf(this.editedStep!.stepId);
     if (index === -1) {
       return;
     }
@@ -424,7 +424,7 @@ export class CitationComponent implements OnInit, OnDestroy {
         steps: [],
       }),
     };
-    const index = this.scheme.value.path.indexOf(this.editedStep!.step);
+    const index = this.scheme.value.path.indexOf(this.editedStep!.stepId);
     if (index === -1) {
       return;
     }
@@ -462,7 +462,7 @@ export class CitationComponent implements OnInit, OnDestroy {
         steps: [],
       }),
     };
-    const index = this.scheme.value.path.indexOf(this.editedStep!.step);
+    const index = this.scheme.value.path.indexOf(this.editedStep!.stepId);
     if (index === -1) {
       return;
     }
@@ -491,48 +491,60 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
 
     for (let i = 0; i <= this.lastStepIndex; i++) {
-      const s = citation.steps[i];
+      const step = citation.steps[i];
       const domain = this._schemeService.getStepDomain(
-        this.scheme.value.id,
-        s.step,
-        citation
+        step.stepId,
+        citation,
+        this.scheme.value.id
       )!;
 
       // compare citation value with domain and return false if not valid
       if (domain.set?.length) {
-        if (!domain.set.includes(s.value)) {
-          errors[s.step] = `Invalid set value: ${s.value}`;
+        if (!domain.set.includes(step.value)) {
+          errors[step.stepId] = `Invalid set value: ${step.value}`;
           this.errors = errors;
-          return { step: s.step, error: `Invalid set value: ${s.step}` };
+          return {
+            step: step.stepId,
+            error: `Invalid set value: ${step.stepId}`,
+          };
         }
       } else if (domain.range) {
-        const n = s.n || 0;
+        const n = step.n || 0;
         if (
           domain.range.min !== undefined &&
           domain.range.min !== null &&
           n < domain.range.min
         ) {
-          errors[s.step] = `Value below min: ${s.step}`;
+          errors[step.stepId] = `Value below min: ${step.stepId}`;
           this.errors = errors;
-          return { step: s.step, error: `Value below min: ${s.step}` };
+          return {
+            step: step.stepId,
+            error: `Value below min: ${step.stepId}`,
+          };
         }
         if (
           domain.range.max !== undefined &&
           domain.range.max !== null &&
           n > domain.range.max
         ) {
-          errors[s.step] = `Value above max: ${s.step}`;
+          errors[step.stepId] = `Value above max: ${step.stepId}`;
           this.errors = errors;
-          return { step: s.step, error: `Value above max: ${s.step}` };
+          return {
+            step: step.stepId,
+            error: `Value above max: ${step.stepId}`,
+          };
         }
-        if (domain.suffix && !new RegExp(domain.suffix).test(s.suffix || '')) {
-          return { step: s.step, error: `Invalid suffix: ${s.step}` };
+        if (
+          domain.suffix &&
+          !new RegExp(domain.suffix).test(step.suffix || '')
+        ) {
+          return { step: step.stepId, error: `Invalid suffix: ${step.stepId}` };
         }
       } else if (domain.mask) {
-        if (!new RegExp(domain.mask).test(s.value)) {
-          errors[s.step] = `Invalid string: ${s.step}`;
+        if (!new RegExp(domain.mask).test(step.value)) {
+          errors[step.stepId] = `Invalid string: ${step.stepId}`;
           this.errors = errors;
-          return { step: s.step, error: `Invalid string: ${s.step}` };
+          return { step: step.stepId, error: `Invalid string: ${step.stepId}` };
         }
       }
     }

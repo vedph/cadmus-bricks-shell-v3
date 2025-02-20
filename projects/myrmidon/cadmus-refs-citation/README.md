@@ -446,7 +446,7 @@ For the UI, configure your citation schemes in your [app configuration](../../..
   - 🔥 `schemeSet$` (`Observable<Readonly<CitSchemeSet>>`)
   - 🟢 `configure(set: CitSchemeSet)`
   - 🟢 `getStepAt(index: number, schemeId: string): string`
-  - 🟢 `getStepDomain(schemeId: string, stepId: string, citation?: CitationModel): CitSchemeStepValue | undefined`
+  - 🟢 `getStepDomain(stepId: string, citation?: CitationModel, defaultSchemeId?: string): CitSchemeStepValue | undefined`
   - 🟢 `hasScheme(id: string): boolean`
   - 🟢 `hasSchemePrefix(): boolean`
   - 🟢 `getScheme(id: string): CitScheme | undefined`

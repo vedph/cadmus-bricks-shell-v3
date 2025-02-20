@@ -35,7 +35,7 @@ export class CitationStepComponent {
   public readonly error = computed<string | undefined>(() => {
     const errors = this.errors();
     const step = this.step();
-    return !errors || !step ? undefined : errors[step.step];
+    return !errors || !step ? undefined : errors[step.stepId];
   });
 
   public handleClick(): void {

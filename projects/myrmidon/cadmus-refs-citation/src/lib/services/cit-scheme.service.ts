@@ -232,14 +232,13 @@ export class CitSchemeService {
   }
 
   /**
-   * Get the value domain for the specified step in the specified scheme,
-   * depending on the context defined by the citation model. This provides
-   * the valid domain for a step's value, considering the context of the
-   * citation the step belongs to. For instance, the valid domain for step
+   * Get the value domain for the specified step, depending on the
+   * context defined by the citation model. This provides the valid
+   * domain for a step's value, considering the context of the citation
+   * the step belongs to. For instance, the valid domain for step
    * "verso" in Dante's Commedia, in a context defined by "cantica"="If."
    * and "canto"=1 is the range 1-136, because canto 1 of Inferno has 136
    * verses.
-   * @param schemeId The scheme ID.
    * @param stepId The step ID (e.g. "canto").
    * @param citation The partial citation model, including all the
    * components before the step to get. For instance, in Dante's
@@ -247,14 +246,20 @@ export class CitSchemeService {
    * verso step, you should pass citation steps for cantica and canto.
    * These will be matched against the conditions of the verso step
    * in its ascendants property.
+   * @param defaultSchemeId The default scheme ID to use when citation
+   * is undefined.
    * @returns Step at context or undefined if not found.
    */
   public getStepDomain(
-    schemeId: string,
     stepId: string,
-    citation?: Citation
+    citation?: Citation,
+    defaultSchemeId?: string
   ): CitSchemeStepDomain | undefined {
     // get scheme
+    const schemeId = citation?.schemeId || defaultSchemeId;
+    if (!schemeId) {
+      return undefined;
+    }
     const scheme = this.getScheme(schemeId);
     if (!scheme) {
       return undefined;
@@ -263,7 +268,7 @@ export class CitSchemeService {
     // get step definition and just return its value if no conditions
     // or no citation to check, or when the step is not found
     const step = scheme.steps[stepId];
-    if (!citation?.steps.length || !step.conditions || !step) {
+    if (!citation?.steps.length || !step?.conditions) {
       return step?.domain;
     }
 
