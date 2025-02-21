@@ -79,7 +79,16 @@
             [defaultSchemeId]="defaultSchemeId()"
           />
         </td>
-        <td>
+        <td
+          class="fit-width centered"
+          [style.background-color]="
+            getSchemeColor($any(c).a?.schemeId || $any(c).schemeId)
+          "
+          [style.color]="
+            getSchemeColor($any(c).a?.schemeId || $any(c).schemeId)
+              | colorToContrast
+          "
+        >
           {{ $any(c).a?.schemeId || $any(c).schemeId }}
         </td>
       </tr>

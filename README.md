@@ -142,5 +142,12 @@ Remember to run these commands in your terminal from your project's root directo
 
 👉 For the libraries history, see the README of each library in this workspace.
 
-- 2025-02-09: adding [@myrmidon/cadmus-refs-citation](projects/myrmidon/cadmus-refs-citation/README.md)
+- 2025-02-21:
+  - updated Angular and packages.
+  - fixes to Commedia counts in demo.
+  - more stylish citation set.
+
+### 8.0.0 - 2025-02-21
+
+- 2025-02-09: added [@myrmidon/cadmus-refs-citation](projects/myrmidon/cadmus-refs-citation/README.md)
 - 2025-01-22: updated Angular and packages.

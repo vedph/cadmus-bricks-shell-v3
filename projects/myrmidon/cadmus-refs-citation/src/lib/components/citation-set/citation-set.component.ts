@@ -6,6 +6,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
+
 import { Citation, CitationSpan } from '../../models';
 import {
   CIT_SCHEME_SERVICE_TOKEN,
@@ -27,6 +29,7 @@ import { CompactCitationComponent } from '../compact-citation/compact-citation.c
     MatTooltipModule,
     CitationViewComponent,
     CompactCitationComponent,
+    ColorToContrastPipe
   ],
   templateUrl: './citation-set.component.html',
   styleUrl: './citation-set.component.css',
@@ -163,5 +166,9 @@ export class CitationSetComponent {
     citations.splice(index, 1);
 
     this.citations.set(citations);
+  }
+
+  public getSchemeColor(id: string): string {
+    return this._schemeService.getScheme(id)?.color || 'transparent';
   }
 }

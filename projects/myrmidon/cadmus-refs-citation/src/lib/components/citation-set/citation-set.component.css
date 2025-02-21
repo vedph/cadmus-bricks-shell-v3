@@ -23,6 +23,9 @@ td.fit-width {
   width: 1px;
   white-space: nowrap;
 }
+td.centered {
+  text-align: center;
+}
 tr.selected {
   background-color: #d0d0d0 !important;
 }
