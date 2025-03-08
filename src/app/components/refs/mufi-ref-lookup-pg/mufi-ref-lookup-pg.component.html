@@ -30,7 +30,7 @@
       <div id="glyph-box">
         <div
           [innerHTML]="
-            item!.svg || ''
+            item?.svg || ''
               | replaceString : 'rgb\\(64,101,101\\)' : 'rgb(68,76,255)'
               | safeHtml
           "
@@ -38,6 +38,9 @@
       </div>
       }
     </div>
+    @if (item?.comment) {
+    <div id="comment">{{ item!.comment }}</div>
+    }
     <!-- dump -->
     @if (item) {
     <hr />

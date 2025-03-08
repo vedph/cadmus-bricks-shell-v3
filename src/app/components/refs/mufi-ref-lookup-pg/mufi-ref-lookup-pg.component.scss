@@ -23,3 +23,13 @@ div#glyph-box {
 div#glyph-box svg {
   display: block;
 }
+
+div#comment {
+  margin: 8px 0;
+  max-width: 600px;
+  font-size: 90%;
+  color: #a0a0a0;
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 4px;
+}
