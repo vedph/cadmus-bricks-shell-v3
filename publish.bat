@@ -85,6 +85,11 @@ call npm publish --access=public
 cd ..\..\..
 pause
 
+cd .\dist\myrmidon\cadmus-refs-mufi-lookup
+call npm publish --access=public
+cd ..\..\..
+pause
+
 cd .\dist\myrmidon\cadmus-refs-proper-name
 call npm publish --access=public
 cd ..\..\..
