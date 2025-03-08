@@ -64,6 +64,9 @@
       "@myrmidon/cadmus-refs-lookup": [
         "./dist/myrmidon/cadmus-refs-lookup"
       ],
+      "@myrmidon/cadmus-refs-mufi-lookup": [
+        "./dist/myrmidon/cadmus-refs-mufi-lookup"
+      ],
       "@myrmidon/cadmus-refs-proper-name": [
         "./dist/myrmidon/cadmus-refs-proper-name"
       ],

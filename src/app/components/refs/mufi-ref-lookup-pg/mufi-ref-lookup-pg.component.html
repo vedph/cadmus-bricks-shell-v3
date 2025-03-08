@@ -1,0 +1,49 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>MUFI Lookup</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p>
+      Note that
+      <a href="https://mufi.info" target="_blank" rel="noopener">MUFI</a> does
+      not provide an API service, so you need a server to host your own.
+      Currently, this page is used for local testing with a service running at
+      <code>http://localhost:5113</code>. If this is running, you can inspect
+      the endpoints at
+      <a href="http://localhost:5113" rel="noopener" target="_blank"
+        >http://localhost:5113/scalar/v1</a
+      >.
+    </p>
+    <div class="form-row">
+      <cadmus-ref-lookup
+        [service]="service"
+        [item]="item"
+        [required]="true"
+        label="MUFI"
+        (itemChange)="onItemChange($event)"
+        (moreRequest)="onMoreRequest()"
+      />
+      <!-- svg -->
+      @if (item?.svg) {
+      <div id="glyph-box">
+        <div
+          [innerHTML]="
+            item!.svg || ''
+              | replaceString : 'rgb\\(64,101,101\\)' : 'rgb(68,76,255)'
+              | safeHtml
+          "
+        ></div>
+      </div>
+      }
+    </div>
+    <!-- dump -->
+    @if (item) {
+    <hr />
+    <div>
+      <pre>{{ item | json }}</pre>
+    </div>
+    }
+  </mat-card-content>
+</mat-card>

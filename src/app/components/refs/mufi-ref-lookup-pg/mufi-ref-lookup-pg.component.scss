@@ -1,0 +1,25 @@
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+
+div#glyph-box {
+  margin: 0 8px;
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 4px;
+  background-color: white;
+  display: inline-block;
+  width: fit-content;
+  height: fit-content;
+}
+
+// ensure the SVG itself doesn't have extra margins
+div#glyph-box svg {
+  display: block;
+}

@@ -62,6 +62,7 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 - [@myrmidon/cadmus-refs-lookup](projects/myrmidon/cadmus-refs-lookup/README.md)
 - [@myrmidon/cadmus-refs-dbpedia-lookup](projects/myrmidon/cadmus-refs-dbpedia-lookup/README.md)
 - [@myrmidon/cadmus-refs-geonames-lookup](projects/myrmidon/cadmus-refs-geonames-lookup/README.md)
+- [@myrmidon/cadmus-refs-mufi-lookup](projects/myrmidon/cadmus-refs-mufi-lookup/README.md)
 - [@myrmidon/cadmus-refs-viaf-lookup](projects/myrmidon/cadmus-refs-viaf-lookup/README.md)
 - [@myrmidon/cadmus-refs-whg-lookup](projects/myrmidon/cadmus-refs-whg-lookup/README.md)
 
@@ -103,6 +104,7 @@ ng g library @myrmidon/cadmus-refs-doc-references --prefix cadmus
 ng g library @myrmidon/cadmus-refs-external-ids --prefix cadmus
 ng g library @myrmidon/cadmus-refs-historical-date --prefix cadmus
 ng g library @myrmidon/cadmus-refs-lookup --prefix cadmus
+ng g library @myrmidon/cadmus-refs-mufi-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-proper-name --prefix cadmus
 ng g library @myrmidon/cadmus-refs-viaf-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-text-block-view --prefix cadmus
@@ -141,6 +143,8 @@ Remember to run these commands in your terminal from your project's root directo
 ## History
 
 👉 For the libraries history, see the README of each library in this workspace.
+
+- 2025-03-08: added MUFI lookup library.
 
 ### 8.0.1 - 2025-02-21
 

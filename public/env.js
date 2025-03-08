@@ -2,4 +2,6 @@
 (function (window) {
   window.__env = window.__env || {};
   window.__env.version = "8.0.1";
+  // this is for local development with MUFI
+  window.__env.mufiUrl = 'http://localhost:5113/';
 })(this);

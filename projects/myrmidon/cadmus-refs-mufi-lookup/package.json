@@ -1,0 +1,29 @@
+{
+  "name": "@myrmidon/cadmus-refs-mufi-lookup",
+  "version": "0.0.1",
+  "description": "Cadmus - MUFI lookup.",
+  "keywords": [
+    "Cadmus",
+    "bricks",
+    "MUFI",
+    "Medieval Unicode Font Initiative"
+  ],
+  "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vedph/cadmus-bricks-shell-v3"
+  },
+  "author": {
+    "name": "Daniele Fusi"
+  },
+  "peerDependencies": {
+    "@angular/common": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@myrmidon/ngx-tools": "^1.0.0",
+    "@myrmidon/cadmus-refs-lookup": "^8.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
