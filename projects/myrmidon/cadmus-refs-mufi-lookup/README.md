@@ -4,13 +4,13 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.0.
 
-Lookup brick for a simple [MUFI](https://mufi.info) (Medieval Unicode Font Initiative) lookup service.
+A simple [MUFI](https://mufi.info) (Medieval Unicode Font Initiative) lookup service.
 
 ## Requirements
 
 As MUFI does not currently provide any API services, you will need to add the MUFI API service to your Cadmus API using the corresponding package (`Mufi.Api.Controllers`).
 
-The demo page for this service assumes that the endpoints for this controller are reachable at <http://localhost:5113>. You can change the base address from the app's `env.js` file.
+In this workspace, the demo page for this service assumes that the endpoints for this controller are reachable at <http://localhost:5113>. You can change the base address from the app's `env.js` file.
 
 ## Usage
 
@@ -46,7 +46,7 @@ Sample template using SVG and comment, assuming that the MUFI lookup item is nam
     <div
       [innerHTML]="
         item?.svg || ''
-          | replaceString : 'rgb\\(64,101,101\\)' : 'rgb(68,76,255)'
+          | replaceString : 'rgb(64,101,101)' : 'rgb(68,76,255)' : false
           | safeHtml
       "
     ></div>
@@ -59,14 +59,16 @@ Sample template using SVG and comment, assuming that the MUFI lookup item is nam
 }
 ```
 
-The corresponding code in the component is like:
+>The `replaceString` pipe is from `@myrmidon/ngx-tools`.
+
+The corresponding code in the component is:
 
 ```ts
-  public item?: MufiChar;
+public item?: MufiChar;
 
-  constructor(public service: MufiRefLookupService) {}
+constructor(public service: MufiRefLookupService) {}
 
-  public onItemChange(item: any | undefined): void {
-    this.item = item;
-  }
+public onItemChange(item: any | undefined): void {
+  this.item = item;
+}
 ```
