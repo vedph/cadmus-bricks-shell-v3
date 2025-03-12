@@ -8,9 +8,9 @@ A simple [MUFI](https://mufi.info) (Medieval Unicode Font Initiative) lookup ser
 
 ## Requirements
 
-As MUFI does not currently provide any API services, you will need to add the MUFI API service to your Cadmus API using the corresponding package (`Mufi.Api.Controllers`).
+⚠️ As MUFI does not currently provide any API services, you will need to add the MUFI API service to your Cadmus API using the corresponding package (`Mufi.Api.Controllers`).
 
-In this workspace, the demo page for this service assumes that the endpoints for this controller are reachable at <http://localhost:5113>. You can change the base address from the app's `env.js` file.
+In this workspace, the demo page for this service assumes that the endpoints for this controller are reachable at <http://localhost:5113/api/>. You can change the base address from the app's `env.js` file.
 
 ## Usage
 
@@ -64,11 +64,75 @@ Sample template using SVG and comment, assuming that the MUFI lookup item is nam
 The corresponding code in the component is:
 
 ```ts
-public item?: MufiChar;
+import { ReplaceStringPipe, SafeHtmlPipe } from '@myrmidon/ngx-tools';
+import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
+import {
+  MufiRefLookupService,
+  MufiChar,
+} from '@myrmidon/cadmus-refs-mufi-lookup';
 
-constructor(public service: MufiRefLookupService) {}
+@Component({
+  selector: 'app-mufi-ref-lookup-pg',
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressBarModule,
+    RefLookupComponent,
+    SafeHtmlPipe,
+    ReplaceStringPipe,
+  ],
+  templateUrl: './mufi-ref-lookup-pg.component.html',
+  styleUrl: './mufi-ref-lookup-pg.component.scss',
+})
+export class MufiRefLookupPgComponent {
+  public item?: MufiChar;
 
-public onItemChange(item: any | undefined): void {
-  this.item = item;
+  constructor(public service: MufiRefLookupService) {}
+
+  public onItemChange(item: any | undefined): void {
+    this.item = item;
+  }
 }
 ```
+
+Styles:
+
+```css
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+div#glyph-box {
+  margin: 0 8px;
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 4px;
+  background-color: white;
+  display: inline-block;
+  width: fit-content;
+  height: fit-content;
+}
+div#glyph-box svg {
+  display: block;
+}
+div#comment {
+  margin: 8px 0;
+  max-width: 600px;
+  font-size: 90%;
+  color: #a0a0a0;
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 4px;
+}
+```
+
+## History
+
+- 2025-03-12: fixed URL in service.

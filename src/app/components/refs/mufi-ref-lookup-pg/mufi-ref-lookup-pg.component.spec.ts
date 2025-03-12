@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MufiRefLookupPgComponent } from './mufi-ref-lookup-pg.component';
+import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 
 describe('MufiRefLookupPgComponent', () => {
   let component: MufiRefLookupPgComponent;
@@ -8,7 +9,7 @@ describe('MufiRefLookupPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MufiRefLookupPgComponent],
+      imports: [MufiRefLookupPgComponent, RefLookupComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MufiRefLookupPgComponent);

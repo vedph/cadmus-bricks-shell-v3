@@ -181,7 +181,7 @@ export class MufiService {
    */
   public get(code: number): Observable<MufiChar> {
     return this._http
-      .get<MufiChar>(this._url + 'api/mufi/characters/' + code.toString())
+      .get<MufiChar>(this._url + 'mufi/characters/' + code.toString())
       .pipe(
         retry(3),
         catchError((error) => this._error.handleError(error))
@@ -199,7 +199,7 @@ export class MufiService {
       .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
 
     return this._http
-      .get<DataPage<MufiChar>>(this._url + 'api/mufi/characters', {
+      .get<DataPage<MufiChar>>(this._url + 'mufi/characters', {
         params: filteredRequest as any,
       })
       .pipe(
