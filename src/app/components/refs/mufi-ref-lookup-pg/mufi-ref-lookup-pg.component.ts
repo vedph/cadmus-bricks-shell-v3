@@ -5,14 +5,15 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+import { ReplaceStringPipe, SafeHtmlPipe } from '@myrmidon/ngx-tools';
+
 import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 
 import {
   MufiRefLookupService,
   MufiChar,
 } from '../../../../../projects/myrmidon/cadmus-refs-mufi-lookup/src/public-api';
-import { SafeHtmlPipe } from '@myrmidon/ngx-tools';
-import { ReplaceStringPipe } from './replace-string.pipe';
 
 @Component({
   selector: 'app-mufi-ref-lookup-pg',

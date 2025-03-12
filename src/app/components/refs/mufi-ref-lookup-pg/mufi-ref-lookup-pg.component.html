@@ -31,7 +31,7 @@
         <div
           [innerHTML]="
             item?.svg || ''
-              | replaceString : 'rgb\\(64,101,101\\)' : 'rgb(68,76,255)'
+              | replaceString : 'rgb(64,101,101)' : 'rgb(68,76,255)' : false
               | safeHtml
           "
         ></div>

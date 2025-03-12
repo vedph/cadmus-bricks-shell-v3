@@ -144,6 +144,7 @@ Remember to run these commands in your terminal from your project's root directo
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-03-12: updated Angular and packages.
 - 2025-03-08: added MUFI lookup library [@myrmidon/cadmus-refs-mufi-lookup](projects/myrmidon/cadmus-refs-mufi-lookup/README.md).
 
 ### 8.0.1 - 2025-02-21
