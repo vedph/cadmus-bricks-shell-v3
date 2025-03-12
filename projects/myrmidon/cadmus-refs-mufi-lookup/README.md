@@ -26,3 +26,35 @@ The demo page for this service assumes that the endpoints for this controller ar
 4. inject `MufiRefLookupService` in your controller and bind it to the lookup component used in your component.
 
 💡 The service also provides (when available) the SVG code to visualize the corresponding glyph of a character. So, you can add to this lookup also the visualization similarly to what is done in the demo app page. Should you want to change colors in the SVG, use a replace pipe like in the demo and replace the hardcoded color with your desired color.
+
+Sample template using SVG and comment, assuming that the MUFI lookup item is named `item` in component's code:
+
+```html
+<div class="form-row">
+  <!-- MUFI lookup -->
+  <cadmus-ref-lookup
+    [service]="service"
+    [item]="item"
+    [required]="true"
+    label="MUFI"
+    (itemChange)="onItemChange($event)"
+    (moreRequest)="onMoreRequest()"
+  />
+  <!-- svg -->
+  @if (item?.svg) {
+  <div id="glyph-box">
+    <div
+      [innerHTML]="
+        item?.svg || ''
+          | replaceString : 'rgb\\(64,101,101\\)' : 'rgb(68,76,255)'
+          | safeHtml
+      "
+    ></div>
+  </div>
+  }
+</div>
+<!-- comment -->
+@if (item?.comment) {
+<div id="comment">{{ item!.comment }}</div>
+}
+```
