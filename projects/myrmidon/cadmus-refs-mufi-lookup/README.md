@@ -58,3 +58,15 @@ Sample template using SVG and comment, assuming that the MUFI lookup item is nam
 <div id="comment">{{ item!.comment }}</div>
 }
 ```
+
+The corresponding code in the component is like:
+
+```ts
+  public item?: MufiChar;
+
+  constructor(public service: MufiRefLookupService) {}
+
+  public onItemChange(item: any | undefined): void {
+    this.item = item;
+  }
+```
