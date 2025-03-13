@@ -1,17 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import {
   Flag,
+  FlagSetBadgeComponent,
   FlagSetComponent,
 } from '../../../../../projects/myrmidon/cadmus-ui-flag-set/src/public-api';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 const COLORS = [
   { id: 'r', label: 'red', color: 'red' },
@@ -65,6 +66,7 @@ const TOPPINGS = [
     MatFormFieldModule,
     MatInputModule,
     FlagSetComponent,
+    FlagSetBadgeComponent,
     JsonPipe,
   ],
   templateUrl: './flag-set-pg.component.html',
@@ -73,17 +75,25 @@ const TOPPINGS = [
 export class FlagSetPgComponent {
   public flags: Flag[] = COLORS;
 
+  public readonly checkedIds = signal<string[]>(['r', 'g', 'cr']);
+
+  public readonly checkedFlags = computed<Flag[]>(() => {
+    return this.flags.filter((f) => this.checkedIds().includes(f.id));
+  });
+
   public numbering: FormControl<boolean> = new FormControl(true, {
     nonNullable: true,
   });
-  public checkedIds: string[] = ['r', 'g', 'cr'];
+  public initials: FormControl<boolean> = new FormControl(true, {
+    nonNullable: true,
+  });
 
   public onCheckedIdsChange(ids: string[]): void {
-    this.checkedIds = ids;
+    this.checkedIds.set(ids);
   }
 
   public readonly userIds: FormControl<string | null> = new FormControl(
-    this.checkedIds.join(' ')
+    this.checkedIds().join(' ')
   );
   public readonly form: FormGroup = new FormGroup({
     userIds: this.userIds,
@@ -91,12 +101,12 @@ export class FlagSetPgComponent {
 
   public setUserIds(): void {
     if (this.userIds.value) {
-      this.checkedIds = this.userIds.value.split(' ');
+      this.checkedIds.set(this.userIds.value.split(' '));
     }
   }
 
   public toggleFlags(): void {
-    this.checkedIds = [];
+    this.checkedIds.set([]);
     this.flags = this.flags === COLORS ? TOPPINGS : COLORS;
   }
 }

@@ -1,0 +1,18 @@
+@if (flags().length) {
+<div class="badge-row">
+  @for (flag of flags(); let i = $index; track flag.id) {
+  <div
+    class="badge"
+    [matTooltip]="flag.label"
+    [style.background-color]="flagColors()[i]"
+    [style.color]="flagColors()[i] | colorToContrast"
+  >
+    <span [style.font-size]="flagSize()">
+      @if (noInitials()) {
+      {{ flagSymbol() }}
+      } @else { {{ flagInitials()[i] }} }
+    </span>
+  </div>
+  }
+</div>
+}

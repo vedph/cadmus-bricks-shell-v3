@@ -8,13 +8,14 @@
     <div>
       <div>
         <mat-checkbox [formControl]="numbering">numbering</mat-checkbox>
+        <mat-checkbox [formControl]="initials">initials</mat-checkbox>
       </div>
-      <hr>
+      <hr />
       <fieldset>
         <legend>flags</legend>
         <cadmus-ui-flag-set
           [flags]="flags"
-          [checkedIds]="checkedIds"
+          [checkedIds]="checkedIds()"
           [allowCustom]="true"
           [numbering]="numbering.value"
           (checkedIdsChange)="onCheckedIdsChange($event)"
@@ -44,6 +45,12 @@
           <pre>{{ checkedIds | json }}</pre>
         </code>
       </div>
+      <div>
+        <cadmus-flag-set-badge
+          [flags]="checkedFlags()"
+          [noInitials]="!initials.value"
+        />
       </div>
+    </div>
   </mat-card-content>
 </mat-card>
