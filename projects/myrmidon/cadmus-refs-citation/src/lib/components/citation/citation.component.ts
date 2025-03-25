@@ -3,7 +3,6 @@ import {
   computed,
   effect,
   ElementRef,
-  Inject,
   input,
   model,
   OnDestroy,

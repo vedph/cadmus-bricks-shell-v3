@@ -1,0 +1,149 @@
+<form [formGroup]="form" (submit)="save()">
+  <div class="form-row">
+    <!-- type -->
+    <!-- type (bound) -->
+    @if (typeEntries()?.length) {
+    <mat-form-field>
+      <mat-label>type</mat-label>
+      <mat-select [formControl]="type">
+        <mat-option *ngFor="let e of typeEntries()" [value]="e.id">{{
+          e.value
+        }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    } @else {
+    <!-- type (free) -->
+    <mat-form-field>
+      <mat-label>type</mat-label>
+      <input matInput [formControl]="type" />
+      @if ($any(type).errors?.maxLength && (type.dirty || type.touched)) {
+      <mat-error>type too long</mat-error>
+      }
+    </mat-form-field>
+    }
+
+    <!-- tag -->
+    <!-- tag (bound) -->
+    @if (tagEntries()?.length) {
+    <mat-form-field>
+      <mat-label>tag</mat-label>
+      <mat-select [formControl]="tag">
+        <mat-option *ngFor="let e of tagEntries()" [value]="e.id">{{
+          e.value
+        }}</mat-option>
+      </mat-select>
+      @if ($any(tag).errors?.required && (tag.dirty || tag.touched)) {
+      <mat-error>tag required</mat-error>
+      }
+    </mat-form-field>
+    } @else {
+    <!-- tag (free) -->
+    <mat-form-field>
+      <mat-label>tag</mat-label>
+      <input matInput [formControl]="tag" />
+      @if ($any(tag).errors?.required && (tag.dirty || tag.touched)) {
+      <mat-error>tag required</mat-error>
+      } @if ($any(tag).errors?.maxLength && (tag.dirty || tag.touched)) {
+      <mat-error>tag too long</mat-error>
+      }
+    </mat-form-field>
+    }
+  </div>
+
+  <!-- citation -->
+  <div class="form-row">
+    <mat-form-field>
+      <mat-label>citation</mat-label>
+      <input matInput [formControl]="citation" />
+      @if ($any(citation).errors?.required && (citation.dirty ||
+      citation.touched)) {
+      <mat-error>citation required</mat-error>
+      } @if ($any(citation).errors?.maxLength && (citation.dirty ||
+      citation.touched)) {
+      <mat-error>citation too long</mat-error>
+      }
+    </mat-form-field>
+    <!-- toggler -->
+    @if (pickerEnabled()) {
+    <button
+      type="button"
+      mat-icon-button
+      matSuffix
+      matTooltip="Toggle citation picker"
+      (click)="togglePicker()"
+    >
+      @if (pickerExpanded) {
+      <mat-icon class="mat-primary">publish</mat-icon>
+      } @if (!pickerExpanded) {
+      <mat-icon class="mat-primary">get_app</mat-icon>
+      }
+    </button>
+    @if (pickerEnabled() && pickerExpanded) {
+    <!-- pickerType -->
+    <mat-form-field *ngIf="pickers()?.length">
+      <mat-label>pickerType</mat-label>
+      <mat-select [formControl]="pickerType">
+        <mat-option *ngFor="let id of pickers()" [value]="id">{{
+          id
+        }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    }}
+  </div>
+  <!-- citation picker -->
+  <mat-expansion-panel
+    id="picker"
+    [expanded]="pickerExpanded"
+    (expandedChange)="pickerExpanded = $event"
+  >
+    <fieldset>
+      <legend>picker</legend>
+      @switch (pickerType.value) {
+      <!-- lookup -->
+      @case ("lookup") {
+      <cadmus-ref-lookup-set
+        [configs]="lookupConfigs"
+        (itemChange)="onLookupItemChange($event)"
+      />
+      }
+      <!-- citation -->
+      @case ("citation") {
+      <cadmus-refs-citation
+        [citation]="parsedCitation"
+        (citationChange)="onCitationChange($event)"
+      />
+      } }
+    </fieldset>
+  </mat-expansion-panel>
+
+  <!-- note -->
+  <div>
+    <mat-form-field class="long-text">
+      <mat-label>note</mat-label>
+      <textarea matInput [formControl]="note"></textarea>
+      @if ($any(note).errors?.maxLength && (note.dirty || note.touched)) {
+      <mat-error>note too long</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <!-- buttons -->
+  <div>
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Discard changes"
+      (click)="close()"
+    >
+      <mat-icon class="mat-warn">clear</mat-icon>
+    </button>
+    <button
+      type="submit"
+      mat-icon-button
+      matTooltip="Accept changes"
+      [disabled]="form.invalid || form.pristine"
+    >
+      <mat-icon class="mat-primary">check_circle</mat-icon>
+    </button>
+  </div>
+</form>

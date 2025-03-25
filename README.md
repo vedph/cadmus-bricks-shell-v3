@@ -118,6 +118,43 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 I then replaced Karma with Jest.
 
+## Dependencies
+
+```mermaid
+graph LR;
+
+cod-location --> ngx-tools
+
+physical-grid
+
+physical-size --> ngx-tools
+physical-state --> ui-flag-set
+
+refs-asserted-chronotope --> ngx-mat-tools
+refs-asserted-chronotope --> refs-assertion
+refs-asserted-chronotope --> refs-historical-date
+
+refs-asserted-ids --> ngx-mat-tools
+refs-asserted-ids --> api
+refs-asserted-ids --> refs-assertion
+
+refs-assertion --> refs-doc-references
+
+refs-chronotope --> refs-historical-date
+
+refs-citation
+
+refs-dbpedia-lookup --> ngx-tools
+refs-dbpedia-lookup --> refs-lookup
+
+refs-decorated-counts
+refs-decorated-ids --> refs-doc-references
+
+refs-doc-references --> core
+
+refs-lookup
+```
+
 ## Testing
 
 In Jest, you can run tests from a single library or the main app by specifying the test file or directory in the Jest command. Here's how you can do it:

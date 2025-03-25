@@ -220,6 +220,14 @@ export const routes: Routes = [
         './components/refs/ref-lookup-set-pg/ref-lookup-set-pg.component'
       ).then((m) => m.RefLookupSetPgComponent),
   },
+  // refs/ref-lookup-docs
+  {
+    path: 'refs/ref-lookup-docs',
+    loadComponent: () =>
+      import(
+        './components/refs/ref-lookup-doc-references-pg/ref-lookup-doc-references-pg.component'
+      ).then((m) => m.RefLookupDocReferencesPgComponent),
+  },
   // refs/mufi-ref-lookup
   {
     path: 'refs/mufi-ref-lookup',

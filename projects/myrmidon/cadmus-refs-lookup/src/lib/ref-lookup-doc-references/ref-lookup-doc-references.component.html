@@ -1,0 +1,90 @@
+<div>
+  <!-- add -->
+  <div class="form-row">
+    <button
+      type="button"
+      mat-flat-button
+      class="mat-primary"
+      (click)="addReference()"
+    >
+      <mat-icon>add_circle</mat-icon> reference
+    </button>
+    @if (references().length) {
+    <span class="badge">{{ references().length }}</span>
+    }
+  </div>
+
+  @if (references().length) {
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>type</th>
+        <th>tag</th>
+        <th>citation</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (entry of references(); track entry; let i = $index; let first =
+      $first; let last = $last) {
+      <tr [class.selected]="entry === edited">
+        <td class="fit-width">
+          <button
+            type="button"
+            mat-icon-button
+            color="primary"
+            matTooltip="Edit this reference"
+            (click)="editReference(entry, i)"
+          >
+            <mat-icon class="mat-primary">edit</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Move this reference up"
+            [disabled]="first"
+            (click)="moveReferenceUp(i)"
+          >
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Move this reference down"
+            [disabled]="last"
+            (click)="moveReferenceDown(i)"
+          >
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            color="warn"
+            matTooltip="Delete this reference"
+            (click)="deleteReference(i)"
+          >
+            <mat-icon class="mat-warn">remove_circle</mat-icon>
+          </button>
+        </td>
+        <td>{{ entry.type | flatLookup : typeEntries : "id" : "value" }}</td>
+        <td>{{ entry.tag | flatLookup : tagEntries : "id" : "value" }}</td>
+        <td>{{ entry.citation }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  } @if (edited) {
+  <fieldset>
+    <mat-expansion-panel [expanded]="edited" [disabled]="!edited">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Reference #{{ editedIndex + 1 }}</mat-panel-title>
+      </mat-expansion-panel-header>
+      <ref-cadmus-lookup-doc-reference
+        [reference]="edited"
+        (referenceChange)="saveReference($event!)"
+        (cancel)="closeReference()"
+      />
+    </mat-expansion-panel>
+  </fieldset>
+  }
+</div>

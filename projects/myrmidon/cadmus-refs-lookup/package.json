@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-lookup",
-  "version": "8.0.1",
+  "version": "8.0.2",
   "description": "Cadmus - reference lookup component.",
   "keywords": [
     "Cadmus",
@@ -16,7 +16,8 @@
   },
   "peerDependencies": {
     "@angular/common": "^19.0.0",
-    "@angular/core": "^19.0.0"
+    "@angular/core": "^19.0.0",
+    "@myrmidon/cadmus-refs-doc-references": "^9.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
