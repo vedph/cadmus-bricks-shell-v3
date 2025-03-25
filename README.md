@@ -147,6 +147,7 @@ Remember to run these commands in your terminal from your project's root directo
 - 2025-03-25:
   - added components to `@myrmidon/cadmus-refs-lookup`.
   - refactored settings for `@myrmidon/cadmus-refs-citation`.
+  - updated Angular.
 - 2025-03-12: updated Angular and packages.
 - 2025-03-08: added MUFI lookup library [@myrmidon/cadmus-refs-mufi-lookup](projects/myrmidon/cadmus-refs-mufi-lookup/README.md).
 
