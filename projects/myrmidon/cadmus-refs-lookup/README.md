@@ -6,16 +6,15 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 - [CadmusRefsLookup](#cadmusrefslookup)
   - [RefLookupComponent](#reflookupcomponent)
-  - [RefLookupSetComponent](#reflookupsetcomponent)
-  - [Lookup](#lookup)
     - [Usage](#usage)
-  - [Lookup Set](#lookup-set)
+  - [RefLookupSetComponent](#reflookupsetcomponent)
     - [Configuring Set](#configuring-set)
+  - [LookupDocReferencesComponent](#lookupdocreferencescomponent)
   - [History](#history)
 
 ## RefLookupComponent
 
-Generic reference lookup component. You must set the `service` property to the lookup service, implementing the `LookupService` interface, and optionally the current lookup `item`. Optionally set the `label` and `limit`, and `hasMore` to true if you want a _more_ button for more complex lookup.
+Generic reference lookup component. This can be used to provide quick lookup into some data repository by just typing some letters of a resource's label. For instance, you might want to pick a VIAF record from its name, a geographical place by its toponym, etc.
 
 - 🔑 `RefLookupComponent`
 - 🚩 `cadmus-ref-lookup`
@@ -33,22 +32,6 @@ Generic reference lookup component. You must set the `service` property to the l
 - 🔥 output:
   - moreRequest (`unknown?`): request for a more complex lookup. This receives the current item, if any.
 
-## RefLookupSetComponent
-
-A set of lookup items. Each has its own configuration and uses a specific service.
-
-- 🔑 `RefLookupSetComponent`
-- 🚩 `cadmus-ref-lookup-set`
-- ▶️ input:
-  - configs\* (`RefLookupConfig[]`)
-  - iconSize (`IconSize`, default=24x24)
-- 🔥 output:
-  - configChange (`RefLookupConfig`): emitted when the currently selected lookup configuration changes.
-  - itemChange (`RefLookupSetEvent`)
-  - moreRequest (`RefLookupSetEvent`)
-
-## Lookup
-
 The lookup component is a general purpose lookup where:
 
 - users can type some letters and get a list of matching items to pick from, thus using a quick search;
@@ -58,6 +41,8 @@ The lookup component is a general purpose lookup where:
 - optionally, users can click a `more` button to get to some specialized UI allowing them to pick items with more advanced search criteria.
 
 ### Usage
+
+To use the lookup, you must set the `service` property to the lookup service, implementing the `LookupService` interface, and optionally the current lookup `item`. Optionally set the `label` and `limit`, and `hasMore` to true if you want a _more_ button for more complex lookup.
 
 (1) create a **service** acting as an adapter for the quick search by implementing interface `RefLookupService`. This interface has:
 
@@ -113,7 +98,19 @@ Useful events:
 - `itemChange` fired when the user picks an item from the list resulting from a quick search.
 - `moreRequest` fired when the user requests the advanced search by clicking the *More* button. The component hosting the lookup control should handle this event and typically open some dialog with a search, lending back the item to be picked.
 
-## Lookup Set
+## RefLookupSetComponent
+
+A set of lookup items. Each has its own configuration and uses a specific service.
+
+- 🔑 `RefLookupSetComponent`
+- 🚩 `cadmus-ref-lookup-set`
+- ▶️ input:
+  - configs\* (`RefLookupConfig[]`)
+  - iconSize (`IconSize`, default=24x24)
+- 🔥 output:
+  - configChange (`RefLookupConfig`): emitted when the currently selected lookup configuration changes.
+  - itemChange (`RefLookupSetEvent`)
+  - moreRequest (`RefLookupSetEvent`)
 
 A lookup set is a combination of several lookup components, each connected to a different source.
 
@@ -191,57 +188,100 @@ To support JSONP you must either use `provideHttpClient(withJsonpSupport())` in 
 (4) configure the services in your consumer component or in the app's root component:
 
 ```ts
-// app.component.ts
+// sample app.component.ts
+
 import { ASSERTED_COMPOSITE_ID_CONFIGS_KEY } from '@myrmidon/cadmus-refs-asserted-ids';
 import { ViafRefLookupService } from '@myrmidon/cadmus-refs-viaf-lookup';
 import { DbpediaRefLookupService } from '@myrmidon/cadmus-refs-dbpedia-lookup';
 import { GeoNamesRefLookupService } from '@myrmidon/cadmus-refs-geonames-lookup';
 import { RefLookupConfig } from '@myrmidon/cadmus-refs-lookup';
 
-// ...
+@Component({
+  selector: 'app-root',
+  imports: [
+    RouterOutlet,
+    RouterModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatMenuModule,
+    MatDividerModule,
+    MatToolbarModule,
+  ],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+})
+export class AppComponent {
+  public readonly version: string;
 
-constructor(
-  // ...
-  storage: RamStorageService,
-  viaf: ViafRefLookupService,
-  dbpedia: DbpediaRefLookupService,
-  geonames: GeoNamesRefLookupService
-) {
-  // ...
+  constructor(env: EnvService, storage: RamStorageService) {
+    this.version = env.get('version') || '';
+    // ...
+    // configure external lookup for asserted composite IDs
+    this.configureLookup(storage);
+  }
 
-  // configure external lookup for asserted composite IDs
-  storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
-    {
-      name: 'VIAF',
-      iconUrl: '/img/viaf128.png',
-      description: 'Virtual International Authority File',
-      label: 'ID',
-      service: viaf,
-      itemIdGetter: (item: any) => item?.viafid,
-      itemLabelGetter: (item: any) => item?.displayForm,
-    },
-    {
-      name: 'DBpedia',
-      iconUrl: '/img/dbpedia128.png',
-      description: 'DBpedia',
-      label: 'ID',
-      service: dbpedia,
-      itemIdGetter: (item: any) => item?.uri,
-      itemLabelGetter: (item: any) => item?.label,
-    },
-    {
-      name: 'geonames',
-      iconUrl: '/img/geonames128.png',
-      description: 'GeoNames',
-      label: 'ID',
-      service: geonames,
-      itemIdGetter: (item: any) => item?.geonameId,
-      itemLabelGetter: (item: any) => item?.toponymName,
-    },
-  ] as RefLookupConfig[]);
+  private configureLookup(storage: RamStorageService): void {
+    storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
+      {
+        name: 'colors',
+        iconUrl: '/img/colors128.png',
+        description: 'Colors',
+        label: 'color',
+        service: new WebColorLookup(),
+        itemIdGetter: (item: any) => item?.value,
+        itemLabelGetter: (item: any) => item?.name,
+      },
+      {
+        name: 'VIAF',
+        iconUrl: '/img/viaf128.png',
+        description: 'Virtual International Authority File',
+        label: 'ID',
+        service: inject(ViafRefLookupService),
+        itemIdGetter: (item: any) => item?.viafid,
+        itemLabelGetter: (item: any) => item?.term,
+      },
+      {
+        name: 'geonames',
+        iconUrl: '/img/geonames128.png',
+        description: 'GeoNames',
+        label: 'ID',
+        service: inject(GeoNamesRefLookupService),
+        itemIdGetter: (item: any) => item?.geonameId,
+        itemLabelGetter: (item: any) => item?.name,
+      },
+      {
+        name: 'whg',
+        iconUrl: '/img/whg128.png',
+        description: 'World Historical Gazetteer',
+        label: 'ID',
+        service: inject(WhgRefLookupService),
+        itemIdGetter: (item: GeoJsonFeature) => item?.properties.place_id,
+        itemLabelGetter: (item: GeoJsonFeature) => item?.properties.title,
+      },
+    ] as RefLookupConfig[]);
+  }
 }
 ```
 
+## LookupDocReferencesComponent
+
+A set of documental references (with the same model as those in `@myrmidon/cadmus-refs-doc-references`) with lookup capabilities. Each documental reference has a `citation` mandatory property representing the reference; lookup can provide this value using a set of lookup components and/or a citation
+
+- 🔑 `LookupDocReferencesComponent`
+- 🚩 `cadmus-ref-lookup-doc-references`
+- ▶️ input:
+  - references (`DocReference[]`)
+  - typeEntries (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-types`)
+  - tagEntries (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-tags`)
+  - noLookup (`boolean`) to disable the lookup set
+  - noCitation (`boolean`) to disable the citation set
+  - defaultPicker (`string`): either `citation` or `lookup` to set the default picker
+- 🔥 output:
+  - referencesChange (`DocReference[]`)
+
 ## History
 
+- 2025-03-25: added `LookupDocReferencesComponent`. This implied adding these additional dependencies to this library:
+  - `@myrmidon/cadmus-refs-doc-references` (for the references data model);
+  - `@myrmidon/cadmus-refs-citation` (for citations).
 - 2025-01-27: fix `baseFilter` accessor (and similar signalized properties) in [ref-lookup-component](./src/lib/ref-lookup/ref-lookup.component.ts).

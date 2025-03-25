@@ -97,23 +97,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   public readonly editedCitation = computed<Citation>(() => {
     // when undefined, return an empty citation so that user can fill it
     if (!this.citation()) {
-      const cit: Citation = {
-        schemeId: this.scheme.value.id,
-        steps: [],
-      };
-      for (let i = 0; i < this.scheme.value.path.length; i++) {
-        if (i > this.lastStepIndex && this.allowPartial()) {
-          break;
-        }
-        const stepId = this.scheme.value.path[i];
-        cit.steps.push({
-          color: this.scheme.value.steps[stepId].color,
-          format: this.scheme.value.steps[stepId].format,
-          stepId: stepId,
-          value: '',
-        });
-      }
-      return cit;
+      return this.createEmptyCitation();
     } else {
       return deepCopy(this.citation());
     }
@@ -203,6 +187,11 @@ export class CitationComponent implements OnInit, OnDestroy {
       value: this.strEditorValue,
     });
 
+    // if no citation, create an empty one
+    if (!this.citation()) {
+      this.citation.set(this.createEmptyCitation());
+    }
+
     // when editedCitation changes, validate it
     effect(() => {
       const citation = this.editedCitation();
@@ -217,6 +206,26 @@ export class CitationComponent implements OnInit, OnDestroy {
       }
       this.validateAndEmit();
     });
+  }
+
+  private createEmptyCitation(): Citation {
+    const cit: Citation = {
+      schemeId: this.scheme.value.id,
+      steps: [],
+    };
+    for (let i = 0; i < this.scheme.value.path.length; i++) {
+      if (i > this.lastStepIndex && this.allowPartial()) {
+        break;
+      }
+      const stepId = this.scheme.value.path[i];
+      cit.steps.push({
+        color: this.scheme.value.steps[stepId].color,
+        format: this.scheme.value.steps[stepId].format,
+        stepId: stepId,
+        value: '',
+      });
+    }
+    return cit;
   }
 
   public ngOnInit(): void {

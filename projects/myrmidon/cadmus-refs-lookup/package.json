@@ -17,7 +17,8 @@
   "peerDependencies": {
     "@angular/common": "^19.0.0",
     "@angular/core": "^19.0.0",
-    "@myrmidon/cadmus-refs-doc-references": "^9.0.0"
+    "@myrmidon/cadmus-refs-doc-references": "^9.0.0",
+    "@myrmidon/cadmus-refs-citation": "^0.0.2"
   },
   "dependencies": {
     "tslib": "^2.3.0"

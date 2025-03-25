@@ -17,7 +17,7 @@ import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
 import { LookupDocReferenceComponent } from '../ref-lookup-doc-reference/ref-lookup-doc-reference.component';
 
 @Component({
-  selector: 'ref-cadmus-lookup-doc-references',
+  selector: 'cadmus-ref-lookup-doc-references',
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -48,6 +48,21 @@ export class LookupDocReferencesComponent {
 
   // doc-reference-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
+
+  /**
+   * True to disable the lookup set.
+   */
+  public readonly noLookup = input<boolean>();
+
+  /**
+   * True to disable the citation builder.
+   */
+  public readonly noCitation = input<boolean>();
+
+  /**
+   * The default picker to show when the editor opens.
+   */
+  public readonly defaultPicker = input<'citation' | 'lookup'>('citation');
 
   constructor(private _dialogService: DialogService) {}
 

@@ -47,7 +47,7 @@ import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
  * Document reference editor lookup component.
  */
 @Component({
-  selector: 'ref-cadmus-lookup-doc-reference',
+  selector: 'cadmus-ref-lookup-doc-reference',
   imports: [
     CommonModule,
     FormsModule,
@@ -187,7 +187,8 @@ export class LookupDocReferenceComponent implements OnDestroy {
   private parseCitation(): void {
     const citation = this._schemeService.parse(
       this.citation.value,
-      this._schemeService.getSchemes()[0].id
+      this._schemeService.getSchemes()[0].id,
+      true  // we want empty slots so we can fill them
     );
     if (citation) {
       this.parsedCitation = citation;
@@ -217,7 +218,11 @@ export class LookupDocReferenceComponent implements OnDestroy {
   }
 
   public onCitationChange(citation?: Citation): void {
-    if (!citation) {
+    if (
+      !citation ||
+      !this.pickerExpanded ||
+      this.pickerType.value !== 'citation'
+    ) {
       return;
     }
     this.citation.setValue(this._schemeService.toString(citation));

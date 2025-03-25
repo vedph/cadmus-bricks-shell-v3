@@ -80,8 +80,8 @@
     </button>
     @if (pickerEnabled() && pickerExpanded) {
     <!-- pickerType -->
-    <mat-form-field *ngIf="pickers()?.length">
-      <mat-label>pickerType</mat-label>
+    <mat-form-field *ngIf="pickers()?.length" class="picker-type">
+      <mat-label>picker type</mat-label>
       <mat-select [formControl]="pickerType">
         <mat-option *ngFor="let id of pickers()" [value]="id">{{
           id

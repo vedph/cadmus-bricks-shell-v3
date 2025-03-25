@@ -23,3 +23,6 @@ fieldset legend {
   width: 100%;
   max-width: 800px;
 }
+.picker-type {
+  width: 8em;
+}

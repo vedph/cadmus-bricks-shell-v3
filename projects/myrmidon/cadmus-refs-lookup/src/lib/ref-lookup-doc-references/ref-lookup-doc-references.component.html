@@ -79,8 +79,11 @@
       <mat-expansion-panel-header>
         <mat-panel-title>Reference #{{ editedIndex + 1 }}</mat-panel-title>
       </mat-expansion-panel-header>
-      <ref-cadmus-lookup-doc-reference
+      <cadmus-ref-lookup-doc-reference
         [reference]="edited"
+        [noLookup]="noLookup()"
+        [noCitation]="noCitation()"
+        [defaultPicker]="defaultPicker()"
         (referenceChange)="saveReference($event!)"
         (cancel)="closeReference()"
       />

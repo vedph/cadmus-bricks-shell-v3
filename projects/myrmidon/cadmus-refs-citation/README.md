@@ -746,4 +746,6 @@ Use like:
 
 ## History
 
-- 2025-03-25: replaced token-based injection of scheme set with settings from storage. This aligns with lookup set configuration, and avoids issues with DI and standalone components, which may cause the creation of an unconfigured service instance.
+- 2025-03-25:
+  - replaced token-based injection of scheme set with settings from storage. This aligns with lookup set configuration, and avoids issues with DI and standalone components, which may cause the creation of an unconfigured service instance.
+  - added `empty` parameter to citation scheme service `parse`.

@@ -426,9 +426,15 @@ export class CitSchemeService {
    * @param text The text to parse.
    * @param defaultSchemeId The ID of the default citation scheme to use
    * when the citation text has no scheme ID prefix.
+   * @param empty True to return an empty citation with steps ready to be
+   * filled when the parse result is undefined.
    * @returns The citation or undefined.
    */
-  public parse(text: string, defaultSchemeId: string): Citation | undefined {
+  public parse(
+    text: string,
+    defaultSchemeId: string,
+    empty = false
+  ): Citation | undefined {
     const idAndText = this.extractSchemeId(text);
     if (idAndText) {
       defaultSchemeId = idAndText.id;
@@ -441,9 +447,24 @@ export class CitSchemeService {
     }
     this.ensureDefaultParser();
     const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
-    return parser
+    const citation = parser
       ? parser.parse(text, scheme.id)
       : { schemeId: defaultSchemeId, steps: [] };
+
+    // if the citation is empty and we want one with empty steps, fill it
+    if (citation?.steps.length === 0 && empty) {
+      for (let i = 0; i < scheme.path.length; i++) {
+        const stepId = scheme.path[i];
+        citation.steps.push({
+          color: scheme.steps[stepId].color,
+          format: scheme.steps[stepId].format,
+          stepId: stepId,
+          value: '',
+        });
+      }
+    }
+
+    return citation;
   }
 
   /**
