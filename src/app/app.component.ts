@@ -42,54 +42,11 @@ import { DC_SCHEME, OD_SCHEME } from './cit-schemes';
 export class AppComponent {
   public readonly version: string;
 
-  constructor(
-    env: EnvService,
-    storage: RamStorageService,
-    viaf: ViafRefLookupService,
-    geonames: GeoNamesRefLookupService,
-    whg: WhgRefLookupService
-  ) {
+  constructor(env: EnvService, storage: RamStorageService) {
     this.version = env.get('version') || '';
 
     // configure external lookup for asserted composite IDs
-    storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
-      {
-        name: 'colors',
-        iconUrl: '/img/colors128.png',
-        description: 'Colors',
-        label: 'color',
-        service: new WebColorLookup(),
-        itemIdGetter: (item: any) => item?.value,
-        itemLabelGetter: (item: any) => item?.name,
-      },
-      {
-        name: 'VIAF',
-        iconUrl: '/img/viaf128.png',
-        description: 'Virtual International Authority File',
-        label: 'ID',
-        service: viaf,
-        itemIdGetter: (item: any) => item?.viafid,
-        itemLabelGetter: (item: any) => item?.term,
-      },
-      {
-        name: 'geonames',
-        iconUrl: '/img/geonames128.png',
-        description: 'GeoNames',
-        label: 'ID',
-        service: geonames,
-        itemIdGetter: (item: any) => item?.geonameId,
-        itemLabelGetter: (item: any) => item?.name,
-      },
-      {
-        name: 'whg',
-        iconUrl: '/img/whg128.png',
-        description: 'World Historical Gazetteer',
-        label: 'ID',
-        service: whg,
-        itemIdGetter: (item: GeoJsonFeature) => item?.properties.place_id,
-        itemLabelGetter: (item: GeoJsonFeature) => item?.properties.title,
-      },
-    ] as RefLookupConfig[]);
+    this.configureLookup(storage);
 
     // configure citation service
     this.configureCitationService(storage);
