@@ -31,10 +31,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorToContrastPipe, deepCopy } from '@myrmidon/ngx-tools';
 
 import { Citation, CitStep, CitScheme } from '../../models';
-import {
-  CIT_SCHEME_SERVICE_TOKEN,
-  CitSchemeService,
-} from '../../services/cit-scheme.service';
+import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
 
 export type CitationError = {
@@ -47,7 +44,6 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
 
 /**
  * A component for editing a literary citation using a citation scheme.
- * The citation scheme service is injected using CIT_SCHEME_SERVICE_TOKEN.
  */
 @Component({
   selector: 'cadmus-refs-citation',
@@ -173,7 +169,7 @@ export class CitationComponent implements OnInit, OnDestroy {
 
   constructor(
     formBuilder: FormBuilder,
-    @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
+    private _schemeService: CitSchemeService
   ) {
     this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
     this.lastStep = formBuilder.control(null);

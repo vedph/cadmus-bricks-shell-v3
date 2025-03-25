@@ -21,6 +21,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [CompactCitationComponent](#compactcitationcomponent)
     - [CitationSetComponent](#citationsetcomponent)
     - [CitationPipe](#citationpipe)
+  - [History](#history)
 
 ## Editing Citations
 
@@ -592,40 +593,67 @@ In most cases you won't need to write your own parsers and formatters, even if t
 ### Usage
 
 1. `npm i @myrmidon/cadmus-refs-citation`.
-2. configure citation schemes in your [app configuration](../../../src/app/app.config.ts) using the `CIT_SCHEME_SERVICE_TOKEN` injection token. To configure the schemes, use `CitSchemeService.configure`, e.g.:
+2. in your app root component, configure citation schemes like:
 
-```ts
-// citation schemes
-{
-  provide: CIT_SCHEME_SERVICE_TOKEN,
-  useFactory: () => {
-    const service = new CitSchemeService();
-    service.configure({
-      formats: {},
-      schemes: {
-        dc: DC_SCHEME,
-        od: OD_SCHEME,
-      },
-    } as CitSchemeSet);
-    // agl formatter for Odyssey
-    const aglFormatter = new MapFormatter();
-    const aglMap: CitMappedValues = {};
-    for (let n = 0x3b1; n <= 0x3c9; n++) {
-      // skip final sigma
-      if (n === 0x3c2) {
-        continue;
+    ```ts
+    // example app.component.ts
+    import { EnvService, RamStorageService } from '@myrmidon/ngx-tools';
+
+    @Component({
+      selector: 'app-root',
+      imports: [
+        RouterOutlet,
+        RouterModule,
+        MatButtonModule,
+        MatDividerModule,
+        MatMenuModule,
+        MatDividerModule,
+        MatToolbarModule,
+      ],
+      templateUrl: './app.component.html',
+      styleUrl: './app.component.scss',
+    })
+    export class AppComponent {
+      public readonly version: string;
+
+      constructor(
+        env: EnvService,
+        storage: RamStorageService,
+      ) {
+        this.version = env.get('version') || '';
+        this.configureCitationService(storage);
+        // ...
       }
-      aglMap[String.fromCharCode(n)] = n - 0x3b0;
+
+      private configureCitationService(storage: RamStorageService): void {
+        // custom formatters: agl formatter for Odyssey
+        const aglFormatter = new MapFormatter();
+        const aglMap: CitMappedValues = {};
+        for (let n = 0x3b1; n <= 0x3c9; n++) {
+          // skip final sigma
+          if (n === 0x3c2) {
+            continue;
+          }
+          aglMap[String.fromCharCode(n)] = n - 0x3b0;
+        }
+        aglFormatter.configure(aglMap);
+
+        // store settings via service
+        storage.store(CIT_SCHEME_SERVICE_SETTINGS_KEY, {
+          formats: {},
+          schemes: {
+            dc: DC_SCHEME,
+            od: OD_SCHEME,
+          },
+          formatters: {
+            agl: aglFormatter,
+          },
+        } as CitSchemeSettings);
+      }
     }
-    aglFormatter.configure(aglMap);
-    service.addFormatter('agl', aglFormatter);
+    ```
 
-    return service;
-  },
-},
-```
-
-3. inject the scheme service in your consumer component constructor, like `@Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService`, or use the UI bricks via their selectors.
+3. inject the scheme service in your consumer component constructor, like `private _schemeService: CitSchemeService`, or use the UI bricks via their selectors.
 
 ### CitSchemeService
 
@@ -715,3 +743,7 @@ Use like:
 ```html
 {{ cit | citation }}
 ```
+
+## History
+
+- 2025-03-25: replaced token-based injection of scheme set with settings from storage. This aligns with lookup set configuration, and avoids issues with DI and standalone components, which may cause the creation of an unconfigured service instance.

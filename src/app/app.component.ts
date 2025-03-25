@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +17,13 @@ import {
   WhgRefLookupService,
 } from '../../projects/myrmidon/cadmus-refs-whg-lookup/src/public-api';
 import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.component';
+import {
+  CIT_SCHEME_SERVICE_SETTINGS_KEY,
+  CitMappedValues,
+  CitSchemeSettings,
+  MapFormatter,
+} from '../../projects/myrmidon/cadmus-refs-citation/src/public-api';
+import { DC_SCHEME, OD_SCHEME } from './cit-schemes';
 
 @Component({
   selector: 'app-root',
@@ -33,7 +40,7 @@ import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.co
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  public version: string;
+  public readonly version: string;
 
   constructor(
     env: EnvService,
@@ -43,6 +50,7 @@ export class AppComponent {
     whg: WhgRefLookupService
   ) {
     this.version = env.get('version') || '';
+
     // configure external lookup for asserted composite IDs
     storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
       {
@@ -82,5 +90,74 @@ export class AppComponent {
         itemLabelGetter: (item: GeoJsonFeature) => item?.properties.title,
       },
     ] as RefLookupConfig[]);
+
+    // configure citation service
+    this.configureCitationService(storage);
+  }
+
+  private configureLookup(storage: RamStorageService): void {
+    storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
+      {
+        name: 'colors',
+        iconUrl: '/img/colors128.png',
+        description: 'Colors',
+        label: 'color',
+        service: new WebColorLookup(),
+        itemIdGetter: (item: any) => item?.value,
+        itemLabelGetter: (item: any) => item?.name,
+      },
+      {
+        name: 'VIAF',
+        iconUrl: '/img/viaf128.png',
+        description: 'Virtual International Authority File',
+        label: 'ID',
+        service: inject(ViafRefLookupService),
+        itemIdGetter: (item: any) => item?.viafid,
+        itemLabelGetter: (item: any) => item?.term,
+      },
+      {
+        name: 'geonames',
+        iconUrl: '/img/geonames128.png',
+        description: 'GeoNames',
+        label: 'ID',
+        service: inject(GeoNamesRefLookupService),
+        itemIdGetter: (item: any) => item?.geonameId,
+        itemLabelGetter: (item: any) => item?.name,
+      },
+      {
+        name: 'whg',
+        iconUrl: '/img/whg128.png',
+        description: 'World Historical Gazetteer',
+        label: 'ID',
+        service: inject(WhgRefLookupService),
+        itemIdGetter: (item: GeoJsonFeature) => item?.properties.place_id,
+        itemLabelGetter: (item: GeoJsonFeature) => item?.properties.title,
+      },
+    ] as RefLookupConfig[]);
+  }
+
+  private configureCitationService(storage: RamStorageService): void {
+    // agl formatter for Odyssey
+    const aglFormatter = new MapFormatter();
+    const aglMap: CitMappedValues = {};
+    for (let n = 0x3b1; n <= 0x3c9; n++) {
+      // skip final sigma
+      if (n === 0x3c2) {
+        continue;
+      }
+      aglMap[String.fromCharCode(n)] = n - 0x3b0;
+    }
+    aglFormatter.configure(aglMap);
+
+    storage.store(CIT_SCHEME_SERVICE_SETTINGS_KEY, {
+      formats: {},
+      schemes: {
+        dc: DC_SCHEME,
+        od: OD_SCHEME,
+      },
+      formatters: {
+        agl: aglFormatter,
+      },
+    } as CitSchemeSettings);
   }
 }

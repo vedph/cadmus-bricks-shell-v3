@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import {
-  CIT_SCHEME_SERVICE_TOKEN,
   CitMappedValues,
   CitSchemeService,
   CitSchemeSet,
@@ -12,6 +11,7 @@ import {
 
 import { DC_SCHEME, OD_SCHEME } from '../../../cit-schemes';
 import { CitationPgComponent } from './citation-pg.component';
+import { RamStorageService } from '@myrmidon/ngx-tools';
 
 describe('CitationPgComponent', () => {
   let component: CitationPgComponent;
@@ -23,9 +23,9 @@ describe('CitationPgComponent', () => {
       providers: [
         provideNoopAnimations(),
         {
-          provide: CIT_SCHEME_SERVICE_TOKEN,
+          provide: CitSchemeService,
           useFactory: () => {
-            const service = new CitSchemeService();
+            const service = new CitSchemeService(new RamStorageService());
             service.configure({
               formats: {},
               schemes: {

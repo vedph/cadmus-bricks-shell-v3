@@ -29,6 +29,7 @@ export class DocReferencesPgComponent {
   constructor() {
     this.references = [
       {
+        type: 'paper',
         tag: 'biblio',
         citation: 'Rossi 1963',
       },

@@ -11,17 +11,18 @@ import {
   CitTextOptions,
   SuffixedNumber,
   CitationSpan,
+  CitSchemeSettings,
 } from '../models';
 import { RomanNumberFormatter } from './roman-number.formatter';
 import { MapFormatter } from './map.formatter';
 import { PatternCitParser } from './pattern.cit-parser';
+import { RamStorageService } from '@myrmidon/ngx-tools';
 
 /**
- * Injection token for the citation scheme service.
+ * The key for the citation service settings in the settings storage.
+ * This contains a CitSchemeSettings object.
  */
-export const CIT_SCHEME_SERVICE_TOKEN = new InjectionToken<CitSchemeService>(
-  'CitSchemeService'
-);
+export const CIT_SCHEME_SERVICE_SETTINGS_KEY = 'cadmus-refs-citation.settings';
 
 /**
  * A number formatter for citations.
@@ -93,7 +94,11 @@ export class CitSchemeService {
    */
   public readonly schemeSet$ = this._set$.asObservable();
 
-  constructor() {
+  constructor(storage: RamStorageService) {
+    const set = storage.retrieve<CitSchemeSet>(CIT_SCHEME_SERVICE_SETTINGS_KEY);
+    if (set) {
+      this.configure(set);
+    }
     this.addFormatter(CIT_FORMATTER_ROMAN_UPPER, new RomanNumberFormatter());
     this.addFormatter(
       CIT_FORMATTER_ROMAN_LOWER,
@@ -103,17 +108,23 @@ export class CitSchemeService {
 
   /**
    * Configure this service with the specified scheme set.
-   * @param set The scheme set to configure this service with.
+   * @param settings The settings to configure this service with.
    */
-  public configure(set: CitSchemeSet): void {
-    this._set$.next(set);
+  public configure(settings: CitSchemeSettings): void {
+    this._set$.next(settings);
     // if formats are defined, add a MapFormatter for each,
     // configuring it according to its CitMappedValues
-    if (set.formats) {
-      for (const key in set.formats) {
+    if (settings.formats) {
+      for (const key in settings.formats) {
         const formatter = new MapFormatter();
-        formatter.configure(set.formats[key]);
+        formatter.configure(settings.formats[key]);
         this.addFormatter(key, formatter);
+      }
+    }
+    // add custom formatters
+    if (settings.formatters) {
+      for (const key in settings.formatters) {
+        this.addFormatter(key, settings.formatters[key]);
       }
     }
   }

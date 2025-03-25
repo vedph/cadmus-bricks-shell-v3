@@ -5,10 +5,10 @@ import { CitationComponent } from './citation.component';
 import { CitScheme, CitSchemeSet, CitMappedValues } from '../../models';
 import {
   CIT_FORMATTER_ROMAN_UPPER,
-  CIT_SCHEME_SERVICE_TOKEN,
   CitSchemeService,
 } from '../../services/cit-scheme.service';
 import { MapFormatter } from '../../services/map.formatter';
+import { RamStorageService } from '@myrmidon/ngx-tools';
 
 //#region Schemes
 const OD_SCHEME: CitScheme = {
@@ -140,9 +140,9 @@ describe('CitationComponent', () => {
       providers: [
         provideNoopAnimations(),
         {
-          provide: CIT_SCHEME_SERVICE_TOKEN,
+          provide: CitSchemeService,
           useFactory: () => {
-            const service = new CitSchemeService();
+            const service = new CitSchemeService(new RamStorageService());
             service.configure({
               formats: {},
               schemes: {

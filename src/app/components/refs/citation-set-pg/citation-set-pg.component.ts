@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
-  CIT_SCHEME_SERVICE_TOKEN,
   Citation,
   CitationSetComponent,
   CitationSpan,
@@ -38,9 +37,7 @@ import {
 export class CitationSetPgComponent {
   public citations: (Citation | CitationSpan)[] = [];
 
-  constructor(
-    @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
-  ) {
+  constructor(private _schemeService: CitSchemeService) {
     this.citations.push(this._schemeService.parse('@dc:If. I 12', 'dc')!);
     this.citations.push(this._schemeService.parse('@dc:Purg. IV 32', 'dc')!);
     this.citations.push(this._schemeService.parse('@dc:Par. V 79', 'dc')!);

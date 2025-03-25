@@ -1,10 +1,7 @@
 import { Inject, Pipe, PipeTransform } from '@angular/core';
 
 import { Citation, CitationSpan } from '../models';
-import {
-  CIT_SCHEME_SERVICE_TOKEN,
-  CitSchemeService,
-} from '../services/cit-scheme.service';
+import { CitSchemeService } from '../services/cit-scheme.service';
 
 /**
  * A pipe to format a citation or citation span as a string. Usage:
@@ -17,9 +14,7 @@ import {
   name: 'citation',
 })
 export class CitationPipe implements PipeTransform {
-  constructor(
-    @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
-  ) {}
+  constructor(private _schemeService: CitSchemeService) {}
 
   public transform(
     citation: Citation | CitationSpan | null | undefined

@@ -1,3 +1,5 @@
+import { CitNumberFormatter } from "./services/cit-scheme.service";
+
 /**
  * A numeric value mapped to some label. This is used in defining
  * citation formats.
@@ -198,6 +200,13 @@ export interface CitSchemeSet {
    * The citation schemes, indexed by their ID.
    */
   schemes: { [key: string]: CitScheme };
+}
+
+/**
+ * The settings for a citation service.
+ */
+export interface CitSchemeSettings extends CitSchemeSet {
+  formatters?: { [key: string]: CitNumberFormatter };
 }
 
 /**

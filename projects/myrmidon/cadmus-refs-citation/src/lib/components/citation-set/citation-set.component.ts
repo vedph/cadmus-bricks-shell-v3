@@ -9,10 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 
 import { Citation, CitationSpan } from '../../models';
-import {
-  CIT_SCHEME_SERVICE_TOKEN,
-  CitSchemeService,
-} from '../../services/cit-scheme.service';
+import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationViewComponent } from '../citation-view/citation-view.component';
 import { CompactCitationComponent } from '../compact-citation/compact-citation.component';
 
@@ -29,7 +26,7 @@ import { CompactCitationComponent } from '../compact-citation/compact-citation.c
     MatTooltipModule,
     CitationViewComponent,
     CompactCitationComponent,
-    ColorToContrastPipe
+    ColorToContrastPipe,
   ],
   templateUrl: './citation-set.component.html',
   styleUrl: './citation-set.component.css',
@@ -74,9 +71,7 @@ export class CitationSetComponent {
   public editedCitation?: Citation | CitationSpan;
   public editedCitationIndex?: number;
 
-  constructor(
-    @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
-  ) {}
+  constructor(private _schemeService: CitSchemeService) {}
 
   private sortCitations(citations: (Citation | CitationSpan)[]): void {
     // map citations to their corresponding Citation objects

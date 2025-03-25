@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
-  CIT_SCHEME_SERVICE_TOKEN,
   Citation,
   CitationSpan,
   CitSchemeService,
@@ -39,9 +38,7 @@ import {
 export class CompactCitationPgComponent {
   public citation?: Citation | CitationSpan;
 
-  constructor(
-    @Inject(CIT_SCHEME_SERVICE_TOKEN) private _service: CitSchemeService
-  ) {}
+  constructor(private _service: CitSchemeService) {}
 
   public onCitationChange(citation?: Citation | CitationSpan): void {
     this.citation = citation;

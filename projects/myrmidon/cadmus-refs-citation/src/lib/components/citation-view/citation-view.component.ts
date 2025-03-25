@@ -5,10 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 
 import { Citation, CitationSpan } from '../../models';
-import {
-  CIT_SCHEME_SERVICE_TOKEN,
-  CitSchemeService,
-} from '../../services/cit-scheme.service';
+import { CitSchemeService } from '../../services/cit-scheme.service';
 
 /**
  * A component to display a citation or a citation span.
@@ -32,9 +29,7 @@ export class CitationViewComponent {
    */
   public readonly defaultSchemeId = input.required<string>();
 
-  constructor(
-    @Inject(CIT_SCHEME_SERVICE_TOKEN) private _schemeService: CitSchemeService
-  ) {}
+  constructor(private _schemeService: CitSchemeService) {}
 
   public readonly a = computed<Citation | undefined>(() => {
     if (!this.citation()) {

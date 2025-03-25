@@ -13,7 +13,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { deepCopy } from '@myrmidon/ngx-tools';
 
 import {
-  CIT_SCHEME_SERVICE_TOKEN,
   CitationComponent,
   CitationError,
   Citation,
@@ -55,9 +54,7 @@ export class CitationPgComponent {
     nonNullable: true,
   });
 
-  constructor(
-    @Inject(CIT_SCHEME_SERVICE_TOKEN) private _service: CitSchemeService
-  ) {
+  constructor(private _service: CitSchemeService) {
     this.citation = this._service.parse('If. XXVI 112', 'dc')!;
     this.citText = this._service.toString(this.citation);
   }
