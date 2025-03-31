@@ -144,6 +144,7 @@ Remember to run these commands in your terminal from your project's root directo
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-03-31: updated Angular.
 - 2025-03-25:
   - added components to `@myrmidon/cadmus-refs-lookup`.
   - refactored settings for `@myrmidon/cadmus-refs-citation`.
