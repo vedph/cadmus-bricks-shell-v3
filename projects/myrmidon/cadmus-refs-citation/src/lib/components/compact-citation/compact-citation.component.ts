@@ -1,13 +1,6 @@
-import {
-  Component,
-  computed,
-  effect,
-  input,
-  model,
-  OnDestroy,
-} from '@angular/core';
+import { Component, computed, input, model, OnDestroy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -15,9 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { deepCopy } from '@myrmidon/ngx-tools';
+
 import { Citation, CitationSpan } from '../../models';
 import { CitationViewComponent } from '../citation-view/citation-view.component';
 import { CitationComponent } from '../citation/citation.component';
+import { CitSchemeService } from '../../services/cit-scheme.service';
 
 /**
  * Compact citation component.
@@ -42,7 +38,9 @@ import { CitationComponent } from '../citation/citation.component';
 })
 export class CompactCitationComponent implements OnDestroy {
   private _sub?: Subscription;
-  private _rangeChangeFrozen?: boolean;
+  public editedIndex = -1;
+  public edited?: Citation;
+  public span?: CitationSpan;
 
   /**
    * The scheme keys to use in this component. The full list of schemes is
@@ -50,6 +48,13 @@ export class CompactCitationComponent implements OnDestroy {
    * a subset of schemes.
    */
   public readonly schemeKeys = input<string[]>();
+
+  public readonly abSchemeKeys = computed<string[] | undefined>(() => {
+    // when editing B, the only allowed scheme is the one of A
+    return this.editedIndex === 1 && this.a()?.schemeId
+      ? [this.a()!.schemeId]
+      : this.schemeKeys();
+  });
 
   /**
    * True if the component allows free mode, where the user can type the
@@ -106,54 +111,86 @@ export class CompactCitationComponent implements OnDestroy {
     return (this.citation() as CitationSpan).b;
   });
 
-  public editorExpanded?: boolean;
   public readonly range = new FormControl<boolean>(false, {
     nonNullable: true,
   });
 
-  constructor() {
-    this._sub = this.range.valueChanges.subscribe((value) => {
-      this._rangeChangeFrozen = true;
-      if (value) {
-        this.citation.set({
-          a: this.a(),
-          b: this.b(),
-        } as CitationSpan);
-      } else {
-        this.citation.set(this.a() as Citation);
-      }
-    });
-    effect(() => {
-      if (this._rangeChangeFrozen) {
-        this._rangeChangeFrozen = false;
-        return;
-      }
-      this.range.setValue(this.citation()?.hasOwnProperty('b') === true);
-    });
+  constructor(private _schemeService: CitSchemeService) {
+    this._sub = this.range.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((v) => {
+        this.cancel();
+        // if the range was set to true, add and edit B if missing
+        if (v && !this.b()) {
+          this.editB();
+        }
+        // if the range was set to false, remove B
+        if (!v && this.b()) {
+          this.citation.set(deepCopy(this.a()!));
+        }
+      });
   }
 
   public ngOnDestroy(): void {
     this._sub?.unsubscribe();
   }
 
-  public onAChange(citation?: Citation): void {
-    if (!citation) {
-      return;
-    }
-    if (this.range.value) {
-      const span: CitationSpan = this.citation() as CitationSpan;
-      span.a = citation!;
-      this.citation.set(span);
+  public onCitClick(b: boolean): void {
+    if (b) {
+      this.editB();
     } else {
-      this.citation.set(citation!);
+      this.editA();
     }
   }
 
-  public onBChange(citation?: Citation): void {
-    if (this.range.value) {
-      const span: CitationSpan = this.citation() as CitationSpan;
-      span.b = citation;
-      this.citation.set(span);
+  public editA() {
+    this.span = { a: this.a(), b: this.b() } as CitationSpan;
+    console.log(this.span);
+    this.editedIndex = 0;
+    this.edited = this.a()
+      ? deepCopy(this.a())
+      : this._schemeService.createEmptyCitation(this.defaultSchemeId());
+  }
+
+  public editB() {
+    this.span = { a: this.a(), b: this.b() } as CitationSpan;
+    console.log(this.span);
+    this.editedIndex = 1;
+    this.edited = deepCopy(this.b());
+  }
+
+  private saveA(citation?: Citation): void {
+    if (!citation) {
+      return;
     }
+    this.span!.a = citation;
+  }
+
+  private saveB(citation?: Citation): void {
+    this.span!.b = citation;
+  }
+
+  public cancel(): void {
+    this.edited = undefined;
+    this.editedIndex = -1;
+  }
+
+  public saveAB(citation?: Citation): void {
+    if (this.editedIndex === 0 && citation) {
+      this.saveA(citation);
+    } else if (this.editedIndex === 1) {
+      this.saveB(citation);
+    }
+  }
+
+  public save(): void {
+    if (this.range.value) {
+      this.citation.set(deepCopy(this.span!));
+    } else {
+      this.citation.set(deepCopy(this.span!.a!));
+    }
+    this.edited = undefined;
+    this.editedIndex = -1;
+    this.span = undefined;
   }
 }

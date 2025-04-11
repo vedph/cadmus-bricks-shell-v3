@@ -1,4 +1,4 @@
-import { Component, computed, Inject, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -28,6 +28,18 @@ export class CitationViewComponent {
    * citation's text.
    */
   public readonly defaultSchemeId = input.required<string>();
+
+  /**
+   * True to make this view clickable, and emit the "click" event
+   * when clicked.
+   */
+  public readonly clickable = input<boolean>(false);
+
+  /**
+   * Emitted when the citation is clicked. Value is true if B was
+   * clicked, else false.
+   */
+  public readonly click = output<boolean>();
 
   constructor(private _schemeService: CitSchemeService) {}
 
@@ -60,4 +72,10 @@ export class CitationViewComponent {
     }
     return (this.citation() as CitationSpan).b;
   });
+
+  public onClick(b?: boolean): void {
+    if (this.clickable() && this.citation()) {
+      this.click.emit(b === true);
+    }
+  }
 }

@@ -1,56 +1,51 @@
 <div>
   <div class="form-row">
     @if (!citation()) {
-    <div class="muted">(no citation)</div>
+    <div class="form-row">
+      <span class="muted">(no citation)</span>
+      <button mat-icon-button type="button" (click)="editA()">
+        <mat-icon class="mat-primary">add_circle</mat-icon>
+      </button>
+    </div>
     }
     <!-- view -->
     <cadmus-refs-citation-view
+      [clickable]="true"
       [citation]="citation()"
       [defaultSchemeId]="defaultSchemeId()"
+      (click)="onCitClick($event)"
     />
-    <!-- editor -->
-    <button
-      type="button"
-      mat-icon-button
-      matSuffix
-      matTooltip="Toggle editor"
-      (click)="editorExpanded = !editorExpanded"
-    >
-      @if (editorExpanded) {
-      <mat-icon class="mat-primary">publish</mat-icon>
-      } @if (!editorExpanded) {
-      <mat-icon class="mat-primary">get_app</mat-icon>
-      }
-    </button>
+    <!-- range -->
+    @if (citation()) {
+    <mat-slide-toggle [formControl]="range">A-B</mat-slide-toggle>
+    }
   </div>
 
   <!-- editor -->
   <mat-expansion-panel
     id="editor"
-    [expanded]="editorExpanded"
-    (expandedChange)="editorExpanded = $event"
+    [expanded]="editedIndex > -1"
+    [disabled]="editedIndex === -1"
   >
-    <mat-slide-toggle [formControl]="range">range</mat-slide-toggle>
-    @if (range.value) {
-    <h3>A</h3>
-    }
-    <cadmus-refs-citation
-      [schemeKeys]="schemeKeys()"
-      [allowFreeMode]="allowFreeMode()"
-      [allowPartial]="allowPartial()"
-      [citation]="a()"
-      (citationChange)="onAChange($event)"
-    />
-    @if (range.value) {
-    <h3>B</h3>
-    <cadmus-refs-citation
-      [schemeKeys]="schemeKeys()"
-      [allowFreeMode]="allowFreeMode()"
-      [allowPartial]="allowPartial()"
-      [citation]="b()"
-      [schemeKeys]="[a()?.schemeId || defaultSchemeId()]"
-      (citationChange)="onBChange($event)"
-    />
-    }
+    <fieldset>
+      <!-- label -->
+      <legend>{{ !range.value || editedIndex === 0 ? "A" : "B" }}</legend>
+      <!-- editor -->
+      <cadmus-refs-citation
+        [schemeKeys]="abSchemeKeys()"
+        [allowFreeMode]="allowFreeMode()"
+        [allowPartial]="allowPartial()"
+        [citation]="edited"
+        (citationChange)="saveAB($event)"
+      />
+      <div class="form-row">
+        <button mat-icon-button type="button" (click)="cancel()">
+          <mat-icon class="mat-warn">cancel</mat-icon>
+        </button>
+        <button mat-icon-button type="button" (click)="save()">
+          <mat-icon class="mat-primary">check_circle</mat-icon>
+        </button>
+      </div>
+    </fieldset>
   </mat-expansion-panel>
 </div>
