@@ -1,5 +1,7 @@
-import { Injectable, InjectionToken } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+
+import { RamStorageService } from '@myrmidon/ngx-tools';
 
 import {
   Citation,
@@ -16,7 +18,6 @@ import {
 import { RomanNumberFormatter } from './roman-number.formatter';
 import { MapFormatter } from './map.formatter';
 import { PatternCitParser } from './pattern.cit-parser';
-import { RamStorageService } from '@myrmidon/ngx-tools';
 
 /**
  * The key for the citation service settings in the settings storage.
@@ -606,5 +607,37 @@ export class CitSchemeService {
       }
       return c;
     });
+  }
+
+  /**
+   * Create an empty citation for the specified scheme ID.
+   * @param schemeId The scheme ID.
+   * @param lastStepIndex The index of the last step to include in the
+   * citation, or -1 to include all the steps.
+   * @returns Citation.
+   */
+  public createEmptyCitation(schemeId: string, lastStepIndex = -1): Citation {
+    const cit: Citation = {
+      schemeId: schemeId,
+      steps: [],
+    };
+    const scheme = this._set$.value?.schemes[schemeId];
+
+    if (scheme) {
+      for (let i = 0; i < scheme.path.length; i++) {
+        if (lastStepIndex > -1 && i > lastStepIndex) {
+          break;
+        }
+        const stepId = scheme.path[i];
+        cit.steps.push({
+          color: scheme.steps[stepId].color,
+          format: scheme.steps[stepId].format,
+          stepId: stepId,
+          value: '',
+        });
+      }
+    }
+
+    return cit;
   }
 }

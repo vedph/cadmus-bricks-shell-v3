@@ -22,6 +22,8 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [CitationSetComponent](#citationsetcomponent)
     - [CitationPipe](#citationpipe)
   - [History](#history)
+    - [0.0.3](#003)
+    - [0.0.2](#002)
 
 ## Editing Citations
 
@@ -745,6 +747,12 @@ Use like:
 ```
 
 ## History
+
+### 0.0.3
+
+- 2025-04-11: fixes to citation.
+
+### 0.0.2
 
 - 2025-03-25:
   - replaced token-based injection of scheme set with settings from storage. This aligns with lookup set configuration, and avoids issues with DI and standalone components, which may cause the creation of an unconfigured service instance.

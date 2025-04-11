@@ -102,7 +102,7 @@ export class CitationSetComponent {
 
   public newCitation(): void {
     this.editedCitation = {
-      schemeId: this.defaultSchemeId(),
+      schemeId: this.defaultSchemeId() || this._schemeService.getSchemes()[0].id,
       steps: [],
     };
     this.editedCitationIndex = -1;
@@ -128,8 +128,6 @@ export class CitationSetComponent {
     }
     this._schemeService.compactCitations(citations);
     this.citations.set(citations);
-
-    this.closeCitation();
   }
 
   public moveCitationUp(index: number): void {

@@ -115,19 +115,14 @@
         [citation]="editedCitation"
         (citationChange)="saveCitation($event!)"
       />
-      <div class="form-row">
-        <button
-          type="button"
-          mat-icon-button
-          matTooltip="Cancel"
-          (click)="closeCitation()"
-        >
-          <mat-icon class="mat-warn">clear</mat-icon>
-        </button>
-        <button type="submit" mat-icon-button matTooltip="Save">
-          <mat-icon class="mat-primary">check_circle</mat-icon>
-        </button>
-      </div>
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Close"
+        (click)="closeCitation()"
+      >
+        <mat-icon class="mat-primary">close</mat-icon>
+      </button>
     </mat-expansion-panel>
   </fieldset>
   }
