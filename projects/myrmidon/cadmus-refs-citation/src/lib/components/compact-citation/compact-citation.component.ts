@@ -44,6 +44,7 @@ import { CitSchemeService } from '../../services/cit-scheme.service';
   styleUrl: './compact-citation.component.css',
 })
 export class CompactCitationComponent implements OnDestroy {
+  private _dropNextUpdate = false;
   private _sub?: Subscription;
   public editedIndex = -1;
   public edited?: Citation;
@@ -115,12 +116,17 @@ export class CompactCitationComponent implements OnDestroy {
         // if the range was set to false, remove B
         if (!v && this.b) {
           this.b = undefined;
+          this._dropNextUpdate = true;
           this.citation.set(this.a ? deepCopy(this.a) : undefined);
         }
       });
 
     // when citation changes, update the form
     effect(() => {
+      if (this._dropNextUpdate) {
+        this._dropNextUpdate = false;
+        return;
+      }
       this.updateForm(this.citation());
     });
   }
@@ -146,9 +152,10 @@ export class CompactCitationComponent implements OnDestroy {
     }
 
     const span = citation as CitationSpan;
-    this.a = span?.a ? (span as CitationSpan).a : (citation as Citation);
-    this.b = span?.b ? (span as CitationSpan).b : undefined;
-    this.range.setValue(!!this.b);
+    const isSpan = !!span.a;
+    this.a = deepCopy(isSpan ? (span as CitationSpan).a : (citation as Citation));
+    this.b = deepCopy(isSpan ? (span as CitationSpan).b : undefined);
+    this.range.setValue(isSpan, { emitEvent: false });
   }
 
   public editA() {
