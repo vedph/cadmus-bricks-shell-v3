@@ -37,6 +37,7 @@
         [allowPartial]="allowPartial()"
         [citation]="edited"
         (citationChange)="onCitationChange($event)"
+        (cancel)="closeCitation()"
       />
     </fieldset>
     @if (formError) {

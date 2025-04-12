@@ -199,7 +199,7 @@ export class CompactCitationComponent implements OnDestroy {
     return true;
   }
 
-  private closeCitation(): void {
+  public closeCitation(): void {
     this.edited = undefined;
     this.editedIndex = -1;
   }
