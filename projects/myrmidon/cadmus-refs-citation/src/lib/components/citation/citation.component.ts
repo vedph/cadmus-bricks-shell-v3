@@ -63,8 +63,13 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
 })
 export class CitationComponent implements OnInit, OnDestroy {
   private readonly _subs: Subscription[] = [];
+  private _dropNextUpdate = false;
   private _updatingCit?: boolean;
-  private _initialized?: boolean;
+
+  /**
+   * The citation to edit.
+   */
+  public readonly citation = model<Citation>();
 
   /**
    * The scheme keys to use in this component. The full list of schemes is
@@ -87,11 +92,6 @@ export class CitationComponent implements OnInit, OnDestroy {
   public readonly allowPartial = input<boolean>();
 
   /**
-   * The citation to edit.
-   */
-  public readonly citation = model<Citation>();
-
-  /**
    * The schemes to use in this component.
    */
   public readonly schemes = computed<Readonly<CitScheme[]>>(() => {
@@ -99,16 +99,12 @@ export class CitationComponent implements OnInit, OnDestroy {
   });
 
   /**
-   * Emitted when the citation is validated, with an error if any.
+   * Emitted when the user clicks the cancel button.
    */
-  public readonly citationValidate = output<CitationError | null>();
+  public readonly cancel = output<void>();
 
   @ViewChild('free', { static: false }) freeInput?: ElementRef;
 
-  /**
-   * The edited citation.
-   */
-  public editedCitation?: Citation;
   /**
    * The current scheme.
    */
@@ -140,6 +136,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   public strEditorValue: FormControl<string | null>;
   public strEditorForm: FormGroup;
 
+  public editedCitation?: Citation;
   public errors: { [key: string]: string } = {};
 
   constructor(
@@ -179,53 +176,53 @@ export class CitationComponent implements OnInit, OnDestroy {
       value: this.strEditorValue,
     });
 
-    // if no citation, create an empty one
-    if (!this.citation()?.steps?.length) {
-      this.citation.set(this.createEmptyCitation());
-    }
-
+    // when citation changes, update edited citation
     effect(() => {
+      if (this._dropNextUpdate) {
+        this._dropNextUpdate = false;
+        return;
+      }
       // when undefined, return an empty citation so that user can fill it
       if (!this.citation()?.steps?.length) {
         this.editedCitation = this.createEmptyCitation();
       } else {
         this.editedCitation = deepCopy(this.citation());
       }
+      console.log('citation change', this.editedCitation);
     });
   }
 
-  private createEmptyCitation(): Citation {
-    return this._schemeService.createEmptyCitation(this.scheme.value.id, -1);
+  private createEmptyCitation(schemeId?: string): Citation {
+    return this._schemeService.createEmptyCitation(
+      schemeId || this.scheme.value.id,
+      -1
+    );
   }
 
   public ngOnInit(): void {
+    // if no citation, create an empty one
+    if (!this.citation()?.steps?.length) {
+      this.editedCitation = this.createEmptyCitation();
+    }
+
     // on scheme change, reset citation and free text, and
     // reset allowPartial if the scheme does not allow it
     this._subs.push(
       this.scheme.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(100))
         .subscribe((scheme) => {
-          if (this._updatingCit) {
+          if (this._updatingCit || !scheme) {
             this._updatingCit = false;
             return;
           }
-          const cit: Citation = { schemeId: scheme.id, steps: [] };
-          for (let i = 0; i < scheme.path.length; i++) {
-            cit.steps.push({
-              stepId: scheme.path[i],
-              color: scheme.steps[scheme.path[i]].color,
-              format: scheme.steps[scheme.path[i]].format,
-              value: '',
-            });
-          }
-          this.citation.set(cit);
-          this.text.reset();
+          console.log('scheme change', scheme);
           this.editedStep = undefined;
-
+          this.text.reset();
+          this.editedCitation = this.createEmptyCitation(scheme.id);
           this.lastStep.setValue(
-            this.scheme.value.path[this.scheme.value.path.length - 1]
+            this.scheme.value.path[scheme.path.length - 1]
           );
-          this.lastStepIndex = this.scheme.value.path.length - 1;
+          this.lastStepIndex = scheme.path.length - 1;
         })
     );
 
@@ -236,7 +233,7 @@ export class CitationComponent implements OnInit, OnDestroy {
         .subscribe((s) => {
           this.lastStepIndex = this.scheme.value.path.indexOf(s || '');
           // truncate or extend citation steps according to last step index
-          const cit = this.citation();
+          const cit = this.editedCitation;
           if (!cit) {
             return;
           }
@@ -252,12 +249,10 @@ export class CitationComponent implements OnInit, OnDestroy {
               value: '',
             });
           }
-          this.citation.set(newCit);
-          this.validateAndEmit();
+          this.editedCitation = newCit;
+          this.validateCitation(newCit);
         })
     );
-
-    this._initialized = true;
   }
 
   public ngOnDestroy(): void {
@@ -273,7 +268,8 @@ export class CitationComponent implements OnInit, OnDestroy {
           this.scheme.value.id
         );
         if (cit?.steps?.length) {
-          this.citation.set(cit);
+          this.editedCitation = cit;
+          this.validateCitation(cit);
           this.freeMode = false;
         } else {
           return;
@@ -298,7 +294,7 @@ export class CitationComponent implements OnInit, OnDestroy {
 
   //#region Step editing
   public editStep(step: CitStep | null): void {
-    if (!step) {
+    if (!step || !this.scheme.value) {
       this.editedStep = undefined;
       return;
     }
@@ -399,11 +395,12 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // update citation
     cit.steps[index] = this.editedStep;
-    this.citation.set(cit);
+    this.editedCitation = cit;
     this.editedStep = undefined;
+    this.validateCitation(cit);
 
-    // validate citation
-    this.validateAndEmit();
+    // reset editor
+    this.strEditorValue.reset();
   }
 
   public saveNumberStep(): void {
@@ -437,11 +434,12 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // update citation
     cit.steps[index] = this.editedStep;
-    this.citation.set(cit);
+    this.editedCitation = cit;
     this.editedStep = undefined;
+    this.validateCitation(cit);
 
-    // validate citation
-    this.validateAndEmit();
+    // reset editor
+    this.nrEditorValue.reset();
   }
 
   public saveStringStep(): void {
@@ -464,11 +462,9 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // update citation
     cit.steps[index] = this.editedStep;
-    this.citation.set(cit);
+    this.editedCitation = cit;
     this.editedStep = undefined;
-
-    // validate citation
-    this.validateAndEmit();
+    this.validateCitation(cit);
   }
   //#endregion
 
@@ -549,15 +545,17 @@ export class CitationComponent implements OnInit, OnDestroy {
     this.errors = errors;
     return null;
   }
-
-  private validateAndEmit(): void {
-    const error = this.validateCitation(this.editedCitation);
-    if (!error) {
-      this.citation.set(this.editedCitation!);
-      this.citationValidate.emit(null);
-    } else {
-      this.citationValidate.emit({ ...error, citation: this.editedCitation });
-    }
-  }
   //#endregion
+
+  public close(): void {
+    this.cancel.emit();
+  }
+
+  public save(): void {
+    if (!this.validateCitation(this.editedCitation)) {
+      return;
+    }
+    this._dropNextUpdate = true;
+    this.citation.set(deepCopy(this.editedCitation!));
+  }
 }

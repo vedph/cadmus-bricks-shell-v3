@@ -42,6 +42,8 @@ import {
   styleUrl: './citation-pg.component.scss',
 })
 export class CitationPgComponent {
+  private _nextVerse = 1;
+
   public citation?: Citation;
   public citText?: string;
   public error?: CitationError;
@@ -64,13 +66,17 @@ export class CitationPgComponent {
     this.citText = citation ? this._service.toString(citation) : '';
   }
 
-  public onCitationValidate(error: CitationError | null): void {
-    this.error = error || undefined;
-  }
-
   public resetCitation(): void {
     this.citation = undefined;
     this.citText = undefined;
+    this._nextVerse = 1;
+  }
+
+  public setCitation(): void {
+    this.citation = this._service.parse(`If. XXVI ${this._nextVerse++}`, 'dc')!;
+    if (this._nextVerse >= 100) {
+      this._nextVerse = 1;
+    }
   }
 
   public addCitation(): void {

@@ -108,7 +108,7 @@ export class CompactCitationComponent implements OnDestroy {
     this._sub = this.range.valueChanges
       .pipe(distinctUntilChanged())
       .subscribe((v) => {
-        this.cancel();
+        this.closeCitation();
         // if the range was set to true, add and edit B if missing
         if (v && !this.b) {
           this.editB();
@@ -153,9 +153,13 @@ export class CompactCitationComponent implements OnDestroy {
 
     const span = citation as CitationSpan;
     const isSpan = !!span.a;
-    this.a = deepCopy(isSpan ? (span as CitationSpan).a : (citation as Citation));
+    this.a = deepCopy(
+      isSpan ? (span as CitationSpan).a : (citation as Citation)
+    );
     this.b = deepCopy(isSpan ? (span as CitationSpan).b : undefined);
     this.range.setValue(isSpan, { emitEvent: false });
+
+    this.validate();
   }
 
   public editA() {
@@ -170,47 +174,56 @@ export class CompactCitationComponent implements OnDestroy {
     this.edited = deepCopy(this.b);
   }
 
-  public cancel(): void {
-    this.edited = undefined;
-    this.editedIndex = -1;
-  }
-
-  public saveAB(citation?: Citation): void {
-    this.formError = undefined;
-    if (this.editedIndex === 0 && citation) {
-      this.a = citation;
-    } else if (this.editedIndex === 1 && citation) {
-      this.b = citation;
-    }
-  }
-
-  public save(): void {
+  private validate(): boolean {
     if (this.range.value) {
       // in range mode, A must be set and B must be after A
       if (!this.a || !this.b) {
         this.formError = 'A and B are required';
-        return;
+        return false;
       }
       const compResult = this._schemeService.compareCitations(this.a, this.b);
       // A must come before B
       if (compResult >= 0) {
         this.formError = 'B must come after A';
-        return;
+        return false;
       }
     } else {
       // in single mode, A is required
       if (!this.a) {
         this.formError = 'citation required';
-        return;
+        return false;
       }
     }
+    this.formError = undefined;
+    return true;
+  }
 
+  private closeCitation(): void {
+    this.edited = undefined;
+    this.editedIndex = -1;
+  }
+
+  public onCitationChange(citation?: Citation): void {
+    if (this.editedIndex === 0) {
+      this.a = citation;
+      if (!citation) {
+        this.b = undefined;
+      }
+    } else if (this.editedIndex === 1) {
+      this.b = citation;
+    }
+    if (!this.validate()) {
+      return;
+    }
+    this.closeCitation();
+    this.save();
+  }
+
+  private save(): void {
     if (this.range.value) {
       this.citation.set(deepCopy({ a: this.a, b: this.b }));
     } else {
       this.citation.set(deepCopy(this.a));
     }
-    this.edited = undefined;
-    this.editedIndex = -1;
   }
 }

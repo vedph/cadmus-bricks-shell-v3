@@ -35,3 +35,22 @@ legend {
 .step {
   width: 8em;
 }
+ul.error {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+ul.error li {
+  color: red;
+  font-size: 0.8em;
+}
+ul.error li::before {
+  content: "⚠️ ";
+  font-size: 1.2em;
+  vertical-align: middle;
+}
+ul.error li::marker {
+  color: red;
+  font-size: 1.2em;
+  vertical-align: middle;
+}

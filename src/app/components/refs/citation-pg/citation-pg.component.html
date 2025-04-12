@@ -8,6 +8,22 @@
     <div class="form-row">
       <mat-checkbox [formControl]="allowFreeMode">free mode</mat-checkbox>
       <mat-checkbox [formControl]="allowPartial">partial</mat-checkbox>
+      <button
+        type="button"
+        mat-flat-button
+        class="mat-primary"
+        (click)="setCitation()"
+      >
+        set
+      </button>
+      <button
+        type="button"
+        mat-flat-button
+        class="mat-warn"
+        (click)="resetCitation()"
+      >
+        reset
+      </button>
     </div>
     <hr />
     <cadmus-refs-citation
@@ -15,7 +31,6 @@
       [allowFreeMode]="allowFreeMode.value"
       [allowPartial]="allowPartial.value"
       (citationChange)="onCitationChange($event)"
-      (citationValidate)="onCitationValidate($event)"
     />
     <hr />
     @if (citation) {

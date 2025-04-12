@@ -691,8 +691,7 @@ This component is used for editing a single citation. The input citation can be 
   - `allowPartial` (`boolean`): true if the component allows a partial citation, i.e. a citation missing the final step(s) starting from the first one defined as optional in the scheme.
   - `citation` (`Citation`): the citation to edit.
 - 🔥 output:
-  - `citationChange` (`Citation`)
-  - `citationValidate` (`CitationError | null`): emitted after `citationChange` to report the validation result for the citation.
+  - `citationChange` (`Citation`).
 
 ### CitationViewComponent
 

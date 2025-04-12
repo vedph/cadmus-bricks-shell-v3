@@ -4,8 +4,8 @@
     <!-- citation steps -->
     @if (!freeMode) {
     <div class="form-row">
-      @for (c of editedCitation?.steps || []; track c.stepId; let index = $index;
-      let last = $last) {
+      @for (c of editedCitation?.steps || []; track c; let index =
+      $index; let last = $last) {
       <!-- step and separator -->
       @if (index <= lastStepIndex) {
       <cadmus-citation-step
@@ -241,4 +241,23 @@
     } }
   </fieldset>
   }
+  <!-- buttons -->
+  <div>
+    <button
+      type="button"
+      mat-icon-button
+      (click)="close()"
+      matTooltip="Cancel edit"
+    >
+      <mat-icon class="mat-warn">cancel</mat-icon>
+    </button>
+    <button
+      type="submit"
+      mat-icon-button
+      (click)="save()"
+      matTooltip="Save citation"
+    >
+      <mat-icon class="mat-primary">check_circle</mat-icon>
+    </button>
+  </div>
 </div>
