@@ -553,9 +553,10 @@ export class CitationComponent implements OnInit, OnDestroy {
   private validateAndEmit(): void {
     const error = this.validateCitation(this.editedCitation);
     if (!error) {
+      this.citation.set(this.editedCitation!);
       this.citationValidate.emit(null);
     } else {
-      this.citationValidate.emit({ ...error, citation: this.citation() });
+      this.citationValidate.emit({ ...error, citation: this.editedCitation });
     }
   }
   //#endregion
