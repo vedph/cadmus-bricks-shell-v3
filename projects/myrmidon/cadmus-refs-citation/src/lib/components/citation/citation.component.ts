@@ -247,6 +247,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           for (let i = cit.steps.length; i <= this.lastStepIndex; i++) {
             newCit.steps.push({
               stepId: this.scheme.value.path[i],
+              format: this.scheme.value.steps[this.scheme.value.path[i]].format,
               color: this.scheme.value.steps[this.scheme.value.path[i]].color,
               value: '',
             });
@@ -558,18 +559,4 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
   }
   //#endregion
-
-  private save() {
-    const citation = this.editedCitation;
-    if (
-      citation &&
-      this._initialized &&
-      this.scheme.value.id !== citation.schemeId
-    ) {
-      this._updatingCit = true;
-      this.scheme.setValue(this._schemeService.getScheme(citation.schemeId)!);
-      this.lastStepIndex = this.scheme.value.path.length - 1;
-    }
-    this.validateAndEmit();
-  }
 }
