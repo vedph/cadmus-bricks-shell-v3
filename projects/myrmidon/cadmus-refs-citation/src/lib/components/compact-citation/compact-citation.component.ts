@@ -109,15 +109,15 @@ export class CompactCitationComponent implements OnDestroy {
       .pipe(distinctUntilChanged())
       .subscribe((v) => {
         this.closeCitation();
+
         // if the range was set to true, add and edit B if missing
         if (v && !this.b) {
+          this.b = deepCopy(this.a);
           this.editB();
         }
         // if the range was set to false, remove B
         if (!v && this.b) {
           this.b = undefined;
-          this._dropNextUpdate = true;
-          this.citation.set(this.a ? deepCopy(this.a) : undefined);
         }
       });
 
@@ -127,7 +127,7 @@ export class CompactCitationComponent implements OnDestroy {
         this._dropNextUpdate = false;
         return;
       }
-      this.updateForm(this.citation());
+      this.updateAB(this.citation());
     });
   }
 
@@ -143,7 +143,7 @@ export class CompactCitationComponent implements OnDestroy {
     }
   }
 
-  private updateForm(citation?: Citation | CitationSpan) {
+  private updateAB(citation?: Citation | CitationSpan) {
     if (!citation) {
       this.range.reset();
       this.a = undefined;

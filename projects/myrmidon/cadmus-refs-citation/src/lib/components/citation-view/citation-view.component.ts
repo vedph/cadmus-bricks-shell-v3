@@ -37,7 +37,7 @@ export class CitationViewComponent {
 
   /**
    * Emitted when the citation is clicked. Value is true if B was
-   * clicked, else false.
+   * clicked, else (A clicked) false.
    */
   public readonly click = output<boolean>();
 
@@ -73,9 +73,12 @@ export class CitationViewComponent {
     return (this.citation() as CitationSpan).b;
   });
 
-  public onClick(b?: boolean): void {
+  public onTermClick(b: boolean, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     if (this.clickable() && this.citation()) {
-      this.click.emit(b === true);
+      this.click.emit(b);
     }
   }
 }

@@ -1,10 +1,11 @@
 @if (a()?.steps?.length) {
-<div
-  class="range"
-  [style.cursor]="clickable() ? 'pointer' : 'default'"
-  (click)="onClick()"
->
-  <div class="step-row">
+<div class="range">
+  <!-- A -->
+  <div
+    class="step-row"
+    [style.cursor]="clickable() ? 'pointer' : 'default'"
+    (click)="onTermClick(false, $event)"
+  >
     @for (s of a()!.steps; track s.stepId) {
     <div
       class="step"
@@ -16,12 +17,13 @@
     </div>
     }
   </div>
+  <!-- B -->
   @if (b()?.steps?.length) {
   <span> - </span>
   <div
     class="step-row"
     [style.cursor]="clickable() ? 'pointer' : 'default'"
-    (click)="onClick(true)"
+    (click)="onTermClick(true, $event)"
   >
     @for (s of b()!.steps; track s.stepId) {
     <div
