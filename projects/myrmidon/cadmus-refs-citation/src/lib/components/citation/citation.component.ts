@@ -279,8 +279,8 @@ export class CitationComponent implements OnInit, OnDestroy {
       // if was toggled on, render citation into string
       this.editedStep = undefined;
       this.freeMode = true;
-      if (this.citation()) {
-        this.text.setValue(this._schemeService.toString(this.citation()!));
+      if (this.editedCitation) {
+        this.text.setValue(this._schemeService.toString(this.editedCitation!));
         setTimeout(() => {
           this.freeInput?.nativeElement.focus();
         }, 100);
@@ -306,7 +306,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     const stepDef = this.scheme.value.steps[step.stepId];
     const stepDomain = this._schemeService.getStepDomain(
       step.stepId,
-      this.citation(),
+      this.editedCitation,
       this.scheme.value.id
     )!;
 
@@ -469,15 +469,13 @@ export class CitationComponent implements OnInit, OnDestroy {
   //#endregion
 
   //#region Validation
-  public validateCitation(
-    citation?: Citation
-  ): { step?: string; error: string } | null {
+  public validateCitation(citation?: Citation): boolean {
     const errors: { [key: string]: string } = {};
 
     if (!citation?.steps.length) {
       errors[''] = 'No citation';
       this.errors = errors;
-      return { error: 'No citation' };
+      return false;
     }
 
     for (let i = 0; i <= this.lastStepIndex; i++) {
@@ -496,10 +494,7 @@ export class CitationComponent implements OnInit, OnDestroy {
         if (!domain.set.includes(step.value)) {
           errors[step.stepId] = `Invalid set value: ${step.value}`;
           this.errors = errors;
-          return {
-            step: step.stepId,
-            error: `Invalid set value: ${step.stepId}`,
-          };
+          return false;
         }
       } else if (domain.range) {
         const n = step.n || 0;
@@ -510,10 +505,7 @@ export class CitationComponent implements OnInit, OnDestroy {
         ) {
           errors[step.stepId] = `Value below min: ${step.stepId}`;
           this.errors = errors;
-          return {
-            step: step.stepId,
-            error: `Value below min: ${step.stepId}`,
-          };
+          return false;
         }
         if (
           domain.range.max !== undefined &&
@@ -522,28 +514,27 @@ export class CitationComponent implements OnInit, OnDestroy {
         ) {
           errors[step.stepId] = `Value above max: ${step.stepId}`;
           this.errors = errors;
-          return {
-            step: step.stepId,
-            error: `Value above max: ${step.stepId}`,
-          };
+          return false;
         }
         if (
           domain.suffix &&
           !new RegExp(domain.suffix).test(step.suffix || '')
         ) {
-          return { step: step.stepId, error: `Invalid suffix: ${step.stepId}` };
+          errors[step.stepId] = `Invalid suffix: ${step.stepId}`;
+          this.errors = errors;
+          return false;
         }
       } else if (domain.mask) {
         if (!new RegExp(domain.mask).test(step.value)) {
           errors[step.stepId] = `Invalid string: ${step.stepId}`;
           this.errors = errors;
-          return { step: step.stepId, error: `Invalid string: ${step.stepId}` };
+          return false;
         }
       }
     }
 
     this.errors = errors;
-    return null;
+    return true;
   }
   //#endregion
 
