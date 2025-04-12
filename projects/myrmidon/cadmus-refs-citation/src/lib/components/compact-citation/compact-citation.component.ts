@@ -115,9 +115,10 @@ export class CompactCitationComponent implements OnDestroy {
           this.b = deepCopy(this.a);
           this.editB();
         }
-        // if the range was set to false, remove B
+        // if the range was set to false, remove B and save
         if (!v && this.b) {
           this.b = undefined;
+          this.save();
         }
       });
 
