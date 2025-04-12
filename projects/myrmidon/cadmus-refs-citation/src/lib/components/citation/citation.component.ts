@@ -104,6 +104,9 @@ export class CitationComponent implements OnInit, OnDestroy {
   public readonly cancel = output<void>();
 
   @ViewChild('free', { static: false }) freeInput?: ElementRef;
+  @ViewChild('set-field', { static: false }) stepSetInput?: ElementRef;
+  @ViewChild('nr-field', { static: false }) stepNrInput?: ElementRef;
+  @ViewChild('str-field', { static: false }) stepStrInput?: ElementRef;
 
   /**
    * The current scheme.
@@ -178,17 +181,23 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // when citation changes, update edited citation
     effect(() => {
+      const citation = this.citation();
+      console.log('citation change', citation);
       if (this._dropNextUpdate) {
+        console.log('drop next update');
         this._dropNextUpdate = false;
         return;
       }
+      // close step editor
+      this.editedStep = undefined;
+      this.text.reset();
       // when undefined, return an empty citation so that user can fill it
-      if (!this.citation()?.steps?.length) {
+      if (!citation?.steps?.length) {
         this.editedCitation = this.createEmptyCitation();
       } else {
-        this.editedCitation = deepCopy(this.citation());
+        this.editedCitation = citation;
       }
-      console.log('citation change', this.editedCitation);
+      console.log('edited citation', this.editedCitation);
     });
   }
 
@@ -316,6 +325,10 @@ export class CitationComponent implements OnInit, OnDestroy {
         this.setEditorItems = stepDomain.set!;
         this.stepEditMode = 'set';
         this.setEditorItem.setValue(step.value);
+        // focus
+        setTimeout(() => {
+          this.stepSetInput?.nativeElement.focus();
+        });
         break;
 
       case 'numeric':
@@ -348,8 +361,11 @@ export class CitationComponent implements OnInit, OnDestroy {
         } else {
           this.nrEditorSuffix.clearValidators();
         }
-
         this.hasSuffix = !!stepDef.suffixPattern;
+        // focus
+        setTimeout(() => {
+          this.stepNrInput?.nativeElement.focus();
+        });
         break;
 
       case 'masked':
@@ -361,6 +377,10 @@ export class CitationComponent implements OnInit, OnDestroy {
         ]);
         this.strEditorValue.setValue(step.value);
         this.strEditorValue.updateValueAndValidity();
+        // focus
+        setTimeout(() => {
+          this.stepStrInput?.nativeElement.focus();
+        });
         break;
 
       default:
@@ -369,6 +389,10 @@ export class CitationComponent implements OnInit, OnDestroy {
         this.strEditorValue.setValidators([Validators.required]);
         this.strEditorValue.setValue(step.value);
         this.strEditorValue.updateValueAndValidity();
+        // focus
+        setTimeout(() => {
+          this.stepStrInput?.nativeElement.focus();
+        });
         break;
     }
   }

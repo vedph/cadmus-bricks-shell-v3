@@ -154,10 +154,12 @@ export class CompactCitationComponent implements OnDestroy {
 
     const span = citation as CitationSpan;
     const isSpan = !!span.a;
-    this.a = deepCopy(
-      isSpan ? (span as CitationSpan).a : (citation as Citation)
-    );
-    this.b = deepCopy(isSpan ? (span as CitationSpan).b : undefined);
+    this.a = isSpan ? (span as CitationSpan).a : (citation as Citation);
+    this.b = isSpan ? (span as CitationSpan).b : undefined
+    // this.a = deepCopy(
+    //   isSpan ? (span as CitationSpan).a : (citation as Citation)
+    // );
+    // this.b = deepCopy(isSpan ? (span as CitationSpan).b : undefined);
     this.range.setValue(isSpan, { emitEvent: false });
 
     this.validate();
@@ -171,8 +173,8 @@ export class CompactCitationComponent implements OnDestroy {
   }
 
   public editB() {
-    this.editedIndex = 1;
     this.edited = deepCopy(this.b);
+    this.editedIndex = 1;
   }
 
   private validate(): boolean {
