@@ -4,7 +4,7 @@
     <!-- citation steps -->
     @if (!freeMode) {
     <div class="form-row">
-      @for (c of editedCitation().steps || []; track c.stepId; let index = $index;
+      @for (c of editedCitation?.steps || []; track c.stepId; let index = $index;
       let last = $last) {
       <!-- step and separator -->
       @if (index <= lastStepIndex) {

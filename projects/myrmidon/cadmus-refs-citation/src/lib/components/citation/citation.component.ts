@@ -92,18 +92,6 @@ export class CitationComponent implements OnInit, OnDestroy {
   public readonly citation = model<Citation>();
 
   /**
-   * The edited citation viewmodel.
-   */
-  public readonly editedCitation = computed<Citation>(() => {
-    // when undefined, return an empty citation so that user can fill it
-    if (!this.citation()?.steps?.length) {
-      return this.createEmptyCitation();
-    } else {
-      return deepCopy(this.citation());
-    }
-  });
-
-  /**
    * The schemes to use in this component.
    */
   public readonly schemes = computed<Readonly<CitScheme[]>>(() => {
@@ -117,6 +105,10 @@ export class CitationComponent implements OnInit, OnDestroy {
 
   @ViewChild('free', { static: false }) freeInput?: ElementRef;
 
+  /**
+   * The edited citation.
+   */
+  public editedCitation?: Citation;
   /**
    * The current scheme.
    */
@@ -192,19 +184,13 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.citation.set(this.createEmptyCitation());
     }
 
-    // when editedCitation changes, validate it
     effect(() => {
-      const citation = this.editedCitation();
-      if (
-        citation &&
-        this._initialized &&
-        this.scheme.value.id !== citation.schemeId
-      ) {
-        this._updatingCit = true;
-        this.scheme.setValue(_schemeService.getScheme(citation.schemeId)!);
-        this.lastStepIndex = this.scheme.value.path.length - 1;
+      // when undefined, return an empty citation so that user can fill it
+      if (!this.citation()?.steps?.length) {
+        this.editedCitation = this.createEmptyCitation();
+      } else {
+        this.editedCitation = deepCopy(this.citation());
       }
-      this.validateAndEmit();
     });
   }
 
@@ -213,7 +199,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public ngOnInit(): void {
-    // on scheme change, reset citation and free text and
+    // on scheme change, reset citation and free text, and
     // reset allowPartial if the scheme does not allow it
     this._subs.push(
       this.scheme.valueChanges
@@ -397,7 +383,7 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // update step value in new citation
     const cit: Citation = {
-      ...(this.editedCitation() || {
+      ...(this.editedCitation || {
         schemeId: this.scheme.value.id,
         steps: [],
       }),
@@ -426,7 +412,7 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // update step value in new citation
     const cit: Citation = {
-      ...(this.editedCitation() || {
+      ...(this.editedCitation || {
         schemeId: this.scheme.value.id,
         steps: [],
       }),
@@ -464,7 +450,7 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // update step value in new citation
     const cit: Citation = {
-      ...(this.editedCitation() || {
+      ...(this.editedCitation || {
         schemeId: this.scheme.value.id,
         steps: [],
       }),
@@ -564,7 +550,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   private validateAndEmit(): void {
-    const error = this.validateCitation(this.editedCitation());
+    const error = this.validateCitation(this.editedCitation);
     if (!error) {
       this.citationValidate.emit(null);
     } else {
@@ -572,4 +558,18 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
   }
   //#endregion
+
+  private save() {
+    const citation = this.editedCitation;
+    if (
+      citation &&
+      this._initialized &&
+      this.scheme.value.id !== citation.schemeId
+    ) {
+      this._updatingCit = true;
+      this.scheme.setValue(this._schemeService.getScheme(citation.schemeId)!);
+      this.lastStepIndex = this.scheme.value.path.length - 1;
+    }
+    this.validateAndEmit();
+  }
 }
