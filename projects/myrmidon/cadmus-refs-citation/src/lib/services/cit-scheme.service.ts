@@ -519,7 +519,12 @@ export class CitSchemeService {
    * @param b The second citation to compare.
    * @returns Comparison result.
    */
-  public compareCitations(a: Citation, b: Citation): number {
+  public compareCitations(a?: Citation, b?: Citation): number {
+    // corner cases
+    if (!a && !b) return 0;
+    if (!a) return -1;
+    if (!b) return 1;
+
     for (let i = 0; i < Math.max(a.steps.length, b.steps.length); i++) {
       // compare scheme IDs
       if (a.schemeId !== b.schemeId) {

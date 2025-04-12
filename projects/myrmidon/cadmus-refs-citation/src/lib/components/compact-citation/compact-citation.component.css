@@ -25,3 +25,8 @@ fieldset {
 fieldset legend {
   color: silver;
 }
+.error {
+  color: red;
+  font-size: 0.8em;
+  margin-top: 4px;
+}

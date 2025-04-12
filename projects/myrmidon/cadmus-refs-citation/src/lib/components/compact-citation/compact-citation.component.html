@@ -38,6 +38,9 @@
         [citation]="edited"
         (citationChange)="saveAB($event)"
       />
+      @if (formError) {
+      <div class="error">{{ formError }}</div>
+      }
       <div class="form-row">
         <button mat-icon-button type="button" (click)="cancel()">
           <mat-icon class="mat-warn">cancel</mat-icon>
