@@ -101,10 +101,9 @@ export class CitationSetComponent {
   }
 
   public newCitation(): void {
-    this.editedCitation = {
-      schemeId: this.defaultSchemeId() || this._schemeService.getSchemes()[0].id,
-      steps: [],
-    };
+    const schemeId =
+      this.defaultSchemeId() || this._schemeService.getSchemes()[0].id;
+    this.editedCitation = this._schemeService.createEmptyCitation(schemeId);
     this.editedCitationIndex = -1;
   }
 
