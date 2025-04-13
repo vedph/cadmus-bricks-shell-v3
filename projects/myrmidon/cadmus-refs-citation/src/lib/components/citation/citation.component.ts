@@ -28,12 +28,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { ColorToContrastPipe, deepCopy } from '@myrmidon/ngx-tools';
+import {
+  ColorToContrastPipe,
+  deepCopy,
+  DynamicFocus,
+} from '@myrmidon/ngx-tools';
 
 import { Citation, CitStep, CitScheme } from '../../models';
 import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
-import { DynamicFocus } from '../../services/dynamic-focus';
 
 export type CitationError = {
   citation?: Citation;
