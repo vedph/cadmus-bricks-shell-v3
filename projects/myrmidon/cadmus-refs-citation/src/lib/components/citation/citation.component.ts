@@ -5,6 +5,7 @@ import {
   ElementRef,
   input,
   model,
+  NgZone,
   OnDestroy,
   OnInit,
   output,
@@ -32,6 +33,7 @@ import { ColorToContrastPipe, deepCopy } from '@myrmidon/ngx-tools';
 import { Citation, CitStep, CitScheme } from '../../models';
 import { CitSchemeService } from '../../services/cit-scheme.service';
 import { CitationStepComponent } from '../citation-step/citation-step.component';
+import { DynamicFocus } from '../../services/dynamic-focus';
 
 export type CitationError = {
   citation?: Citation;
@@ -63,6 +65,7 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
 })
 export class CitationComponent implements OnInit, OnDestroy {
   private readonly _subs: Subscription[] = [];
+  private readonly _focusHelper: DynamicFocus;
   private _dropNextUpdate = false;
   private _updatingCit?: boolean;
 
@@ -104,9 +107,6 @@ export class CitationComponent implements OnInit, OnDestroy {
   public readonly cancel = output<void>();
 
   @ViewChild('free', { static: false }) freeInput?: ElementRef;
-  @ViewChild('set-field', { static: false }) stepSetInput?: ElementRef;
-  @ViewChild('nr-field', { static: false }) stepNrInput?: ElementRef;
-  @ViewChild('str-field', { static: false }) stepStrInput?: ElementRef;
 
   /**
    * The current scheme.
@@ -144,8 +144,13 @@ export class CitationComponent implements OnInit, OnDestroy {
 
   constructor(
     formBuilder: FormBuilder,
-    private _schemeService: CitSchemeService
+    private _schemeService: CitSchemeService,
+    private _zone: NgZone
   ) {
+    // focus helper
+    this._focusHelper = new DynamicFocus(this._zone);
+
+    // form
     this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
     this.lastStep = formBuilder.control(null);
     this.lastStepIndex = this.scheme.value.path.length - 1;
@@ -265,6 +270,9 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy(): void {
+    // clean up any pending focus operations
+    this._focusHelper.cancelAllFocus();
+    // clean up subscriptions
     this._subs.forEach((s) => s.unsubscribe());
   }
 
@@ -326,8 +334,9 @@ export class CitationComponent implements OnInit, OnDestroy {
         this.stepEditMode = 'set';
         this.setEditorItem.setValue(step.value);
         // focus
-        setTimeout(() => {
-          this.stepSetInput?.nativeElement.focus();
+        this._focusHelper.focusElement({
+          target: 'set-field',
+          maxAttempts: 5,
         });
         break;
 
@@ -363,8 +372,9 @@ export class CitationComponent implements OnInit, OnDestroy {
         }
         this.hasSuffix = !!stepDef.suffixPattern;
         // focus
-        setTimeout(() => {
-          this.stepNrInput?.nativeElement.focus();
+        this._focusHelper.focusElement({
+          target: 'nr-field',
+          maxAttempts: 5,
         });
         break;
 
@@ -378,8 +388,9 @@ export class CitationComponent implements OnInit, OnDestroy {
         this.strEditorValue.setValue(step.value);
         this.strEditorValue.updateValueAndValidity();
         // focus
-        setTimeout(() => {
-          this.stepStrInput?.nativeElement.focus();
+        this._focusHelper.focusElement({
+          target: 'str-field',
+          maxAttempts: 5,
         });
         break;
 
@@ -390,8 +401,9 @@ export class CitationComponent implements OnInit, OnDestroy {
         this.strEditorValue.setValue(step.value);
         this.strEditorValue.updateValueAndValidity();
         // focus
-        setTimeout(() => {
-          this.stepStrInput?.nativeElement.focus();
+        this._focusHelper.focusElement({
+          target: 'str-field',
+          maxAttempts: 5,
         });
         break;
     }
