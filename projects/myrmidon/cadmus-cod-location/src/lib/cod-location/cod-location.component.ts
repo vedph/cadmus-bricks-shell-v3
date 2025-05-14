@@ -120,7 +120,6 @@ export class CodLocationComponent implements OnInit, OnDestroy {
           this.saveLocation();
         }
       });
-    // this.saveLocation();
   }
 
   public ngOnDestroy(): void {
@@ -150,6 +149,14 @@ export class CodLocationComponent implements OnInit, OnDestroy {
         }
       }
     } else {
+      // if text ends with space(s), do nothing because
+      // the user is still typing and we must wait for the next
+      // range in the list; otherwise, we would parse a single
+      // range and remove trailing spaces from what is being typed
+      if (this.text.value?.endsWith(' ')) {
+        return;
+      }
+
       const ranges = this.text.valid
         ? CodLocationParser.parseLocationRanges(this.text.value)
         : null;

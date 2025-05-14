@@ -1,6 +1,6 @@
 services:
   bricks-app:
     container_name: bricks-shell-v3
-    image: vedph2020/cadmus-bricks-shell-v3:8.0.3
+    image: vedph2020/cadmus-bricks-shell-v3:8.0.4
     ports:
       - 4200:80

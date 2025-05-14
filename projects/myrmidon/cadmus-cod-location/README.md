@@ -55,3 +55,7 @@ The `CodLocationComponent` is used to edit a location using its string format. I
 - required: true if the location is required.
 - single: true if the location refers to a single sheet. If false, it refers to 1 or more ranges.
 - location: the location(s) edited, an array of `CodLocationRange` (or `null`). When changes, `locationChange` is emitted.
+
+## History
+
+- 2025-05-14: fix to `CodLocationComponent` for multiple ranges (regression from Angular updates).
