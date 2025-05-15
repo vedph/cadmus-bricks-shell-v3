@@ -22,11 +22,16 @@ import {
   ],
 })
 export class NoteSetPgComponent {
+  public altSet = false;
   public set: NoteSet;
   public lastNoteChanged?: string;
 
   constructor() {
-    this.set = {
+    this.set = this.getDefaultSet();
+  }
+
+  private getDefaultSet(): NoteSet {
+    const set: NoteSet = {
       definitions: [
         {
           key: 'a',
@@ -40,13 +45,32 @@ export class NoteSetPgComponent {
           label: 'beta',
         },
       ],
-      notes: new Map<string, string | null>(),
+      notes: {},
     };
-    this.set.notes!.set(
-      'a',
-      'This is a *Markdown* note!\nMax **200** characters.'
-    );
-    this.set.notes!.set('b', 'This is plain text note with no max length.');
+    set.notes!['a'] =
+      'This is an alpha *Markdown* note!\nMax **200** characters.';
+    set.notes!['b'] = 'This is a beta plain text note with no max length.';
+    return set;
+  }
+
+  private getAltSet(): NoteSet {
+    const set: NoteSet = {
+      definitions: [
+        {
+          key: 'a',
+          label: 'alpha',
+          markdown: true,
+          required: true,
+          maxLength: 200,
+        },
+        {
+          key: 'g',
+          label: 'gamma',
+        },
+      ],
+      notes: {},
+    };
+    return set;
   }
 
   public onNoteChange(note: KeyValue<string, string | null>): void {
@@ -57,5 +81,41 @@ export class NoteSetPgComponent {
   public onSetChange(set: NoteSet): void {
     console.log('Set changed', set);
     this.set = set;
+  }
+
+  public toggleDefinitions(): void {
+    // get the appropriate base set
+    const newSet = this.altSet ? this.getDefaultSet() : this.getAltSet();
+
+    // preserve existing notes that have matching keys in the new definitions
+    const validKeys = new Set(newSet.definitions.map((d) => d.key));
+
+    // copy existing notes that should be preserved
+    if (this.set?.notes) {
+      Object.entries(this.set.notes).forEach(([key, value]) => {
+        if (validKeys.has(key) && value !== null) {
+          newSet.notes![key] = value;
+        }
+      });
+    }
+
+    // add demo data for new keys only if they don't already have values
+    if (this.altSet) {
+      // Going to default set
+      if (!newSet.notes!['b']) {
+        newSet.notes!['b'] =
+          'This is a beta plain text note with no max length.';
+      }
+    } else {
+      // going to alternate set
+      if (!newSet.notes!['g']) {
+        newSet.notes!['g'] =
+          'This is gamma plain text note with no max length.';
+      }
+    }
+
+    // update the set and toggle state
+    this.set = newSet;
+    this.altSet = !this.altSet;
   }
 }

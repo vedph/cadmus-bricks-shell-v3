@@ -1,5 +1,5 @@
 import { CommonModule, KeyValue } from '@angular/common';
-import { Component, OnInit, output, input, effect, model } from '@angular/core';
+import { Component, OnInit, output, effect, model } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -39,7 +39,7 @@ export interface NoteSetDefinition {
  */
 export interface NoteSet {
   definitions: NoteSetDefinition[];
-  notes?: Map<string, string | null>;
+  notes?: { [key: string]: string | null };
 }
 
 /**
@@ -72,6 +72,8 @@ export interface NoteSet {
   ],
 })
 export class NoteSetComponent implements OnInit {
+  private _updating = false;
+
   /**
    * The set of notes with their definitions.
    */
@@ -113,8 +115,63 @@ export class NoteSetComponent implements OnInit {
     });
 
     effect(() => {
-      this.updateForm(this.set() || { definitions: [] });
+      // prevent recursive updates
+      if (this._updating) {
+        return;
+      }
+
+      const newSet = this.set();
+      this._updating = true;
+
+      try {
+        // preserve existing notes during set updates
+        this.preserveExistingNotes(newSet);
+        this.updateForm(newSet);
+      } finally {
+        // always reset flag even if an error occurs
+        this._updating = false;
+      }
     });
+  }
+
+  /**
+   * Preserves existing notes when the set definitions change.
+   * Only notes with keys that still exist in the new definitions are preserved.
+   */
+  private preserveExistingNotes(newSet: NoteSet): void {
+    if (!newSet || !newSet.definitions || newSet.definitions.length === 0) {
+      return;
+    }
+
+    // create a copy of the new set to avoid direct mutations
+    const updatedSet = { ...newSet };
+
+    // initialize notes object if it doesn't exist
+    if (!updatedSet.notes) {
+      updatedSet.notes = {};
+    }
+
+    // get valid keys from new definitions
+    const validKeys = new Set(updatedSet.definitions.map((d) => d.key));
+
+    // if we have previous notes, preserve the ones that still exist in definitions
+    const previousNotes = this.set().notes;
+    if (previousNotes) {
+      Object.entries(previousNotes).forEach(([key, value]) => {
+        // Only keep notes whose keys are still in the definitions
+        if (validKeys.has(key)) {
+          updatedSet.notes![key] = value;
+        }
+      });
+    }
+
+    // update the set signal with our modified version only if changes were made
+    if (
+      updatedSet !== newSet &&
+      JSON.stringify(updatedSet) !== JSON.stringify(newSet)
+    ) {
+      this.set.set(updatedSet);
+    }
   }
 
   public ngOnInit(): void {
@@ -139,16 +196,62 @@ export class NoteSetComponent implements OnInit {
       });
   }
 
+  private updateForm(set?: NoteSet): void {
+    if (!set?.definitions.length) {
+      this.form.reset();
+      this.keys = [];
+      this.noteCount = 0;
+      this.missing = [];
+      this.existing = [];
+      return;
+    }
+
+    // make defensive copies to avoid unintended mutations
+    const safeSet = { ...set };
+    if (!safeSet.notes) {
+      safeSet.notes = {};
+    }
+
+    // extract keys and labels
+    this.keys = safeSet.definitions.map((d) => {
+      return {
+        key: d.key,
+        value: d.label,
+      } as KeyValue<string, string>;
+    });
+
+    // if a key is currently selected, ensure it's still valid
+    if (this.key.value) {
+      const keyExists = safeSet.definitions.some(
+        (d) => d.key === this.key.value
+      );
+      if (!keyExists) {
+        this.key.setValue(null);
+        this.text.setValue(null);
+        this.currentDef = undefined;
+      } else if (this.currentDef) {
+        // if still valid, refresh the text value in case it changed
+        this.text.setValue(safeSet.notes[this.key.value] || null);
+      }
+    }
+
+    // update notes count
+    this.updateNoteCount();
+    this.missing = this.getMissingNotes();
+    this.existing = this.getExistingNotes();
+    this.reqNotes.setValue(this.missing?.length ? false : true);
+  }
+
   /**
    * Update the count of non-falsy notes.
    */
   private updateNoteCount(): void {
-    if (!this.set()?.notes?.size) {
+    if (!this.set().notes) {
       this.noteCount = 0;
     } else {
       let n = 0;
-      this.set().notes!.forEach((v: string | null, k: string) => {
-        if (v) {
+      Object.values(this.set()?.notes ?? {}).forEach((value) => {
+        if (value) {
           n++;
         }
       });
@@ -156,43 +259,26 @@ export class NoteSetComponent implements OnInit {
     }
   }
 
-  private updateForm(set?: NoteSet): void {
-    if (!set?.definitions.length) {
-      this.form.reset();
-      this.keys = [];
-      this.noteCount = 0;
-      return;
-    }
-
-    // extract keys and labels
-    this.keys = set.definitions.map((d) => {
-      return {
-        key: d.key,
-        value: d.label,
-      } as KeyValue<string, string>;
-    });
-
-    // update notes count
-    this.updateNoteCount();
-    this.missing = this.getMissingNotes();
-    this.existing = this.getExistingNotes();
-  }
-
   /**
    * Edit the note with the specified key.
    */
   private editNote(key: string | null): void {
     if (!key) {
+      this.currentDef = undefined;
+      this.text.setValue(null);
+      this.text.clearValidators();
+      this.text.updateValueAndValidity();
       return;
     }
 
-    // load selected note into text
+    // Create a defensive copy of the set
     const set = { ...this.set() };
     if (!set.notes) {
-      set.notes = new Map<string, string | null>();
+      set.notes = {};
     }
+
     this.text.clearValidators();
-    this.text.setValue(set.notes.get(key) || null);
+    this.text.setValue(set.notes[key] || null);
 
     // update text validators
     this.currentDef = set.definitions.find((d) => d.key === key);
@@ -225,7 +311,7 @@ export class NoteSetComponent implements OnInit {
     this.set().definitions.forEach((def) => {
       if (
         def.required &&
-        (!this.set().notes?.has(def.key) || !this.set().notes?.get(def.key))
+        (!this.set().notes || !this.set()?.notes?.[def.key])
       ) {
         missing.push(def.label || def.key);
       }
@@ -236,7 +322,7 @@ export class NoteSetComponent implements OnInit {
   private getExistingNotes(): string[] {
     const existing: string[] = [];
     this.set().definitions.forEach((def) => {
-      if (this.set().notes?.has(def.key) && this.set().notes!.get(def.key)) {
+      if (this.set().notes && this.set()?.notes?.[def.key]) {
         existing.push(def.label || def.key);
       }
     });
@@ -244,29 +330,38 @@ export class NoteSetComponent implements OnInit {
   }
 
   private saveNote(note: KeyValue<string, string | null>): void {
-    if (!this.set().notes) {
-      return;
+    // create a defensive copy with proper notes object
+    const set = { ...this.set() };
+    if (!set.notes) {
+      set.notes = {};
     }
 
-    // save note into a new set
-    const set = { ...this.set() };
-    set.notes!.set(note.key, note.value);
+    // save note
+    set.notes[note.key] = note.value;
 
-    // emit note change and set change
-    this.noteChange.emit({
-      key: this.currentDef!.key,
-      value: set.notes!.get(this.currentDef!.key) || null,
-    });
+    // emit note change
+    if (this.currentDef) {
+      this.noteChange.emit({
+        key: this.currentDef.key,
+        value: note.value,
+      });
+    }
 
-    // update set
-    this.set.set(set);
+    // use the updating flag to prevent an infinite loop
+    this._updating = true;
+    try {
+      // update set
+      this.set.set(set);
 
-    // update UI
-    this.text.markAsPristine();
-    this.updateNoteCount();
-    this.missing = this.getMissingNotes();
-    this.existing = this.getExistingNotes();
-    this.reqNotes.setValue(this.missing.length ? false : true);
+      // update UI
+      this.text.markAsPristine();
+      this.updateNoteCount();
+      this.missing = this.getMissingNotes();
+      this.existing = this.getExistingNotes();
+      this.reqNotes.setValue(this.missing?.length ? false : true);
+    } finally {
+      this._updating = false;
+    }
   }
 
   /**
