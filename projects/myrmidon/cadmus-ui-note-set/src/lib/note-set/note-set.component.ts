@@ -40,6 +40,13 @@ export interface NoteSetDefinition {
 export interface NoteSet {
   definitions: NoteSetDefinition[];
   notes?: { [key: string]: string | null };
+  /**
+   * When true, setting a new NoteSet will preserve existing notes
+   * that have matching keys in the new definitions.
+   * This is used to modify the component's behavior while setting
+   * its data, and is not part of the persistent data model.
+   */
+  merge?: boolean;
 }
 
 /**
@@ -73,6 +80,8 @@ export interface NoteSet {
 })
 export class NoteSetComponent implements OnInit {
   private _updating = false;
+  // cache the previous set for comparison during updates
+  private _previousSet: NoteSet | null = null;
 
   /**
    * The set of notes with their definitions.
@@ -125,8 +134,18 @@ export class NoteSetComponent implements OnInit {
 
       try {
         // preserve existing notes during set updates
-        this.preserveExistingNotes(newSet);
+        if (this._previousSet) {
+          this.preserveExistingNotes(this._previousSet, newSet);
+        }
+
+        // Update the form with the potentially modified set
         this.updateForm(newSet);
+
+        // Cache the current set for next time
+        this._previousSet = { ...newSet };
+        if (newSet.notes) {
+          this._previousSet.notes = { ...newSet.notes };
+        }
       } finally {
         // always reset flag even if an error occurs
         this._updating = false;
@@ -137,41 +156,40 @@ export class NoteSetComponent implements OnInit {
   /**
    * Preserves existing notes when the set definitions change.
    * Only notes with keys that still exist in the new definitions are preserved.
+   * This happens only when the set.merge property is true.
    */
-  private preserveExistingNotes(newSet: NoteSet): void {
+  private preserveExistingNotes(previousSet: NoteSet, newSet: NoteSet): void {
+    // exit if there's no valid set or definitions
     if (!newSet || !newSet.definitions || newSet.definitions.length === 0) {
       return;
     }
 
-    // create a copy of the new set to avoid direct mutations
-    const updatedSet = { ...newSet };
+    // if merge flag isn't set, don't preserve notes
+    if (!newSet.merge) {
+      return;
+    }
+
+    // no previous notes to preserve
+    if (!previousSet?.notes) {
+      return;
+    }
 
     // initialize notes object if it doesn't exist
-    if (!updatedSet.notes) {
-      updatedSet.notes = {};
+    if (!newSet.notes) {
+      newSet.notes = {};
     }
 
     // get valid keys from new definitions
-    const validKeys = new Set(updatedSet.definitions.map((d) => d.key));
+    const validKeys = new Set(newSet.definitions.map((d) => d.key));
 
-    // if we have previous notes, preserve the ones that still exist in definitions
-    const previousNotes = this.set().notes;
-    if (previousNotes) {
-      Object.entries(previousNotes).forEach(([key, value]) => {
-        // Only keep notes whose keys are still in the definitions
-        if (validKeys.has(key)) {
-          updatedSet.notes![key] = value;
-        }
-      });
-    }
-
-    // update the set signal with our modified version only if changes were made
-    if (
-      updatedSet !== newSet &&
-      JSON.stringify(updatedSet) !== JSON.stringify(newSet)
-    ) {
-      this.set.set(updatedSet);
-    }
+    // for each previous note, preserve it if its key exists in new definitions
+    // and it doesn't already have a value in the new notes
+    Object.entries(previousSet.notes).forEach(([key, value]) => {
+      if (validKeys.has(key) && value !== null && !newSet.notes![key]) {
+        console.log(`Preserving note for key: ${key} with value: ${value}`);
+        newSet.notes![key] = value;
+      }
+    });
   }
 
   public ngOnInit(): void {
@@ -271,7 +289,7 @@ export class NoteSetComponent implements OnInit {
       return;
     }
 
-    // Create a defensive copy of the set
+    // create a defensive copy of the set
     const set = { ...this.set() };
     if (!set.notes) {
       set.notes = {};
@@ -350,6 +368,12 @@ export class NoteSetComponent implements OnInit {
     // use the updating flag to prevent an infinite loop
     this._updating = true;
     try {
+      // Cache the current set before updating
+      this._previousSet = { ...this.set() };
+      if (this._previousSet.notes) {
+        this._previousSet.notes = { ...this._previousSet.notes };
+      }
+
       // update set
       this.set.set(set);
 

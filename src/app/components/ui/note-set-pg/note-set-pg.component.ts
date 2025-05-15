@@ -7,6 +7,7 @@ import {
   NoteSet,
   NoteSetComponent,
 } from '../../../../../projects/myrmidon/cadmus-ui-note-set/src/public-api';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-note-set-pg',
@@ -16,6 +17,7 @@ import {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    MatButton,
     MatCardModule,
     NoteSetComponent,
     JsonPipe,
@@ -87,30 +89,26 @@ export class NoteSetPgComponent {
     // get the appropriate base set
     const newSet = this.altSet ? this.getDefaultSet() : this.getAltSet();
 
-    // preserve existing notes that have matching keys in the new definitions
-    const validKeys = new Set(newSet.definitions.map((d) => d.key));
+    // set merge flag to preserve compatible notes
+    newSet.merge = true;
 
-    // copy existing notes that should be preserved
-    if (this.set?.notes) {
-      Object.entries(this.set.notes).forEach(([key, value]) => {
-        if (validKeys.has(key) && value !== null) {
-          newSet.notes![key] = value;
-        }
-      });
-    }
-
-    // add demo data for new keys only if they don't already have values
+    // add demo data for new keys only (NoteSetComponent will handle preservation of existing notes)
     if (this.altSet) {
-      // Going to default set
-      if (!newSet.notes!['b']) {
-        newSet.notes!['b'] =
+      // going to default set - ensure 'b' has demo data
+      if (!this.set?.notes?.['b']) {
+        if (!newSet.notes) {
+          newSet.notes = {};
+        }
+        newSet.notes['b'] =
           'This is a beta plain text note with no max length.';
       }
     } else {
-      // going to alternate set
-      if (!newSet.notes!['g']) {
-        newSet.notes!['g'] =
-          'This is gamma plain text note with no max length.';
+      // going to alternate set - ensure 'g' has demo data
+      if (!this.set?.notes?.['g']) {
+        if (!newSet.notes) {
+          newSet.notes = {};
+        }
+        newSet.notes['g'] = 'This is gamma plain text note with no max length.';
       }
     }
 
