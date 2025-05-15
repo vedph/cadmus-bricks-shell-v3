@@ -368,7 +368,7 @@ export class NoteSetComponent implements OnInit {
     // use the updating flag to prevent an infinite loop
     this._updating = true;
     try {
-      // Cache the current set before updating
+      // cache the current set before updating
       this._previousSet = { ...this.set() };
       if (this._previousSet.notes) {
         this._previousSet.notes = { ...this._previousSet.notes };
