@@ -23,7 +23,7 @@ To use a brick:
 
 1. `npm run build-lib`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker build . -t vedph2020/cadmus-bricks-v3:8.0.4 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
+3. `docker build . -t vedph2020/cadmus-bricks-v3:8.0.5 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
 
@@ -143,6 +143,8 @@ Remember to run these commands in your terminal from your project's root directo
 ## History
 
 👉 For the libraries history, see the README of each library in this workspace.
+
+### 8.0.5
 
 - 2025-05-15: refactored `@myrmidon/cadmus-ui-note-set` (9.0.0).
 
