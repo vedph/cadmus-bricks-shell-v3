@@ -144,6 +144,8 @@ Remember to run these commands in your terminal from your project's root directo
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-05-15: refactored `@myrmidon/cadmus-ui-note-set` (9.0.0).
+
 ### 8.0.4
 
 - 2025-05-14:
