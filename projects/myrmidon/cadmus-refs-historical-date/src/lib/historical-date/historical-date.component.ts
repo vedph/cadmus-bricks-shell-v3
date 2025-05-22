@@ -109,7 +109,7 @@ export class HistoricalDateComponent implements OnInit {
   public ngOnInit(): void {
     // whenever the date text changes, update datations and fire date change
     this._sub = this.dateText.valueChanges
-      .pipe(debounceTime(400), distinctUntilChanged())
+      .pipe(debounceTime(1000), distinctUntilChanged())
       .subscribe((text) => {
         const hd = HistoricalDate.parse(text);
         if (hd) {

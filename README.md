@@ -2,6 +2,8 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.4.
 
+🚀 You can play with the demo at <https://cadmus-bricks-v3.fusi-soft.com> (except for some services I did not put in the demo server).
+
 This is [Cadmus](https://myrmex.github.io/overview/cadmus/) bricks version 3, derived from [Cadmus bricks version 2](https://github.com/vedph/cadmus-bricks-shell-v2). In Cadmus, bricks are small UI widgets providing frequently used logic and UX, and used as the building blocks for part or fragment editors.
 
 V2 retains its own repository for compatibility purposes, while new development will occur on V3 only. The API of the components has not changed, except for these ⚠️ breaking changes:
@@ -23,7 +25,7 @@ To use a brick:
 
 1. `npm run build-lib`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker build . -t vedph2020/cadmus-bricks-v3:8.0.5 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
+3. `docker build . -t vedph2020/cadmus-bricks-v3:8.0.6 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
 
@@ -143,6 +145,12 @@ Remember to run these commands in your terminal from your project's root directo
 ## History
 
 👉 For the libraries history, see the README of each library in this workspace.
+
+### 8.0.6
+
+- 2025-05-22: fixes to:
+  - `@myrmidon/cadmus-cod-location` (final dash)
+  - `@myrmidon/cadmus-refs-historical-date` (increased debounce time)
 
 ### 8.0.5
 

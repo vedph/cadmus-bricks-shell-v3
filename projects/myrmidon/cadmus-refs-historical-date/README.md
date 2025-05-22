@@ -45,3 +45,7 @@ Example:
 <span>{{ date | historicalDate }}</span>
 <span>{{ date | historicalDate:'value' }}</span>
 ```
+
+## History
+
+- 2025-05-22: debounce time in date typing from 400 to 1000.

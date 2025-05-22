@@ -58,4 +58,5 @@ The `CodLocationComponent` is used to edit a location using its string format. I
 
 ## History
 
+- 2025-05-22: fix to `CodLocationComponent` for ending `-`.
 - 2025-05-14: fix to `CodLocationComponent` for multiple ranges (regression from Angular updates).

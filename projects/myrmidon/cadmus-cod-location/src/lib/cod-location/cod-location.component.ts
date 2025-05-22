@@ -149,11 +149,11 @@ export class CodLocationComponent implements OnInit, OnDestroy {
         }
       }
     } else {
-      // if text ends with space(s), do nothing because
+      // if text ends with space(s)/-, do nothing because
       // the user is still typing and we must wait for the next
       // range in the list; otherwise, we would parse a single
       // range and remove trailing spaces from what is being typed
-      if (this.text.value?.endsWith(' ')) {
+      if (this.text.value?.endsWith(' ') || this.text.value?.endsWith('-')) {
         return;
       }
 
