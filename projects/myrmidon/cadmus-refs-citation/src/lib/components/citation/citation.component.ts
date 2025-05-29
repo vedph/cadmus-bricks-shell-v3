@@ -60,8 +60,8 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
     MatSelectModule,
     MatTooltipModule,
     CitationStepComponent,
-    ColorToContrastPipe
-],
+    ColorToContrastPipe,
+  ],
   templateUrl: './citation.component.html',
   styleUrl: './citation.component.css',
 })
@@ -198,6 +198,13 @@ export class CitationComponent implements OnInit, OnDestroy {
       // close step editor
       this.editedStep = undefined;
       this.text.reset();
+      // update scheme to the one of the citation
+      this.scheme.setValue(
+        this._schemeService.getScheme(
+          citation?.schemeId || this.scheme.value.id
+        ) || this.schemes()[0],
+        { emitEvent: false }
+      );
       // when undefined, return an empty citation so that user can fill it
       if (!citation?.steps?.length) {
         this.editedCitation = this.createEmptyCitation();

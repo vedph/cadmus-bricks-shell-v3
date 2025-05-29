@@ -46,6 +46,7 @@ import { CitSchemeService } from '../../services/cit-scheme.service';
 export class CompactCitationComponent implements OnDestroy {
   private _dropNextUpdate = false;
   private _sub?: Subscription;
+
   public editedIndex = -1;
   public edited?: Citation;
   public formError?: string;
@@ -156,10 +157,6 @@ export class CompactCitationComponent implements OnDestroy {
     const isSpan = !!span.a;
     this.a = isSpan ? (span as CitationSpan).a : (citation as Citation);
     this.b = isSpan ? (span as CitationSpan).b : undefined;
-    // this.a = deepCopy(
-    //   isSpan ? (span as CitationSpan).a : (citation as Citation)
-    // );
-    // this.b = deepCopy(isSpan ? (span as CitationSpan).b : undefined);
     this.range.setValue(isSpan, { emitEvent: false });
 
     this.validate();

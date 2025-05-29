@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-cod-location",
-  "version": "8.0.2",
+  "version": "9.0.0",
   "description": "Cadmus - codicology: manuscript location.",
   "keywords": [
     "Cadmus",
@@ -15,9 +15,9 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^19.0.0",
-    "@angular/core": "^19.0.0",
-    "@myrmidon/ngx-tools": "^1.0.3"
+    "@angular/common": "^20.0.0",
+    "@angular/core": "^20.0.0",
+    "@myrmidon/ngx-tools": "^2.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

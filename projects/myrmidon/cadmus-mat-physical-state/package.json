@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-mat-physical-state",
-  "version": "8.0.3",
+  "version": "9.0.0",
   "description": "Cadmus - material description: physical state.",
   "keywords": [
     "Cadmus",
@@ -15,9 +15,9 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^19.0.0",
-    "@angular/core": "^19.0.0",
-    "@myrmidon/cadmus-ui-flag-set": "^8.0.1"
+    "@angular/common": "^20.0.0",
+    "@angular/core": "^20.0.0",
+    "@myrmidon/cadmus-ui-flag-set": "^9.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

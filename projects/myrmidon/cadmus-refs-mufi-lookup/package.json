@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-mufi-lookup",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Cadmus - MUFI lookup.",
   "keywords": [
     "Cadmus",
@@ -17,10 +17,10 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^19.0.0",
-    "@angular/core": "^19.0.0",
-    "@myrmidon/ngx-tools": "^1.0.2",
-    "@myrmidon/cadmus-refs-lookup": "^8.0.1"
+    "@angular/common": "^20.0.0",
+    "@angular/core": "^20.0.0",
+    "@myrmidon/ngx-tools": "^2.0.0",
+    "@myrmidon/cadmus-refs-lookup": "^9.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
