@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   effect,
@@ -70,7 +69,6 @@ export const ASSERTED_COMPOSITE_ID_CONFIGS_KEY =
   templateUrl: './asserted-composite-id.component.html',
   styleUrls: ['./asserted-composite-id.component.css'],
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatExpansionModule,

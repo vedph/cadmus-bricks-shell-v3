@@ -28,7 +28,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { FlatLookupPipe } from '@myrmidon/ngx-tools';
-import { CommonModule } from '@angular/common';
 
 /**
  * A count decorated with the ID of the entity being counted,
@@ -49,7 +48,6 @@ export interface DecoratedCount {
   templateUrl: './decorated-counts.component.html',
   styleUrls: ['./decorated-counts.component.css'],
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatButtonModule,

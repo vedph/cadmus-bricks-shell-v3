@@ -12,303 +12,314 @@
         target="_blank"
         rel="noopener"
         >GeoNames search</a
-      >. Please ensure to configure your app so that it provides a GeoNames user
-      name to the service, assuming that that account has been enabled for API
-      usage.
-    </p>
-    <article>
-      <h2>Lookup</h2>
-      <cadmus-ref-lookup
-        [service]="service"
-        [required]="true"
-        label="GeoNames"
-        (itemChange)="onItemChange($event)"
-      />
-    </article>
+        >. Please ensure to configure your app so that it provides a GeoNames user
+        name to the service, assuming that that account has been enabled for API
+        usage.
+      </p>
+      <article>
+        <h2>Lookup</h2>
+        <cadmus-ref-lookup
+          [service]="service"
+          [required]="true"
+          label="GeoNames"
+          (itemChange)="onItemChange($event)"
+          />
+        </article>
 
-    <article>
-      <h2>Service</h2>
-      <form [formGroup]="form" (submit)="search()">
-        <!-- searchType -->
-        <div>
-          <mat-form-field>
-            <mat-label>search type</mat-label>
-            <mat-select [formControl]="searchType">
-              <mat-option [value]="0">query</mat-option>
-              <mat-option [value]="1">name</mat-option>
-              <mat-option [value]="2">nameEquals</mat-option>
-              <mat-option [value]="3">nameStartsWith</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+        <article>
+          <h2>Service</h2>
+          <form [formGroup]="form" (submit)="search()">
+            <!-- searchType -->
+            <div>
+              <mat-form-field>
+                <mat-label>search type</mat-label>
+                <mat-select [formControl]="searchType">
+                  <mat-option [value]="0">query</mat-option>
+                  <mat-option [value]="1">name</mat-option>
+                  <mat-option [value]="2">nameEquals</mat-option>
+                  <mat-option [value]="3">nameStartsWith</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
 
-        <!-- text -->
-        <div>
-          <mat-form-field>
-            <mat-label>text</mat-label>
-            <input matInput [formControl]="text" />
-            <mat-error
-              *ngIf="
-                $any(text).errors?.required && (text.dirty || text.touched)
-              "
-              >text required</mat-error
-            >
-            <mat-error
-              *ngIf="
-                $any(text).errors?.maxLength && (text.dirty || text.touched)
-              "
-              >text too long</mat-error
-            >
-          </mat-form-field>
-        </div>
+            <!-- text -->
+            <div>
+              <mat-form-field>
+                <mat-label>text</mat-label>
+                <input matInput [formControl]="text" />
+                @if (
+                  $any(text).errors?.required && (text.dirty || text.touched)
+                  ) {
+                  <mat-error
+                    >text required</mat-error
+                    >
+                  }
+                  @if (
+                    $any(text).errors?.maxLength && (text.dirty || text.touched)
+                    ) {
+                    <mat-error
+                      >text too long</mat-error
+                      >
+                    }
+                  </mat-form-field>
+                </div>
 
-        <div class="form-row">
-          <!-- maxRows -->
-          <mat-form-field>
-            <mat-label>max rows</mat-label>
-            <input matInput type="number" [formControl]="maxRows" />
-            <mat-error
-              *ngIf="
-                $any(maxRows).errors?.required &&
-                (maxRows.dirty || maxRows.touched)
-              "
-              >max rows required</mat-error
-            >
-            <mat-error
-              *ngIf="
-                $any(maxRows).errors?.min && (maxRows.dirty || maxRows.touched)
-              "
-              >max rows must be at least 1</mat-error
-            >
-            <mat-error
-              *ngIf="
-                $any(maxRows).errors?.max && (maxRows.dirty || maxRows.touched)
-              "
-              >max rows too high</mat-error
-            >
-          </mat-form-field>
+                <div class="form-row">
+                  <!-- maxRows -->
+                  <mat-form-field>
+                    <mat-label>max rows</mat-label>
+                    <input matInput type="number" [formControl]="maxRows" />
+                    @if (
+                      $any(maxRows).errors?.required &&
+                      (maxRows.dirty || maxRows.touched)
+                      ) {
+                      <mat-error
+                        >max rows required</mat-error
+                        >
+                      }
+                      @if (
+                        $any(maxRows).errors?.min && (maxRows.dirty || maxRows.touched)
+                        ) {
+                        <mat-error
+                          >max rows must be at least 1</mat-error
+                          >
+                        }
+                        @if (
+                          $any(maxRows).errors?.max && (maxRows.dirty || maxRows.touched)
+                          ) {
+                          <mat-error
+                            >max rows too high</mat-error
+                            >
+                          }
+                        </mat-form-field>
 
-          <!-- startRow -->
-          <mat-form-field>
-            <mat-label>start row</mat-label>
-            <input matInput type="number" [formControl]="startRow" />
-            <mat-error
-              *ngIf="
-                $any(startRow).errors?.required &&
-                (startRow.dirty || startRow.touched)
-              "
-              >start row required</mat-error
-            >
-            <mat-error
-              *ngIf="
-                $any(startRow).errors?.min &&
-                (startRow.dirty || startRow.touched)
-              "
-              >start row must be at least 0</mat-error
-            >
-          </mat-form-field>
-        </div>
+                        <!-- startRow -->
+                        <mat-form-field>
+                          <mat-label>start row</mat-label>
+                          <input matInput type="number" [formControl]="startRow" />
+                          @if (
+                            $any(startRow).errors?.required &&
+                            (startRow.dirty || startRow.touched)
+                            ) {
+                            <mat-error
+                              >start row required</mat-error
+                              >
+                            }
+                            @if (
+                              $any(startRow).errors?.min &&
+                              (startRow.dirty || startRow.touched)
+                              ) {
+                              <mat-error
+                                >start row must be at least 0</mat-error
+                                >
+                              }
+                            </mat-form-field>
+                          </div>
 
-        <div class="form-row">
-          <!-- continentCode -->
-          <mat-form-field>
-            <mat-label>continent code</mat-label>
-            <mat-select [formControl]="continentCode">
-              <mat-option [value]="null">(-)</mat-option>
-              <mat-option
-                *ngFor="let p of availableContinentCodes"
-                [value]="p.key"
-              >
-                {{ p.value }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+                          <div class="form-row">
+                            <!-- continentCode -->
+                            <mat-form-field>
+                              <mat-label>continent code</mat-label>
+                              <mat-select [formControl]="continentCode">
+                                <mat-option [value]="null">(-)</mat-option>
+                                @for (p of availableContinentCodes; track p) {
+                                  <mat-option
+                                    [value]="p.key"
+                                    >
+                                    {{ p.value }}
+                                  </mat-option>
+                                }
+                              </mat-select>
+                            </mat-form-field>
 
-          <!-- countryBias -->
-          <mat-form-field>
-            <mat-label>country bias</mat-label>
-            <input matInput [formControl]="countryBias" max-length="2" />
-            <mat-hint>ISO-3166 alpha-2</mat-hint>
-          </mat-form-field>
-        </div>
+                            <!-- countryBias -->
+                            <mat-form-field>
+                              <mat-label>country bias</mat-label>
+                              <input matInput [formControl]="countryBias" max-length="2" />
+                              <mat-hint>ISO-3166 alpha-2</mat-hint>
+                            </mat-form-field>
+                          </div>
 
-        <!-- countries-->
-        <div>
-          <mat-form-field class="long-text">
-            <mat-label>countries</mat-label>
-            <textarea
-              rows="3"
-              (keydown.enter)="$event.preventDefault()"
-              matInput
-              [formControl]="countries"
-            ></textarea>
-            <mat-hint>ISO-3166 alpha-2 codes separated by space</mat-hint>
-          </mat-form-field>
-        </div>
+                          <!-- countries-->
+                          <div>
+                            <mat-form-field class="long-text">
+                              <mat-label>countries</mat-label>
+                              <textarea
+                                rows="3"
+                                (keydown.enter)="$event.preventDefault()"
+                                matInput
+                                [formControl]="countries"
+                              ></textarea>
+                              <mat-hint>ISO-3166 alpha-2 codes separated by space</mat-hint>
+                            </mat-form-field>
+                          </div>
 
-        <!-- adminCode's -->
-        <fieldset class="form-row">
-          <legend>administrative division codes</legend>
-          <!-- adminCode1 -->
-          <mat-form-field>
-            <mat-label>code1</mat-label>
-            <input matInput [formControl]="adminCode1" />
-          </mat-form-field>
+                          <!-- adminCode's -->
+                          <fieldset class="form-row">
+                            <legend>administrative division codes</legend>
+                            <!-- adminCode1 -->
+                            <mat-form-field>
+                              <mat-label>code1</mat-label>
+                              <input matInput [formControl]="adminCode1" />
+                            </mat-form-field>
 
-          <!-- adminCode2 -->
-          <mat-form-field>
-            <mat-label>code2</mat-label>
-            <input matInput [formControl]="adminCode2" />
-          </mat-form-field>
+                            <!-- adminCode2 -->
+                            <mat-form-field>
+                              <mat-label>code2</mat-label>
+                              <input matInput [formControl]="adminCode2" />
+                            </mat-form-field>
 
-          <!-- adminCode3 -->
-          <mat-form-field>
-            <mat-label>code3</mat-label>
-            <input matInput [formControl]="adminCode3" />
-          </mat-form-field>
+                            <!-- adminCode3 -->
+                            <mat-form-field>
+                              <mat-label>code3</mat-label>
+                              <input matInput [formControl]="adminCode3" />
+                            </mat-form-field>
 
-          <!-- adminCode4 -->
-          <mat-form-field>
-            <mat-label>code4</mat-label>
-            <input matInput [formControl]="adminCode4" />
-          </mat-form-field>
+                            <!-- adminCode4 -->
+                            <mat-form-field>
+                              <mat-label>code4</mat-label>
+                              <input matInput [formControl]="adminCode4" />
+                            </mat-form-field>
 
-          <!-- adminCode5 -->
-          <mat-form-field>
-            <mat-label>code5</mat-label>
-            <input matInput [formControl]="adminCode5" />
-          </mat-form-field>
-        </fieldset>
+                            <!-- adminCode5 -->
+                            <mat-form-field>
+                              <mat-label>code5</mat-label>
+                              <input matInput [formControl]="adminCode5" />
+                            </mat-form-field>
+                          </fieldset>
 
-        <!-- featureClasses -->
-        <fieldset class="form-row">
-          <legend>feature classes</legend>
-          <mat-form-field>
-            <mat-select (selectionChange)="onFeatureSelected($event)">
-              <mat-option [value]="null">(-)</mat-option>
-              <mat-option
-                *ngFor="let p of availableFeatureClasses"
-                [value]="p.key"
-              >
-                {{ p.value }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+                          <!-- featureClasses -->
+                          <fieldset class="form-row">
+                            <legend>feature classes</legend>
+                            <mat-form-field>
+                              <mat-select (selectionChange)="onFeatureSelected($event)">
+                                <mat-option [value]="null">(-)</mat-option>
+                                @for (p of availableFeatureClasses; track p) {
+                                  <mat-option
+                                    [value]="p.key"
+                                    >
+                                    {{ p.value }}
+                                  </mat-option>
+                                }
+                              </mat-select>
+                            </mat-form-field>
 
-          <mat-form-field>
-            <mat-label>feature classes</mat-label>
-            <input matInput [formControl]="featureClasses" />
-          </mat-form-field>
-        </fieldset>
+                            <mat-form-field>
+                              <mat-label>feature classes</mat-label>
+                              <input matInput [formControl]="featureClasses" />
+                            </mat-form-field>
+                          </fieldset>
 
-        <!-- featureCodes -->
-        <div>
-          <mat-form-field class="long-text">
-            <mat-label>feature codes</mat-label>
-            <textarea rows="3" matInput [formControl]="featureCodes"></textarea>
-            <mat-hint
-              ><a
-                target="_blank"
-                rel="noopener"
-                href="https://www.geonames.org/export/codes.html"
-                >codes</a
-              >
-              separated by space</mat-hint
-            >
-          </mat-form-field>
-        </div>
+                          <!-- featureCodes -->
+                          <div>
+                            <mat-form-field class="long-text">
+                              <mat-label>feature codes</mat-label>
+                              <textarea rows="3" matInput [formControl]="featureCodes"></textarea>
+                              <mat-hint
+                                ><a
+                                target="_blank"
+                                rel="noopener"
+                                href="https://www.geonames.org/export/codes.html"
+                                >codes</a
+                                >
+                                separated by space</mat-hint
+                                >
+                              </mat-form-field>
+                            </div>
 
-        <!-- cities -->
-        <div>
-          <mat-select [formControl]="cities">
-            <mat-option [value]="null">(-)</mat-option>
-            @for (p of availableCities; track p.key) {
-            <mat-option [value]="p.key">{{ p.value }}</mat-option>
-            }
-          </mat-select>
-        </div>
+                            <!-- cities -->
+                            <div>
+                              <mat-select [formControl]="cities">
+                                <mat-option [value]="null">(-)</mat-option>
+                                @for (p of availableCities; track p.key) {
+                                  <mat-option [value]="p.key">{{ p.value }}</mat-option>
+                                }
+                              </mat-select>
+                            </div>
 
-        <div class="form-row">
-          <!-- lang -->
-          <mat-form-field>
-            <mat-label>language</mat-label>
-            <input matInput [formControl]="lang" max-length="2" />
-            <mat-hint>ISO-639-2</mat-hint>
-          </mat-form-field>
+                            <div class="form-row">
+                              <!-- lang -->
+                              <mat-form-field>
+                                <mat-label>language</mat-label>
+                                <input matInput [formControl]="lang" max-length="2" />
+                                <mat-hint>ISO-639-2</mat-hint>
+                              </mat-form-field>
 
-          <!-- searchLang -->
-          <mat-form-field>
-            <mat-label>search language</mat-label>
-            <input matInput [formControl]="searchLang" max-length="2" />
-            <mat-hint>ISO-639-2</mat-hint>
-          </mat-form-field>
-        </div>
+                              <!-- searchLang -->
+                              <mat-form-field>
+                                <mat-label>search language</mat-label>
+                                <input matInput [formControl]="searchLang" max-length="2" />
+                                <mat-hint>ISO-639-2</mat-hint>
+                              </mat-form-field>
+                            </div>
 
-        <div class="form-row">
-          <!-- style -->
-          <mat-form-field>
-            <mat-label>style</mat-label>
-            <mat-select [formControl]="style">
-              <mat-option [value]="null">(-)</mat-option>
-              <mat-option [value]="0">short</mat-option>
-              <mat-option [value]="1">medium</mat-option>
-              <mat-option [value]="2">long</mat-option>
-              <mat-option [value]="3">full</mat-option>
-            </mat-select>
-          </mat-form-field>
+                            <div class="form-row">
+                              <!-- style -->
+                              <mat-form-field>
+                                <mat-label>style</mat-label>
+                                <mat-select [formControl]="style">
+                                  <mat-option [value]="null">(-)</mat-option>
+                                  <mat-option [value]="0">short</mat-option>
+                                  <mat-option [value]="1">medium</mat-option>
+                                  <mat-option [value]="2">long</mat-option>
+                                  <mat-option [value]="3">full</mat-option>
+                                </mat-select>
+                              </mat-form-field>
 
-          <!-- fuzzy -->
-          <mat-form-field>
-            <mat-label>fuzzy</mat-label>
-            <input matInput type="number" step="any" [formControl]="fuzzy" />
-            <mat-hint>0-1</mat-hint>
-          </mat-form-field>
+                              <!-- fuzzy -->
+                              <mat-form-field>
+                                <mat-label>fuzzy</mat-label>
+                                <input matInput type="number" step="any" [formControl]="fuzzy" />
+                                <mat-hint>0-1</mat-hint>
+                              </mat-form-field>
 
-          <!-- orderBy -->
-          <mat-form-field>
-            <mat-label>order by</mat-label>
-            <mat-select [formControl]="orderBy">
-              <mat-option [value]="null">(-)</mat-option>
-              <mat-option [value]="0">relevance</mat-option>
-              <mat-option [value]="1">population</mat-option>
-              <mat-option [value]="2">elevation</mat-option>
-            </mat-select>
-          </mat-form-field>
+                              <!-- orderBy -->
+                              <mat-form-field>
+                                <mat-label>order by</mat-label>
+                                <mat-select [formControl]="orderBy">
+                                  <mat-option [value]="null">(-)</mat-option>
+                                  <mat-option [value]="0">relevance</mat-option>
+                                  <mat-option [value]="1">population</mat-option>
+                                  <mat-option [value]="2">elevation</mat-option>
+                                </mat-select>
+                              </mat-form-field>
 
-          <!-- inclBbox -->
-          <mat-checkbox [formControl]="inclBbox">include bbox</mat-checkbox>
-        </div>
+                              <!-- inclBbox -->
+                              <mat-checkbox [formControl]="inclBbox">include bbox</mat-checkbox>
+                            </div>
 
-        <!-- bbox -->
-        <div>
-          <mat-form-field>
-            <mat-label>bounding box</mat-label>
-            <input matInput [formControl]="bbox" />
-            <mat-hint>N S E W separated by space</mat-hint>
-          </mat-form-field>
-        </div>
+                            <!-- bbox -->
+                            <div>
+                              <mat-form-field>
+                                <mat-label>bounding box</mat-label>
+                                <input matInput [formControl]="bbox" />
+                                <mat-hint>N S E W separated by space</mat-hint>
+                              </mat-form-field>
+                            </div>
 
-        <!-- search -->
-        <div>
-          <button
-            type="submit"
-            class="mat-primary"
-            mat-flat-button
-            [disabled]="form.invalid || busy"
-          >
-            search
-          </button>
-        </div>
-        <div>
-          <mat-progress-bar *ngIf="busy" mode="indeterminate" />
-        </div>
-      </form>
-    </article>
+                            <!-- search -->
+                            <div>
+                              <button
+                                type="submit"
+                                class="mat-primary"
+                                mat-flat-button
+                                [disabled]="form.invalid || busy"
+                                >
+                                search
+                              </button>
+                            </div>
+                            <div>
+                              @if (busy) {
+                                <mat-progress-bar mode="indeterminate" />
+                              }
+                            </div>
+                          </form>
+                        </article>
 
-    @if (toponyms) {
-    <div>
-      <pre>{{ toponyms | json }}</pre>
-    </div>
-    }
-  </mat-card-content>
-</mat-card>
+                        @if (toponyms) {
+                          <div>
+                            <pre>{{ toponyms | json }}</pre>
+                          </div>
+                        }
+                      </mat-card-content>
+                    </mat-card>

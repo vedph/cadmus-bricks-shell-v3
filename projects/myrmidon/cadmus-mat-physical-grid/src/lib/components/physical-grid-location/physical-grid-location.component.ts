@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   effect,
@@ -70,7 +69,6 @@ interface PhysicalGridCell {
 @Component({
   selector: 'cadmus-mat-physical-grid-location',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatExpansionModule,
@@ -79,7 +77,6 @@ interface PhysicalGridCell {
     MatRippleModule,
     MatSelectModule,
     MatTooltipModule,
-    // local
     ExcelColumnPipe,
   ],
   templateUrl: './physical-grid-location.component.html',
@@ -229,9 +226,7 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
       const row: PhysicalGridCell[] = [];
       for (let x = 1; x <= this.columnCount.value; x++) {
         const selIndex = location
-          ? location.coords.findIndex(
-              (c) => c.row === y && c.column === x
-            )
+          ? location.coords.findIndex((c) => c.row === y && c.column === x)
           : -1;
         row.push({
           row: y,

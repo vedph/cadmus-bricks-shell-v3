@@ -8,9 +8,8 @@ describe('RefLookupPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ RefLookupPgComponent ]
-    })
-    .compileComponents();
+      imports: [RefLookupPgComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

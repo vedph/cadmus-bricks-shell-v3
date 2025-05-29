@@ -8,10 +8,9 @@ describe('DbpediaRefLookupPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DbpediaRefLookupPgComponent]
-    })
-    .compileComponents();
-    
+      imports: [DbpediaRefLookupPgComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(DbpediaRefLookupPgComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

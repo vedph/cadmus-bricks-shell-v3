@@ -18,7 +18,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { NgFor } from '@angular/common';
+
 import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -53,7 +53,6 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
   selector: 'cadmus-refs-citation',
   imports: [
     ReactiveFormsModule,
-    NgFor,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -61,8 +60,8 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
     MatSelectModule,
     MatTooltipModule,
     CitationStepComponent,
-    ColorToContrastPipe,
-  ],
+    ColorToContrastPipe
+],
   templateUrl: './citation.component.html',
   styleUrl: './citation.component.css',
 })
@@ -330,7 +329,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.scheme.value.id
     )!;
 
-    switch (stepDef.type) {
+    switch (stepDef?.type) {
       case 'set':
         // closed set of strings
         this.setEditorItems = stepDomain.set!;

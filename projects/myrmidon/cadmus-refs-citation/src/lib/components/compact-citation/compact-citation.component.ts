@@ -155,7 +155,7 @@ export class CompactCitationComponent implements OnDestroy {
     const span = citation as CitationSpan;
     const isSpan = !!span.a;
     this.a = isSpan ? (span as CitationSpan).a : (citation as Citation);
-    this.b = isSpan ? (span as CitationSpan).b : undefined
+    this.b = isSpan ? (span as CitationSpan).b : undefined;
     // this.a = deepCopy(
     //   isSpan ? (span as CitationSpan).a : (citation as Citation)
     // );

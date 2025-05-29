@@ -6,7 +6,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { take } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -30,15 +30,14 @@ import {
   templateUrl: './asserted-ids.component.html',
   styleUrls: ['./asserted-ids.component.css'],
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
     MatTooltipModule,
-    AssertedIdComponent,
-  ],
+    AssertedIdComponent
+],
 })
 export class AssertedIdsComponent {
   private _editedIndex: number;

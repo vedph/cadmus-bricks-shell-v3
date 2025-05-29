@@ -8,10 +8,9 @@ describe('GeonamesRefLookupPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GeonamesRefLookupPgComponent]
-    })
-    .compileComponents();
-    
+      imports: [GeonamesRefLookupPgComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(GeonamesRefLookupPgComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

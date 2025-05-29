@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   FormBuilder,
   FormControl,
@@ -44,7 +44,6 @@ interface FlagViewModel extends Flag {
 @Component({
   selector: 'cadmus-ui-flag-set',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -52,8 +51,8 @@ interface FlagViewModel extends Flag {
     MatIconModule,
     MatInputModule,
     MatTooltipModule,
-    ColorToContrastPipe,
-  ],
+    ColorToContrastPipe
+],
   templateUrl: './flag-set.component.html',
   styleUrl: './flag-set.component.css',
 })

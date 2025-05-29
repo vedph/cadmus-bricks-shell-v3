@@ -8,9 +8,8 @@ describe('AssertedIdsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ AssertedCompositeIdsComponent ]
-    })
-    .compileComponents();
+      imports: [AssertedCompositeIdsComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

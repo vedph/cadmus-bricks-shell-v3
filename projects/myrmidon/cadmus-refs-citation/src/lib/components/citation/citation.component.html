@@ -3,262 +3,266 @@
   <div class="form-row">
     <!-- citation steps -->
     @if (!freeMode) {
-    <div class="form-row">
-      @for (c of editedCitation?.steps || []; track c; let index = $index; let
-      last = $last) {
-      <!-- step and separator -->
-      @if (index <= lastStepIndex) {
-      <cadmus-citation-step
-        [step]="c"
-        [errors]="errors"
-        (stepClick)="editStep($event)"
-      />
-      @if (!last) {
-      <div class="separator">&#x25b6;</div>
-      } } }
-      <!-- toggler -->
-      @if (allowFreeMode() && scheme.value.textOptions) {
-      <button
-        type="button"
-        mat-icon-button
-        (click)="setFreeMode(true)"
-        matTooltip="Toggle free text mode"
-      >
-        <mat-icon class="mat-primary">edit</mat-icon>
-      </button>
-      }
-    </div>
-    } @else {
-    <!-- free text editor -->
-    <form [formGroup]="textForm" (submit)="setFreeMode(false)">
-      <mat-form-field id="free-text-field">
-        <mat-label>free text</mat-label>
-        <input matInput [formControl]="text" #free />
-        @if ($any(text).errors?.required && (text.dirty || text.touched)) {
-        <mat-error>text required</mat-error>
-        } @if ($any(text).errors?.maxLength && (text.dirty || text.touched)) {
-        <mat-error>text too long</mat-error>
-        }
-        <mat-hint>{{
-          scheme.value.textOptions!.hint || "type citation"
-        }}</mat-hint>
-        <button
-          type="button"
-          mat-icon-button
-          matSuffix
-          (click)="closeFreeMode()"
-        >
-          <mat-icon class="mat-warn">cancel</mat-icon>
-        </button>
-        <button type="submit" mat-icon-button matSuffix>
-          <mat-icon class="mat-primary">check_circle</mat-icon>
-        </button>
-      </mat-form-field>
-    </form>
-    }
+      <div class="form-row">
+        @for (c of editedCitation?.steps || []; track c; let index = $index; let
+          last = $last) {
+          <!-- step and separator -->
+          @if (index <= lastStepIndex) {
+            <cadmus-citation-step
+              [step]="c"
+              [errors]="errors"
+              (stepClick)="editStep($event)"
+              />
+              @if (!last) {
+                <div class="separator">&#x25b6;</div>
+                } } }
+                <!-- toggler -->
+                @if (allowFreeMode() && scheme.value.textOptions) {
+                  <button
+                    type="button"
+                    mat-icon-button
+                    (click)="setFreeMode(true)"
+                    matTooltip="Toggle free text mode"
+                    >
+                    <mat-icon class="mat-primary">edit</mat-icon>
+                  </button>
+                }
+              </div>
+            } @else {
+              <!-- free text editor -->
+              <form [formGroup]="textForm" (submit)="setFreeMode(false)">
+                <mat-form-field id="free-text-field">
+                  <mat-label>free text</mat-label>
+                  <input matInput [formControl]="text" #free />
+                  @if ($any(text).errors?.required && (text.dirty || text.touched)) {
+                    <mat-error>text required</mat-error>
+                    } @if ($any(text).errors?.maxLength && (text.dirty || text.touched)) {
+                    <mat-error>text too long</mat-error>
+                  }
+                  <mat-hint>{{
+                    scheme.value.textOptions!.hint || "type citation"
+                  }}</mat-hint>
+                  <button
+                    type="button"
+                    mat-icon-button
+                    matSuffix
+                    (click)="closeFreeMode()"
+                    >
+                    <mat-icon class="mat-warn">cancel</mat-icon>
+                  </button>
+                  <button type="submit" mat-icon-button matSuffix>
+                    <mat-icon class="mat-primary">check_circle</mat-icon>
+                  </button>
+                </mat-form-field>
+              </form>
+            }
 
-    <!-- scheme -->
-    @if (!schemes().length) {
-    <span class="muted">(no schemes)</span>
-    } @else {
-    <!-- scheme selector -->
-    @if (schemes().length > 1) {
-    <mat-form-field
-      [style.border-top]="'2px solid ' + scheme.value.color"
-      id="scheme-field"
-    >
-      <mat-label>scheme</mat-label>
-      <mat-select [formControl]="scheme">
-        @for (s of schemes(); track s.id) {
-        <mat-option [value]="s">
-          @if (s.color) {
-          <span [style.color]="s.color">&#x23fa;</span>
-          }
-          {{ s.name }}
-        </mat-option>
-        }
-      </mat-select>
-      @if ($any(scheme).errors?.required && (scheme.dirty || scheme.touched)) {
-      <mat-error>scheme required</mat-error>
-      }
-      <mat-hint>schemes: {{ schemes().length }}</mat-hint>
-    </mat-form-field>
-    }
-    <!-- last step -->
-    @if (allowPartial()) {
-    <mat-form-field class="step">
-      <mat-label>last step</mat-label>
-      <mat-select [formControl]="lastStep">
-        <mat-option *ngFor="let p of scheme.value.path" [value]="p">{{
-          p
-        }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    } }
-  </div>
-  <!-- STEP EDITOR -->
-  @if (editedStep) {
-  <fieldset>
-    <legend
-      [style.background-color]="editedStep.color || 'transparent'"
-      [style.color]="editedStep.color || 'transparent' | colorToContrast"
-    >
-      {{ editedStep.stepId }}
-    </legend>
-    @switch (stepEditMode) {
-    <!-- set mode -->
-    @case ('set') {
-    <form [formGroup]="setEditorForm" class="form-row" (submit)="saveSetStep()">
-      <!-- set item -->
-      <mat-form-field>
-        <mat-label>set</mat-label>
-        <mat-select [formControl]="setEditorItem" id="set-field">
-          <mat-option *ngFor="let item of setEditorItems" [value]="item">{{
-            item
-          }}</mat-option>
-        </mat-select>
-        @if ($any(setEditorItem).errors?.required && (setEditorItem.dirty ||
-        setEditorItem.touched)) {
-        <mat-error>item required</mat-error>
-        }
-      </mat-form-field>
-      <!-- set buttons -->
-      <button
-        type="button"
-        mat-icon-button
-        (click)="editStep(null)"
-        matTooltip="Cancel"
-      >
-        <mat-icon class="mat-warn">cancel</mat-icon>
-      </button>
-      <button
-        type="submit"
-        mat-icon-button
-        matTooltip="Save step"
-        [disabled]="setEditorForm.invalid"
-      >
-        <mat-icon class="mat-primary">check_circle</mat-icon>
-      </button>
-    </form>
-    }
-    <!-- number mode -->
-    @case ('number') {
-    <form
-      [formGroup]="nrEditorForm"
-      class="form-row"
-      (submit)="saveNumberStep()"
-    >
-      <!-- number -->
-      <mat-form-field class="nr">
-        <mat-label>number</mat-label>
-        <input
-          id="nr-field"
-          matInput
-          type="number"
-          [formControl]="nrEditorValue"
-          [min]="minNrValue || null"
-          [max]="maxNrValue || null"
-        />
-        @if ($any(nrEditorValue).errors?.required && (nrEditorValue.dirty ||
-        nrEditorValue.touched)) {
-        <mat-error>number required</mat-error>
-        } @if ($any(nrEditorValue).errors?.min && (nrEditorValue.dirty ||
-        nrEditorValue.touched)) {
-        <mat-error>min {{ minNrValue }}</mat-error>
-        } @if ($any(nrEditorValue).errors?.max && (nrEditorValue.dirty ||
-        nrEditorValue.touched)) {
-        <mat-error>max {{ maxNrValue }}</mat-error>
-        } @if (minNrValue || maxNrValue) {
-        <mat-hint>{{ minNrValue }} - {{ maxNrValue }}</mat-hint>
-        }
-      </mat-form-field>
-      <!-- suffix -->
-      @if (hasSuffix) {
-      <mat-form-field class="nr">
-        <mat-label>suffix</mat-label>
-        <input matInput [formControl]="nrEditorSuffix" />
-        @if ($any(nrEditorSuffix).errors?.pattern && (nrEditorSuffix.dirty ||
-        nrEditorSuffix.touched)) {
-        <mat-error>invalid suffix</mat-error>
-        }
-      </mat-form-field>
-      }
-      <!-- number buttons -->
-      <button
-        type="button"
-        mat-icon-button
-        (click)="editStep(null)"
-        matTooltip="Cancel"
-      >
-        <mat-icon class="mat-warn">cancel</mat-icon>
-      </button>
-      <button
-        type="submit"
-        mat-icon-button
-        matTooltip="Save step"
-        [disabled]="nrEditorForm.invalid"
-      >
-        <mat-icon class="mat-primary">check_circle</mat-icon>
-      </button>
-    </form>
-    }
-    <!-- string/masked string mode -->
-    @default {
-    <form
-      [formGroup]="strEditorForm"
-      class="form-row"
-      (submit)="saveStringStep()"
-    >
-      <!-- string -->
-      <mat-form-field>
-        <mat-label>string</mat-label>
-        <input matInput [formControl]="strEditorValue" id="str-field" />
-        @if ($any(strEditorValue).errors?.required && (strEditorValue.dirty ||
-        strEditorValue.touched)) {
-        <mat-error>string required</mat-error>
-        } @if ($any(strEditorValue).errors?.pattern && (strEditorValue.dirty ||
-        strEditorValue.touched)) {
-        <mat-error>invalid string</mat-error>
-        }
-      </mat-form-field>
-      <!-- string buttons -->
-      <button
-        type="button"
-        mat-icon-button
-        (click)="editStep(null)"
-        matTooltip="Cancel"
-      >
-        <mat-icon class="mat-warn"> cancel </mat-icon>
-      </button>
-      <button
-        type="submit"
-        mat-icon-button
-        matTooltip="Save step"
-        [disabled]="strEditorForm.invalid"
-      >
-        <mat-icon class="mat-primary">check_circle</mat-icon>
-      </button>
-    </form>
-    } }
-  </fieldset>
-  }
-  <!-- buttons -->
-  <div>
-    <button
-      type="button"
-      mat-icon-button
-      (click)="close()"
-      matTooltip="Cancel edit"
-    >
-      <mat-icon class="mat-warn">cancel</mat-icon>
-    </button>
-    <button
-      type="submit"
-      mat-icon-button
-      (click)="save()"
-      matTooltip="Save citation"
-    >
-      <mat-icon class="mat-primary">check_circle</mat-icon>
-    </button>
-  </div>
-</div>
+            <!-- scheme -->
+            @if (!schemes().length) {
+              <span class="muted">(no schemes)</span>
+            } @else {
+              <!-- scheme selector -->
+              @if (schemes().length > 1) {
+                <mat-form-field
+                  [style.border-top]="'2px solid ' + scheme.value.color"
+                  id="scheme-field"
+                  >
+                  <mat-label>scheme</mat-label>
+                  <mat-select [formControl]="scheme">
+                    @for (s of schemes(); track s.id) {
+                      <mat-option [value]="s">
+                        @if (s.color) {
+                          <span [style.color]="s.color">&#x23fa;</span>
+                        }
+                        {{ s.name }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                  @if ($any(scheme).errors?.required && (scheme.dirty || scheme.touched)) {
+                    <mat-error>scheme required</mat-error>
+                  }
+                  <mat-hint>schemes: {{ schemes().length }}</mat-hint>
+                </mat-form-field>
+              }
+              <!-- last step -->
+              @if (allowPartial()) {
+                <mat-form-field class="step">
+                  <mat-label>last step</mat-label>
+                  <mat-select [formControl]="lastStep">
+                    @for (p of scheme.value.path; track p) {
+                      <mat-option [value]="p">{{
+                        p
+                      }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                } }
+              </div>
+              <!-- STEP EDITOR -->
+              @if (editedStep) {
+                <fieldset>
+                  <legend
+                    [style.background-color]="editedStep.color || 'transparent'"
+                    [style.color]="editedStep.color || 'transparent' | colorToContrast"
+                    >
+                    {{ editedStep.stepId }}
+                  </legend>
+                  @switch (stepEditMode) {
+                    <!-- set mode -->
+                    @case ('set') {
+                      <form [formGroup]="setEditorForm" class="form-row" (submit)="saveSetStep()">
+                        <!-- set item -->
+                        <mat-form-field>
+                          <mat-label>set</mat-label>
+                          <mat-select [formControl]="setEditorItem" id="set-field">
+                            @for (item of setEditorItems; track item) {
+                              <mat-option [value]="item">{{
+                                item
+                              }}</mat-option>
+                            }
+                          </mat-select>
+                          @if ($any(setEditorItem).errors?.required && (setEditorItem.dirty ||
+                            setEditorItem.touched)) {
+                            <mat-error>item required</mat-error>
+                          }
+                        </mat-form-field>
+                        <!-- set buttons -->
+                        <button
+                          type="button"
+                          mat-icon-button
+                          (click)="editStep(null)"
+                          matTooltip="Cancel"
+                          >
+                          <mat-icon class="mat-warn">cancel</mat-icon>
+                        </button>
+                        <button
+                          type="submit"
+                          mat-icon-button
+                          matTooltip="Save step"
+                          [disabled]="setEditorForm.invalid"
+                          >
+                          <mat-icon class="mat-primary">check_circle</mat-icon>
+                        </button>
+                      </form>
+                    }
+                    <!-- number mode -->
+                    @case ('number') {
+                      <form
+                        [formGroup]="nrEditorForm"
+                        class="form-row"
+                        (submit)="saveNumberStep()"
+                        >
+                        <!-- number -->
+                        <mat-form-field class="nr">
+                          <mat-label>number</mat-label>
+                          <input
+                            id="nr-field"
+                            matInput
+                            type="number"
+                            [formControl]="nrEditorValue"
+                            [min]="minNrValue || null"
+                            [max]="maxNrValue || null"
+                            />
+                            @if ($any(nrEditorValue).errors?.required && (nrEditorValue.dirty ||
+                              nrEditorValue.touched)) {
+                              <mat-error>number required</mat-error>
+                              } @if ($any(nrEditorValue).errors?.min && (nrEditorValue.dirty ||
+                              nrEditorValue.touched)) {
+                              <mat-error>min {{ minNrValue }}</mat-error>
+                              } @if ($any(nrEditorValue).errors?.max && (nrEditorValue.dirty ||
+                              nrEditorValue.touched)) {
+                              <mat-error>max {{ maxNrValue }}</mat-error>
+                              } @if (minNrValue || maxNrValue) {
+                              <mat-hint>{{ minNrValue }} - {{ maxNrValue }}</mat-hint>
+                            }
+                          </mat-form-field>
+                          <!-- suffix -->
+                          @if (hasSuffix) {
+                            <mat-form-field class="nr">
+                              <mat-label>suffix</mat-label>
+                              <input matInput [formControl]="nrEditorSuffix" />
+                              @if ($any(nrEditorSuffix).errors?.pattern && (nrEditorSuffix.dirty ||
+                                nrEditorSuffix.touched)) {
+                                <mat-error>invalid suffix</mat-error>
+                              }
+                            </mat-form-field>
+                          }
+                          <!-- number buttons -->
+                          <button
+                            type="button"
+                            mat-icon-button
+                            (click)="editStep(null)"
+                            matTooltip="Cancel"
+                            >
+                            <mat-icon class="mat-warn">cancel</mat-icon>
+                          </button>
+                          <button
+                            type="submit"
+                            mat-icon-button
+                            matTooltip="Save step"
+                            [disabled]="nrEditorForm.invalid"
+                            >
+                            <mat-icon class="mat-primary">check_circle</mat-icon>
+                          </button>
+                        </form>
+                      }
+                      <!-- string/masked string mode -->
+                      @default {
+                        <form
+                          [formGroup]="strEditorForm"
+                          class="form-row"
+                          (submit)="saveStringStep()"
+                          >
+                          <!-- string -->
+                          <mat-form-field>
+                            <mat-label>string</mat-label>
+                            <input matInput [formControl]="strEditorValue" id="str-field" />
+                            @if ($any(strEditorValue).errors?.required && (strEditorValue.dirty ||
+                              strEditorValue.touched)) {
+                              <mat-error>string required</mat-error>
+                              } @if ($any(strEditorValue).errors?.pattern && (strEditorValue.dirty ||
+                              strEditorValue.touched)) {
+                              <mat-error>invalid string</mat-error>
+                            }
+                          </mat-form-field>
+                          <!-- string buttons -->
+                          <button
+                            type="button"
+                            mat-icon-button
+                            (click)="editStep(null)"
+                            matTooltip="Cancel"
+                            >
+                            <mat-icon class="mat-warn"> cancel </mat-icon>
+                          </button>
+                          <button
+                            type="submit"
+                            mat-icon-button
+                            matTooltip="Save step"
+                            [disabled]="strEditorForm.invalid"
+                            >
+                            <mat-icon class="mat-primary">check_circle</mat-icon>
+                          </button>
+                        </form>
+                        } }
+                      </fieldset>
+                    }
+                    <!-- buttons -->
+                    <div>
+                      <button
+                        type="button"
+                        mat-icon-button
+                        (click)="close()"
+                        matTooltip="Cancel edit"
+                        >
+                        <mat-icon class="mat-warn">cancel</mat-icon>
+                      </button>
+                      <button
+                        type="submit"
+                        mat-icon-button
+                        (click)="save()"
+                        matTooltip="Save citation"
+                        >
+                        <mat-icon class="mat-primary">check_circle</mat-icon>
+                      </button>
+                    </div>
+                  </div>

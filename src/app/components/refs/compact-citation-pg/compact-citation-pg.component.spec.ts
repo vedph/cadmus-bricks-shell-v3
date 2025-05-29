@@ -8,9 +8,8 @@ describe('CompactCitationPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CompactCitationPgComponent]
-    })
-    .compileComponents();
+      imports: [CompactCitationPgComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CompactCitationPgComponent);
     component = fixture.componentInstance;

@@ -8,9 +8,8 @@ describe('AssertedIdsPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ AssertedIdsPgComponent ]
-    })
-    .compileComponents();
+      imports: [AssertedIdsPgComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AssertedIdsPgComponent);
     component = fixture.componentInstance;

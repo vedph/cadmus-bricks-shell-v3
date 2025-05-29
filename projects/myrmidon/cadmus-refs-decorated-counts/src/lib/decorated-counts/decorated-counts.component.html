@@ -1,7 +1,9 @@
 <form [formGroup]="form">
   <mat-expansion-panel>
     <mat-expansion-panel-header>
-      <mat-panel-title> <mat-icon>add_circle</mat-icon>&nbsp; count </mat-panel-title>
+      <mat-panel-title>
+        <mat-icon>add_circle</mat-icon>&nbsp; count
+      </mat-panel-title>
     </mat-expansion-panel-header>
     <div class="form-row">
       <!-- id (bound) -->
@@ -9,9 +11,9 @@
       <mat-form-field>
         <mat-label>ID</mat-label>
         <mat-select [formControl]="id">
-          <mat-option *ngFor="let e of idEntries()" [value]="e.id">{{
-            e.value
-          }}</mat-option>
+          @for (e of idEntries(); track e) {
+          <mat-option [value]="e.id">{{ e.value }}</mat-option>
+          }
         </mat-select>
         @if ($any(id).errors?.required && (id.dirty || id.touched)) {
         <mat-error>ID required</mat-error>
@@ -179,9 +181,9 @@
           <mat-form-field>
             <mat-label>tag</mat-label>
             <mat-select [formControl]="tag">
-              <mat-option *ngFor="let e of tagEntries()" [value]="e.id">{{
-                e.value
-              }}</mat-option>
+              @for (e of tagEntries(); track e) {
+              <mat-option [value]="e.id">{{ e.value }}</mat-option>
+              }
             </mat-select>
             @if ($any(tag).errors?.required && (tag.dirty || tag.touched)) {
             <mat-error>tag required</mat-error>

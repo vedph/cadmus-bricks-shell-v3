@@ -6,9 +6,9 @@
     <mat-form-field>
       <mat-label>type</mat-label>
       <mat-select [formControl]="type">
-        <mat-option *ngFor="let e of typeEntries()" [value]="e.id">{{
-          e.value
-        }}</mat-option>
+        @for (e of typeEntries(); track e) {
+        <mat-option [value]="e.id">{{ e.value }}</mat-option>
+        }
       </mat-select>
     </mat-form-field>
     } @else {
@@ -28,9 +28,9 @@
     <mat-form-field>
       <mat-label>tag</mat-label>
       <mat-select [formControl]="tag">
-        <mat-option *ngFor="let e of tagEntries()" [value]="e.id">{{
-          e.value
-        }}</mat-option>
+        @for (e of tagEntries(); track e) {
+        <mat-option [value]="e.id">{{ e.value }}</mat-option>
+        }
       </mat-select>
       @if ($any(tag).errors?.required && (tag.dirty || tag.touched)) {
       <mat-error>tag required</mat-error>
@@ -80,15 +80,16 @@
     </button>
     @if (pickerEnabled() && pickerExpanded) {
     <!-- pickerType -->
-    <mat-form-field *ngIf="pickers()?.length" class="picker-type">
+    @if (pickers().length) {
+    <mat-form-field class="picker-type">
       <mat-label>picker type</mat-label>
       <mat-select [formControl]="pickerType">
-        <mat-option *ngFor="let id of pickers()" [value]="id">{{
-          id
-        }}</mat-option>
+        @for (id of pickers(); track id) {
+        <mat-option [value]="id">{{ id }}</mat-option>
+        }
       </mat-select>
     </mat-form-field>
-    }}
+    } }}
   </div>
   <!-- citation picker -->
   <mat-expansion-panel

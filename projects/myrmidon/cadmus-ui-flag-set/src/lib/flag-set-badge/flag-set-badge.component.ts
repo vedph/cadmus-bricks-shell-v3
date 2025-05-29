@@ -1,5 +1,4 @@
 import { Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import { MatTooltip } from '@angular/material/tooltip';
 
@@ -12,7 +11,7 @@ import { Flag } from '../flag-set/flag-set.component';
  */
 @Component({
   selector: 'cadmus-flag-set-badge',
-  imports: [CommonModule, MatTooltip, ColorToContrastPipe],
+  imports: [MatTooltip, ColorToContrastPipe],
   templateUrl: './flag-set-badge.component.html',
   styleUrl: './flag-set-badge.component.css',
 })

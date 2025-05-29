@@ -8,9 +8,8 @@ describe('PinTargetLookupPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PinTargetLookupPgComponent]
-    })
-    .compileComponents();
+      imports: [PinTargetLookupPgComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(PinTargetLookupPgComponent);
     component = fixture.componentInstance;

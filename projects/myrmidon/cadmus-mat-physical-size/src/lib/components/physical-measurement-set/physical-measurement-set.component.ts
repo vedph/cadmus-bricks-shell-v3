@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -29,10 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { FlatLookupPipe } from '@myrmidon/ngx-tools';
 
-import {
-  PhysicalDimension,
-  PhysicalDimensionComponent,
-} from '../physical-dimension/physical-dimension.component';
+import { PhysicalDimension } from '../physical-dimension/physical-dimension.component';
 
 /**
  * A physical measurement.
@@ -47,10 +43,8 @@ export interface PhysicalMeasurement extends PhysicalDimension {
 @Component({
   selector: 'cadmus-mat-physical-measurement-set',
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    // material
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -59,7 +53,6 @@ export interface PhysicalMeasurement extends PhysicalDimension {
     MatInputModule,
     MatSelectModule,
     MatTooltipModule,
-    // myrmidon
     FlatLookupPipe,
   ],
   templateUrl: './physical-measurement-set.component.html',

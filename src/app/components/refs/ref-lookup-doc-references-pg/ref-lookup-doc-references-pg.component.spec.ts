@@ -8,9 +8,8 @@ describe('RefLookupDocReferencesPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RefLookupDocReferencesPgComponent]
-    })
-    .compileComponents();
+      imports: [RefLookupDocReferencesPgComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(RefLookupDocReferencesPgComponent);
     component = fixture.componentInstance;

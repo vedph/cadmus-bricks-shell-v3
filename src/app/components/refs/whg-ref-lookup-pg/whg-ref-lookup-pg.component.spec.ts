@@ -8,9 +8,8 @@ describe('WhgRefLookupPgComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [WhgRefLookupPgComponent]
-    })
-    .compileComponents();
+      imports: [WhgRefLookupPgComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(WhgRefLookupPgComponent);
     component = fixture.componentInstance;

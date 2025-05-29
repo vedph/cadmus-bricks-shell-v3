@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -49,7 +48,6 @@ import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 @Component({
   selector: 'cadmus-ref-lookup-doc-reference',
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatButtonModule,
@@ -188,7 +186,7 @@ export class LookupDocReferenceComponent implements OnDestroy {
     const citation = this._schemeService.parse(
       this.citation.value,
       this._schemeService.getSchemes()[0].id,
-      true  // we want empty slots so we can fill them
+      true // we want empty slots so we can fill them
     );
     if (citation) {
       this.parsedCitation = citation;
