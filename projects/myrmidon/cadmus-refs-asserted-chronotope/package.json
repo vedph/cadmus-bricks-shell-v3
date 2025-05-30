@@ -18,7 +18,7 @@
     "@angular/common": "^20.0.0",
     "@angular/core": "^20.0.0",
     "@myrmidon/ngx-mat-tools": "^1.0.0",
-    "@myrmidon/cadmus-refs-assertion": "^9.0.0",
+    "@myrmidon/cadmus-refs-assertion": "^10.0.0",
     "@myrmidon/cadmus-refs-historical-date": "^9.0.0"
   },
   "dependencies": {
