@@ -232,10 +232,12 @@ export class CodLocationParser {
    * are separated by space.
    *
    * @param text The text with ranges.
+   * @param nullOnError If true, returns null when any malformed portion is found.
    * @returns Ranges or null if invalid.
    */
   public static parseLocationRanges(
-    text: string | undefined | null
+    text: string | undefined | null,
+    nullOnError: boolean = false
   ): CodLocationRange[] | null {
     if (!text) {
       return null;
@@ -248,20 +250,33 @@ export class CodLocationParser {
       .map((s) => s.trim())
       .filter((s) => s);
 
-    tokens.forEach((token) => {
+    for (const token of tokens) {
       // split each token at - (used for ranges)
       const rangeOrLoc = token.split('-');
+
       // range A-B: parse both
       if (rangeOrLoc.length === 2) {
-        const start = CodLocationParser.parseLocation(rangeOrLoc[0]);
-        const end = CodLocationParser.parseLocation(rangeOrLoc[1]);
+        const startText = rangeOrLoc[0].trim();
+        const endText = rangeOrLoc[1].trim();
+
+        // If nullOnError is true, check for empty parts
+        if (nullOnError && (!startText || !endText)) {
+          return null;
+        }
+
+        const start = CodLocationParser.parseLocation(startText);
+        const end = CodLocationParser.parseLocation(endText);
+
         if (start && end) {
           ranges.push({
             start: start,
             end: end,
           });
+        } else if (nullOnError) {
+          // If nullOnError is true and either location failed to parse, return null
+          return null;
         }
-      } else {
+      } else if (rangeOrLoc.length === 1) {
         // single location: parse and set end=start
         const loc = CodLocationParser.parseLocation(rangeOrLoc[0]);
         if (loc) {
@@ -269,9 +284,16 @@ export class CodLocationParser {
             start: loc,
             end: loc,
           });
+        } else if (nullOnError) {
+          // If nullOnError is true and location failed to parse, return null
+          return null;
         }
+      } else if (nullOnError) {
+        // Multiple dashes in a single token indicate malformed input
+        return null;
       }
-    });
+    }
+
     return ranges;
   }
 

@@ -78,6 +78,7 @@ export class CodLocationComponent implements OnInit, OnDestroy {
     // when required/single changes, update validators
     effect(() => {
       this.updateValidators(this.required(), this.single());
+      this.text.updateValueAndValidity();
     });
 
     // when location changes, update text
@@ -158,13 +159,19 @@ export class CodLocationComponent implements OnInit, OnDestroy {
       }
 
       const ranges = this.text.valid
-        ? CodLocationParser.parseLocationRanges(this.text.value)
+        ? CodLocationParser.parseLocationRanges(this.text.value, true)
         : null;
       if (ranges?.length) {
         this.location.set(ranges);
       } else {
         if (!this.required() && !this.text.value?.length) {
           this.location.set(null);
+        } else {
+          // set error on text control
+          this.text.markAsTouched();
+          this.text.setErrors({
+            invalidLocation: true,
+          });
         }
       }
     }

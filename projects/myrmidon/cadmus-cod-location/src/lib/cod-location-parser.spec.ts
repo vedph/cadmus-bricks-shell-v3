@@ -17,7 +17,7 @@ describe('CodLocationParser', () => {
     expect(l?.endleaf).toBe(CodLocationEndleaf.FrontEndleaf);
     expect(l?.s).toBe('x');
     expect(l?.n).toBe(12);
-    expect(l?.rmn).toBeTrue();
+    expect(l?.rmn).toBeTruthy();
     expect(l?.sfx).toBeUndefined();
     expect(l?.v).toBeUndefined();
     expect(l?.c).toBeUndefined();
@@ -30,7 +30,7 @@ describe('CodLocationParser', () => {
     expect(l?.endleaf).toBe(CodLocationEndleaf.BackEndleaf);
     expect(l?.s).toBe('x');
     expect(l?.n).toBe(12);
-    expect(l?.rmn).toBeTrue();
+    expect(l?.rmn).toBeTruthy();
     expect(l?.sfx).toBeUndefined();
     expect(l?.v).toBeUndefined();
     expect(l?.c).toBeUndefined();
@@ -43,9 +43,9 @@ describe('CodLocationParser', () => {
     expect(l?.endleaf).toBeUndefined();
     expect(l?.s).toBe('x');
     expect(l?.n).toBe(12);
-    expect(l?.rmn).toBeTrue();
+    expect(l?.rmn).toBeTruthy();
     expect(l?.sfx).toBe('bis');
-    expect(l?.v).toBeFalse();
+    expect(l?.v).toBeFalsy();
     expect(l?.c).toBe('a');
     expect(l?.l).toBe(3);
     expect(l?.word).toBeUndefined();
@@ -56,9 +56,9 @@ describe('CodLocationParser', () => {
     expect(l?.endleaf).toBeUndefined();
     expect(l?.s).toBe('x');
     expect(l?.n).toBe(12);
-    expect(l?.rmn).toBeTrue();
+    expect(l?.rmn).toBeTruthy();
     expect(l?.sfx).toBe('bis');
-    expect(l?.v).toBeFalse();
+    expect(l?.v).toBeFalsy();
     expect(l?.c).toBe('a');
     expect(l?.l).toBe(3);
     expect(l?.word).toBe('exemplum');
@@ -69,9 +69,9 @@ describe('CodLocationParser', () => {
     expect(l?.endleaf).toBeUndefined();
     expect(l?.s).toBe('x');
     expect(l?.n).toBe(12);
-    expect(l?.rmn).toBeTrue();
+    expect(l?.rmn).toBeTruthy();
     expect(l?.sfx).toBeUndefined();
-    expect(l?.v).toBeFalse();
+    expect(l?.v).toBeFalsy();
     expect(l?.c).toBe('a');
     expect(l?.l).toBe(3);
     expect(l?.word).toBeUndefined();
@@ -84,7 +84,7 @@ describe('CodLocationParser', () => {
     expect(l?.n).toBe(12);
     expect(l?.rmn).toBeUndefined();
     expect(l?.sfx).toBe('bis');
-    expect(l?.v).toBeFalse();
+    expect(l?.v).toBeFalsy();
     expect(l?.c).toBe('a');
     expect(l?.l).toBe(3);
     expect(l?.word).toBeUndefined();
@@ -97,7 +97,7 @@ describe('CodLocationParser', () => {
     expect(l?.n).toBe(12);
     expect(l?.rmn).toBeUndefined();
     expect(l?.sfx).toBeUndefined();
-    expect(l?.v).toBeFalse();
+    expect(l?.v).toBeFalsy();
     expect(l?.c).toBe('a');
     expect(l?.l).toBe(3);
     expect(l?.word).toBeUndefined();
@@ -110,7 +110,7 @@ describe('CodLocationParser', () => {
     expect(l?.n).toBe(12);
     expect(l?.rmn).toBeUndefined();
     expect(l?.sfx).toBeUndefined();
-    expect(l?.v).toBeTrue();
+    expect(l?.v).toBeTruthy();
     expect(l?.c).toBe('a');
     expect(l?.l).toBe(3);
     expect(l?.word).toBeUndefined();
@@ -123,7 +123,7 @@ describe('CodLocationParser', () => {
     expect(l?.n).toBe(12);
     expect(l?.rmn).toBeUndefined();
     expect(l?.sfx).toBeUndefined();
-    expect(l?.v).toBeFalse();
+    expect(l?.v).toBeFalsy();
     expect(l?.c).toBe('a');
     expect(l?.l).toBeUndefined();
     expect(l?.word).toBeUndefined();
@@ -136,7 +136,7 @@ describe('CodLocationParser', () => {
     expect(l?.n).toBe(12);
     expect(l?.rmn).toBeUndefined();
     expect(l?.sfx).toBeUndefined();
-    expect(l?.v).toBeFalse();
+    expect(l?.v).toBeFalsy();
     expect(l?.c).toBeUndefined();
     expect(l?.l).toBeUndefined();
     expect(l?.word).toBeUndefined();
@@ -149,7 +149,7 @@ describe('CodLocationParser', () => {
     expect(l?.n).toBe(12);
     expect(l?.rmn).toBeUndefined();
     expect(l?.sfx).toBe('bis');
-    expect(l?.v).toBeFalse();
+    expect(l?.v).toBeFalsy();
     expect(l?.c).toBeUndefined();
     expect(l?.l).toBeUndefined();
     expect(l?.word).toBeUndefined();
@@ -316,19 +316,19 @@ describe('CodLocationParser', () => {
     const ranges = CodLocationParser.parseLocationRanges('1r-3v');
     expect(ranges?.length).toBe(1);
     expect(ranges![0].start.n).toBe(1);
-    expect(ranges![0].start.v).toBeFalse();
+    expect(ranges![0].start.v).toBeFalsy();
     expect(ranges![0].end.n).toBe(3);
-    expect(ranges![0].end.v).toBeTrue();
+    expect(ranges![0].end.v).toBeTruthy();
   });
   it('parseLocationRanges should parse "1ra.12-3vb.4"', () => {
     const ranges = CodLocationParser.parseLocationRanges('1ra.12-3vb.4');
     expect(ranges?.length).toBe(1);
     expect(ranges![0].start.n).toBe(1);
-    expect(ranges![0].start.v).toBeFalse();
+    expect(ranges![0].start.v).toBeFalsy();
     expect(ranges![0].start.c).toBe('a');
     expect(ranges![0].start.l).toBe(12);
     expect(ranges![0].end.n).toBe(3);
-    expect(ranges![0].end.v).toBeTrue();
+    expect(ranges![0].end.v).toBeTruthy();
     expect(ranges![0].end.c).toBe('b');
     expect(ranges![0].end.l).toBe(4);
   });
@@ -336,19 +336,19 @@ describe('CodLocationParser', () => {
     const ranges = CodLocationParser.parseLocationRanges('1r-3v 4r 7r-11v');
     expect(ranges?.length).toBe(3);
     expect(ranges![0].start.n).toBe(1);
-    expect(ranges![0].start.v).toBeFalse();
+    expect(ranges![0].start.v).toBeFalsy();
     expect(ranges![0].end.n).toBe(3);
-    expect(ranges![0].end.v).toBeTrue();
+    expect(ranges![0].end.v).toBeTruthy();
 
     expect(ranges![1].start.n).toBe(4);
-    expect(ranges![1].start.v).toBeFalse();
+    expect(ranges![1].start.v).toBeFalsy();
     expect(ranges![1].end.n).toBe(4);
-    expect(ranges![1].end.v).toBeFalse();
+    expect(ranges![1].end.v).toBeFalsy();
 
     expect(ranges![2].start.n).toBe(7);
-    expect(ranges![2].start.v).toBeFalse();
+    expect(ranges![2].start.v).toBeFalsy();
     expect(ranges![2].end.n).toBe(11);
-    expect(ranges![2].end.v).toBeTrue();
+    expect(ranges![2].end.v).toBeTruthy();
   });
   // #endregion
 
@@ -475,7 +475,7 @@ describe('CodLocationParser', () => {
             v: true,
             c: 'a',
             l: 3,
-            word: 'exemplum'
+            word: 'exemplum',
           },
           end: {
             s: 'x',
@@ -483,7 +483,7 @@ describe('CodLocationParser', () => {
             v: true,
             c: 'a',
             l: 3,
-            word: 'exemplum'
+            word: 'exemplum',
           },
         },
       ])
@@ -580,6 +580,116 @@ describe('CodLocationParser', () => {
         { s: 'x', n: 12, v: false, c: 'a', l: 5 }
       )
     ).toBeLessThan(0);
+  });
+  // #endregion
+  // #region parseLocationRanges
+  it('parseLocationRanges should parse "1r-3v 4r 7r-11v"', () => {
+    const ranges = CodLocationParser.parseLocationRanges('1r-3v 4r 7r-11v');
+    expect(ranges?.length).toBe(3);
+    expect(ranges![0].start.n).toBe(1);
+    expect(ranges![0].start.v).toBeFalsy();
+    expect(ranges![0].end.n).toBe(3);
+    expect(ranges![0].end.v).toBeTruthy();
+
+    expect(ranges![1].start.n).toBe(4);
+    expect(ranges![1].start.v).toBeFalsy();
+    expect(ranges![1].end.n).toBe(4);
+    expect(ranges![1].end.v).toBeFalsy();
+
+    expect(ranges![2].start.n).toBe(7);
+    expect(ranges![2].start.v).toBeFalsy();
+    expect(ranges![2].end.n).toBe(11);
+    expect(ranges![2].end.v).toBeTruthy();
+  });
+
+  // nullOnError = false (default behavior)
+  it('parseLocationRanges should ignore malformed "1r- 4r" with nullOnError=false', () => {
+    const ranges = CodLocationParser.parseLocationRanges('1r- 4r', false);
+    expect(ranges?.length).toBe(1);
+    expect(ranges![0].start.n).toBe(4);
+    expect(ranges![0].start.v).toBeFalsy();
+  });
+
+  it('parseLocationRanges should ignore malformed "1r-invalid 4r" with nullOnError=false', () => {
+    const ranges = CodLocationParser.parseLocationRanges(
+      '1r-invalid 4r',
+      false
+    );
+    expect(ranges?.length).toBe(1);
+    expect(ranges![0].start.n).toBe(4);
+    expect(ranges![0].start.v).toBeFalsy();
+  });
+
+  it('parseLocationRanges should ignore malformed "invalid 4r" with nullOnError=false', () => {
+    const ranges = CodLocationParser.parseLocationRanges('invalid 4r', false);
+    expect(ranges?.length).toBe(1);
+    expect(ranges![0].start.n).toBe(4);
+    expect(ranges![0].start.v).toBeFalsy();
+  });
+
+  // nullOnError = true (strict behavior)
+  it('parseLocationRanges should return null for malformed "1r-" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges('1r-', true);
+    expect(ranges).toBeNull();
+  });
+
+  it('parseLocationRanges should return null for malformed "-3v" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges('-3v', true);
+    expect(ranges).toBeNull();
+  });
+
+  it('parseLocationRanges should return null for malformed "1r-invalid" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges('1r-invalid', true);
+    expect(ranges).toBeNull();
+  });
+
+  it('parseLocationRanges should return null for malformed "invalid-3v" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges('invalid-3v', true);
+    expect(ranges).toBeNull();
+  });
+
+  it('parseLocationRanges should return null for malformed "invalid" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges('invalid', true);
+    expect(ranges).toBeNull();
+  });
+
+  it('parseLocationRanges should return null for malformed "1r--3v" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges('1r--3v', true);
+    expect(ranges).toBeNull();
+  });
+
+  it('parseLocationRanges should return null for mixed valid/invalid "1r-3v invalid" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges('1r-3v invalid', true);
+    expect(ranges).toBeNull();
+  });
+
+  it('parseLocationRanges should return null for mixed valid/invalid "1r- 4r" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges('1r- 4r', true);
+    expect(ranges).toBeNull();
+  });
+
+  // Valid cases with nullOnError = true should still work
+  it('parseLocationRanges should parse valid "1r-3v" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges('1r-3v', true);
+    expect(ranges?.length).toBe(1);
+    expect(ranges![0].start.n).toBe(1);
+    expect(ranges![0].start.v).toBeFalsy();
+    expect(ranges![0].end.n).toBe(3);
+    expect(ranges![0].end.v).toBeTruthy();
+  });
+
+  it('parseLocationRanges should parse valid "1r-3v 4r 7r-11v" with nullOnError=true', () => {
+    const ranges = CodLocationParser.parseLocationRanges(
+      '1r-3v 4r 7r-11v',
+      true
+    );
+    expect(ranges?.length).toBe(3);
+    expect(ranges![0].start.n).toBe(1);
+    expect(ranges![0].end.n).toBe(3);
+    expect(ranges![1].start.n).toBe(4);
+    expect(ranges![1].end.n).toBe(4);
+    expect(ranges![2].start.n).toBe(7);
+    expect(ranges![2].end.n).toBe(11);
   });
   // #endregion
 });

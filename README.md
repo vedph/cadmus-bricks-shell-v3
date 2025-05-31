@@ -146,6 +146,10 @@ Remember to run these commands in your terminal from your project's root directo
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+### 9.0.1
+
+- 2025-05-31: fix to `CodLocationComponent` and more tests for its parser.
+
 ### 9.0.0
 
 - 2025-05-29:

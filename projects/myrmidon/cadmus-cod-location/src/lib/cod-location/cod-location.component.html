@@ -7,6 +7,8 @@
     <mat-error>required</mat-error>
     } @if ($any(text.errors)?.pattern && (text.dirty || text.touched)) {
     <mat-error>invalid</mat-error>
+    } @if ($any(text.errors)?.invalidLocation && (text.dirty || text.touched)) {
+    <mat-error>invalid range</mat-error>
     }
   </mat-form-field>
 </form>
