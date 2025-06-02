@@ -48,4 +48,10 @@ Example:
 
 ## History
 
+### 9.0.1
+
+- 2025-06-02: debounce time in date typing from 1000 to 2000.
+
+### 9.0.0
+
 - 2025-05-22: debounce time in date typing from 400 to 1000.

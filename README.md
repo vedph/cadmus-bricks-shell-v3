@@ -146,6 +146,8 @@ Remember to run these commands in your terminal from your project's root directo
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-06-01: fixes to cod location.
+
 ### 9.0.1
 
 - 2025-05-31: fix to `CodLocationComponent` and more tests for its parser.
