@@ -9,6 +9,7 @@
       <div>
         <mat-checkbox [formControl]="numbering">numbering</mat-checkbox>
         <mat-checkbox [formControl]="initials">initials</mat-checkbox>
+        <mat-checkbox [formControl]="custom">custom flags</mat-checkbox>
       </div>
       <hr />
       <fieldset>
@@ -16,7 +17,7 @@
         <cadmus-ui-flag-set
           [flags]="flags"
           [checkedIds]="checkedIds()"
-          [allowCustom]="true"
+          [allowCustom]="custom.value"
           [numbering]="numbering.value"
           (checkedIdsChange)="onCheckedIdsChange($event)"
         />

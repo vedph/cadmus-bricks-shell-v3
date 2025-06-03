@@ -87,6 +87,9 @@ export class FlagSetPgComponent {
   public initials: FormControl<boolean> = new FormControl(true, {
     nonNullable: true,
   });
+  public custom: FormControl<boolean> = new FormControl(true, {
+    nonNullable: true,
+  });
 
   public onCheckedIdsChange(ids: string[]): void {
     this.checkedIds.set(ids);

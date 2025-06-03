@@ -1,4 +1,3 @@
-
 import {
   FormBuilder,
   FormControl,
@@ -51,8 +50,8 @@ interface FlagViewModel extends Flag {
     MatIconModule,
     MatInputModule,
     MatTooltipModule,
-    ColorToContrastPipe
-],
+    ColorToContrastPipe,
+  ],
   templateUrl: './flag-set.component.html',
   styleUrl: './flag-set.component.css',
 })
@@ -134,21 +133,23 @@ export class FlagSetComponent implements OnDestroy {
       assignedIds.add(f.id);
     });
 
-    // for each non assigned ID, create a new custom flag
-    checkedIds.forEach((id) => {
-      if (!assignedIds.has(id)) {
-        this.userFlags.push({
-          id,
-          label: id,
-          custom: true,
-          checked: true,
-        });
-      }
-    });
+    // for each non assigned ID, create a new custom flag if custom allowed
+    if (this.allowCustom()) {
+      checkedIds.forEach((id) => {
+        if (!assignedIds.has(id)) {
+          this.userFlags.push({
+            id,
+            label: id,
+            custom: true,
+            checked: true,
+          });
+        }
+      });
+    }
   }
 
   public addCustomFlag(): void {
-    if (this.customForm.invalid) {
+    if (this.customForm.invalid || !this.allowCustom()) {
       return;
     }
 

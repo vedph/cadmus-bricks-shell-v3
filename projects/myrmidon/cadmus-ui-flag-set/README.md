@@ -108,6 +108,12 @@ A set of flags badges, used to provide a compact visualization of a set of selec
 
 ## History
 
+### 9.0.1
+
+- 2025-06-03:
+  - ⚠️ upgraded to Angular 20.
+  - fix: do not add custom flags if not allowed.
+
 ### 8.0.1
 
 - 2024-12-23:
