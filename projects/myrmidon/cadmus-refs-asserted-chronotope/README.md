@@ -44,6 +44,11 @@ A pipe to transform a single chronotope or an array of chronotopes into a string
 
 ## History
 
+### 10.0.1
+
+- 2025-06-03: fixes to chronotope editor.
+- 2025-05-29: ⚠️ upgraded to Angular 20.
+
 ### 9.0.0
 
 - 2025-01-03: ⚠️ updated [Cadmus dependencies](https://github.com/vedph/cadmus-shell-v3) to version 11 (standalone components).

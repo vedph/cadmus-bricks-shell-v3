@@ -15,3 +15,12 @@ td.fit-width {
   width: 1px;
   white-space: nowrap;
 }
+fieldset {
+  margin: 8px 0;
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 4px;
+}
+fieldset legend {
+  color: silver;
+}

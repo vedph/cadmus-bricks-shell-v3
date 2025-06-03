@@ -102,7 +102,7 @@ export class AssertedChronotopeSetComponent implements OnInit {
   }
 
   public addChronotope(): void {
-    this.editChronotope({});
+    this.editChronotope(Object.create(null));
   }
 
   public editChronotope(
@@ -113,8 +113,12 @@ export class AssertedChronotopeSetComponent implements OnInit {
       this.editedIndex = -1;
       this.initialChronotope = undefined;
     } else {
-      this.editedIndex = index;
-      this.initialChronotope = chronotope;
+      // reset the chronotope editor and then edit the given one
+      this.initialChronotope = undefined;
+      setTimeout(() => {
+        this.editedIndex = index;
+        this.initialChronotope = chronotope;
+      }, 0);
     }
   }
 
@@ -123,7 +127,11 @@ export class AssertedChronotopeSetComponent implements OnInit {
   }
 
   public onChronotopeSave(): void {
-    if (!this.editedChronotope) {
+    if (
+      !this.editedChronotope ||
+      Object.keys(this.editedChronotope).length === 0 ||
+      (!this.editedChronotope.place && !this.editedChronotope.date)
+    ) {
       return;
     }
 

@@ -81,7 +81,7 @@ export interface AssertedChronotope {
   ],
 })
 export class AssertedChronotopeComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
+  private _subs: Subscription[] = [];
   private _dropNextInput?: boolean;
 
   /**
@@ -154,34 +154,68 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
     // whenever has place or date changes, update the chronotope
-    this._sub = merge(this.hasPlace.valueChanges, this.hasDate.valueChanges)
-      .pipe(distinctUntilChanged(), debounceTime(300))
-      .subscribe(() => {
-        const chronotope = this.getChronotope();
-        this._dropNextInput = true;
-        this.chronotope.set(chronotope);
-      });
+    this._subs.push(
+      merge(this.hasPlace.valueChanges, this.hasDate.valueChanges)
+        .pipe(distinctUntilChanged(), debounceTime(300))
+        .subscribe(() => {
+          const chronotope = this.getChronotope();
+          this._dropNextInput = true;
+          this.chronotope.set(chronotope);
+        })
+    );
+
+    // automatically open place editor when checkbox is checked for new entries
+    this._subs.push(
+      this.hasPlace.valueChanges
+        .pipe(distinctUntilChanged())
+        .subscribe((checked) => {
+          if (checked) {
+            // use setTimeout to avoid potential timing issues with form updates
+            setTimeout(() => this.editPlace(), 0);
+          } else {
+            // close the place editor if unchecked
+            this.placeExpanded = false;
+          }
+        })
+    );
+
+    // automatically open date editor when checkbox is checked for new entries
+    this._subs.push(
+      this.hasDate.valueChanges
+        .pipe(distinctUntilChanged())
+        .subscribe((checked) => {
+          if (checked) {
+            // use setTimeout to avoid potential timing issues with form updates
+            setTimeout(() => this.editDate(), 0);
+          } else {
+            // close the date editor if unchecked
+            this.dateExpanded = false;
+          }
+        })
+    );
   }
 
   public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
+    this._subs.forEach((s) => s.unsubscribe());
   }
 
   private updateForm(chronotope: AssertedChronotope | undefined): void {
     if (!chronotope) {
+      this.hasPlace.reset();
+      this.hasDate.reset();
       this.plForm.reset();
       this.dtForm.reset();
     } else {
+      this.hasPlace.setValue(chronotope.place ? true : false);
       this.plTag.setValue(chronotope.place?.tag || null);
       this.plAssertion.setValue(chronotope.place?.assertion || null);
       this.place.setValue(chronotope.place?.value || null);
-      this.hasPlace.setValue(chronotope.place ? true : false);
       this.plForm.markAsPristine();
 
+      this.hasDate.setValue(chronotope.date ? true : false);
       this.dtTag.setValue(chronotope.date?.tag || null);
       this.dtAssertion.setValue(chronotope.date?.assertion || null);
       this.date.setValue(chronotope.date as HistoricalDateModel);
-      this.hasDate.setValue(chronotope.date ? true : false);
       this.dtForm.markAsPristine();
     }
   }

@@ -23,3 +23,6 @@ fieldset#date legend {
 .form-row * {
   flex: 0 0 auto;
 }
+.editor {
+  margin: 8px 0;
+}

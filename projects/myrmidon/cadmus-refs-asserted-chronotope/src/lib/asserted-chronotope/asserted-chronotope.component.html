@@ -28,7 +28,7 @@
   </div>
 
   <!-- place -->
-  <mat-expansion-panel [(expanded)]="placeExpanded">
+  <mat-expansion-panel class="editor" [(expanded)]="placeExpanded">
     <form [formGroup]="plForm" (submit)="savePlace()">
       <fieldset id="place">
         <legend>place</legend>
@@ -94,7 +94,7 @@
   </mat-expansion-panel>
 
   <!-- date -->
-  <mat-expansion-panel [(expanded)]="dateExpanded" (submit)="saveDate()">
+  <mat-expansion-panel class="editor" [(expanded)]="dateExpanded" (submit)="saveDate()">
     <form [formGroup]="dtForm">
       <fieldset id="date">
         <legend>date</legend>
