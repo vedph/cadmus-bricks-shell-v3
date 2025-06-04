@@ -2,7 +2,7 @@
 
 📦 `@myrmidon/cadmus-refs-lookup`
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 - [CadmusRefsLookup](#cadmusrefslookup)
   - [RefLookupComponent](#reflookupcomponent)
@@ -11,6 +11,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Configuring Set](#configuring-set)
   - [LookupDocReferencesComponent](#lookupdocreferencescomponent)
   - [History](#history)
+    - [9.0.1](#901)
 
 ## RefLookupComponent
 
@@ -281,6 +282,9 @@ A set of documental references (with the same model as those in `@myrmidon/cadmu
 
 ## History
 
+### 9.0.1
+
+- 2025-06-04: added constant `LOOKUP_CONFIGS_KEY` to replace `ASSERTED_COMPOSITE_ID_CONFIGS_KEY` from `cadmus-refs-asserted-ids` which would cause a cyclic reference as `cadmus-refs-asserted-ids` depends on this `cadmus-refs-lookup` library, which in turn would depend on `cadmus-refs-asserted-ids` for that constant. Consequently, the const has been renamed with a more generic name.
 - 2025-03-25: added `LookupDocReferencesComponent`. This implied adding these additional dependencies to this library:
   - `@myrmidon/cadmus-refs-doc-references` (for the references data model);
   - `@myrmidon/cadmus-refs-citation` (for citations).

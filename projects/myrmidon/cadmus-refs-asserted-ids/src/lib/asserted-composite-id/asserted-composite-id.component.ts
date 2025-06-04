@@ -36,6 +36,7 @@ import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
 // cadmus
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
 import {
+  LOOKUP_CONFIGS_KEY,
   RefLookupConfig,
   RefLookupSetEvent,
 } from '@myrmidon/cadmus-refs-lookup';
@@ -58,14 +59,6 @@ export interface AssertedCompositeId {
   scope?: string;
   assertion?: Assertion;
 }
-
-/**
- * The key to be used to retrieve the external lookup configs from the
- * settings storage. This is equal to the selector of
- * AssertedCompositeIdComponent plus ".configs".
- */
-export const ASSERTED_COMPOSITE_ID_CONFIGS_KEY =
-  'cadmus-refs-asserted-composite-id.configs';
 
 /**
  * An asserted composite ID editor. This allows the user to edit an asserted
@@ -198,8 +191,7 @@ export class AssertedCompositeIdComponent implements OnInit, OnDestroy {
 
     // external lookup configs
     this.extLookupConfigs =
-      settings.retrieve<RefLookupConfig[]>(ASSERTED_COMPOSITE_ID_CONFIGS_KEY) ||
-      [];
+      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || [];
 
     // when id changes, update form
     effect(() => {

@@ -2,7 +2,7 @@
 
 📦 `@myrmidon/cadmus-refs-dbpedia-lookup`
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 This library provides a DBPedia lookup service for Cadmus. DBPedia is a project that extracts structured information from Wikipedia and makes it available on the Web.
 

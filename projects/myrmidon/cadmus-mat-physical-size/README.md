@@ -3,7 +3,7 @@
 - 📦 `@myrmidon/cadmus-mat-physical-size`
 - 🧱 [backend: physical size brick](https://github.com/vedph/cadmus-bricks/blob/master/docs/physical-size.md)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 ## PhysicalSizeComponent
 

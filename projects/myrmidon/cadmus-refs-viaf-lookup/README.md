@@ -2,7 +2,7 @@
 
 📦 `@myrmidon/cadmus-refs-viaf-lookup`
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 This is preliminary work. This should wrap VIAF for quick lookup. TODO: add VIAF options component, and use query to allow users pick a subject and/or an index.
 

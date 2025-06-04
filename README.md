@@ -1,6 +1,6 @@
-# Cadmus Bricks Shell V3
+# CadmusBricksShellV3
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.4.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 🚀 You can play with the demo at <https://cadmus-bricks-v3.fusi-soft.com> (except for some services I did not put in the demo server).
 
@@ -87,6 +87,7 @@ I created this workspace with these commands:
 
 ```bash
 ng new cadmus-bricks-shell-v3
+cd cadmus-bricks-shell-v3
 ng add @angular/material
 ng add @angular/localize
 
@@ -104,11 +105,13 @@ ng g library @myrmidon/cadmus-refs-decorated-counts --prefix cadmus
 ng g library @myrmidon/cadmus-refs-decorated-ids --prefix cadmus
 ng g library @myrmidon/cadmus-refs-doc-references --prefix cadmus
 ng g library @myrmidon/cadmus-refs-external-ids --prefix cadmus
+ng g library @myrmidon/cadmus-refs-geonames-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-historical-date --prefix cadmus
 ng g library @myrmidon/cadmus-refs-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-mufi-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-proper-name --prefix cadmus
 ng g library @myrmidon/cadmus-refs-viaf-lookup --prefix cadmus
+ng g library @myrmidon/cadmus-refs-whg-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-text-block-view --prefix cadmus
 ng g library @myrmidon/cadmus-text-ed --prefix cadmus
 ng g library @myrmidon/cadmus-text-ed-md --prefix cadmus
@@ -118,36 +121,12 @@ ng g library @myrmidon/cadmus-ui-flag-set --prefix cadmus
 ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 ```
 
-I then replaced Karma with Jest.
-
-## Testing
-
-In Jest, you can run tests from a single library or the main app by specifying the test file or directory in the Jest command. Here's how you can do it:
-
-- **To run tests from a single library**, use the following command:
-
-```bash
-npx jest projects/myrmidon/library-name
-```
-
-Replace `library-name` with the name of your library.
-
-- **To run tests from the main app**, use the following command:
-
-```bash
-npx jest src
-```
-
-This will run all tests in the `src` directory, which typically contains your main app's code.
-
-Remember to run these commands in your terminal from your project's root directory.
-
 ## History
 
 👉 For the libraries history, see the README of each library in this workspace.
 
 - 2025-06-04:
-  - refactored JEST config for tests.
+  - refactored workspace from a native Angular 20 setup.
   - improvements in asserted IDs.
   - fixed some dependencies versions.
 

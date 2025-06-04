@@ -1,28 +1,35 @@
 import { Component, inject } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 
+// material
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
+// myrmidon
 import { EnvService, RamStorageService } from '@myrmidon/ngx-tools';
 
-import { RefLookupConfig } from '../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+// bricks
+import {
+  LOOKUP_CONFIGS_KEY,
+  RefLookupConfig,
+} from '../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
 import { ViafRefLookupService } from '../../projects/myrmidon/cadmus-refs-viaf-lookup/src/public-api';
-import { ASSERTED_COMPOSITE_ID_CONFIGS_KEY } from '../../projects/myrmidon/cadmus-refs-asserted-ids/src/public-api';
 import { GeoNamesRefLookupService } from '../../projects/myrmidon/cadmus-refs-geonames-lookup/src/public-api';
 import {
   GeoJsonFeature,
   WhgRefLookupService,
 } from '../../projects/myrmidon/cadmus-refs-whg-lookup/src/public-api';
-import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.component';
 import {
   CIT_SCHEME_SERVICE_SETTINGS_KEY,
   CitMappedValues,
   CitSchemeSettings,
   MapFormatter,
 } from '../../projects/myrmidon/cadmus-refs-citation/src/public-api';
+
+// local
+import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.component';
 import { DC_SCHEME, OD_SCHEME } from './cit-schemes';
 
 @Component({
@@ -36,10 +43,10 @@ import { DC_SCHEME, OD_SCHEME } from './cit-schemes';
     MatDividerModule,
     MatToolbarModule,
   ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  templateUrl: './app.html',
+  styleUrl: './app.scss',
 })
-export class AppComponent {
+export class App {
   public readonly version: string;
 
   constructor(env: EnvService, storage: RamStorageService) {
@@ -53,7 +60,7 @@ export class AppComponent {
   }
 
   private configureLookup(storage: RamStorageService): void {
-    storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
+    storage.store(LOOKUP_CONFIGS_KEY, [
       {
         name: 'colors',
         iconUrl: '/img/colors128.png',

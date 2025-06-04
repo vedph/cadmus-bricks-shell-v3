@@ -1,15 +1,11 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@myrmidon/cadmus-cod-location": ["./dist/myrmidon/cadmus-cod-location"],
-      "@myrmidon/cadmus-img-annotator": [
-        "./dist/myrmidon/cadmus-img-annotator"
-      ],
-      "@myrmidon/cadmus-img-gallery": ["./dist/myrmidon/cadmus-img-gallery"],
-      "@myrmidon/cadmus-img-gallery-iiif": [
-        "./dist/myrmidon/cadmus-img-gallery-iiif"
+      "@myrmidon/cadmus-cod-location": [
+        "./dist/myrmidon/cadmus-cod-location"
       ],
       "@myrmidon/cadmus-mat-physical-grid": [
         "./dist/myrmidon/cadmus-mat-physical-grid"
@@ -56,7 +52,9 @@
       "@myrmidon/cadmus-refs-historical-date": [
         "./dist/myrmidon/cadmus-refs-historical-date"
       ],
-      "@myrmidon/cadmus-refs-lookup": ["./dist/myrmidon/cadmus-refs-lookup"],
+      "@myrmidon/cadmus-refs-lookup": [
+        "./dist/myrmidon/cadmus-refs-lookup"
+      ],
       "@myrmidon/cadmus-refs-mufi-lookup": [
         "./dist/myrmidon/cadmus-refs-mufi-lookup"
       ],
@@ -69,25 +67,28 @@
       "@myrmidon/cadmus-refs-whg-lookup": [
         "./dist/myrmidon/cadmus-refs-whg-lookup"
       ],
-      "@myrmidon/cadmus-sdimg-annotator": [
-        "./dist/myrmidon/cadmus-sdimg-annotator"
-      ],
-      "@myrmidon/cadmus-sdimg-gallery": [
-        "./dist/myrmidon/cadmus-sdimg-gallery"
-      ],
       "@myrmidon/cadmus-text-block-view": [
         "./dist/myrmidon/cadmus-text-block-view"
       ],
-      "@myrmidon/cadmus-text-ed": ["./dist/myrmidon/cadmus-text-ed"],
-      "@myrmidon/cadmus-text-ed-md": ["./dist/myrmidon/cadmus-text-ed-md"],
-      "@myrmidon/cadmus-text-ed-txt": ["./dist/myrmidon/cadmus-text-ed-txt"],
+      "@myrmidon/cadmus-text-ed": [
+        "./dist/myrmidon/cadmus-text-ed"
+      ],
+      "@myrmidon/cadmus-text-ed-md": [
+        "./dist/myrmidon/cadmus-text-ed-md"
+      ],
+      "@myrmidon/cadmus-text-ed-txt": [
+        "./dist/myrmidon/cadmus-text-ed-txt"
+      ],
       "@myrmidon/cadmus-ui-custom-action-bar": [
         "./dist/myrmidon/cadmus-ui-custom-action-bar"
       ],
-      "@myrmidon/cadmus-ui-flag-set": ["./dist/myrmidon/cadmus-ui-flag-set"],
-      "@myrmidon/cadmus-ui-note-set": ["./dist/myrmidon/cadmus-ui-note-set"]
+      "@myrmidon/cadmus-ui-flag-set": [
+        "./dist/myrmidon/cadmus-ui-flag-set"
+      ],
+      "@myrmidon/cadmus-ui-note-set": [
+        "./dist/myrmidon/cadmus-ui-note-set"
+      ]
     },
-    "outDir": "./dist/out-tsc",
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
@@ -95,17 +96,193 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "esModuleInterop": true,
     "experimentalDecorators": true,
-    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022"
+    "module": "preserve"
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
+    "typeCheckHostBindings": true,
     "strictTemplates": true
-  }
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-cod-location/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-cod-location/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-mat-physical-grid/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-mat-physical-grid/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-mat-physical-size/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-mat-physical-size/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-mat-physical-state/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-mat-physical-state/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-asserted-chronotope/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-asserted-chronotope/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-asserted-ids/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-asserted-ids/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-assertion/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-assertion/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-chronotope/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-chronotope/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-citation/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-citation/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-dbpedia-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-dbpedia-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-decorated-counts/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-decorated-counts/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-decorated-ids/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-decorated-ids/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-doc-references/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-doc-references/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-external-ids/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-external-ids/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-historical-date/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-historical-date/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-mufi-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-mufi-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-proper-name/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-proper-name/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-viaf-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-viaf-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-block-view/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-block-view/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-ed/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-ed/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-ed-md/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-ed-md/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-ed-txt/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-ed-txt/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-ui-custom-action-bar/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-ui-custom-action-bar/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-ui-flag-set/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-ui-flag-set/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-ui-note-set/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-ui-note-set/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-geonames-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-geonames-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-whg-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-whg-lookup/tsconfig.spec.json"
+    }
+  ]
 }

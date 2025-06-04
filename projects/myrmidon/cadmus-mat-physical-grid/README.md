@@ -2,7 +2,7 @@
 
 📦 `@myrmidon/cadmus-mat-physical-grid`
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 This library contains a component representing a physical grid location (`PhysicalGridLocation`), i.e. a bounding rectangle ideally overlaid on top of a 2D physical surface. The surface of the rectangle is covered by a grid, where columns are labeled with letters, like in an Excel spreadsheet, and rows are numbered.
 

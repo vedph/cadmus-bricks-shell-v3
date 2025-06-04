@@ -24,7 +24,6 @@ import {
 
 import { RamStorageService } from '@myrmidon/ngx-tools';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
-import { ASSERTED_COMPOSITE_ID_CONFIGS_KEY } from '@myrmidon/cadmus-refs-asserted-ids';
 
 import {
   FormBuilder,
@@ -41,6 +40,12 @@ import {
   RefLookupSetComponent,
 } from '../ref-lookup-set/ref-lookup-set.component';
 import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
+
+/**
+ * The key to be used to retrieve the external lookup configs from the
+ * settings storage, when using multiple lookups, like in asserted composite IDs.
+ */
+export const LOOKUP_CONFIGS_KEY = 'cadmus-refs-lookup.configs';
 
 /**
  * Document reference editor lookup component.
@@ -153,8 +158,7 @@ export class LookupDocReferenceComponent implements OnDestroy {
     });
 
     this.lookupConfigs =
-      settings.retrieve<RefLookupConfig[]>(ASSERTED_COMPOSITE_ID_CONFIGS_KEY) ||
-      [];
+      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || [];
     this._lookupConfig = this.lookupConfigs.length
       ? this.lookupConfigs[0]
       : undefined;

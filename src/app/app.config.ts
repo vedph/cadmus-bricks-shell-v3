@@ -1,25 +1,29 @@
 import {
   ApplicationConfig,
-  importProvidersFrom,
+  provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
+  importProvidersFrom,
 } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
-
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-
 import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
   withJsonpSupport,
 } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
+// material
 import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { provideNativeDateAdapter } from '@angular/material/core';
 
+// vendors
 import { NgeMonacoModule } from '@cisstech/nge/monaco';
 
+// cadmus
 import { ItemService, ThesaurusService } from '@myrmidon/cadmus-api';
 import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
 
+// bricks
 import {
   PROXY_INTERCEPTOR_OPTIONS,
   ProxyInterceptor,
@@ -27,6 +31,7 @@ import {
 import { GEONAMES_USERNAME_TOKEN } from '../../projects/myrmidon/cadmus-refs-geonames-lookup/src/public-api';
 import { WHG_USERNAME_TOKEN } from '../../projects/myrmidon/cadmus-refs-whg-lookup/src/public-api';
 
+// local
 import { MockItemService } from './services/mock-item.service';
 import { MockThesaurusService } from './services/mock-thesaurus.service';
 import { routes } from './app.routes';
@@ -45,6 +50,7 @@ const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
     provideAnimationsAsync(),
