@@ -7,17 +7,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ItemService } from '@myrmidon/cadmus-api';
-
-import {
-  DataPinInfo,
-  IndexLookupDefinitions,
-  Item,
-  Part,
-} from '@myrmidon/cadmus-core';
 import { forkJoin, of, take } from 'rxjs';
 
-import { PinRefLookupService } from '../services/pin-ref-lookup.service';
+// material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -25,7 +17,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
+// bricks
 import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
+
+// cadmus
+import { ItemService } from '@myrmidon/cadmus-api';
+import {
+  DataPinInfo,
+  IndexLookupDefinitions,
+  Item,
+  Part,
+} from '@myrmidon/cadmus-core';
+
+// local
+import { PinRefLookupService } from '../services/pin-ref-lookup.service';
 
 // from Cadmus general parts
 const METADATA_PART_ID = 'it.vedph.metadata';
@@ -57,12 +62,14 @@ interface LookupInfo {
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    // material
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    // bricks
     RefLookupComponent,
   ],
 })

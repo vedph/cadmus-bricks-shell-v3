@@ -15,3 +15,7 @@ th {
   text-align: left;
   color: silver;
 }
+td.fit-width {
+  width: 1px;
+  white-space: nowrap;
+}

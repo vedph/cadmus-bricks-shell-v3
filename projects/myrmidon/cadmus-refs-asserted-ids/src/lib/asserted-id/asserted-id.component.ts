@@ -16,8 +16,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
+// material
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,12 +27,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 
-import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
+// bricks
 import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
 
+// cadmus
+import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
+
+// local
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
 import { ScopedPinLookupComponent } from '../scoped-pin-lookup/scoped-pin-lookup.component';
-import { Subscription } from 'rxjs';
 
 /**
  * An asserted ID.
@@ -53,12 +58,14 @@ export interface AssertedId {
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    // material
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    // bricks
     AssertionComponent,
     ScopedPinLookupComponent,
   ],

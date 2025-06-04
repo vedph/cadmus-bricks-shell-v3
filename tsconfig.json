@@ -1,18 +1,13 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@myrmidon/cadmus-cod-location": [
-        "./dist/myrmidon/cadmus-cod-location"
-      ],
+      "@myrmidon/cadmus-cod-location": ["./dist/myrmidon/cadmus-cod-location"],
       "@myrmidon/cadmus-img-annotator": [
         "./dist/myrmidon/cadmus-img-annotator"
       ],
-      "@myrmidon/cadmus-img-gallery": [
-        "./dist/myrmidon/cadmus-img-gallery"
-      ],
+      "@myrmidon/cadmus-img-gallery": ["./dist/myrmidon/cadmus-img-gallery"],
       "@myrmidon/cadmus-img-gallery-iiif": [
         "./dist/myrmidon/cadmus-img-gallery-iiif"
       ],
@@ -61,9 +56,7 @@
       "@myrmidon/cadmus-refs-historical-date": [
         "./dist/myrmidon/cadmus-refs-historical-date"
       ],
-      "@myrmidon/cadmus-refs-lookup": [
-        "./dist/myrmidon/cadmus-refs-lookup"
-      ],
+      "@myrmidon/cadmus-refs-lookup": ["./dist/myrmidon/cadmus-refs-lookup"],
       "@myrmidon/cadmus-refs-mufi-lookup": [
         "./dist/myrmidon/cadmus-refs-mufi-lookup"
       ],
@@ -85,24 +78,14 @@
       "@myrmidon/cadmus-text-block-view": [
         "./dist/myrmidon/cadmus-text-block-view"
       ],
-      "@myrmidon/cadmus-text-ed": [
-        "./dist/myrmidon/cadmus-text-ed"
-      ],
-      "@myrmidon/cadmus-text-ed-md": [
-        "./dist/myrmidon/cadmus-text-ed-md"
-      ],
-      "@myrmidon/cadmus-text-ed-txt": [
-        "./dist/myrmidon/cadmus-text-ed-txt"
-      ],
+      "@myrmidon/cadmus-text-ed": ["./dist/myrmidon/cadmus-text-ed"],
+      "@myrmidon/cadmus-text-ed-md": ["./dist/myrmidon/cadmus-text-ed-md"],
+      "@myrmidon/cadmus-text-ed-txt": ["./dist/myrmidon/cadmus-text-ed-txt"],
       "@myrmidon/cadmus-ui-custom-action-bar": [
         "./dist/myrmidon/cadmus-ui-custom-action-bar"
       ],
-      "@myrmidon/cadmus-ui-flag-set": [
-        "./dist/myrmidon/cadmus-ui-flag-set"
-      ],
-      "@myrmidon/cadmus-ui-note-set": [
-        "./dist/myrmidon/cadmus-ui-note-set"
-      ]
+      "@myrmidon/cadmus-ui-flag-set": ["./dist/myrmidon/cadmus-ui-flag-set"],
+      "@myrmidon/cadmus-ui-note-set": ["./dist/myrmidon/cadmus-ui-note-set"]
     },
     "outDir": "./dist/out-tsc",
     "strict": true,

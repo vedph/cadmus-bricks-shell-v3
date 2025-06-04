@@ -80,6 +80,8 @@
               "@angular/localize/init"
             ],
             "tsConfig": "tsconfig.spec.json",
+            "jestConfig": ["tsconfig.spec.json"],
+            "setupFile": ["src/setup-jest.ts"],
             "inlineStyleLanguage": "scss",
             "assets": [
               {
@@ -355,9 +357,11 @@
           "defaultConfiguration": "production"
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular-builders/jest:run",
           "options": {
             "tsConfig": "projects/myrmidon/cadmus-refs-assertion/tsconfig.spec.json",
+            "jestConfig": ["projects/myrmidon/cadmus-refs-assertion/jest.config.js"],
+            "setupFile": ["projects/myrmidon/cadmus-refs-assertion/src/setup-jest.ts"],
             "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
@@ -898,10 +902,7 @@
           "builder": "@angular/build:karma",
           "options": {
             "tsConfig": "projects/myrmidon/cadmus-refs-citation/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
       }
@@ -931,10 +932,7 @@
           "builder": "@angular/build:karma",
           "options": {
             "tsConfig": "projects/myrmidon/cadmus-refs-mufi-lookup/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
       }

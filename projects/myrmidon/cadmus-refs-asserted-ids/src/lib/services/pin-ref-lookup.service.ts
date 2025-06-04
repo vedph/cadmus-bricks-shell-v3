@@ -1,13 +1,18 @@
 import { Injectable } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 
-import { ItemService } from '@myrmidon/cadmus-api';
-import { DataPinInfo, IndexLookupDefinition } from '@myrmidon/cadmus-core';
+// myrmidon
+import { DataPage, ErrorWrapper } from '@myrmidon/ngx-tools';
+
+// bricks
 import {
   RefLookupFilter,
   RefLookupService,
 } from '@myrmidon/cadmus-refs-lookup';
-import { DataPage, ErrorWrapper } from '@myrmidon/ngx-tools';
+
+// cadmus
+import { ItemService } from '@myrmidon/cadmus-api';
+import { DataPinInfo, IndexLookupDefinition } from '@myrmidon/cadmus-core';
 
 /**
  * Pin-based lookup filter. This is a RefLookupFilter with the addition

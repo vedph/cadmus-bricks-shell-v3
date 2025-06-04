@@ -1,13 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
-import { ItemService } from '@myrmidon/cadmus-api';
-import { Item } from '@myrmidon/cadmus-core';
+// myrmidon
+import { DataPage } from '@myrmidon/ngx-tools';
+
+// bricks
 import {
   RefLookupFilter,
   RefLookupService,
 } from '@myrmidon/cadmus-refs-lookup';
-import { DataPage } from '@myrmidon/ngx-tools';
+
+// cadmus
+import { ItemService } from '@myrmidon/cadmus-api';
+import { Item } from '@myrmidon/cadmus-core';
 
 @Injectable({
   providedIn: 'root',

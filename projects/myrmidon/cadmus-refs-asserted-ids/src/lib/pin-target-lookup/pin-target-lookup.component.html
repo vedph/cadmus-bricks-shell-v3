@@ -53,19 +53,21 @@
 
   <!-- external lookup set -->
   @if (external.value && extLookupConfigs().length) {
-  <div>
+  <fieldset>
+    <legend>external lookup</legend>
     <cadmus-ref-lookup-set
       [configs]="extLookupConfigs()"
       (itemChange)="onExtItemChange($event)"
       (moreRequest)="onExtMoreRequest($event)"
       (configChange)="onExtConfigChange($any($event))"
-    ></cadmus-ref-lookup-set>
-  </div>
+    />
+  </fieldset>
   }
 
   <!-- BY ITEM -->
   @if (!external.value) {
-  <div>
+  <fieldset>
+    <legend>internal lookup</legend>
     <div class="form-row">
       @if (!byTypeMode.value) {
       <fieldset class="form-row">
@@ -75,7 +77,7 @@
           [service]="itemLookupService"
           label="item"
           (itemChange)="onItemLookupChange($event)"
-        ></cadmus-ref-lookup>
+        />
         <!-- part filter -->
         @if (itemParts.length) {
         <mat-form-field>
@@ -88,6 +90,7 @@
             }}</mat-option>
             }
           </mat-select>
+          <mat-hint>parts: {{ itemParts.length }}</mat-hint>
         </mat-form-field>
         }
       </fieldset>
@@ -95,7 +98,7 @@
       <!-- BY TYPE -->
       @if (byTypeMode.value) {
       <div>
-        <!-- par type filter -->
+        <!-- part type filter -->
         @if (partTypeKeys.length) {
         <mat-form-field>
           <mat-label>part type</mat-label>
@@ -137,10 +140,11 @@
           <!-- pin -->
           @if (lookupData?.pin?.value) {
           <tr>
-            <td>
+            <td class="fit-width">
               <button
                 type="button"
                 mat-icon-button
+                matTooltip="Copy value"
                 [cdkCopyToClipboard]="lookupData!.pin!.value"
                 (cdkCopyToClipboardCopied)="onCopied()"
               >
@@ -258,7 +262,7 @@
       </table>
     </mat-expansion-panel>
     }
-  </div>
+  </fieldset>
   }
 
   <!-- buttons -->

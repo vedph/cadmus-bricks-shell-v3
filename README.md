@@ -146,6 +146,11 @@ Remember to run these commands in your terminal from your project's root directo
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-06-04:
+  - refactored JEST config for tests.
+  - improvements in asserted IDs.
+  - fixed some dependencies versions.
+
 ### 9.0.2
 
 - 2025-06-03: fixes to asserted chronotope.

@@ -16,7 +16,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
+// material
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,20 +27,25 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+// myrmidon
 import { RamStorageService } from '@myrmidon/ngx-tools';
-import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
+
+// bricks
 import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
+
+// cadmus
+import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
 import {
   RefLookupConfig,
   RefLookupSetEvent,
 } from '@myrmidon/cadmus-refs-lookup';
 
+// local
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
 import {
   PinTarget,
   PinTargetLookupComponent,
 } from '../pin-target-lookup/pin-target-lookup.component';
-import { Subscription } from 'rxjs';
 
 /**
  * An asserted composite ID. This can be an external ID, having only the ID value
@@ -70,6 +77,7 @@ export const ASSERTED_COMPOSITE_ID_CONFIGS_KEY =
   styleUrls: ['./asserted-composite-id.component.css'],
   imports: [
     ReactiveFormsModule,
+    // material
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -77,7 +85,9 @@ export const ASSERTED_COMPOSITE_ID_CONFIGS_KEY =
     MatInputModule,
     MatSelectModule,
     MatTooltipModule,
+    // bricks
     AssertionComponent,
+    // local
     PinTargetLookupComponent,
   ],
 })

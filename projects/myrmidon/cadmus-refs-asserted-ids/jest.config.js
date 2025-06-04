@@ -1,4 +1,3 @@
-// projects/my-app/jest.config.js
 module.exports = {
   preset: "jest-preset-angular",
   setupFilesAfterEnv: ["<rootDir>/src/setup-jest.ts"],
@@ -14,11 +13,11 @@ module.exports = {
       ],
     },
   },
-  moduleNameMapper: {
-    "^@cadmus-bricks-shell-v3/(.*)$":
-      "<rootDir>/../../dist/cadmus-bricks-shell-v3/$1",
-  },
   transformIgnorePatterns: ["node_modules/(?!.*\\.mjs$)"],
-  displayName: "my-app",
-  coverageDirectory: "../../coverage/my-app",
+  displayName: "cadmus-refs-asserted-ids",
+  coverageDirectory: "../../coverage/cadmus-refs-asserted-ids",
+  moduleNameMapper: {
+    "^@myrmidon/(?!cadmus-api|cadmus-core|auth-jwt-login|ngx-tools|ngx-mat-tools)(.*)$":
+      "<rootDir>/../../../projects/myrmidon/$1/src/public-api",
+  },
 };

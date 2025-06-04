@@ -71,9 +71,7 @@
       <div>
         <mat-expansion-panel [(expanded)]="lookupExpanded">
           <mat-expansion-panel-header>lookup</mat-expansion-panel-header>
-          <cadmus-scoped-pin-lookup
-            (idPick)="onIdPick($event)"
-          ></cadmus-scoped-pin-lookup>
+          <cadmus-scoped-pin-lookup (idPick)="onIdPick($event)" />
         </mat-expansion-panel>
       </div>
       }
@@ -88,8 +86,7 @@
         [refTagEntries]="refTagEntries()"
         [assertion]="assertion.value || undefined"
         (assertionChange)="onAssertionChange($event)"
-      >
-      </cadmus-refs-assertion>
+      />
     </mat-expansion-panel>
   </div>
 

@@ -6,17 +6,21 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-
 import { take } from 'rxjs';
 
+// material
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+// myrmidon
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 
+// cadmus
+import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+
+// local
 import {
   AssertedId,
   AssertedIdComponent,
@@ -32,10 +36,12 @@ import {
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    // material
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
     MatTooltipModule,
+    // bricks
     AssertedIdComponent
 ],
 })

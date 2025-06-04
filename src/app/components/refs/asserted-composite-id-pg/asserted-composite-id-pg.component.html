@@ -26,8 +26,9 @@
       [canEditTarget]="canEditTarget.value"
       [id]="id"
       (idChange)="onIdChange($event)"
-    ></cadmus-refs-asserted-composite-id>
+    />
     @if (id) {
+    <hr />
     <div>
       <pre>{{ id | json }}</pre>
     </div>

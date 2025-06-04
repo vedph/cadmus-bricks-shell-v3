@@ -15,7 +15,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
+// material
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -24,12 +26,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
-import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+// bricks
 import {
   DocReference,
   DocReferencesComponent,
 } from '@myrmidon/cadmus-refs-doc-references';
-import { Subscription } from 'rxjs';
+
+// cadmus
+import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
 /**
  * An assertion with optional references.
@@ -51,6 +55,7 @@ export interface Assertion {
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    // material
     MatBadgeModule,
     MatButtonModule,
     MatExpansionModule,
@@ -58,6 +63,7 @@ export interface Assertion {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    // bricks
     DocReferencesComponent,
   ],
 })

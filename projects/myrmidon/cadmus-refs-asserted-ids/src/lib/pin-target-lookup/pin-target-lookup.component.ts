@@ -24,6 +24,30 @@ import {
   take,
 } from 'rxjs';
 
+// material
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+// myrmidon
+import { FlatLookupPipe } from '@myrmidon/ngx-tools';
+
+// bricks
+import {
+  RefLookupComponent,
+  RefLookupConfig,
+  RefLookupSetComponent,
+  RefLookupSetEvent,
+} from '@myrmidon/cadmus-refs-lookup';
+
+// cadmus
 import { ItemService, ThesaurusService } from '@myrmidon/cadmus-api';
 import {
   DataPinInfo,
@@ -34,29 +58,12 @@ import {
   ThesaurusEntry,
 } from '@myrmidon/cadmus-core';
 
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
-
-import {
-  RefLookupComponent,
-  RefLookupConfig,
-  RefLookupSetComponent,
-  RefLookupSetEvent,
-} from '@myrmidon/cadmus-refs-lookup';
-
+// local
 import {
   PinRefLookupFilter,
   PinRefLookupService,
 } from '../services/pin-ref-lookup.service';
 import { ItemRefLookupService } from '../services/item-ref-lookup.service';
-import { FlatLookupPipe } from '@myrmidon/ngx-tools';
 
 // from Cadmus general parts
 const METADATA_PART_ID = 'it.vedph.metadata';
@@ -108,6 +115,7 @@ export interface PinTarget {
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    // material
     ClipboardModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -116,9 +124,12 @@ export interface PinTarget {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatTooltipModule,
+    // myrmidon
+    FlatLookupPipe,
+    // bricks
     RefLookupComponent,
     RefLookupSetComponent,
-    FlatLookupPipe,
   ],
 })
 export class PinTargetLookupComponent implements OnInit, OnDestroy {
@@ -544,6 +555,8 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
    */
   public onItemLookupChange(item: unknown): void {
     if (!item) {
+      this.itemPart.setValue(null);
+      this.itemParts = [];
       return;
     }
     // load item's parts
