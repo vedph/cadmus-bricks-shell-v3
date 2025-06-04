@@ -324,13 +324,25 @@ There are different **options** to customize the lookup behavior:
   1. directly from the consumer code by setting `lookupDefinitions`;
   2. from injection, when (1) is not used;
   3. from thesaurus `model-types`, when (2) is empty.
-- set `pinByTypeMode` to true, to let the editor use in by-type mode instead of by-item;
+- set `pinByTypeMode` to true, to let the editor use by-type mode instead of by-item;
 - set `canSwitchMode` to true, to allow users switch between by-type and by-item modes;
 - set `canEditTarget` to true, to allow users edit the link target GID and label also for internal pins, where they are automatically provided by pin lookup.
 
 These options can be variously combined to force users to use a specific behavior only; for instance, if you just want by-type lookup and automatic GID/label, set `pinByTypeMode` to true and `canSwitchMode` and `canEditTarget` to false.
 
-Also, you can use any number of lookup components for external IDs. To globally configure all the asserted composite IDs components for this purpose, you can define (e.g. in your app's component constructor) an array of configuration objects keyed under `ASSERTED_COMPOSITE_ID_CONFIGS_KEY`.
+Also, you can use any number of lookup components for external IDs. To globally configure all the asserted composite IDs components for this purpose, you can define (e.g. in your app's component constructor) an array of configuration objects keyed under `ASSERTED_COMPOSITE_ID_CONFIGS_KEY`. Thus, this component provides many different ways for creating a link:
+
+- external:
+  - from 1 or more lookups
+  - manual
+  - both
+- internal:
+  - from pin lookup:
+    - filter by item
+    - filter by item's part
+    - lookup pin
+  - manual
+  - both
 
 Three components are used for this brick:
 
