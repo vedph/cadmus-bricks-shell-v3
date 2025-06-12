@@ -57,6 +57,7 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 
 - [@myrmidon/cadmus-refs-chronotope](projects/myrmidon/cadmus-refs-chronotope/README.md)
 - [@myrmidon/cadmus-refs-asserted-chronotope](projects/myrmidon/cadmus-refs-asserted-chronotope/README.md)
+- [@myrmidon/cadmus-refs-citation](projects/myrmidon/cadmus-refs-citation/README.md)
 - [@myrmidon/cadmus-refs-historical-date](projects/myrmidon/cadmus-refs-historical-date/README.md)
 
 - [@myrmidon/cadmus-refs-proper-name](projects/myrmidon/cadmus-refs-proper-name/README.md)
