@@ -126,6 +126,8 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-06-12: fixed default unit not honored when parsing size (`@myrmidon/mat-physical-size`).
+
 ### 9.0.3
 
 - 2025-06-04:

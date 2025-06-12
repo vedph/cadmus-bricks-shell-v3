@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -34,7 +34,7 @@ import {
     PhysicalSizePipe,
   ],
 })
-export class PhysicalSizePgComponent implements OnInit {
+export class PhysicalSizePgComponent {
   public size?: PhysicalSize;
   public defaultUnit = 'cm';
   public unitEntries: ThesaurusEntry[];
@@ -69,14 +69,12 @@ export class PhysicalSizePgComponent implements OnInit {
     ];
   }
 
-  ngOnInit(): void {}
-
   public onSizeChange(size?: PhysicalSize): void {
     this.size = size!;
   }
 
   public reset(): void {
-    this.defaultUnit = 'cm';
+    this.defaultUnit = this.defaultUnit === 'cm' ? 'mm' : 'cm';
     this.size = undefined;
   }
 }

@@ -127,15 +127,21 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     this.tag = formBuilder.control(null, Validators.maxLength(50));
 
     this.wValue = formBuilder.control(0, { nonNullable: true });
-    this.wUnit = formBuilder.control('cm', { nonNullable: true });
+    this.wUnit = formBuilder.control(this.defaultWUnit(), {
+      nonNullable: true,
+    });
     this.wTag = formBuilder.control(null, Validators.maxLength(50));
 
     this.hValue = formBuilder.control(0, { nonNullable: true });
-    this.hUnit = formBuilder.control('cm', { nonNullable: true });
+    this.hUnit = formBuilder.control(this.defaultHUnit(), {
+      nonNullable: true,
+    });
     this.hTag = formBuilder.control(null, Validators.maxLength(50));
 
     this.dValue = formBuilder.control(0, { nonNullable: true });
-    this.dUnit = formBuilder.control('cm', { nonNullable: true });
+    this.dUnit = formBuilder.control(this.defaultDUnit(), {
+      nonNullable: true,
+    });
     this.dTag = formBuilder.control(null, Validators.maxLength(50));
 
     this.note = formBuilder.control(null, Validators.maxLength(100));
@@ -232,7 +238,11 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     if (!this.text.value) {
       return;
     }
-    const size = PhysicalSizeParser.parse(this.text.value, this.hBeforeW());
+    const size = PhysicalSizeParser.parse(
+      this.text.value,
+      this.hBeforeW(),
+      this.hBeforeW() ? this.defaultHUnit() : this.defaultWUnit()
+    );
     if (size) {
       this.updateForm(size);
       this.size.set(size);
