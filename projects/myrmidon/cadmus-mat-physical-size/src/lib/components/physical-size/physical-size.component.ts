@@ -209,6 +209,16 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
       .subscribe((_) => {
         if (this._updating) {
           this._updating = false;
+          // update text even when _updating was true
+          if (
+            this.isModelValid(this.size()) &&
+            this.tag.valid &&
+            this.note.valid
+          ) {
+            this.text.setValue(
+              PhysicalSizeParser.toString(this.size()!, this.hBeforeW())
+            );
+          }
           return;
         }
         this.size.set(this.getSize());
@@ -424,8 +434,6 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
       this.form.markAsPristine();
       this.updateLabel();
     }
-
-    // this._updating = false;
   }
 
   private getDimension(

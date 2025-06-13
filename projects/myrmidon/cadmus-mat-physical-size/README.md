@@ -60,4 +60,5 @@ This component allows you to edit a set of physical measurements. For each one y
 
 ## History
 
+- 2025-06-13: fix to default units.
 - 2025-01-27: fix to physical measurement set.
