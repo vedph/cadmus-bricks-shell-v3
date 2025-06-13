@@ -25,7 +25,7 @@ export class PhysicalSizeParser {
   // 8*: value3, 9: unit3, 10: tag3
   // 11: note
   private static readonly _r =
-    /^\s*(?:\(([^)]+)\))?\s*([0-9]+(?:[\.,][0-9]+)?)(?:\s*([^(x×\s]+))?(?:\s*\(([^)]+)\))?\s*[x×]\s*\s*([0-9]+(?:[\.,][0-9]+)?)(?:\s*([^(x×\s]+))?(?:\s*\(([^)]+)\))?(?:\s*[x×]\s*\s*([0-9]+(?:[\.,][0-9]+)?)(?:\s*([^(x×\s]+))?(?:\s*\(([^)]+)\))?)?(?:\s*\{([^}]+)\})?/;
+    /^\s*(?:\(([^)]+)\))?\s*([0-9]+(?:[\.,][0-9]+)?)(?:\s*([^(x×\s]+))?(?:\s*\(([^)]+)\))?\s*[x×]\s*([0-9]+(?:[\.,][0-9]+)?)(?:\s*([^(x×\s]+))?(?:\s*\(([^)]+)\))?(?:\s*[x×]\s*([0-9]+(?:[\.,][0-9]+)?)(?:\s*([^(x×\s]+))?(?:\s*\(([^)]+)\))?)?(?:\s*\{([^}]+)\})?/;
 
   /**
    * Parse the received text and return a PhysicalSize object.
@@ -40,7 +40,7 @@ export class PhysicalSizeParser {
     hBeforeW = false,
     defaultUnit = 'cm'
   ): PhysicalSize | null {
-    if (!text) {
+    if (!text?.trim()) {
       return null;
     }
     const m = PhysicalSizeParser._r.exec(text);
@@ -58,23 +58,23 @@ export class PhysicalSizeParser {
     // WxH or HxW
     if (hBeforeW) {
       size.h = {
-        value: parseFloat(m[2]),
+        value: parseFloat(m[2].replace(',', '.')),
         unit: m[3] || defaultUnit,
         tag: m[4],
       };
       size.w = {
-        value: parseFloat(m[5]),
+        value: parseFloat(m[5].replace(',', '.')),
         unit: m[6] || size.h.unit || defaultUnit,
         tag: m[7],
       };
     } else {
       size.w = {
-        value: parseFloat(m[2]),
+        value: parseFloat(m[2].replace(',', '.')),
         unit: m[3] || defaultUnit,
         tag: m[4],
       };
       size.h = {
-        value: parseFloat(m[5]),
+        value: parseFloat(m[5].replace(',', '.')),
         unit: m[6] || size.w.unit || defaultUnit,
         tag: m[7],
       };
@@ -83,7 +83,7 @@ export class PhysicalSizeParser {
     // D if any
     if (m[8]) {
       size.d = {
-        value: parseFloat(m[8]),
+        value: parseFloat(m[8].replace(',', '.')),
         unit: m[9] || (hBeforeW ? size.w.unit : size.h.unit) || defaultUnit,
         tag: m[10],
       };
@@ -108,7 +108,7 @@ export class PhysicalSizeParser {
     size?: PhysicalSize | null,
     hBeforeW = false
   ): string | null {
-    if (!size?.w || !size.h) {
+    if (!size?.w?.value || !size?.h?.value) {
       return null;
     }
     const sb: string[] = [];
@@ -135,20 +135,20 @@ export class PhysicalSizeParser {
           size.h.tag ? ` (${size.h.tag})` : ''
         }`
       );
+    }
 
-      // D if any
-      if (size.d) {
-        sb.push(
-          ` x ${size.d.value}${size.d.unit}${
-            size.d.tag ? ` (${size.d.tag})` : ''
-          }`
-        );
-      }
+    // D if any
+    if (size.d?.value) {
+      sb.push(
+        ` x ${size.d.value}${size.d.unit}${
+          size.d.tag ? ` (${size.d.tag})` : ''
+        }`
+      );
+    }
 
-      // note if any
-      if (size.note) {
-        sb.push(` {${size.note}}`);
-      }
+    // note if any
+    if (size.note) {
+      sb.push(` {${size.note}}`);
     }
 
     return sb.join('');
