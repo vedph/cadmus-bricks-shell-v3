@@ -64,7 +64,6 @@ export interface PhysicalSize {
 })
 export class PhysicalSizeComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
-  private _updating?: boolean;
 
   /**
    * The size to edit.
@@ -171,28 +170,24 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
 
     // when size changes, update form
     effect(() => {
-      this.updateForm(this.size());
+      const size = this.size();
+      console.log('size', size);
+      this.updateForm(size);
     });
 
     // when defaultWUnit changes, update control
     effect(() => {
-      if (!this.wValue.value) {
-        this.wUnit.setValue(this.defaultWUnit());
-      }
+      this.wUnit.setValue(this.defaultWUnit());
     });
 
     // when defaultHUnit changes, update control
     effect(() => {
-      if (!this.hValue.value) {
-        this.hUnit.setValue(this.defaultHUnit());
-      }
+      this.hUnit.setValue(this.defaultHUnit());
     });
 
     // when defaultDUnit changes, update control
     effect(() => {
-      if (!this.dValue.value) {
-        this.dUnit.setValue(this.defaultDUnit());
-      }
+      this.dUnit.setValue(this.defaultDUnit());
     });
 
     // when hBeforeW changes, update text
@@ -207,22 +202,7 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     this._sub = this.form.valueChanges
       .pipe(distinctUntilChanged(), debounceTime(400))
       .subscribe((_) => {
-        if (this._updating) {
-          this._updating = false;
-          // update text even when _updating was true
-          if (
-            this.isModelValid(this.size()) &&
-            this.tag.valid &&
-            this.note.valid
-          ) {
-            this.text.setValue(
-              PhysicalSizeParser.toString(this.size()!, this.hBeforeW())
-            );
-          }
-          return;
-        }
         this.size.set(this.getSize());
-
         if (
           this.isModelValid(this.size()) &&
           this.tag.valid &&
@@ -385,50 +365,48 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
   }
 
   private resetUnits(): void {
-    this.wUnit.setValue(this.defaultWUnit());
-    this.hUnit.setValue(this.defaultHUnit());
-    this.dUnit.setValue(this.defaultDUnit());
+    this.wUnit.setValue(this.defaultWUnit(), { emitEvent: false });
+    this.hUnit.setValue(this.defaultHUnit(), { emitEvent: false });
+    this.dUnit.setValue(this.defaultDUnit(), { emitEvent: false });
   }
 
   private updateForm(model?: PhysicalSize | null): void {
-    this._updating = true;
-
     if (!model) {
-      this.form.reset();
+      this.form.reset({ emitEvent: false });
       this.resetUnits();
       this.label = undefined;
     } else {
-      this.tag.setValue(model.tag || null);
-      this.note.setValue(model.note || null);
+      this.tag.setValue(model.tag || null, { emitEvent: false });
+      this.note.setValue(model.note || null, { emitEvent: false });
 
       if (model.w?.value) {
-        this.wValue.setValue(model.w.value);
-        this.wUnit.setValue(model.w.unit);
-        this.wTag.setValue(model.w.tag || null);
+        this.wValue.setValue(model.w.value, { emitEvent: false });
+        this.wUnit.setValue(model.w.unit, { emitEvent: false });
+        this.wTag.setValue(model.w.tag || null, { emitEvent: false });
       } else {
-        this.wValue.reset();
-        this.wUnit.setValue(this.defaultWUnit());
-        this.wTag.reset();
+        this.wValue.reset(undefined, { emitEvent: false });
+        this.wUnit.setValue(this.defaultWUnit(), { emitEvent: false });
+        this.wTag.reset(undefined, { emitEvent: false });
       }
 
       if (model.h?.value) {
-        this.hValue.setValue(model.h.value);
-        this.hUnit.setValue(model.h.unit);
-        this.hTag.setValue(model.h.tag || null);
+        this.hValue.setValue(model.h.value, { emitEvent: false });
+        this.hUnit.setValue(model.h.unit, { emitEvent: false });
+        this.hTag.setValue(model.h.tag || null, { emitEvent: false });
       } else {
-        this.hValue.reset();
-        this.hUnit.setValue(this.defaultHUnit());
-        this.hTag.reset();
+        this.hValue.reset(undefined, { emitEvent: false });
+        this.hUnit.setValue(this.defaultHUnit(), { emitEvent: false });
+        this.hTag.reset(undefined, { emitEvent: false });
       }
 
       if (model.d?.value) {
-        this.dValue.setValue(model.d.value);
-        this.dUnit.setValue(model.d.unit);
-        this.dTag.setValue(model.d.tag || null);
+        this.dValue.setValue(model.d.value, { emitEvent: false });
+        this.dUnit.setValue(model.d.unit, { emitEvent: false });
+        this.dTag.setValue(model.d.tag || null, { emitEvent: false });
       } else {
-        this.dValue.reset();
-        this.dUnit.setValue(this.defaultDUnit());
-        this.dTag.reset();
+        this.dValue.reset(undefined, { emitEvent: false });
+        this.dUnit.setValue(this.defaultDUnit(), { emitEvent: false });
+        this.dTag.reset(undefined, { emitEvent: false });
       }
 
       this.form.markAsPristine();

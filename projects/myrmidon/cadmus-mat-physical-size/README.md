@@ -9,6 +9,15 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 This component allows you to edit a 2D or 3D physical size.
 
+The component has two editing modes: textual and visual:
+
+- in textual mode, you just type the size following a conventional syntax, and parse it by clicking a button. If the text is valid, the visual counterpart will be automatically populated.
+- in visual mode, you edit each dimension value, unit, and tag, plus optionally the size's tag. Whenever you make a change in visual mode, the textual counterpart is updated.
+
+In both modes, every change (i.e. saving text using the button in text mode, or just changing control values in visual mode) triggers an output event for the size being edited.
+
+>Note that depth is optional; when not set, its value will be displayed as 0 in the visual editor, and be missing from the text editor.
+
 - 🚩 `cadmus-mat-physical-size`
 - 🔑 `PhysicalSizeComponent`
 - 📚 thesauri:
@@ -60,5 +69,7 @@ This component allows you to edit a set of physical measurements. For each one y
 
 ## History
 
-- 2025-06-13: fix to default units.
+### 9.0.3
+
+- 2025-06-13: refactored physical size.
 - 2025-01-27: fix to physical measurement set.

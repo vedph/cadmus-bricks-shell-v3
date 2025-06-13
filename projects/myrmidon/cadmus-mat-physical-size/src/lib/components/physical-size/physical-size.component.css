@@ -1,7 +1,9 @@
 .label {
   margin: 0 8px;
+  margin-top: -12px;
   padding: 4px;
-  background: #c3e2f6;
+  background: #f0f0f0;
+  color: #a0a0a0;
   border-radius: 8px;
 }
 .form-row {
