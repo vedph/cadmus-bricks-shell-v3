@@ -137,7 +137,25 @@
           <th>value</th>
         </thead>
         <tbody>
-          <!-- pin -->
+          <!-- pin name -->
+          @if (lookupData?.pin?.name) {
+          <tr>
+            <td class="fit-width">
+              <button
+                type="button"
+                mat-icon-button
+                matTooltip="Copy value"
+                [cdkCopyToClipboard]="lookupData!.pin!.name"
+                (cdkCopyToClipboardCopied)="onCopied()"
+              >
+                <mat-icon class="mat-primary">content_copy</mat-icon>
+              </button>
+            </td>
+            <td>pin name</td>
+            <td>{{ lookupData!.pin.name }}</td>
+          </tr>
+          }
+          <!-- pin value -->
           @if (lookupData?.pin?.value) {
           <tr>
             <td class="fit-width">
@@ -151,7 +169,7 @@
                 <mat-icon class="mat-primary">content_copy</mat-icon>
               </button>
             </td>
-            <td>pin</td>
+            <td>pin value</td>
             <td>{{ lookupData!.pin.value }}</td>
           </tr>
           }

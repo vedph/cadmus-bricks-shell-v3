@@ -16,6 +16,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
   - [History](#history)
+    - [10.0.3](#1003)
     - [10.0.2](#1002)
     - [10.0.0](#1000)
     - [9.0.0](#900)
@@ -374,6 +375,10 @@ A collection of asserted composite IDs.
   - idsChange (`AssertedCompositeId[]`)
 
 ## History
+
+### 10.0.3
+
+- 2025-06-13: added pin name in pin info.
 
 ### 10.0.2
 

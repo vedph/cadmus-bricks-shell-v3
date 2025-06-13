@@ -126,6 +126,7 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-06-13: added pin name to asserted composite ID lookup info (`@myrmidon/cadmus-refs-asserted-ids`).
 - 2025-06-12: fixed default unit not honored when parsing size (`@myrmidon/mat-physical-size`).
 
 ### 9.0.3
