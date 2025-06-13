@@ -69,6 +69,10 @@ This component allows you to edit a set of physical measurements. For each one y
 
 ## History
 
+### 9.0.4
+
+- 2025-06-13: set text after form update in size.
+
 ### 9.0.3
 
 - 2025-06-13: refactored physical size.

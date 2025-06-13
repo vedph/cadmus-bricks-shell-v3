@@ -192,9 +192,12 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
 
     // when hBeforeW changes, update text
     effect(() => {
-      this.text.setValue(
-        PhysicalSizeParser.toString(this.size(), this.hBeforeW())
-      );
+      setTimeout(() => {
+        this.text.setValue(
+          PhysicalSizeParser.toString(this.size(), this.hBeforeW()),
+          { emitEvent: false }
+        );
+      }, 0);
     });
   }
 
@@ -209,9 +212,13 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
           this.note.valid
         ) {
           this.updateLabel();
-          this.text.setValue(
-            PhysicalSizeParser.toString(this.size()!, this.hBeforeW())
-          );
+          // update text
+          setTimeout(() => {
+            this.text.setValue(
+              PhysicalSizeParser.toString(this.size()!, this.hBeforeW()),
+              { emitEvent: false }
+            );
+          }, 0);
         }
       });
   }
