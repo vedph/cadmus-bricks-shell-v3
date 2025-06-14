@@ -60,24 +60,34 @@ export class PhysicalSizeParser {
       size.h = {
         value: parseFloat(m[2].replace(',', '.')),
         unit: m[3] || defaultUnit,
-        tag: m[4],
       };
+      if (m[4]) {
+        size.h.tag = m[4];
+      }
+
       size.w = {
         value: parseFloat(m[5].replace(',', '.')),
         unit: m[6] || size.h.unit || defaultUnit,
-        tag: m[7],
       };
+      if (m[7]) {
+        size.w.tag = m[7];
+      }
     } else {
       size.w = {
         value: parseFloat(m[2].replace(',', '.')),
         unit: m[3] || defaultUnit,
-        tag: m[4],
       };
+      if (m[4]) {
+        size.w.tag = m[4];
+      }
+
       size.h = {
         value: parseFloat(m[5].replace(',', '.')),
         unit: m[6] || size.w.unit || defaultUnit,
-        tag: m[7],
       };
+      if (m[7]) {
+        size.h.tag = m[7];
+      }
     }
 
     // D if any
@@ -85,8 +95,10 @@ export class PhysicalSizeParser {
       size.d = {
         value: parseFloat(m[8].replace(',', '.')),
         unit: m[9] || (hBeforeW ? size.w.unit : size.h.unit) || defaultUnit,
-        tag: m[10],
       };
+      if (m[10]) {
+        size.d.tag = m[10];
+      }
     }
 
     // note if any
@@ -108,7 +120,12 @@ export class PhysicalSizeParser {
     size?: PhysicalSize | null,
     hBeforeW = false
   ): string | null {
-    if (!size?.w?.value || !size?.h?.value) {
+    if (
+      !size?.w?.value ||
+      !size?.h?.value ||
+      !size?.h?.unit ||
+      !size?.w?.unit
+    ) {
       return null;
     }
     const sb: string[] = [];

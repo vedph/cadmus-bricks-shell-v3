@@ -69,6 +69,12 @@ This component allows you to edit a set of physical measurements. For each one y
 
 ## History
 
+### 9.0.5
+
+- 2025-06-14:
+  - fixes to physical size parser `toString`.
+  - more tests for physical size parser.
+
 ### 9.0.4
 
 - 2025-06-13: set text after form update in size.
