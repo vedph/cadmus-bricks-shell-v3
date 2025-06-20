@@ -44,6 +44,14 @@ th {
 .form-row * {
   flex: 0 0 auto;
 }
+/* make the GID container take remaining space */
+#gid-container {
+  flex: 1 1 auto;
+}
+
+#gid-container mat-form-field {
+  width: 100%;
+}
 .button-row {
   display: flex;
   align-items: center;

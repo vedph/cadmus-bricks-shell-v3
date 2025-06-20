@@ -264,7 +264,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
 
     // when pinByTypeMode changes, adjust form
     effect(() => {
-      if (!this.byTypeMode) {
+      if (!this.byTypeMode.value) {
         this._startWithByTypeMode = this.pinByTypeMode();
       } else {
         this.byTypeMode.setValue(this.pinByTypeMode() || false, {

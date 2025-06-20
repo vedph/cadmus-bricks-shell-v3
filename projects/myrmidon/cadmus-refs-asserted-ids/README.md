@@ -376,6 +376,10 @@ A collection of asserted composite IDs.
 
 ## History
 
+- 2025-06-20:
+  - updated Angular and packages.
+  - minor refactoring in asserted composite ID reactivity (`@myrmidon/cadmus-refs-asserted-ids`).
+
 ### 10.0.3
 
 - 2025-06-13: added pin name in pin info.

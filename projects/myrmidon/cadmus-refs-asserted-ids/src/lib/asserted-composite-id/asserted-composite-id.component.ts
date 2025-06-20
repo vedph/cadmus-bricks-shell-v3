@@ -1,13 +1,4 @@
-import {
-  Component,
-  effect,
-  Inject,
-  input,
-  model,
-  OnDestroy,
-  OnInit,
-  output,
-} from '@angular/core';
+import { Component, effect, Inject, input, model, output } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -15,8 +6,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { debounceTime } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import { debounceTime, filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // material
 import { MatButtonModule } from '@angular/material/button';
@@ -84,8 +75,7 @@ export interface AssertedCompositeId {
     PinTargetLookupComponent,
   ],
 })
-export class AssertedCompositeIdComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
+export class AssertedCompositeIdComponent {
   private _updatingForm: boolean | undefined;
 
   public extLookupConfigs: RefLookupConfig[];
@@ -195,22 +185,21 @@ export class AssertedCompositeIdComponent implements OnInit, OnDestroy {
 
     // when id changes, update form
     effect(() => {
-      this.updateForm(this.id());
+      const id = this.id();
+      this.updateForm(id);
     });
-  }
 
-  public ngOnInit(): void {
-    this._sub = this.form.valueChanges
-      .pipe(debounceTime(300))
+    // when form changes, emit id change
+    this.form.valueChanges
+      .pipe(
+        // react only on user changes, when form is valid
+        filter(() => !this._updatingForm && this.form.valid),
+        debounceTime(300),
+        takeUntilDestroyed()
+      )
       .subscribe((_) => {
-        if (!this._updatingForm) {
-          this.emitIdChange();
-        }
+        this.emitIdChange();
       });
-  }
-
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
   }
 
   public onAssertionChange(assertion: Assertion | undefined): void {
@@ -231,10 +220,10 @@ export class AssertedCompositeIdComponent implements OnInit, OnDestroy {
     if (!id) {
       this.form.reset();
     } else {
-      this.target.setValue(id.target);
-      this.scope.setValue(id.scope || null);
-      this.tag.setValue(id.tag || null);
-      this.assertion.setValue(id.assertion || null);
+      this.target.setValue(id.target, { emitEvent: false });
+      this.scope.setValue(id.scope || null, { emitEvent: false });
+      this.tag.setValue(id.tag || null, { emitEvent: false });
+      this.assertion.setValue(id.assertion || null, { emitEvent: false });
       this.form.markAsPristine();
     }
     this._updatingForm = false;
