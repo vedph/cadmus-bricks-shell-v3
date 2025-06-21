@@ -49,8 +49,8 @@ export class AssertedCompositeIdsPgComponent implements OnInit {
   constructor(formBuilder: FormBuilder) {
     // form
     this.pinByTypeMode = formBuilder.control(false, { nonNullable: true });
-    this.canSwitchMode = formBuilder.control(false, { nonNullable: true });
-    this.canEditTarget = formBuilder.control(false, { nonNullable: true });
+    this.canSwitchMode = formBuilder.control(true, { nonNullable: true });
+    this.canEditTarget = formBuilder.control(true, { nonNullable: true });
     this.internalDefault = formBuilder.control(false, { nonNullable: true });
     this.form = formBuilder.group({
       pinByTypeMode: this.pinByTypeMode,

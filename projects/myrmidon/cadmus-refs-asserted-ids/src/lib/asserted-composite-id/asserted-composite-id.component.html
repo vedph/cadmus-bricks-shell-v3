@@ -98,12 +98,7 @@
   <!-- buttons -->
   @if (hasSubmit()) {
   <div>
-    <button
-      mat-icon-button
-      type="button"
-      (click)="cancel()"
-      [disabled]="!this.target.value?.gid || !this.target.value?.label"
-    >
+    <button mat-icon-button type="button" (click)="cancel()">
       <mat-icon class="mat-warn">close</mat-icon>
     </button>
     <button mat-icon-button type="submit" [disabled]="form.invalid">

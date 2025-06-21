@@ -20,9 +20,11 @@ import {
   Subscription,
   debounceTime,
   distinctUntilChanged,
+  filter,
   forkJoin,
   take,
 } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // material
 import { ClipboardModule } from '@angular/cdk/clipboard';
@@ -41,10 +43,10 @@ import { FlatLookupPipe } from '@myrmidon/ngx-tools';
 
 // bricks
 import {
+  RefLookupSetEvent,
   RefLookupComponent,
   RefLookupConfig,
   RefLookupSetComponent,
-  RefLookupSetEvent,
 } from '@myrmidon/cadmus-refs-lookup';
 
 // cadmus
@@ -134,8 +136,7 @@ export interface PinTarget {
 })
 export class PinTargetLookupComponent implements OnInit, OnDestroy {
   private readonly _subs: Subscription[] = [];
-  private _noTargetUpdate?: boolean;
-  private _noFormUpdate?: boolean;
+  private _updatingForm = false;
   private _startWithByTypeMode?: boolean;
 
   /**
@@ -264,25 +265,30 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
 
     // when pinByTypeMode changes, adjust form
     effect(() => {
-      if (!this.byTypeMode.value) {
-        this._startWithByTypeMode = this.pinByTypeMode();
-      } else {
-        this.byTypeMode.setValue(this.pinByTypeMode() || false, {
-          emitEvent: false,
-        });
-        this.byTypeMode.updateValueAndValidity();
+      if (!this._updatingForm) {
+        if (!this.byTypeMode.value) {
+          this._startWithByTypeMode = this.pinByTypeMode();
+        } else {
+          this.byTypeMode.setValue(this.pinByTypeMode() || false, {
+            emitEvent: false,
+          });
+          this.byTypeMode.updateValueAndValidity();
+        }
       }
     });
 
     // when target changes, update form
     effect(() => {
-      if (this._noFormUpdate) {
-        this._noFormUpdate = false;
-        return;
-      }
-      console.log('target changed', this.target());
-      this.updateForm(this.target());
+      const target = this.target();
+      console.log('target changed', target);
+      this.updateForm(target);
     });
+  }
+
+  private emitTargetChange(): void {
+    if (!this._updatingForm) {
+      this.target.set(this.getTarget());
+    }
   }
 
   private forceByItem(): void {
@@ -476,14 +482,12 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   }
 
   private emitChange(): void {
-    this._noFormUpdate = true;
     this.target.set(this.getTarget());
   }
 
-  private updateTarget(noEmit = false): void {
-    if (this._noTargetUpdate) {
-      return;
-    }
+  private updateTarget(suppressEmit = false): void {
+    this._updatingForm = true;
+
     if (!this.external.value) {
       this.gid.setValue(this.buildGid());
       this.gid.updateValueAndValidity();
@@ -492,58 +496,82 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       this.label.updateValueAndValidity();
       this.label.markAsDirty();
     }
-    if (!noEmit) {
-      this.emitChange();
+
+    this._updatingForm = false;
+
+    if (!suppressEmit) {
+      this.emitTargetChange();
+    }
+  }
+
+  private updateTargetFromData(): void {
+    // Update GID and label without emitting changes
+    if (!this.external.value) {
+      this.gid.setValue(this.buildGid(), { emitEvent: false });
+      this.gid.updateValueAndValidity();
+      this.label.setValue(this.buildLabel(), { emitEvent: false });
+      this.label.updateValueAndValidity();
     }
   }
 
   private updateForm(target?: PinTarget): void {
-    // build pin info from target
-    if (!target) {
-      this.lookupData = undefined;
-      this.item.reset();
-      this.itemPart.reset();
-      this.gid.reset();
-      this.label.reset();
-      return;
-    }
-    this._noTargetUpdate = true;
-    this.gid.setValue(target.gid || '', { emitEvent: false });
-    this.label.setValue(target.label || '', { emitEvent: false });
-    this.lookupData = {
-      pin: {
-        itemId: target.itemId || '',
-        partId: target.partId || '',
-        partTypeId: target.partTypeId || '',
-        roleId: target.roleId || '',
-        name: target.name || '',
-        value: target.value || '',
-      },
-    };
-    // get item
-    if (target.itemId) {
-      this._itemService.getItem(target.itemId, true, true).subscribe({
-        next: (item) => {
-          this.item.setValue(item, { emitEvent: false });
-          this.form.markAsPristine();
-          this._noTargetUpdate = false;
-          this.external.setValue(!target.name, { emitEvent: false });
-          this.updateTarget();
+    this._updatingForm = true;
+
+    try {
+      // build pin info from target
+      if (!target) {
+        this.lookupData = undefined;
+        this.item.reset();
+        this.itemPart.reset();
+        this.gid.reset();
+        this.label.reset();
+        return;
+      }
+
+      this.gid.setValue(target.gid || '', { emitEvent: false });
+      this.label.setValue(target.label || '', { emitEvent: false });
+      this.lookupData = {
+        pin: {
+          itemId: target.itemId || '',
+          partId: target.partId || '',
+          partTypeId: target.partTypeId || '',
+          roleId: target.roleId || '',
+          name: target.name || '',
+          value: target.value || '',
         },
-        error: (error) => {
-          if (error) {
-            console.error('Item service error', error);
-          }
-          this.external.setValue(!target.name, { emitEvent: false });
-          this._noTargetUpdate = false;
-        },
-      });
-    } else {
-      this.external.setValue(!target.name && !this.internalDefault(), {
-        emitEvent: false,
-      });
-      this._noTargetUpdate = false;
-      this.updateTarget();
+      };
+
+      // get item
+      if (target.itemId) {
+        this._itemService.getItem(target.itemId, true, true).subscribe({
+          next: (item) => {
+            this._updatingForm = true;
+            this.item.setValue(item, { emitEvent: false });
+            this.form.markAsPristine();
+            this.external.setValue(!target.name, { emitEvent: false });
+            this.updateTargetFromData();
+            this._updatingForm = false;
+          },
+          error: (error) => {
+            if (error) {
+              console.error('Item service error', error);
+            }
+            this._updatingForm = true;
+            this.external.setValue(!target.name, { emitEvent: false });
+            this._updatingForm = false;
+          },
+        });
+      } else {
+        this.external.setValue(!target.name && !this.internalDefault(), {
+          emitEvent: false,
+        });
+        this.updateTargetFromData();
+      }
+    } finally {
+      // Ensure flag is reset even if there's an error
+      if (!target?.itemId) {
+        this._updatingForm = false;
+      }
     }
   }
 
@@ -564,7 +592,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       next: (i) => {
         // setting the item will trigger its parts update
         this.item.setValue(i);
-        this.updateTarget(true);
+        this.updateTarget(true); // suppress emit to avoid double emission
       },
       error: (error) => {
         if (error) {
@@ -572,7 +600,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         }
         this.itemPart.setValue(null);
         this.itemParts = [];
-        this.updateTarget(true);
+        this.updateTarget(true); // suppress emit to avoid double emission
       },
     });
   }
@@ -598,7 +626,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
             item: result.item!,
             metaPart: result.part as MetadataPart,
           };
-          this.updateTarget(true);
+          this.updateTarget(true); // suppress emit to avoid double emission
         },
         error: (error) => {
           this.lookupData = undefined;
@@ -622,6 +650,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
 
   public onExtItemChange(event: RefLookupSetEvent): void {
     if (event.item) {
+      this._updatingForm = true;
       setTimeout(() => {
         this.gid.setValue(event.itemId);
         this.gid.updateValueAndValidity();
@@ -630,6 +659,8 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         this.label.setValue(event.itemLabel);
         this.label.updateValueAndValidity();
         this.label.markAsDirty();
+
+        this._updatingForm = false;
       });
     }
   }
@@ -654,9 +685,9 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
 
   public save(): void {
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
-    this.target.set(this.getTarget());
-    this.emitChange();
+    this.emitTargetChange();
   }
 }
