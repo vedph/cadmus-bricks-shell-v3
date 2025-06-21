@@ -16,6 +16,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
   - [History](#history)
+    - [10.0.4](#1004)
     - [10.0.3](#1003)
     - [10.0.2](#1002)
     - [10.0.0](#1000)
@@ -376,6 +377,9 @@ A collection of asserted composite IDs.
 
 ## History
 
+### 10.0.4
+
+- 2025-06-21: fixes to asserted composite IDs.
 - 2025-06-20:
   - updated Angular and packages.
   - minor refactoring in asserted composite ID reactivity (`@myrmidon/cadmus-refs-asserted-ids`).
