@@ -109,12 +109,6 @@ export class AssertedCompositeIdsComponent {
   public readonly defaultPartTypeKey = input<string>();
 
   /**
-   * True if when a new ID is set it should be internal rather than
-   * external by default.
-   */
-  public readonly internalDefault = input<boolean>();
-
-  /**
    * Emitted whenever any ID changes.
    */
   public readonly idsChange = output<AssertedCompositeId[]>();

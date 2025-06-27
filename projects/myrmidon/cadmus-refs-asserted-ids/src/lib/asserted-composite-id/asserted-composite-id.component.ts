@@ -108,12 +108,6 @@ export class AssertedCompositeIdComponent {
   public readonly id = model<AssertedCompositeId>();
 
   /**
-   * True if when a new ID is set it should be internal rather than
-   * external by default.
-   */
-  public readonly internalDefault = input<boolean>();
-
-  /**
    * True if the UI has a submit button.
    */
   public readonly hasSubmit = input<boolean>();

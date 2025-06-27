@@ -169,12 +169,6 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   public readonly extLookupConfigs = input<RefLookupConfig[]>([]);
 
   /**
-   * True if when a new target is set it should be internal rather than
-   * external by default.
-   */
-  public readonly internalDefault = input<boolean>();
-
-  /**
    * The target to be edited.
    */
   public readonly target = model<PinTarget>();
@@ -518,7 +512,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     this._updatingForm = true;
 
     try {
-      // build pin info from target
+      // reset if no target
       if (!target) {
         this.lookupData = undefined;
         this.item.reset();
@@ -528,8 +522,10 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         return;
       }
 
+      // set gid and label
       this.gid.setValue(target.gid || '', { emitEvent: false });
       this.label.setValue(target.label || '', { emitEvent: false });
+      // reset lookup
       this.lookupData = {
         pin: {
           itemId: target.itemId || '',
@@ -541,14 +537,14 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         },
       };
 
-      // get item
+      // if target is internal, get item
       if (target.itemId) {
         this._itemService.getItem(target.itemId, true, true).subscribe({
           next: (item) => {
             this._updatingForm = true;
             this.item.setValue(item, { emitEvent: false });
             this.form.markAsPristine();
-            this.external.setValue(!target.name, { emitEvent: false });
+            this.external.setValue(false, { emitEvent: false });
             this.updateTargetFromData();
             this._updatingForm = false;
           },
@@ -557,18 +553,18 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
               console.error('Item service error', error);
             }
             this._updatingForm = true;
-            this.external.setValue(!target.name, { emitEvent: false });
+            this.external.setValue(false, { emitEvent: false });
             this._updatingForm = false;
           },
         });
       } else {
-        this.external.setValue(!target.name && !this.internalDefault(), {
+        this.external.setValue(true, {
           emitEvent: false,
         });
         this.updateTargetFromData();
       }
     } finally {
-      // Ensure flag is reset even if there's an error
+      // ensure flag is reset even if there's an error
       if (!target?.itemId) {
         this._updatingForm = false;
       }

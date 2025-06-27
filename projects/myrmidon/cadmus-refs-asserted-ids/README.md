@@ -16,6 +16,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
   - [History](#history)
+    - [10.0.5](#1005)
     - [10.0.4](#1004)
     - [10.0.3](#1003)
     - [10.0.2](#1002)
@@ -376,6 +377,12 @@ A collection of asserted composite IDs.
   - idsChange (`AssertedCompositeId[]`)
 
 ## History
+
+### 10.0.5
+
+- 2025-06-27:
+  - fixes to asserted composite IDs.
+  - removed `internalDefault` from this component which did no longer make sense.
 
 ### 10.0.4
 

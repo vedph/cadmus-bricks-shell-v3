@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -31,7 +31,7 @@ import {
     AssertedCompositeIdComponent,
   ],
 })
-export class AssertedCompositeIdPgComponent implements OnInit {
+export class AssertedCompositeIdPgComponent {
   // form
   public pinByTypeMode: FormControl<boolean>;
   public canSwitchMode: FormControl<boolean>;
@@ -50,6 +50,7 @@ export class AssertedCompositeIdPgComponent implements OnInit {
     this.pinByTypeMode = formBuilder.control(false, { nonNullable: true });
     this.canSwitchMode = formBuilder.control(true, { nonNullable: true });
     this.canEditTarget = formBuilder.control(true, { nonNullable: true });
+    // form group
     this.form = formBuilder.group({
       pinByTypeMode: this.pinByTypeMode,
       canSwitchMode: this.canSwitchMode,
@@ -123,8 +124,6 @@ export class AssertedCompositeIdPgComponent implements OnInit {
       },
     ];
   }
-
-  ngOnInit(): void {}
 
   public onIdChange(id: AssertedCompositeId | undefined): void {
     this.id = id;

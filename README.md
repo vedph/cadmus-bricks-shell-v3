@@ -126,6 +126,8 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-06-27: fixes to asserted composite IDs (`@myrmidon/cadmus-refs-asserted-ids`).
+
 ### 9.0.4
 
 - 2025-06-21: fixes to asserted composite IDs (`@myrmidon/cadmus-refs-asserted-ids`).

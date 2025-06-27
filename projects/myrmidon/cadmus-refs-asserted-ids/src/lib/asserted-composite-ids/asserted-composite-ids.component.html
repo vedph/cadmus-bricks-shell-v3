@@ -10,6 +10,7 @@
       <tr>
         <th></th>
         <th>scope</th>
+        <th>type</th>
         <th>label</th>
         <th>gid</th>
         <th>ass.</th>
@@ -56,6 +57,9 @@
           </button>
         </td>
         <td>{{ entry.scope }}</td>
+        <td>
+          <mat-icon>{{ entry?.target?.name ? "login" : "logout" }}</mat-icon>
+        </td>
         <td>{{ entry?.target?.label }}</td>
         <td>{{ entry?.target?.gid }}</td>
         <td>{{ entry?.assertion ? "Y" : "N" }}</td>
@@ -68,7 +72,8 @@
   <!-- editor -->
   <mat-expansion-panel [expanded]="edited" [disabled]="!edited">
     <mat-expansion-panel-header
-      >ID {{ edited?.target?.label }}</mat-expansion-panel-header
+      ><mat-icon>{{ edited?.target?.name ? "login" : "logout" }}</mat-icon> ID
+      {{ edited?.target?.label }}</mat-expansion-panel-header
     >
     <cadmus-refs-asserted-composite-id
       [idScopeEntries]="idScopeEntries()"
@@ -82,7 +87,6 @@
       [canEditTarget]="canEditTarget()"
       [lookupDefinitions]="lookupDefinitions()"
       [defaultPartTypeKey]="defaultPartTypeKey()"
-      [internalDefault]="internalDefault()"
       [id]="edited"
       (idChange)="onIdChange($event)"
       (editorClose)="closeId()"
