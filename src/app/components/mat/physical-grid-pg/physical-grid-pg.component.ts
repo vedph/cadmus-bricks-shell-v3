@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import {
+  PhysicalGridCoordsPipe,
   PhysicalGridLocation,
   PhysicalGridLocationComponent,
 } from '../../../../../projects/myrmidon/cadmus-mat-physical-grid/src/public-api';
@@ -33,6 +34,7 @@ import {
     MatInputModule,
     MatSelectModule,
     PhysicalGridLocationComponent,
+    PhysicalGridCoordsPipe,
   ],
   templateUrl: './physical-grid-pg.component.html',
   styleUrl: './physical-grid-pg.component.scss',
