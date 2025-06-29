@@ -54,7 +54,7 @@ For an example, serverless implementation see [WebColorLookup](../../../src/app/
 
 This service is then injected into the component hosting the lookup control, and passed to it via its `service` property.
 
-(2) if your service requires **additional options**, just extend `RefLookupFilters` if they are provided by your program. In this case, typically your code will set the lookup's component `baseFilter` property so that it represents the additional filter criteria you want to preset. If instead the additional options can be changed by users, create a component representing these options, like  `RefLookupDummyOptComponent` in the demo project.
+(2) if your service requires **additional options**, just extend `RefLookupFilters` if they are provided by your program. In this case, typically your code will set the lookup's component `baseFilter` property so that it represents the additional filter criteria you want to preset. If instead the additional options can be changed by users, create a component representing these options, like `RefLookupDummyOptComponent` in the demo project.
 
 This options component is a normal Angular component, but in its constructor you must inject:
 
@@ -69,18 +69,7 @@ Once you have created this options component, the component hosting the lookup c
 These must then be bound to the lookup control, e.g.:
 
 ```html
-<cadmus-ref-lookup
-  [service]="service"
-  [item]="item"
-  [required]="true"
-  [hasMore]="true"
-  [optDialog]="optDialog"
-  [options]="options"
-  linkTemplate="http://www.colors.org/web-{name}.html"
-  label="color"
-  (itemChange)="onItemChange($event)"
-  (moreRequest)="onMoreRequest()"
-/>
+<cadmus-ref-lookup [service]="service" [item]="item" [required]="true" [hasMore]="true" [optDialog]="optDialog" [options]="options" linkTemplate="http://www.colors.org/web-{name}.html" label="color" (itemChange)="onItemChange($event)" (moreRequest)="onMoreRequest()" />
 ```
 
 Once this is in place, when the user clicks the options button he gets to a dialog with your options component. The options are then passed to the adapter service together with the filter whenever a search is requested.
@@ -97,7 +86,7 @@ Once this is in place, when the user clicks the options button he gets to a dial
 Useful events:
 
 - `itemChange` fired when the user picks an item from the list resulting from a quick search.
-- `moreRequest` fired when the user requests the advanced search by clicking the *More* button. The component hosting the lookup control should handle this event and typically open some dialog with a search, lending back the item to be picked.
+- `moreRequest` fired when the user requests the advanced search by clicking the _More_ button. The component hosting the lookup control should handle this event and typically open some dialog with a search, lending back the item to be picked.
 
 ## RefLookupSetComponent
 
@@ -191,31 +180,23 @@ To support JSONP you must either use `provideHttpClient(withJsonpSupport())` in 
 ```ts
 // sample app.component.ts
 
-import { ASSERTED_COMPOSITE_ID_CONFIGS_KEY } from '@myrmidon/cadmus-refs-asserted-ids';
-import { ViafRefLookupService } from '@myrmidon/cadmus-refs-viaf-lookup';
-import { DbpediaRefLookupService } from '@myrmidon/cadmus-refs-dbpedia-lookup';
-import { GeoNamesRefLookupService } from '@myrmidon/cadmus-refs-geonames-lookup';
-import { RefLookupConfig } from '@myrmidon/cadmus-refs-lookup';
+import { ASSERTED_COMPOSITE_ID_CONFIGS_KEY } from "@myrmidon/cadmus-refs-asserted-ids";
+import { ViafRefLookupService } from "@myrmidon/cadmus-refs-viaf-lookup";
+import { DbpediaRefLookupService } from "@myrmidon/cadmus-refs-dbpedia-lookup";
+import { GeoNamesRefLookupService } from "@myrmidon/cadmus-refs-geonames-lookup";
+import { RefLookupConfig } from "@myrmidon/cadmus-refs-lookup";
 
 @Component({
-  selector: 'app-root',
-  imports: [
-    RouterOutlet,
-    RouterModule,
-    MatButtonModule,
-    MatDividerModule,
-    MatMenuModule,
-    MatDividerModule,
-    MatToolbarModule,
-  ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  selector: "app-root",
+  imports: [RouterOutlet, RouterModule, MatButtonModule, MatDividerModule, MatMenuModule, MatDividerModule, MatToolbarModule],
+  templateUrl: "./app.component.html",
+  styleUrl: "./app.component.scss",
 })
 export class AppComponent {
   public readonly version: string;
 
   constructor(env: EnvService, storage: RamStorageService) {
-    this.version = env.get('version') || '';
+    this.version = env.get("version") || "";
     // ...
     // configure external lookup for asserted composite IDs
     this.configureLookup(storage);
@@ -223,6 +204,95 @@ export class AppComponent {
 
   private configureLookup(storage: RamStorageService): void {
     storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
+      {
+        name: "colors",
+        iconUrl: "/img/colors128.png",
+        description: "Colors",
+        label: "color",
+        service: new WebColorLookup(),
+        itemIdGetter: (item: any) => item?.value,
+        itemLabelGetter: (item: any) => item?.name,
+      },
+      {
+        name: "VIAF",
+        iconUrl: "/img/viaf128.png",
+        description: "Virtual International Authority File",
+        label: "ID",
+        service: inject(ViafRefLookupService),
+        itemIdGetter: (item: any) => item?.viafid,
+        itemLabelGetter: (item: any) => item?.term,
+      },
+      {
+        name: "geonames",
+        iconUrl: "/img/geonames128.png",
+        description: "GeoNames",
+        label: "ID",
+        service: inject(GeoNamesRefLookupService),
+        itemIdGetter: (item: any) => item?.geonameId,
+        itemLabelGetter: (item: any) => item?.name,
+      },
+      {
+        name: "whg",
+        iconUrl: "/img/whg128.png",
+        description: "World Historical Gazetteer",
+        label: "ID",
+        service: inject(WhgRefLookupService),
+        itemIdGetter: (item: GeoJsonFeature) => item?.properties.place_id,
+        itemLabelGetter: (item: GeoJsonFeature) => item?.properties.title,
+      },
+    ] as RefLookupConfig[]);
+  }
+}
+```
+
+## LookupDocReferencesComponent
+
+A set of documental references (with the same model as those in `@myrmidon/cadmus-refs-doc-references`) with lookup capabilities. Each documental reference has a `citation` mandatory property representing the reference; lookup can provide this value using a set of lookup components and/or a citation.
+
+- 🔑 `LookupDocReferencesComponent`
+- 🚩 `cadmus-ref-lookup-doc-references`
+- ▶️ input:
+  - references (`DocReference[]`)
+  - typeEntries (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-types`)
+  - tagEntries (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-tags`)
+  - noLookup (`boolean`) to disable the lookup set
+  - noCitation (`boolean`) to disable the citation set
+  - defaultPicker (`string`): either `citation` or `lookup` to set the default picker
+- 🔥 output:
+  - referencesChange (`DocReference[]`)
+
+Usage:
+
+1. citation schemes and lookup providers are configured via injection, using `CitSchemeService` and `RamStorageService`. So, in your root component configure them like in this snippet:
+
+```ts
+// lookup
+import { LOOKUP_CONFIGS_KEY, RefLookupConfig } from "@myrmidon/cadmus-refs-lookup";
+// import the desired providers, e.g.:
+import { ViafRefLookupService } from "@myrmidon/cadmus-refs-viaf-lookup";
+import { GeoNamesRefLookupService } from "@myrmidon/cadmus-refs-geonames-lookup";
+import { GeoJsonFeature, WhgRefLookupService } from "@myrmidon/cadmus-refs-whg-lookup";
+
+// citation
+import {
+  CIT_SCHEME_SERVICE_SETTINGS_KEY,
+  CitMappedValues,
+  CitSchemeSettings,
+  MapFormatter,
+} from '@myrmidon/cadmus-refs-citation';
+
+// ...
+export class App {
+  constructor() {
+    // configure external lookup for asserted composite IDs
+    this.configureLookup(storage);
+
+    // configure citation service
+    this.configureCitationService(storage);
+  }
+
+  private configureLookup(storage: RamStorageService): void {
+    storage.store(LOOKUP_CONFIGS_KEY, [
       {
         name: 'colors',
         iconUrl: '/img/colors128.png',
@@ -261,30 +331,58 @@ export class AppComponent {
       },
     ] as RefLookupConfig[]);
   }
+
+  private configureCitationService(storage: RamStorageService): void {
+    // agl formatter for Odyssey
+    const aglFormatter = new MapFormatter();
+    const aglMap: CitMappedValues = {};
+    for (let n = 0x3b1; n <= 0x3c9; n++) {
+      // skip final sigma
+      if (n === 0x3c2) {
+        continue;
+      }
+      aglMap[String.fromCharCode(n)] = n - 0x3b0;
+    }
+    aglFormatter.configure(aglMap);
+
+    storage.store(CIT_SCHEME_SERVICE_SETTINGS_KEY, {
+      formats: {},
+      schemes: {
+        dc: DC_SCHEME,
+        od: OD_SCHEME,
+      },
+      formatters: {
+        agl: aglFormatter,
+      },
+    } as CitSchemeSettings);
+  }
 }
 ```
 
-## LookupDocReferencesComponent
+2. in your consumer component, import the component:
 
-A set of documental references (with the same model as those in `@myrmidon/cadmus-refs-doc-references`) with lookup capabilities. Each documental reference has a `citation` mandatory property representing the reference; lookup can provide this value using a set of lookup components and/or a citation
+```ts
+import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 
-- 🔑 `LookupDocReferencesComponent`
-- 🚩 `cadmus-ref-lookup-doc-references`
-- ▶️ input:
-  - references (`DocReference[]`)
-  - typeEntries (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-types`)
-  - tagEntries (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-tags`)
-  - noLookup (`boolean`) to disable the lookup set
-  - noCitation (`boolean`) to disable the citation set
-  - defaultPicker (`string`): either `citation` or `lookup` to set the default picker
-- 🔥 output:
-  - referencesChange (`DocReference[]`)
+// in imports, add:
+// LookupDocReferencesComponent
+```
+
+3. in your consumer component template, use the component like this:
+
+```html
+    <cadmus-ref-lookup-doc-references
+      [typeEntries]="typeEntries"
+      [references]="references"
+      (referencesChange)="onReferencesChange($event)"
+    />
+```
 
 ## History
 
 ### 9.0.1
 
-- 2025-06-04: added constant `LOOKUP_CONFIGS_KEY` to replace `ASSERTED_COMPOSITE_ID_CONFIGS_KEY` from `cadmus-refs-asserted-ids` which would cause a cyclic reference as `cadmus-refs-asserted-ids` depends on this `cadmus-refs-lookup` library, which in turn would depend on `cadmus-refs-asserted-ids` for that constant. Consequently, the const has been renamed with a more generic name.
+- 2025-06-04: ⚠️ added constant `LOOKUP_CONFIGS_KEY` to replace `ASSERTED_COMPOSITE_ID_CONFIGS_KEY` from `cadmus-refs-asserted-ids` which would cause a cyclic reference as `cadmus-refs-asserted-ids` depends on this `cadmus-refs-lookup` library, which in turn would depend on `cadmus-refs-asserted-ids` for that constant. Consequently, the const has been renamed with a more generic name.
 - 2025-03-25: added `LookupDocReferencesComponent`. This implied adding these additional dependencies to this library:
   - `@myrmidon/cadmus-refs-doc-references` (for the references data model);
   - `@myrmidon/cadmus-refs-citation` (for citations).
