@@ -1,4 +1,4 @@
-<form [formGroup]="form" class="form-row">
+<form [formGroup]="form" class="form-row" (submit)="save()">
   @if (label()) {
   <span>{{ label() }}</span>
   }
@@ -43,4 +43,23 @@
     }
   </mat-form-field>
   } }
+  <!-- buttons -->
+  <div class="form-row">
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Discard changes"
+      (click)="cancel()"
+    >
+      <mat-icon class="mat-warn">clear</mat-icon>
+    </button>
+    <button
+      type="submit"
+      mat-icon-button
+      matTooltip="Accept changes"
+      [disabled]="form.invalid || form.pristine"
+    >
+      <mat-icon class="mat-primary">check_circle</mat-icon>
+    </button>
+  </div>
 </form>

@@ -69,6 +69,10 @@ This component allows you to edit a set of physical measurements. For each one y
 
 ## History
 
+### 9.0.6
+
+- 2025-07-04: refactored `PhysicalDimensionComponent`. This was not used, and has been refactored to provide an editor for single dimensions.
+
 ### 9.0.5
 
 - 2025-06-14:

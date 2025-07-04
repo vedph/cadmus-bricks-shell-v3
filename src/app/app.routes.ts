@@ -28,6 +28,14 @@ export const routes: Routes = [
         './components/mat/physical-measurement-set-pg/physical-measurement-set-pg.component'
       ).then((m) => m.PhysicalMeasurementSetPgComponent),
   },
+  // mat/physical-dimension
+  {
+    path: 'mat/physical-dimension',
+    loadComponent: () =>
+      import(
+        './components/mat/physical-dimension-pg/physical-dimension-pg.component'
+      ).then((m) => m.PhysicalDimensionPgComponent),
+  },
   // mat/physical-size
   {
     path: 'mat/physical-size',

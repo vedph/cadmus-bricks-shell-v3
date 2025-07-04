@@ -1,11 +1,4 @@
-import {
-  Component,
-  effect,
-  input,
-  model,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, effect, input, model, output } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -14,7 +7,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { debounceTime } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -24,10 +16,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
-import { Subscription } from 'rxjs';
 
 /**
- * A physical dimension value.
+ * A single physical dimension.
  */
 export interface PhysicalDimension {
   tag?: string;
@@ -35,6 +26,9 @@ export interface PhysicalDimension {
   unit: string;
 }
 
+/**
+ * Editor for a single physical dimension.
+ */
 @Component({
   selector: 'cadmus-physical-dimension',
   templateUrl: './physical-dimension.component.html',
@@ -51,24 +45,11 @@ export interface PhysicalDimension {
     MatTooltipModule,
   ],
 })
-export class PhysicalDimensionComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
-  private _changeFrozen?: boolean;
-  private _dropNextChange?: boolean;
-
+export class PhysicalDimensionComponent {
   /**
    * The label to display for this dimension.
    */
   public readonly label = input<string>();
-
-  // physical-size-units
-  public readonly unitEntries = input<ThesaurusEntry[]>([
-    { id: 'cm', value: 'cm' },
-    { id: 'mm', value: 'mm' },
-  ]);
-
-  // physical-size-dim-tags
-  public readonly tagEntries = input<ThesaurusEntry[]>();
 
   /**
    * The dimension to edit.
@@ -84,6 +65,19 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
    * True if the tag should be hidden.
    */
   public readonly hideTag = input<boolean>();
+
+  // physical-size-units
+  public readonly unitEntries = input<ThesaurusEntry[]>([
+    { id: 'cm', value: 'cm' },
+    { id: 'mm', value: 'mm' },
+  ]);
+  // physical-size-dim-tags
+  public readonly tagEntries = input<ThesaurusEntry[]>();
+
+  /**
+   * Event emitted when the user clicks the cancel button.
+   */
+  public readonly cancelEdit = output();
 
   public value: FormControl<number>;
   public unit: FormControl<string | null>;
@@ -102,11 +96,8 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
 
     // when dimension changes, update form
     effect(() => {
-      if (this._dropNextChange) {
-        this._dropNextChange = false;
-        return;
-      }
-      this.updateForm(this.dimension());
+      const dimension = this.dimension();
+      this.updateForm(dimension);
     });
 
     // when disabled changes, update form
@@ -119,42 +110,41 @@ export class PhysicalDimensionComponent implements OnInit, OnDestroy {
     });
   }
 
-  public ngOnInit(): void {
-    this.updateForm(this.dimension());
-
-    // on change emit event
-    this._sub = this.form.valueChanges
-      .pipe(debounceTime(300))
-      .subscribe((_) => {
-        if (!this._changeFrozen) {
-          this._dropNextChange = true;
-          this.dimension.set(this.getModel());
-        }
-      });
-  }
-
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
-  }
-
   private updateForm(model?: PhysicalDimension): void {
-    this._changeFrozen = true;
     if (!model) {
       this.form.reset();
     } else {
-      this.value.setValue(model.value);
-      this.unit.setValue(model.unit);
-      this.tag.setValue(model.tag || null);
+      this.value.setValue(model.value, { emitEvent: false });
+      this.unit.setValue(model.unit, { emitEvent: false });
+      this.tag.setValue(model.tag || null, { emitEvent: false });
       this.form.markAsPristine();
     }
-    this._changeFrozen = false;
   }
 
-  private getModel(): PhysicalDimension {
+  private getDimension(): PhysicalDimension {
     return {
       value: this.value.value || 0,
       unit: this.unit.value || '',
       tag: this.tag.value || undefined,
     };
+  }
+
+  public cancel(): void {
+    this.cancelEdit.emit();
+  }
+
+  public save(pristine = true): void {
+    if (this.form.invalid) {
+      // show validation errors
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const dimension = this.getDimension();
+    this.dimension.set(dimension);
+
+    if (pristine) {
+      this.form.markAsPristine();
+    }
   }
 }
