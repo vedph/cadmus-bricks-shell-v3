@@ -5,9 +5,12 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    <mat-checkbox [formControl]="staticUnit">static unit</mat-checkbox>
+    <hr />
     <cadmus-physical-dimension
       [dimension]="dimension"
       [unitEntries]="unitEntries"
+      [staticUnit]="staticUnit.value"
       (dimensionChange)="onDimensionChange($event!)"
     />
     <hr />

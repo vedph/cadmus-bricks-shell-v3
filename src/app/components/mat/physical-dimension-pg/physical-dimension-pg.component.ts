@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -43,6 +43,7 @@ export class PhysicalDimensionPgComponent {
       value: 'cm',
     },
   ];
+  public staticUnit = new FormControl<boolean>(false, { nonNullable: true });
 
   public onDimensionChange(dimension: PhysicalDimension): void {
     this.dimension = dimension;

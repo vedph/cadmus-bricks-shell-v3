@@ -62,6 +62,11 @@ export class PhysicalDimensionComponent {
   public readonly disabled = input<boolean>();
 
   /**
+   * True if the unit is static, i.e., it cannot be changed.
+   */
+  public readonly staticUnit = input<boolean>(false);
+
+  /**
    * True if the tag should be hidden.
    */
   public readonly hideTag = input<boolean>();

@@ -126,6 +126,7 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-07-07: added `staticUnit` property to physical dimension editor.
 - 2025-04-07: refactored `PhysicalDimensionComponent` (not used) and added a test page.
 
 ### 9.0.5
