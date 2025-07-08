@@ -43,7 +43,7 @@ export class PhysicalDimensionPgComponent {
       value: 'cm',
     },
   ];
-  public staticUnit = new FormControl<boolean>(false, { nonNullable: true });
+  public unitDisabled = new FormControl<boolean>(false, { nonNullable: true });
 
   public onDimensionChange(dimension: PhysicalDimension): void {
     this.dimension = dimension;

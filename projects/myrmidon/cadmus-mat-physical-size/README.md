@@ -69,6 +69,10 @@ This component allows you to edit a set of physical measurements. For each one y
 
 ## History
 
+### 9.0.8
+
+- 2025-07-08: fixed `unitDisabled` (renamed from `staticUnit`).
+
 ### 9.0.7
 
 - 2025-07-07: added `staticUnit` property to physical dimension editor.

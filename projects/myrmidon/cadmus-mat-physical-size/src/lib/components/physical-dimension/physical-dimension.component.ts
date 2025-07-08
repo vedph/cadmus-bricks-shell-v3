@@ -62,9 +62,10 @@ export class PhysicalDimensionComponent {
   public readonly disabled = input<boolean>();
 
   /**
-   * True if the unit is static, i.e., it cannot be changed.
+   * True if the unit control is disabled so that users
+   * cannot change the unit.
    */
-  public readonly staticUnit = input<boolean>(false);
+  public readonly unitDisabled = input<boolean>(false);
 
   /**
    * True if the tag should be hidden.
@@ -111,6 +112,15 @@ export class PhysicalDimensionComponent {
         this.form.disable();
       } else {
         this.form.enable();
+      }
+    });
+
+    // when unitDisabled changes, enable/disable unit control
+    effect(() => {
+      if (this.unitDisabled()) {
+        this.unit.disable();
+      } else {
+        this.unit.enable();
       }
     });
   }
