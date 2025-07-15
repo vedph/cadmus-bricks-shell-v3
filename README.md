@@ -126,6 +126,7 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-07-15: replaced all doc references usages in bricks with lookup doc references (affecting `@myrmidon/cadmus-refs-assertion` and `@myrmidon/cadmus-refs-decorated-ids`).
 - 2025-07-14: updated Angular and packages.
 - 2025-07-08: fixed `unitDisabled` (renamed from `staticUnit`).
 - 2025-07-07: added `staticUnit` property to physical dimension editor.

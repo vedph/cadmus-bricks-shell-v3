@@ -12,9 +12,18 @@ This component provides an editable list of simple identifiers decorated with so
 - 🚩 `cadmus-refs-decorated-ids`
 - ▶️ input:
   - ids (`DecoratedId[]`)
+  - `noLookup`: true to disable the lookup set.
+  - `noCitation`: true to disable the citation builder.
+  - `defaultPicker` (`citation` (default) or `lookup`): the default picker to show when the editor opens.
 - 📚 thesauri:
   - `decorated-id-tags` (tagEntries)
   - `doc-reference-tags` (refTagEntries)
   - `doc-reference-types` (refTypeEntries)
 - 🔥 output:
   - idsChange (`DecoratedId[]`)
+
+## History
+
+### 9.0.1
+
+- 2025-07-15: replaced doc references with lookup doc references.

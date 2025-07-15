@@ -59,9 +59,12 @@
       [expanded]="visualExpanded"
       (expandedChange)="visualExpanded = $event"
     >
-      <cadmus-refs-doc-references
+      <cadmus-ref-lookup-doc-references
         [typeEntries]="refTypeEntries()"
         [tagEntries]="refTagEntries()"
+        [noLookup]="noLookup()"
+        [noCitation]="noCitation()"
+        [defaultPicker]="defaultPicker()"
         [references]="references.value"
         (referencesChange)="onReferencesChange($event)"
       />

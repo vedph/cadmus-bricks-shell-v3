@@ -11,13 +11,20 @@ This component provides an editable assertion. The assertion decorates some othe
 - 🔑 `AssertionComponent`
 - 🚩 `cadmus-refs-assertion`
 - ▶️ input:
-  - assertion (`Assertion`)
+  - `assertion` (`Assertion`)
+  - `noLookup`: true to disable the lookup set.
+  - `noCitation`: true to disable the citation builder.
+  - `defaultPicker` (`citation` (default) or `lookup`): the default picker to show when the editor opens.
 - 📚 thesauri:
   - `assertion-tags` (assTagEntries)
   - `doc-reference-types` (refTypeEntries)
   - `doc-reference-tags` (refTagEntries)
 - 🔥 output:
-  - assertionChange (`Assertion`)
+  - `assertionChange` (`Assertion`)
+
+### 9.0.1
+
+- 2025-07-15: replaced doc references with lookup doc references.
 
 ### 9.0.0
 

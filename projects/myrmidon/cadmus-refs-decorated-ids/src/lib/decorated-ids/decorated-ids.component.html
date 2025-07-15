@@ -101,9 +101,12 @@
       <!-- sources -->
       <div>
         <h4>ID sources</h4>
-        <cadmus-refs-doc-references
+        <cadmus-ref-lookup-doc-references
           [tagEntries]="refTagEntries()"
           [typeEntries]="refTypeEntries()"
+          [noLookup]="noLookup()"
+          [noCitation]="noCitation()"
+          [defaultPicker]="defaultPicker()"
           [references]="sources.value"
           (referencesChange)="onSourcesChange($event)"
         />

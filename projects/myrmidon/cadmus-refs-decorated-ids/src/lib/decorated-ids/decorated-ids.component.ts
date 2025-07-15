@@ -16,10 +16,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
-import {
-  DocReference,
-  DocReferencesComponent,
-} from '@myrmidon/cadmus-refs-doc-references';
+import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
+import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 
 /**
  * An ID optionally decorated with rank, tag, and sources.
@@ -49,7 +47,7 @@ export interface DecoratedId {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    DocReferencesComponent,
+    LookupDocReferencesComponent,
   ],
 })
 export class DecoratedIdsComponent {
@@ -79,6 +77,21 @@ export class DecoratedIdsComponent {
 
   // doc-reference-types
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
+
+  /**
+   * True to disable the lookup set.
+   */
+  public readonly noLookup = input<boolean>();
+
+  /**
+   * True to disable the citation builder.
+   */
+  public readonly noCitation = input<boolean>();
+
+  /**
+   * The default picker to show when the editor opens.
+   */
+  public readonly defaultPicker = input<'citation' | 'lookup'>('citation');
 
   constructor(formBuilder: FormBuilder) {
     this.editedIndex = -1;

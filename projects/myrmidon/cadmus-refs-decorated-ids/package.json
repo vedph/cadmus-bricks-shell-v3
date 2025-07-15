@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-decorated-ids",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "description": "Cadmus - decorated IDs component.",
   "keywords": [
     "Cadmus",
@@ -17,7 +17,8 @@
   "peerDependencies": {
     "@angular/common": "^20.0.0",
     "@angular/core": "^20.0.0",
-    "@myrmidon/cadmus-refs-doc-references": "^10.0.0"
+    "@myrmidon/cadmus-refs-doc-references": "^10.0.0",
+    "@myrmidon/cadmus-refs-lookup": "^9.0.1"
   },
   "dependencies": {
     "tslib": "^2.3.0"

@@ -27,10 +27,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 // bricks
-import {
-  DocReference,
-  DocReferencesComponent,
-} from '@myrmidon/cadmus-refs-doc-references';
+import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
+import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 
 // cadmus
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
@@ -64,7 +62,7 @@ export interface Assertion {
     MatInputModule,
     MatSelectModule,
     // bricks
-    DocReferencesComponent,
+    LookupDocReferencesComponent,
   ],
 })
 export class AssertionComponent implements OnInit, OnDestroy {
@@ -91,6 +89,21 @@ export class AssertionComponent implements OnInit, OnDestroy {
    * The assertion being edited.
    */
   public readonly assertion = model<Assertion>();
+
+  /**
+   * True to disable the lookup set.
+   */
+  public readonly noLookup = input<boolean>();
+
+  /**
+   * True to disable the citation builder.
+   */
+  public readonly noCitation = input<boolean>();
+
+  /**
+   * The default picker to show when the editor opens.
+   */
+  public readonly defaultPicker = input<'citation' | 'lookup'>('citation');
 
   public visualExpanded?: boolean;
 
