@@ -25,7 +25,7 @@ To use a brick:
 
 1. `npm run build-lib`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker build . -t vedph2020/cadmus-bricks-v3:9.0.5 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
+3. `docker build . -t vedph2020/cadmus-bricks-v3:9.0.6 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
 
@@ -126,7 +126,10 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+### 9.0.6
+
 - 2025-07-15:
+  - ⚠️ rewritten VIAF service to use new API. Note that this requires your `app.config` file to provide the HTTP service no longer configured `withJsonpSupport()` but rather `withFetch()`!
   - replaced all doc references usages in bricks with lookup doc references (affecting `@myrmidon/cadmus-refs-assertion` and `@myrmidon/cadmus-refs-decorated-ids`).
   - ⚠️ renamed selectors with `cadmus-ref-...` to `cadmus-refs-...`.
 - 2025-07-14: updated Angular and packages.
