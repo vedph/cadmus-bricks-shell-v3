@@ -17,7 +17,7 @@ import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
 import { LookupDocReferenceComponent } from '../ref-lookup-doc-reference/ref-lookup-doc-reference.component';
 
 @Component({
-  selector: 'cadmus-ref-lookup-doc-references',
+  selector: 'cadmus-refs-lookup-doc-references',
   imports: [
     FormsModule,
     ReactiveFormsModule,

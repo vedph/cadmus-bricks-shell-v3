@@ -136,7 +136,7 @@ export interface RefLookupSetEvent {
  * A set of lookup components, each with its own configuration.
  */
 @Component({
-  selector: 'cadmus-ref-lookup-set',
+  selector: 'cadmus-refs-lookup-set',
   templateUrl: './ref-lookup-set.component.html',
   styleUrls: ['./ref-lookup-set.component.css'],
   imports: [

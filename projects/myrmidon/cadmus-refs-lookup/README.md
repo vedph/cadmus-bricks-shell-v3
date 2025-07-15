@@ -11,6 +11,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Configuring Set](#configuring-set)
   - [LookupDocReferencesComponent](#lookupdocreferencescomponent)
   - [History](#history)
+    - [10.0.0](#1000)
     - [9.0.1](#901)
 
 ## RefLookupComponent
@@ -18,7 +19,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 Generic reference lookup component. This can be used to provide quick lookup into some data repository by just typing some letters of a resource's label. For instance, you might want to pick a VIAF record from its name, a geographical place by its toponym, etc.
 
 - 🔑 `RefLookupComponent`
-- 🚩 `cadmus-ref-lookup`
+- 🚩 `cadmus-refs-lookup`
 - ▶️ input:
   - label (`string?`)
   - limit (`number`, default=10): max number of items to retrieve for lookup.
@@ -69,7 +70,7 @@ Once you have created this options component, the component hosting the lookup c
 These must then be bound to the lookup control, e.g.:
 
 ```html
-<cadmus-ref-lookup [service]="service" [item]="item" [required]="true" [hasMore]="true" [optDialog]="optDialog" [options]="options" linkTemplate="http://www.colors.org/web-{name}.html" label="color" (itemChange)="onItemChange($event)" (moreRequest)="onMoreRequest()" />
+<cadmus-refs-lookup [service]="service" [item]="item" [required]="true" [hasMore]="true" [optDialog]="optDialog" [options]="options" linkTemplate="http://www.colors.org/web-{name}.html" label="color" (itemChange)="onItemChange($event)" (moreRequest)="onMoreRequest()" />
 ```
 
 Once this is in place, when the user clicks the options button he gets to a dialog with your options component. The options are then passed to the adapter service together with the filter whenever a search is requested.
@@ -93,7 +94,7 @@ Useful events:
 A set of lookup items. Each has its own configuration and uses a specific service.
 
 - 🔑 `RefLookupSetComponent`
-- 🚩 `cadmus-ref-lookup-set`
+- 🚩 `cadmus-refs-lookup-set`
 - ▶️ input:
   - configs\* (`RefLookupConfig[]`)
   - iconSize (`IconSize`, default=24x24)
@@ -250,7 +251,7 @@ export class AppComponent {
 A set of documental references (with the same model as those in `@myrmidon/cadmus-refs-doc-references`) with lookup capabilities. Each documental reference has a `citation` mandatory property representing the reference; lookup can provide this value using a set of lookup components and/or a citation.
 
 - 🔑 `LookupDocReferencesComponent`
-- 🚩 `cadmus-ref-lookup-doc-references`
+- 🚩 `cadmus-refs-lookup-doc-references`
 - ▶️ input:
   - references (`DocReference[]`)
   - typeEntries (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-types`)
@@ -371,7 +372,7 @@ import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 3. in your consumer component template, use the component like this:
 
 ```html
-    <cadmus-ref-lookup-doc-references
+    <cadmus-refs-lookup-doc-references
       [typeEntries]="typeEntries"
       [references]="references"
       (referencesChange)="onReferencesChange($event)"
@@ -379,6 +380,10 @@ import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 ```
 
 ## History
+
+### 10.0.0
+
+- 2025-07-15: ⚠️ renamed selectors with `cadmus-ref-` to `cadmus-refs-` to get uniform naming conventions.
 
 ### 9.0.1
 

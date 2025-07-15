@@ -55,7 +55,7 @@
   @if (external.value && extLookupConfigs().length) {
   <fieldset>
     <legend>external lookup</legend>
-    <cadmus-ref-lookup-set
+    <cadmus-refs-lookup-set
       [configs]="extLookupConfigs()"
       (itemChange)="onExtItemChange($event)"
       (moreRequest)="onExtMoreRequest($event)"
@@ -73,7 +73,7 @@
       <fieldset class="form-row">
         <legend>pin filters</legend>
         <!-- item filter -->
-        <cadmus-ref-lookup
+        <cadmus-refs-lookup
           [service]="itemLookupService"
           label="item"
           (itemChange)="onItemLookupChange($event)"
@@ -115,7 +115,7 @@
       @if (partTypeKey.value) {
       <div>
         <!-- pin lookup -->
-        <cadmus-ref-lookup
+        <cadmus-refs-lookup
           [service]="pinLookupService"
           [baseFilter]="filter"
           [options]="pinFilterOptions"

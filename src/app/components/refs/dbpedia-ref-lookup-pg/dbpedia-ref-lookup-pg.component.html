@@ -7,16 +7,16 @@
   <mat-card-content>
     <article>
       <h2>Lookup</h2>
-      <cadmus-ref-lookup
+      <cadmus-refs-lookup
         [service]="service"
         [required]="true"
         label="DBPedia"
         (itemChange)="onItemChange($event)"
-      ></cadmus-ref-lookup>
+      />
       @if (docs) {
-        <div>
-          <pre>{{ docs | json }}</pre>
-        </div>
+      <div>
+        <pre>{{ docs | json }}</pre>
+      </div>
       }
     </article>
 
@@ -28,94 +28,84 @@
           <mat-form-field>
             <mat-label>query</mat-label>
             <input matInput [formControl]="query" />
-            @if (
-              $any(query).errors?.required && (query.dirty || query.touched)
-              ) {
-              <mat-error
-                >query required</mat-error
-                >
-              }
-              @if (
-                $any(query).errors?.maxLength && (query.dirty || query.touched)
-                ) {
-                <mat-error
-                  >query too long</mat-error
-                  >
-                }
-              </mat-form-field>
+            @if ( $any(query).errors?.required && (query.dirty || query.touched)
+            ) {
+            <mat-error>query required</mat-error>
+            } @if ( $any(query).errors?.maxLength && (query.dirty ||
+            query.touched) ) {
+            <mat-error>query too long</mat-error>
+            }
+          </mat-form-field>
 
-              <!-- prefix -->
-              <mat-checkbox
-                [formControl]="prefix"
-                matTooltip="Prefix lookup rather than complete word search"
-                >prefix</mat-checkbox
-                >
+          <!-- prefix -->
+          <mat-checkbox
+            [formControl]="prefix"
+            matTooltip="Prefix lookup rather than complete word search"
+            >prefix</mat-checkbox
+          >
 
-                <!-- limit -->
-                <mat-form-field class="input-nr">
-                  <mat-label>limit</mat-label>
-                  <input
-                    matInput
-                    type="number"
-                    min="1"
-                    max="20"
-                    [formControl]="limit"
-                    />
-                    @if (
-                      $any(limit).errors?.required && (limit.dirty || limit.touched)
-                      ) {
-                      <mat-error
-                        >limit required</mat-error
-                        >
-                    }
-                  </mat-form-field>
-                </div>
+          <!-- limit -->
+          <mat-form-field class="input-nr">
+            <mat-label>limit</mat-label>
+            <input
+              matInput
+              type="number"
+              min="1"
+              max="20"
+              [formControl]="limit"
+            />
+            @if ( $any(limit).errors?.required && (limit.dirty || limit.touched)
+            ) {
+            <mat-error>limit required</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-                <div>
-                  <mat-form-field class="long-text">
-                    <mat-label>types</mat-label>
-                    <textarea
-                      matInput
-                      rows="5"
-                      [formControl]="types"
-                      (keydown.enter)="$event.preventDefault()"
-                    ></textarea>
-                    <mat-hint>DBPedia types, each in a line</mat-hint>
-                  </mat-form-field>
-                  <p class="info">
-                    Types are one or more DBpedia classes from the DBpedia ontology that
-                    the results should have. Using this parameter will only retrieve
-                    resources of the passed type(s). For instance, you might want to use
-                    <code>http://dbpedia.org/ontology/Person</code> for persons,
-                    <code>http://dbpedia.org/ontology/Place</code> for places, etc.
-                  </p>
-                </div>
+        <div>
+          <mat-form-field class="long-text">
+            <mat-label>types</mat-label>
+            <textarea
+              matInput
+              rows="5"
+              [formControl]="types"
+              (keydown.enter)="$event.preventDefault()"
+            ></textarea>
+            <mat-hint>DBPedia types, each in a line</mat-hint>
+          </mat-form-field>
+          <p class="info">
+            Types are one or more DBpedia classes from the DBpedia ontology that
+            the results should have. Using this parameter will only retrieve
+            resources of the passed type(s). For instance, you might want to use
+            <code>http://dbpedia.org/ontology/Person</code> for persons,
+            <code>http://dbpedia.org/ontology/Place</code> for places, etc.
+          </p>
+        </div>
 
-                <div>
-                  <button
-                    type="submit"
-                    class="mat-primary"
-                    mat-flat-button
-                    [disabled]="form.invalid || busy"
-                    >
-                    search
-                  </button>
-                </div>
-                <div>
-                  @if (busy) {
-                    <mat-progress-bar mode="indeterminate" />
-                  }
-                </div>
-              </form>
+        <div>
+          <button
+            type="submit"
+            class="mat-primary"
+            mat-flat-button
+            [disabled]="form.invalid || busy"
+          >
+            search
+          </button>
+        </div>
+        <div>
+          @if (busy) {
+          <mat-progress-bar mode="indeterminate" />
+          }
+        </div>
+      </form>
 
-              @if (results.length) {
-                <div>
-                  <h3>Results</h3>
-                  <code>
-                    <pre>{{ results | json }}</pre>
-                  </code>
-                </div>
-              }
-            </article>
-          </mat-card-content>
-        </mat-card>
+      @if (results.length) {
+      <div>
+        <h3>Results</h3>
+        <code>
+          <pre>{{ results | json }}</pre>
+        </code>
+      </div>
+      }
+    </article>
+  </mat-card-content>
+</mat-card>

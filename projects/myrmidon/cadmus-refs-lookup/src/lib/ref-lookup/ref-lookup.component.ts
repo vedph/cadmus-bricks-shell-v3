@@ -61,7 +61,7 @@ export interface RefLookupService {
  * more button for more complex lookup.
  */
 @Component({
-  selector: 'cadmus-ref-lookup',
+  selector: 'cadmus-refs-lookup',
   templateUrl: './ref-lookup.component.html',
   styleUrls: ['./ref-lookup.component.css'],
   imports: [

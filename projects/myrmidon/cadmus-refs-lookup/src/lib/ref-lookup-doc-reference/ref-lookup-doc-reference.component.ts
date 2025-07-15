@@ -51,7 +51,7 @@ export const LOOKUP_CONFIGS_KEY = 'cadmus-refs-lookup.configs';
  * Document reference editor lookup component.
  */
 @Component({
-  selector: 'cadmus-ref-lookup-doc-reference',
+  selector: 'cadmus-refs-lookup-doc-reference',
   imports: [
     FormsModule,
     ReactiveFormsModule,

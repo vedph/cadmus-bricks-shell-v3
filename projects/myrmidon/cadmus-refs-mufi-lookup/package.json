@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-mufi-lookup",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Cadmus - MUFI lookup.",
   "keywords": [
     "Cadmus",
@@ -20,7 +20,7 @@
     "@angular/common": "^20.0.0",
     "@angular/core": "^20.0.0",
     "@myrmidon/ngx-tools": "^2.0.0",
-    "@myrmidon/cadmus-refs-lookup": "^9.0.0"
+    "@myrmidon/cadmus-refs-lookup": "^10.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

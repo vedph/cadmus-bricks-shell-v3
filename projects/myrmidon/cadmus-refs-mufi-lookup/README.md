@@ -32,7 +32,7 @@ Sample template using SVG and comment, assuming that the MUFI lookup item is nam
 ```html
 <div class="form-row">
   <!-- MUFI lookup -->
-  <cadmus-ref-lookup
+  <cadmus-refs-lookup
     [service]="service"
     [item]="item"
     [required]="true"

@@ -13,7 +13,7 @@ import {
  * data gets injected via the MAT_DIALOG_DATA token.
  */
 @Component({
-  selector: 'cadmus-ref-lookup-options',
+  selector: 'cadmus-refs-lookup-options',
   templateUrl: './ref-lookup-options.component.html',
   styleUrls: ['./ref-lookup-options.component.css'],
   imports: [CommonModule, MatDialogModule],
