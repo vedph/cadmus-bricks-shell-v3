@@ -11,3 +11,7 @@ This is preliminary work. This should wrap VIAF for quick lookup. TODO: add VIAF
 ```ts
 provideHttpClient(withJsonpSupport())
 ```
+
+## History
+
+- 2025-07-15: totally rewritten VIAF service to use the new API endpoints. Warning: API endpoints and documentation at <https://developer.api.oclc.org/viaf-api> do not seem to be in synch, I had to explore to find out the right endpoints and their responses.

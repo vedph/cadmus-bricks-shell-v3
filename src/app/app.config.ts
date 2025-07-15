@@ -9,6 +9,7 @@ import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
   withJsonpSupport,
+  withFetch,
 } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -54,7 +55,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
     provideAnimationsAsync(),
-    provideHttpClient(withJsonpSupport()),
+    provideHttpClient(withJsonpSupport(), withFetch()),
     provideNativeDateAdapter(),
     importProvidersFrom(NgeMonacoModule.forRoot({})),
     {
