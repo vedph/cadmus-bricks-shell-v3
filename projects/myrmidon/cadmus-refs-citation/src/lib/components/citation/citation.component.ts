@@ -152,10 +152,15 @@ export class CitationComponent implements OnInit, OnDestroy {
     // focus helper
     this._focusHelper = new DynamicFocus(this._zone);
 
+    // check if service is available and has schemes
+    const availableSchemes = this._schemeService ? this.schemes() : [];
+    const defaultScheme =
+      availableSchemes.length > 0 ? availableSchemes[0] : null;
+
     // form
-    this.scheme = formBuilder.control(this.schemes()[0], { nonNullable: true });
+    this.scheme = formBuilder.control(defaultScheme!, { nonNullable: true });
     this.lastStep = formBuilder.control(null);
-    this.lastStepIndex = this.scheme.value.path.length - 1;
+    this.lastStepIndex = defaultScheme ? defaultScheme.path.length - 1 : 0;
 
     // free text form
     this.text = formBuilder.control(null, [
@@ -195,13 +200,19 @@ export class CitationComponent implements OnInit, OnDestroy {
         this._dropNextUpdate = false;
         return;
       }
+
+      // Exit early if no service or schemes available
+      if (!this._schemeService || !this.schemes().length) {
+        return;
+      }
+
       // close step editor
       this.editedStep = undefined;
       this.text.reset();
       // update scheme to the one of the citation
       this.scheme.setValue(
         this._schemeService.getScheme(
-          citation?.schemeId || this.scheme.value.id
+          citation?.schemeId || this.scheme.value?.id
         ) || this.schemes()[0],
         { emitEvent: false }
       );
@@ -216,13 +227,21 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   private createEmptyCitation(schemeId?: string): Citation {
+    if (!this._schemeService) {
+      return { schemeId: '', steps: [] };
+    }
     return this._schemeService.createEmptyCitation(
-      schemeId || this.scheme.value.id,
+      schemeId || this.scheme.value?.id || '',
       -1
     );
   }
 
   public ngOnInit(): void {
+    // exit early if no service or schemes available
+    if (!this._schemeService || !this.schemes().length) {
+      return;
+    }
+
     // if no citation, create an empty one
     if (!this.citation()?.steps?.length) {
       this.editedCitation = this.createEmptyCitation();
@@ -234,7 +253,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.scheme.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(100))
         .subscribe((scheme) => {
-          if (this._updatingCit || !scheme) {
+          if (this._updatingCit || !scheme || !this._schemeService) {
             this._updatingCit = false;
             return;
           }
@@ -243,7 +262,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           this.text.reset();
           this.editedCitation = this.createEmptyCitation(scheme.id);
           this.lastStep.setValue(
-            this.scheme.value.path[scheme.path.length - 1]
+            this.scheme.value?.path[scheme.path.length - 1] || null
           );
           this.lastStepIndex = scheme.path.length - 1;
         })
@@ -254,6 +273,10 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.lastStep.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(100))
         .subscribe((s) => {
+          if (!this._schemeService || !this.scheme.value) {
+            return;
+          }
+
           this.lastStepIndex = this.scheme.value.path.indexOf(s || '');
           // truncate or extend citation steps according to last step index
           const cit = this.editedCitation;
@@ -286,6 +309,10 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public setFreeMode(on: boolean): void {
+    if (!this._schemeService || !this.scheme.value) {
+      return;
+    }
+
     // if was toggled off, parse text into citation
     if (!on) {
       if (this.text.value) {
@@ -320,7 +347,7 @@ export class CitationComponent implements OnInit, OnDestroy {
 
   //#region Step editing
   public editStep(step: CitStep | null): void {
-    if (!step || !this.scheme.value) {
+    if (!step || !this.scheme.value || !this._schemeService) {
       this.editedStep = undefined;
       return;
     }
@@ -334,7 +361,12 @@ export class CitationComponent implements OnInit, OnDestroy {
       step.stepId,
       this.editedCitation,
       this.scheme.value.id
-    )!;
+    );
+
+    if (!stepDomain) {
+      this.editedStep = undefined;
+      return;
+    }
 
     switch (stepDef?.type) {
       case 'set':
@@ -449,18 +481,19 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public saveNumberStep(): void {
-    if (!this.editedStep || this.nrEditorForm.invalid) {
+    if (!this.editedStep || this.nrEditorForm.invalid || !this._schemeService) {
       return;
     }
 
     // update step value in new citation
     const cit: Citation = {
       ...(this.editedCitation || {
-        schemeId: this.scheme.value.id,
+        schemeId: this.scheme.value?.id || '',
         steps: [],
       }),
     };
-    const index = this.scheme.value.path.indexOf(this.editedStep!.stepId);
+    const index =
+      this.scheme.value?.path.indexOf(this.editedStep!.stepId) ?? -1;
     if (index === -1) {
       return;
     }
@@ -488,7 +521,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public saveStringStep(): void {
-    if (!this.editedStep || this.strEditorForm.invalid) {
+    if (!this.editedStep || this.strEditorForm.invalid || !this.scheme.value) {
       return;
     }
 
@@ -515,6 +548,10 @@ export class CitationComponent implements OnInit, OnDestroy {
 
   //#region Validation
   public validateCitation(citation?: Citation): boolean {
+    if (!this._schemeService || !this.scheme.value) {
+      return false;
+    }
+
     const errors: { [key: string]: string } = {};
 
     if (!citation?.steps.length) {
@@ -532,7 +569,11 @@ export class CitationComponent implements OnInit, OnDestroy {
         step.stepId,
         citation,
         this.scheme.value.id
-      )!;
+      );
+
+      if (!domain) {
+        continue;
+      }
 
       // compare citation value with domain and return false if not valid
       if (domain.set?.length) {
@@ -588,7 +629,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public save(): void {
-    if (!this.validateCitation(this.editedCitation)) {
+    if (!this._schemeService || !this.validateCitation(this.editedCitation)) {
       return;
     }
     this._dropNextUpdate = true;

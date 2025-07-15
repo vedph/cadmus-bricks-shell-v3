@@ -22,6 +22,8 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [CitationSetComponent](#citationsetcomponent)
     - [CitationPipe](#citationpipe)
   - [History](#history)
+    - [1.0.1](#101)
+    - [1.0.0](#100)
     - [0.0.3](#003)
     - [0.0.2](#002)
 
@@ -746,6 +748,14 @@ Use like:
 ```
 
 ## History
+
+### 1.0.1
+
+- 2025-07-15: gracefully handle a null citation scheme in citation component.
+
+### 1.0.0
+
+- 2025-07-15: ⚠️ updated packages.
 
 ### 0.0.3
 

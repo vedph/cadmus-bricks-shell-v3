@@ -108,20 +108,32 @@ export class LookupDocReferenceComponent implements OnDestroy {
   public readonly cancel = output<void>();
 
   public readonly pickerEnabled = computed<boolean>(
-    () => !this.noLookup() || !this.noCitation()
+    () =>
+      (!this.noLookup() && !!this._lookupConfig) ||
+      (!this.noCitation() && !!(this._schemeService?.getSchemes()?.length > 0))
   );
 
   public readonly pickers = computed<string[]>(() => {
-    if (this.noLookup() && this.noCitation()) {
+    // lookup disabled when noLookup or no lookup config
+    const noLookup = this.noLookup() || !this._lookupConfig;
+    // citation disabled when noCitation or no scheme service
+    const noCitation =
+      this.noCitation() || !this._schemeService?.getSchemes()?.length;
+
+    if (noLookup && noCitation) {
       return [];
     }
-    if (this.noLookup()) {
+    if (noLookup) {
       return ['citation'];
     }
-    if (this.noCitation()) {
+    if (noCitation) {
       return ['lookup'];
     }
     return ['citation', 'lookup'];
+  });
+
+  public readonly pickerTypeDisabled = computed<boolean>(() => {
+    return this.pickers().length <= 1;
   });
 
   public type: FormControl<string | null>;
@@ -176,6 +188,19 @@ export class LookupDocReferenceComponent implements OnDestroy {
           this.parseCitation();
         }
       });
+
+    // ensure picker type is valid when available pickers change
+    effect(() => {
+      const availablePickers = this.pickers();
+      const currentPickerType = this.pickerType.value;
+
+      if (
+        availablePickers.length > 0 &&
+        !availablePickers.includes(currentPickerType)
+      ) {
+        this.pickerType.setValue(availablePickers[0]);
+      }
+    });
   }
 
   public ngOnDestroy(): void {
@@ -198,6 +223,11 @@ export class LookupDocReferenceComponent implements OnDestroy {
   }
 
   public togglePicker(): void {
+    // don't allow toggling if no pickers are available
+    if (this.pickers().length === 0) {
+      return;
+    }
+
     this.pickerExpanded = !this.pickerExpanded;
 
     // if expanded and picker is citation, parse citation into it
@@ -229,7 +259,7 @@ export class LookupDocReferenceComponent implements OnDestroy {
     }
     this.citation.setValue(this._schemeService.toString(citation));
     this.citation.markAsDirty();
-    this.citation.updateValueAndValidity;
+    this.citation.updateValueAndValidity();
   }
 
   private updateForm(reference?: DocReference): void {
