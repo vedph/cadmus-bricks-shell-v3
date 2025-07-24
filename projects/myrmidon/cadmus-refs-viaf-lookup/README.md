@@ -21,6 +21,20 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
+⚠️ Also, if using this service in JWT-enabled apps with an interceptor which injects the Bearer token, you must exclude the VIAF URI from the intercepted requests, or you will get a generic CORS error. To configure exclusions:
+
+```ts
+ // in your app.config.ts or a feature module:
+ providers: [
+   {
+     provide: AUTH_JWT_EXCLUDED_URLS,
+     useValue: [
+       'https://viaf.org/viaf/',
+     ]
+   }
+ ]
+```
+
 ## API Endpoints Used
 
 - **AutoSuggest**: `https://viaf.org/viaf/AutoSuggest` - Returns JSON data for typeahead suggestions
