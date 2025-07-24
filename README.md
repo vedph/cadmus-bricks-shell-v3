@@ -126,6 +126,7 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-07-24: make base VIAF root API URI overridable.
 - 2025-07-23: increased version number for VIAF lookup library.
 
 ### 9.0.6

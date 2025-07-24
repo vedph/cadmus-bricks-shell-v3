@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { retry, catchError, map } from 'rxjs/operators';
 
@@ -175,7 +175,13 @@ export enum ViafIndex {
   // TODO
 }
 
-const API_BASE = 'https://viaf.org/viaf';
+/**
+ * Injection token for the base URL of the VIAF API.
+ * If not provided, defaults to 'https://viaf.org/viaf'.
+ */
+export const VIAF_API_BASE_TOKEN = new InjectionToken<string>('VIAF_API_BASE');
+
+const DEFAULT_API_BASE = 'https://viaf.org/viaf';
 
 /**
  * VIAF API service using the current REST API.
@@ -190,7 +196,15 @@ const API_BASE = 'https://viaf.org/viaf';
   providedIn: 'root',
 })
 export class ViafService {
-  constructor(private _http: HttpClient, private _error: ErrorService) {}
+  private readonly apiBase: string;
+
+  constructor(
+    private _http: HttpClient,
+    private _error: ErrorService,
+    @Optional() @Inject(VIAF_API_BASE_TOKEN) apiBase?: string
+  ) {
+    this.apiBase = apiBase || DEFAULT_API_BASE;
+  }
 
   /**
    * Auto-complete suggest using the VIAF AutoSuggest endpoint.
@@ -204,7 +218,7 @@ export class ViafService {
     }
 
     // AutoSuggest endpoint returns JSON directly
-    const url = `${API_BASE}/AutoSuggest`;
+    const url = `${this.apiBase}/AutoSuggest`;
     let params = new HttpParams().set('query', query.trim());
 
     return this._http
@@ -231,7 +245,7 @@ export class ViafService {
     max = 10,
     sortKey = 'holdingscount'
   ): Observable<ViafSearchResult> {
-    const url = `${API_BASE}/search`;
+    const url = `${this.apiBase}/search`;
     let params = new HttpParams()
       .set('query', query)
       .set('maximumRecords', max.toString());
@@ -341,7 +355,7 @@ export class ViafService {
     viafId: string,
     relation: string
   ): Observable<any[]> {
-    const url = `${API_BASE}/${viafId}/${relation}.json`;
+    const url = `${this.apiBase}/${viafId}/${relation}.json`;
     return this._http.get<any[]>(url).pipe(
       retry(3),
       catchError((error) => {

@@ -61,8 +61,26 @@ If you're upgrading from a previous version:
    imports: [HttpClientModule];
    ```
 
+To override the API root URI, do like this in your app:
+
+```ts
+// app.config.ts
+import { VIAF_API_BASE_TOKEN } from '@myrmidon/cadmus-refs-viaf-lookup';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // ...other providers...
+    // optional: override the default VIAF API base URL
+    {
+      provide: VIAF_API_BASE_TOKEN,
+      useValue: 'https://my-proxy.example.com/viaf'
+    },
+};
+```
+
 ## History
 
+- 2025-07-24: added `VIAF_API_BASE_TOKEN` to allow overriding the API root URI.
 - 2025-07-15: ⚠️ totally rewritten VIAF service to use the new API endpoints.
   - **BREAKING**: Replaced JSONP with standard HTTP + Fetch API
   - **Updated**: Now uses `https://viaf.org/viaf/AutoSuggest` for suggestions
