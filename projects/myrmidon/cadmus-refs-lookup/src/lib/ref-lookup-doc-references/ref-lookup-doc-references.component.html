@@ -80,6 +80,8 @@
         <mat-panel-title>Reference #{{ editedIndex + 1 }}</mat-panel-title>
       </mat-expansion-panel-header>
       <cadmus-refs-lookup-doc-reference
+        [tagEntries]="tagEntries()"
+        [typeEntries]="typeEntries()"
         [reference]="edited"
         [noLookup]="noLookup()"
         [noCitation]="noCitation()"

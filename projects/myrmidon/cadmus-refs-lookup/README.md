@@ -11,6 +11,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Configuring Set](#configuring-set)
   - [LookupDocReferencesComponent](#lookupdocreferencescomponent)
   - [History](#history)
+    - [10.0.2](#1002)
     - [10.0.1](#1001)
     - [10.0.0](#1000)
     - [9.0.1](#901)
@@ -381,6 +382,10 @@ import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 ```
 
 ## History
+
+### 10.0.2
+
+- 2025-07-30: fix missing thesauri in doc references of asserted chronotope date.
 
 ### 10.0.1
 

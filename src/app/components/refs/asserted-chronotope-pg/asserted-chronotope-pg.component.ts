@@ -5,6 +5,8 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
+import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+
 import {
   AssertedChronotope,
   AssertedChronotopeComponent,
@@ -27,6 +29,10 @@ import { AssertedChronotopesPipe } from '../../../../../projects/myrmidon/cadmus
 })
 export class AssertedChronotopePgComponent implements OnInit {
   public chronotope?: AssertedChronotope;
+  public refTypeEntries: ThesaurusEntry[] = [
+    { id: 'biblio', value: 'bibliography' },
+    { id: 'cit', value: 'citation' },
+  ];
 
   public ngOnInit(): void {
     this.chronotope = {
