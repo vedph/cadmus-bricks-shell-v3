@@ -2,6 +2,7 @@
   <!-- toolbar -->
   <div id="toolbar" class="form-row">
     <!-- place -->
+    <mat-icon style="color: green">map</mat-icon>
     <mat-checkbox [formControl]="hasPlace">{{
       chronotope()?.place?.value || "place"
     }}</mat-checkbox>
@@ -14,6 +15,7 @@
       <mat-icon class="mat-primary">edit</mat-icon>
     </button>
     <!-- date -->
+    <mat-icon style="color: orange">hourglass_bottom</mat-icon>
     <mat-checkbox [formControl]="hasDate">{{
       (chronotope()?.date | historicalDate) || "date"
     }}</mat-checkbox>
@@ -69,9 +71,10 @@
         </div>
         <!-- assertion -->
         <mat-expansion-panel>
-          <mat-expansion-panel-header
-            >place assertion</mat-expansion-panel-header
-          >
+          <mat-expansion-panel-header>
+            <mat-icon>task</mat-icon>
+            place assertion
+          </mat-expansion-panel-header>
           <cadmus-refs-assertion
             [assTagEntries]="assTagEntries()"
             [refTypeEntries]="refTypeEntries()"
@@ -83,7 +86,11 @@
       </fieldset>
       <!-- buttons -->
       <div class="form-row">
-        <button type="button" mat-icon-button (click)="placeExpanded = false">
+        <button
+          type="button"
+          mat-icon-button
+          (click)="closePlace()"
+        >
           <mat-icon class="mat-warn">cancel</mat-icon>
         </button>
         <button type="submit" mat-icon-button [disabled]="plForm.invalid">
@@ -94,7 +101,12 @@
   </mat-expansion-panel>
 
   <!-- date -->
-  <mat-expansion-panel class="editor" [(expanded)]="dateExpanded" (submit)="saveDate()">
+  <mat-expansion-panel
+    class="editor"
+    [expanded]="dateExpanded()"
+    (expandedChange)="dateExpanded.set($event)"
+    (submit)="saveDate()"
+  >
     <form [formGroup]="dtForm">
       <fieldset id="date">
         <legend>date</legend>
@@ -127,9 +139,10 @@
           />
           <mat-expansion-panel>
             <!-- assertion -->
-            <mat-expansion-panel-header
-              >date assertion</mat-expansion-panel-header
-            >
+            <mat-expansion-panel-header>
+              <mat-icon>task</mat-icon>
+              date assertion
+            </mat-expansion-panel-header>
             <cadmus-refs-assertion
               [assTagEntries]="assTagEntries()"
               [refTypeEntries]="refTypeEntries()"
@@ -142,7 +155,7 @@
       </fieldset>
       <!-- buttons -->
       <div class="form-row">
-        <button type="button" mat-icon-button (click)="dateExpanded = false">
+        <button type="button" mat-icon-button (click)="closeDate()">
           <mat-icon class="mat-warn">cancel</mat-icon>
         </button>
         <button type="submit" mat-icon-button [disabled]="dtForm.invalid">

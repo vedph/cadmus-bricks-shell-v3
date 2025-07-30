@@ -44,6 +44,12 @@ A pipe to transform a single chronotope or an array of chronotopes into a string
 
 ## History
 
+### 10.0.2
+
+- 2025-07-30:
+  - handle chronotope date and place expansion via signals.
+  - refactor interactivity in editor.
+
 ### 10.0.1
 
 - 2025-06-03: fixes to chronotope editor.

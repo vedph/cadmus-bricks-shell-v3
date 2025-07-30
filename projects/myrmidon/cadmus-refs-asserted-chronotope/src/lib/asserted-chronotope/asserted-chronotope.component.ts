@@ -5,6 +5,7 @@ import {
   model,
   OnDestroy,
   OnInit,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -30,7 +31,13 @@ import {
   HistoricalDateModel,
   HistoricalDatePipe,
 } from '@myrmidon/cadmus-refs-historical-date';
-import { debounceTime, distinctUntilChanged, merge, Subscription } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  merge,
+  Subscription,
+} from 'rxjs';
 
 /**
  * A place with an optional assertion.
@@ -82,7 +89,9 @@ export interface AssertedChronotope {
 })
 export class AssertedChronotopeComponent implements OnInit, OnDestroy {
   private _subs: Subscription[] = [];
-  private _dropNextInput?: boolean;
+  private _updatingForm?: boolean;
+  private _hasPlaceChangeFrozen?: boolean;
+  private _hasDateChangeFrozen?: boolean;
 
   /**
    * The chronotope to edit.
@@ -102,7 +111,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
   public refTagEntries = input<ThesaurusEntry[]>();
 
   // place
-  public placeExpanded = false;
+  public placeExpanded = signal(false);
   public hasPlace: FormControl<boolean>;
   public plTag: FormControl<string | null>;
   public plAssertion: FormControl<Assertion | null>;
@@ -110,7 +119,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
   public plForm: FormGroup;
 
   // date
-  public dateExpanded = false;
+  public dateExpanded = signal(false);
   public hasDate: FormControl<boolean>;
   public dtTag: FormControl<string | null>;
   public dtAssertion: FormControl<Assertion | null>;
@@ -144,37 +153,34 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
 
     // when chronotope changes, update the form
     effect(() => {
-      if (this._dropNextInput) {
-        this._dropNextInput = false;
-        return;
-      }
       this.updateForm(this.chronotope());
     });
   }
 
   public ngOnInit(): void {
-    // whenever has place or date changes, update the chronotope
-    this._subs.push(
-      merge(this.hasPlace.valueChanges, this.hasDate.valueChanges)
-        .pipe(distinctUntilChanged(), debounceTime(300))
-        .subscribe(() => {
-          const chronotope = this.getChronotope();
-          this._dropNextInput = true;
-          this.chronotope.set(chronotope);
-        })
-    );
-
     // automatically open place editor when checkbox is checked for new entries
     this._subs.push(
       this.hasPlace.valueChanges
-        .pipe(distinctUntilChanged())
+        .pipe(
+          filter(() => !this._updatingForm),
+          distinctUntilChanged(),
+          debounceTime(300)
+        )
         .subscribe((checked) => {
+          if (this._hasPlaceChangeFrozen) {
+            this._hasPlaceChangeFrozen = false;
+            return;
+          }
           if (checked) {
             // use setTimeout to avoid potential timing issues with form updates
             setTimeout(() => this.editPlace(), 0);
           } else {
             // close the place editor if unchecked
-            this.placeExpanded = false;
+            this.place.reset();
+            this.plForm.reset();
+            // update chronotope after place change
+            const chronotope = this.getChronotope();
+            this.chronotope.set(chronotope);
           }
         })
     );
@@ -182,14 +188,26 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
     // automatically open date editor when checkbox is checked for new entries
     this._subs.push(
       this.hasDate.valueChanges
-        .pipe(distinctUntilChanged())
+        .pipe(
+          filter(() => !this._updatingForm),
+          distinctUntilChanged(),
+          debounceTime(300)
+        )
         .subscribe((checked) => {
+          if (this._hasDateChangeFrozen) {
+            this._hasDateChangeFrozen = false;
+            return;
+          }
           if (checked) {
             // use setTimeout to avoid potential timing issues with form updates
             setTimeout(() => this.editDate(), 0);
           } else {
             // close the date editor if unchecked
-            this.dateExpanded = false;
+            this.date.reset();
+            this.dtForm.reset();
+            // update chronotope after date change
+            const chronotope = this.getChronotope();
+            this.chronotope.set(chronotope);
           }
         })
     );
@@ -200,58 +218,83 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
   }
 
   private updateForm(chronotope: AssertedChronotope | undefined): void {
+    this._updatingForm = true;
+    this.placeExpanded.set(false);
+    this.dateExpanded.set(false);
+
     if (!chronotope) {
       this.hasPlace.reset();
       this.hasDate.reset();
       this.plForm.reset();
       this.dtForm.reset();
     } else {
-      this.hasPlace.setValue(chronotope.place ? true : false);
-      this.plTag.setValue(chronotope.place?.tag || null);
-      this.plAssertion.setValue(chronotope.place?.assertion || null);
-      this.place.setValue(chronotope.place?.value || null);
+      this.hasPlace.setValue(chronotope.place ? true : false, {
+        emitEvent: false,
+      });
+      this.plTag.setValue(chronotope.place?.tag || null, { emitEvent: false });
+      this.plAssertion.setValue(chronotope.place?.assertion || null, {
+        emitEvent: false,
+      });
+      this.place.setValue(chronotope.place?.value || null, {
+        emitEvent: false,
+      });
       this.plForm.markAsPristine();
 
-      this.hasDate.setValue(chronotope.date ? true : false);
-      this.dtTag.setValue(chronotope.date?.tag || null);
-      this.dtAssertion.setValue(chronotope.date?.assertion || null);
-      this.date.setValue(chronotope.date as HistoricalDateModel);
+      this.hasDate.setValue(chronotope.date ? true : false, {
+        emitEvent: false,
+      });
+      this.dtTag.setValue(chronotope.date?.tag || null, { emitEvent: false });
+      this.dtAssertion.setValue(chronotope.date?.assertion || null, {
+        emitEvent: false,
+      });
+      this.date.setValue(chronotope.date as HistoricalDateModel, {
+        emitEvent: false,
+      });
       this.dtForm.markAsPristine();
     }
+    this._updatingForm = false;
   }
 
   public editPlace(): void {
     const chronotope = this.chronotope();
-    this.place.setValue(chronotope?.place?.value || null);
-    this.plAssertion.setValue(chronotope?.place?.assertion || null);
-    this.placeExpanded = true;
+    this.place.setValue(chronotope?.place?.value || null, { emitEvent: false });
+    this.plAssertion.setValue(chronotope?.place?.assertion || null, {
+      emitEvent: false,
+    });
+    this.placeExpanded.set(true);
   }
 
   public onPlAssertionChange(assertion: Assertion | undefined): void {
-    this.plAssertion.setValue(assertion || null);
+    this.plAssertion.setValue(assertion || null, { emitEvent: false });
     this.plAssertion.updateValueAndValidity();
     this.plAssertion.markAsDirty();
   }
 
+  public closePlace(): void {
+    this._hasPlaceChangeFrozen = false;
+    this.placeExpanded.set(false);
+  }
+
   public savePlace(): void {
+    this._hasPlaceChangeFrozen = true;
     // save if valid
     if (this.plForm.valid) {
-      this.hasPlace.setValue(true);
+      this.hasPlace.setValue(true, { emitEvent: false });
       this.chronotope.set(this.getChronotope());
     } else {
-      this.hasPlace.setValue(false);
+      this.hasPlace.setValue(false, { emitEvent: false });
     }
     this.hasPlace.markAsDirty();
     this.hasPlace.updateValueAndValidity();
     // close the form
-    this.placeExpanded = false;
+    this.placeExpanded.set(false);
   }
 
   public editDate(): void {
     const chronotope = this.chronotope();
     this.date.setValue(chronotope?.date || null);
     this.dtAssertion.setValue(chronotope?.date?.assertion || null);
-    this.dateExpanded = true;
+    this.dateExpanded.set(true);
   }
 
   public onDtAssertionChange(assertion: Assertion | undefined): void {
@@ -266,18 +309,24 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
     this.date.markAsDirty();
   }
 
+  public closeDate(): void {
+    this._hasDateChangeFrozen = false;
+    this.dateExpanded.set(false);
+  }
+
   public saveDate(): void {
+    this._hasDateChangeFrozen = true;
     // save if valid
     if (this.dtForm.valid) {
-      this.hasDate.setValue(true);
+      this.hasDate.setValue(true, { emitEvent: false });
       this.chronotope.set(this.getChronotope());
     } else {
-      this.hasDate.setValue(false);
+      this.hasDate.setValue(false, { emitEvent: false });
     }
     this.hasDate.markAsDirty();
     this.hasDate.updateValueAndValidity();
     // close the form
-    this.dateExpanded = false;
+    this.dateExpanded.set(false);
   }
 
   private getChronotope(): AssertedChronotope {
