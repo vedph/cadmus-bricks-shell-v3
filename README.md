@@ -126,6 +126,7 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-08-06: fix to asserted composite ID auto-scope (`@myrmidon/cadmus-refs-asserted-ids`).
 - 2025-07-30:
   - fix missing thesauri in doc references of asserted chronotope date (`@myrmidon/cadmus-refs-lookup`).
   - fixes to asserted chronotope editor (`@myrmidon/cadmus-refs-asserted-chronotope`).

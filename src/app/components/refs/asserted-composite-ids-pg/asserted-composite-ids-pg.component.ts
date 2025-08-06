@@ -56,20 +56,21 @@ export class AssertedCompositeIdsPgComponent implements OnInit {
       canEditTarget: this.canEditTarget,
     });
     // data
-    this.idScopeEntries = [
-      {
-        id: 'scope1',
-        value: 'id-scope-1',
-      },
-      {
-        id: 'scope2',
-        value: 'id-scope-2',
-      },
-      {
-        id: '-',
-        value: '---',
-      },
-    ];
+    this.idScopeEntries = [];
+    // this.idScopeEntries = [
+    //   {
+    //     id: 'scope1',
+    //     value: 'id-scope-1',
+    //   },
+    //   {
+    //     id: 'scope2',
+    //     value: 'id-scope-2',
+    //   },
+    //   {
+    //     id: '-',
+    //     value: '---',
+    //   },
+    // ];
     this.idTagEntries = [
       {
         id: 'idt1',

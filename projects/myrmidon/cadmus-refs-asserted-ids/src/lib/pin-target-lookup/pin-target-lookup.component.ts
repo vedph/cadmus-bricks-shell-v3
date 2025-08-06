@@ -648,11 +648,11 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     if (event.item) {
       this._updatingForm = true;
       setTimeout(() => {
-        this.gid.setValue(event.itemId);
+        this.gid.setValue(event.itemId, { emitEvent: false });
         this.gid.updateValueAndValidity();
         this.gid.markAsDirty();
 
-        this.label.setValue(event.itemLabel);
+        this.label.setValue(event.itemLabel, { emitEvent: false });
         this.label.updateValueAndValidity();
         this.label.markAsDirty();
 

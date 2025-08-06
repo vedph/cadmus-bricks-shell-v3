@@ -254,6 +254,11 @@ export class AssertedCompositeIdComponent {
   }
 
   public onExtLookupConfigChange(config: RefLookupConfig): void {
+    // update scope if external lookup config is selected
+    const external = !this.target.value?.name;
+    if (this._updatingForm || !external) {
+      return;
+    }
     if (
       !this.scope.value ||
       this.extLookupConfigs.some((c) => c.name === this.scope.value)

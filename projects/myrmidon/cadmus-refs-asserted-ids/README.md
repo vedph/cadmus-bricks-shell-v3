@@ -16,6 +16,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
   - [History](#history)
+    - [10.0.6](#1006)
     - [10.0.5](#1005)
     - [10.0.4](#1004)
     - [10.0.3](#1003)
@@ -377,6 +378,10 @@ A collection of asserted composite IDs.
   - idsChange (`AssertedCompositeId[]`)
 
 ## History
+
+### 10.0.6
+
+- 2025-08-06: automatically update scope in asserted composite ID only when not updating form and lookup is external and scope is empty.
 
 ### 10.0.5
 
