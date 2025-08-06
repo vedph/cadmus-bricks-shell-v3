@@ -39,7 +39,6 @@ export class AssertedCompositeIdPgComponent {
   public form: FormGroup;
   // data
   public id?: AssertedCompositeId;
-  public idScopeEntries: ThesaurusEntry[];
   public idTagEntries: ThesaurusEntry[];
   public assTagEntries: ThesaurusEntry[];
   public refTypeEntries: ThesaurusEntry[];
@@ -56,21 +55,6 @@ export class AssertedCompositeIdPgComponent {
       canSwitchMode: this.canSwitchMode,
       canEditTarget: this.canEditTarget,
     });
-    // data
-    this.idScopeEntries = [
-      {
-        id: 'scope1',
-        value: 'id-scope-1',
-      },
-      {
-        id: 'scope2',
-        value: 'id-scope-2',
-      },
-      {
-        id: '-',
-        value: '---',
-      },
-    ];
     this.idTagEntries = [
       {
         id: 'idt1',
@@ -123,6 +107,12 @@ export class AssertedCompositeIdPgComponent {
         value: '---',
       },
     ];
+    this.id = {
+      target: {
+        gid: 'http://www.guys.com/john_doe',
+        label: 'John Doe',
+      },
+    };
   }
 
   public onIdChange(id: AssertedCompositeId | undefined): void {

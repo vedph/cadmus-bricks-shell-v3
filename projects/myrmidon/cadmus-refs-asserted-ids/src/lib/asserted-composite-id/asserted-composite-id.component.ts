@@ -77,6 +77,7 @@ export interface AssertedCompositeId {
 })
 export class AssertedCompositeIdComponent {
   private _updatingForm: boolean | undefined;
+  private _lookupConfigDirty = true;
 
   public extLookupConfigs: RefLookupConfig[];
   public targetExpanded = false;
@@ -254,6 +255,11 @@ export class AssertedCompositeIdComponent {
   }
 
   public onExtLookupConfigChange(config: RefLookupConfig): void {
+    if (this._lookupConfigDirty || this._updatingForm) {
+      this._lookupConfigDirty = false;
+      return;
+    }
+
     // update scope if external lookup config is selected
     const external = !this.target.value?.name;
     if (this._updatingForm || !external) {
