@@ -67,6 +67,9 @@
       "@myrmidon/cadmus-refs-whg-lookup": [
         "./dist/myrmidon/cadmus-refs-whg-lookup"
       ],
+      "@myrmidon/cadmus-refs-zotero-lookup": [
+        "./dist/myrmidon/cadmus-refs-zotero-lookup"
+      ],
       "@myrmidon/cadmus-text-block-view": [
         "./dist/myrmidon/cadmus-text-block-view"
       ],
@@ -283,6 +286,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-refs-whg-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-zotero-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-zotero-lookup/tsconfig.spec.json"
     }
   ]
 }
