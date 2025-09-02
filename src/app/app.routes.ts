@@ -260,6 +260,14 @@ export const routes: Routes = [
         './components/refs/whg-ref-lookup-pg/whg-ref-lookup-pg.component'
       ).then((m) => m.WhgRefLookupPgComponent),
   },
+  // refs/zotero-ref-lookup
+  {
+    path: 'refs/zotero-ref-lookup',
+    loadComponent: () =>
+      import(
+        './components/refs/zotero-ref-lookup-pg/zotero-ref-lookup-pg.component'
+      ).then((m) => m.ZoteroRefLookupPgComponent),
+  },
   // text/emoji-ime
   {
     path: 'text/emoji-ime',

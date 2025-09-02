@@ -1,0 +1,57 @@
+import { CommonModule } from '@angular/common';
+import { Component, signal } from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+import {
+  ZoteroItem,
+  ZoteroRefLookupService,
+} from '../../../../../projects/myrmidon/cadmus-refs-zotero-lookup/src/public-api';
+import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+
+@Component({
+  selector: 'app-zotero-ref-lookup-pg',
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressBarModule,
+    RefLookupComponent,
+  ],
+  templateUrl: './zotero-ref-lookup-pg.component.html',
+  styleUrl: './zotero-ref-lookup-pg.component.scss',
+})
+export class ZoteroRefLookupPgComponent {
+  public term: FormControl<string | null>;
+  public form: FormGroup;
+
+  public readonly item = signal<ZoteroItem | undefined>(undefined);
+
+  constructor(
+    formBuilder: FormBuilder,
+    public service: ZoteroRefLookupService
+  ) {
+    this.term = formBuilder.control(null, Validators.required);
+    this.form = formBuilder.group({
+      term: this.term,
+    });
+  }
+
+  public onItemChange(item?: any): void {
+    this.item.set(item);
+  }
+}
