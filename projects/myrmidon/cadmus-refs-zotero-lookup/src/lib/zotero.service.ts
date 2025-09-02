@@ -422,11 +422,10 @@ export class ZoteroService {
   private getHeaders(): HttpHeaders {
     let headers = new HttpHeaders({
       Accept: 'application/json',
-      'User-Agent': 'Angular Zotero Client/1.0',
     });
 
     if (this.apiKey) {
-      headers = headers.set('Authorization', `Bearer ${this.apiKey}`);
+      headers = headers.set('Zotero-API-Key', this.apiKey);
     }
 
     return headers;
@@ -778,7 +777,7 @@ export class ZoteroService {
    */
   public getTags(
     libraryId: string,
-    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP
   ): Observable<ZoteroTag[]> {
     if (!libraryId && libraryType === ZoteroLibraryType.USER && this.userId) {
       libraryId = this.userId;

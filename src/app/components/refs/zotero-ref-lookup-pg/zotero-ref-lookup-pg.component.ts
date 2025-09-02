@@ -21,6 +21,7 @@ import {
   ZoteroService,
 } from '../../../../../projects/myrmidon/cadmus-refs-zotero-lookup/src/public-api';
 import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+import { RamStorageService } from '@myrmidon/ngx-tools';
 
 @Component({
   selector: 'app-zotero-ref-lookup-pg',
@@ -42,9 +43,8 @@ export class ZoteroRefLookupPgComponent {
   public user: FormControl<string | null>;
   public key: FormControl<string | null>;
   public libraryId: FormControl<string | null>;
-  public form: FormGroup;
-
   public term: FormControl<string | null>;
+  public form: FormGroup;
 
   public readonly item = signal<ZoteroItem | undefined>(undefined);
   public readonly busy = signal<boolean>(false);
@@ -52,22 +52,26 @@ export class ZoteroRefLookupPgComponent {
   constructor(
     formBuilder: FormBuilder,
     public service: ZoteroRefLookupService,
-    private _zotero: ZoteroService
+    private _zotero: ZoteroService,
+    private _storage: RamStorageService
   ) {
     this.user = formBuilder.control(null, Validators.required);
     this.key = formBuilder.control(null, Validators.required);
     this.libraryId = formBuilder.control(null, Validators.required);
+    this.term = formBuilder.control(null, Validators.required);
     this.form = formBuilder.group({
       user: this.user,
       key: this.key,
       libraryId: this.libraryId,
+      term: this.term,
     });
-
-    this.term = formBuilder.control(null, Validators.required);
   }
 
   public onSubmit(): void {
     if (this.form.valid) {
+      this._storage.store('zoteroApiKey', this.key.value);
+      this._storage.store('zoteroUserId', this.user.value);
+
       this.busy.set(true);
       this._zotero
         .searchEverything(this.libraryId.value!, this.term.value!)
