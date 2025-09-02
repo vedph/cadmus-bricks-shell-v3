@@ -8,6 +8,8 @@ import {
 import { Observable, of, throwError } from 'rxjs';
 import { map, catchError, retry } from 'rxjs/operators';
 
+import { RamStorageService } from '@myrmidon/ngx-tools';
+
 // injection tokens for configuration
 export const ZOTERO_API_BASE_TOKEN = new InjectionToken<string>(
   'ZOTERO_API_BASE'
@@ -377,19 +379,42 @@ export interface ZoteroResponse<T> {
   providedIn: 'root',
 })
 export class ZoteroService {
-  private readonly apiBase: string;
-  private readonly apiKey?: string;
-  private readonly userId?: string;
+  private readonly defaultApiBase: string;
+  private readonly defaultApiKey?: string;
+  private readonly defaultUserId?: string;
 
   constructor(
     private _http: HttpClient,
+    private _storage: RamStorageService,
     @Optional() @Inject(ZOTERO_API_BASE_TOKEN) apiBase?: string,
     @Optional() @Inject(ZOTERO_API_KEY_TOKEN) apiKey?: string,
     @Optional() @Inject(ZOTERO_USER_ID_TOKEN) userId?: string
   ) {
-    this.apiBase = apiBase || DEFAULT_ZOTERO_API_BASE;
-    this.apiKey = apiKey;
-    this.userId = userId;
+    this.defaultApiBase = apiBase || DEFAULT_ZOTERO_API_BASE;
+    this.defaultApiKey = apiKey;
+    this.defaultUserId = userId;
+  }
+
+  // getters to retrieve values from storage or fall back to defaults
+  private get apiBase(): string {
+    return (
+      this._storage.retrieve('zoteroApiBase') ||
+      this.defaultApiBase
+    );
+  }
+
+  private get apiKey(): string | undefined {
+    return (
+      this._storage.retrieve('zoteroApiKey') ||
+      this.defaultApiKey
+    );
+  }
+
+  private get userId(): string | undefined {
+    return (
+      this._storage.retrieve('zoteroUserId') ||
+      this.defaultUserId
+    );
   }
 
   private getHeaders(): HttpHeaders {
