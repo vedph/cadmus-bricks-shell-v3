@@ -45,8 +45,8 @@ export class ZoteroRefLookupService implements RefLookupService {
 
     return this._zotero
       .getItems(
-        options?.libraryType || ZoteroLibraryType.GROUP,
         options?.libraryName || '',
+        options?.libraryType || ZoteroLibraryType.GROUP,
         {
           ...((options as ZoteroSearchParams) || {}),
           limit: filter.limit,

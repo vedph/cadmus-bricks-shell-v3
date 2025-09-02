@@ -26,7 +26,15 @@ export const DEFAULT_ZOTERO_API_BASE = 'https://api.zotero.org';
 
 //#region Enums
 export enum ZoteroLibraryType {
+  /**
+   * A personal Zotero library owned by a single user.
+   * All items, collections, and data belong to that individual account.
+   */
   USER = 'users',
+  /**
+   * A shared Zotero library associated with a group of users. Multiple
+   * users can collaborate, add, and manage items in this library.
+   */
   GROUP = 'groups',
 }
 
@@ -374,6 +382,9 @@ export interface ZoteroResponse<T> {
 
 /**
  * Zotero API service for interacting with Zotero libraries and items.
+ * To use this you will need your API user ID and key. You can specify
+ * them via injection tokens, or via a volatile RamStorage when you
+ * need to define them at runtime.
  */
 @Injectable({
   providedIn: 'root',
@@ -397,24 +408,15 @@ export class ZoteroService {
 
   // getters to retrieve values from storage or fall back to defaults
   private get apiBase(): string {
-    return (
-      this._storage.retrieve('zoteroApiBase') ||
-      this.defaultApiBase
-    );
+    return this._storage.retrieve('zoteroApiBase') || this.defaultApiBase;
   }
 
   private get apiKey(): string | undefined {
-    return (
-      this._storage.retrieve('zoteroApiKey') ||
-      this.defaultApiKey
-    );
+    return this._storage.retrieve('zoteroApiKey') || this.defaultApiKey;
   }
 
   private get userId(): string | undefined {
-    return (
-      this._storage.retrieve('zoteroUserId') ||
-      this.defaultUserId
-    );
+    return this._storage.retrieve('zoteroUserId') || this.defaultUserId;
   }
 
   private getHeaders(): HttpHeaders {
@@ -479,9 +481,16 @@ export class ZoteroService {
   }
 
   //#region Library items methods
+  /**
+   * Get items from a Zotero library.
+   * @param libraryId The ID of the library.
+   * @param libraryType The type of the library (user/group).
+   * @param params Query parameters for the request.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getItems(
-    libraryType: ZoteroLibraryType,
     libraryId: string,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: ZoteroSearchParams = {}
   ): Observable<ZoteroResponse<ZoteroItem>> {
     if (!libraryId && libraryType === ZoteroLibraryType.USER && this.userId) {
@@ -511,10 +520,18 @@ export class ZoteroService {
       );
   }
 
+  /**
+   * Get a single item from a Zotero library.
+   * @param libraryId The ID of the library.
+   * @param itemKey The key of the item.
+   * @param libraryType The type of the library (user/group).
+   * @param params Query parameters for the request.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getItem(
-    libraryType: ZoteroLibraryType,
     libraryId: string,
     itemKey: string,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: {
       format?: ZoteroFormat;
       include?: ('data' | 'bib' | 'citation')[];
@@ -539,10 +556,17 @@ export class ZoteroService {
       .pipe(retry(3), catchError(this.handleError));
   }
 
+  /**
+   * Create a new item in a Zotero library.
+   * @param libraryId The ID of the library.
+   * @param item The item data to create.
+   * @param libraryType The type of the library (user/group).
+   * @returns An observable with the response from the Zotero API.
+   */
   public createItem(
-    libraryType: ZoteroLibraryType,
     libraryId: string,
-    item: Partial<ZoteroData>
+    item: Partial<ZoteroData>,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP
   ): Observable<ZoteroItem> {
     if (!libraryId && libraryType === ZoteroLibraryType.USER && this.userId) {
       libraryId = this.userId;
@@ -561,12 +585,21 @@ export class ZoteroService {
       .pipe(retry(3), catchError(this.handleError));
   }
 
+  /**
+   * Update an existing item in a Zotero library.
+   * @param libraryId The ID of the library.
+   * @param itemKey The key of the item.
+   * @param item The item data to update.
+   * @param version The version of the item.
+   * @param libraryType The type of the library (user/group).
+   * @returns An observable with the response from the Zotero API.
+   */
   public updateItem(
-    libraryType: ZoteroLibraryType,
     libraryId: string,
     itemKey: string,
     item: Partial<ZoteroData>,
-    version: number
+    version: number,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP
   ): Observable<ZoteroItem> {
     if (!libraryId && libraryType === ZoteroLibraryType.USER && this.userId) {
       libraryId = this.userId;
@@ -587,11 +620,19 @@ export class ZoteroService {
       .pipe(retry(3), catchError(this.handleError));
   }
 
+  /**
+   * Delete an existing item from a Zotero library.
+   * @param libraryId The ID of the library.
+   * @param itemKey The key of the item.
+   * @param version The version of the item.
+   * @param libraryType The type of the library (user/group).
+   * @returns An observable with the response from the Zotero API.
+   */
   public deleteItem(
-    libraryType: ZoteroLibraryType,
     libraryId: string,
     itemKey: string,
-    version: number
+    version: number,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP
   ): Observable<void> {
     if (!libraryId && libraryType === ZoteroLibraryType.USER && this.userId) {
       libraryId = this.userId;
@@ -615,9 +656,16 @@ export class ZoteroService {
   //#endregion
 
   //#region Collections methods
+  /**
+   * Get all collections in a Zotero library.
+   * @param libraryId The ID of the library.
+   * @param libraryType The type of the library (user/group).
+   * @param params Optional query parameters.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getCollections(
-    libraryType: ZoteroLibraryType,
     libraryId: string,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: ZoteroCollectionParams = {}
   ): Observable<ZoteroResponse<ZoteroCollection>> {
     if (!libraryId && libraryType === ZoteroLibraryType.USER && this.userId) {
@@ -671,33 +719,49 @@ export class ZoteroService {
   //#endregion
 
   //#region Search methods
+  /**
+   * Search for items in a Zotero library.
+   * @param libraryId The ID of the library.
+   * @param query The search query.
+   * @param libraryType The type of the library (user/group).
+   * @param params Optional query parameters.
+   * @returns An observable with the response from the Zotero API.
+   */
   public search(
-    libraryType: ZoteroLibraryType,
     libraryId: string,
     query: string,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: Omit<ZoteroSearchParams, 'q'> = {}
   ): Observable<ZoteroResponse<ZoteroItem>> {
     if (!query.trim()) {
       return of({ data: [] });
     }
 
-    return this.getItems(libraryType, libraryId, {
+    return this.getItems(libraryId, libraryType, {
       ...params,
       q: query.trim(),
     });
   }
 
+  /**
+   * Search for items in a Zotero library using qmode=everything.
+   * @param libraryId The ID of the library.
+   * @param query The search query.
+   * @param libraryType The type of the library (user/group).
+   * @param params Optional query parameters.
+   * @returns An observable with the response from the Zotero API.
+   */
   public searchEverything(
-    libraryType: ZoteroLibraryType,
     libraryId: string,
     query: string,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: Omit<ZoteroSearchParams, 'q' | 'qmode'> = {}
   ): Observable<ZoteroResponse<ZoteroItem>> {
     if (!query.trim()) {
       return of({ data: [] });
     }
 
-    return this.getItems(libraryType, libraryId, {
+    return this.getItems(libraryId, libraryType, {
       ...params,
       q: query.trim(),
       qmode: 'everything',
@@ -706,9 +770,15 @@ export class ZoteroService {
   //#endregion
 
   //#region Tag methods
+  /**
+   * Get the tags for a Zotero library.
+   * @param libraryId The ID of the library.
+   * @param libraryType The type of the library (user/group).
+   * @returns An observable with the response from the Zotero API.
+   */
   public getTags(
-    libraryType: ZoteroLibraryType,
-    libraryId: string
+    libraryId: string,
+    libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
   ): Observable<ZoteroTag[]> {
     if (!libraryId && libraryType === ZoteroLibraryType.USER && this.userId) {
       libraryId = this.userId;
@@ -729,6 +799,10 @@ export class ZoteroService {
   //#endregion
 
   //#region Group methods
+  /**
+   * Get the groups for a Zotero user.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getGroups(): Observable<ZoteroGroup[]> {
     const url = `${this.apiBase}/users/${this.userId}/groups`;
 
@@ -751,6 +825,11 @@ export class ZoteroService {
   //#endregion
 
   //#region Template methods
+  /**
+   * Get the item template for a specific item type.
+   * @param itemType The type of the item.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getItemTemplate(
     itemType: ZoteroItemType
   ): Observable<ZoteroItemTemplate> {
@@ -765,6 +844,10 @@ export class ZoteroService {
       .pipe(retry(3), catchError(this.handleError));
   }
 
+  /**
+   * Get the item types for a Zotero library.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getItemTypes(): Observable<{ itemType: string; localized: string }[]> {
     const url = `${this.apiBase}/itemTypes`;
 
@@ -775,6 +858,11 @@ export class ZoteroService {
       .pipe(retry(3), catchError(this.handleError));
   }
 
+  /**
+   * Get the fields for a specific item type.
+   * @param itemType The type of the item.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getItemFields(
     itemType?: ZoteroItemType
   ): Observable<{ field: string; localized: string }[]> {
@@ -793,6 +881,11 @@ export class ZoteroService {
       .pipe(retry(3), catchError(this.handleError));
   }
 
+  /**
+   * Get the creator types for a specific item type.
+   * @param itemType The type of the item.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getCreatorTypes(
     itemType: ZoteroItemType
   ): Observable<{ creatorType: string; localized: string }[]> {
@@ -809,6 +902,10 @@ export class ZoteroService {
   //#endregion
 
   //#region Key validation
+  /**
+   * Get the key permissions for the current user.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getKeyPermissions(): Observable<{
     username: string;
     userID: number;
@@ -829,6 +926,10 @@ export class ZoteroService {
   //#endregion
 
   //#region Utility methods
+  /**
+   * Get the user information for the current user.
+   * @returns An observable with the response from the Zotero API.
+   */
   public getMyUserInfo(): Observable<{
     userID: number;
     username: string;

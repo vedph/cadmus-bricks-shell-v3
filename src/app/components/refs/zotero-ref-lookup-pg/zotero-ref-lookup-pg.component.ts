@@ -9,6 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,6 +18,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import {
   ZoteroItem,
   ZoteroRefLookupService,
+  ZoteroService,
 } from '../../../../../projects/myrmidon/cadmus-refs-zotero-lookup/src/public-api';
 import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
 
@@ -26,6 +28,7 @@ import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -36,19 +39,48 @@ import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs
   styleUrl: './zotero-ref-lookup-pg.component.scss',
 })
 export class ZoteroRefLookupPgComponent {
-  public term: FormControl<string | null>;
+  public user: FormControl<string | null>;
+  public key: FormControl<string | null>;
+  public libraryId: FormControl<string | null>;
   public form: FormGroup;
 
+  public term: FormControl<string | null>;
+
   public readonly item = signal<ZoteroItem | undefined>(undefined);
+  public readonly busy = signal<boolean>(false);
 
   constructor(
     formBuilder: FormBuilder,
-    public service: ZoteroRefLookupService
+    public service: ZoteroRefLookupService,
+    private _zotero: ZoteroService
   ) {
-    this.term = formBuilder.control(null, Validators.required);
+    this.user = formBuilder.control(null, Validators.required);
+    this.key = formBuilder.control(null, Validators.required);
+    this.libraryId = formBuilder.control(null, Validators.required);
     this.form = formBuilder.group({
-      term: this.term,
+      user: this.user,
+      key: this.key,
+      libraryId: this.libraryId,
     });
+
+    this.term = formBuilder.control(null, Validators.required);
+  }
+
+  public onSubmit(): void {
+    if (this.form.valid) {
+      this.busy.set(true);
+      this._zotero
+        .searchEverything(this.libraryId.value!, this.term.value!)
+        .subscribe({
+          next: (item) => this.onItemChange(item),
+          error: (err) => {
+            console.error(err);
+          },
+          complete: () => {
+            this.busy.set(false);
+          },
+        });
+    }
   }
 
   public onItemChange(item?: any): void {

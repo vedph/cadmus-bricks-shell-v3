@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ZoteroRefLookupPgComponent } from './zotero-ref-lookup-pg';
+import { ZoteroRefLookupPgComponent } from './zotero-ref-lookup-pg.component';
 
 describe('ZoteroRefLookupPg', () => {
   let component: ZoteroRefLookupPgComponent;

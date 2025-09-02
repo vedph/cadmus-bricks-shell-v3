@@ -5,14 +5,102 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <cadmus-refs-lookup
-      [service]="service"
-      [item]="item"
-      [required]="true"
-      label="Zotero"
-      (itemChange)="onItemChange($event)"
-    />
+    <div>
+      <fieldset>
+        <legend>query</legend>
+        <form [formGroup]="form" (submit)="onSubmit()">
+          <div class="row">
+            <div class="col">
+              <mat-form-field appearance="fill" class="w-100">
+                <mat-label>Zotero user</mat-label>
+                <input
+                  matInput
+                  [formControl]="user"
+                  placeholder="Zotero user name"
+                />
+                @if (user.touched && user.invalid) {
+                <mat-error>user required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <div class="col">
+              <mat-form-field appearance="fill" class="w-100">
+                <mat-label>Zotero API key</mat-label>
+                <input
+                  matInput
+                  [formControl]="key"
+                  placeholder="Zotero API key"
+                  type="password"
+                />
+                @if (key.touched && key.invalid) {
+                <mat-error>key required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <mat-form-field appearance="fill" class="w-100">
+                <mat-label>Zotero library ID</mat-label>
+                <input
+                  matInput
+                  [formControl]="libraryId"
+                  placeholder="Zotero library ID"
+                  type="number"
+                />
+                @if (libraryId.touched && libraryId.invalid) {
+                <mat-error>library ID required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <div class="col">
+              <mat-form-field appearance="fill" class="w-100">
+                <mat-label>search term</mat-label>
+                <input
+                  matInput
+                  [formControl]="term"
+                  placeholder="search term"
+                />
+                @if (term.touched && term.invalid) {
+                <mat-error>search term required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col text-end">
+              <button
+                mat-flat-button
+                color="primary"
+                type="submit"
+                [disabled]="form.invalid || busy()"
+              >
+                search
+              </button>
+            </div>
+          </div>
+        </form>
+        @if (busy()) {
+        <div>
+          <mat-progress-bar mode="indeterminate" />
+        </div>
+        }
+      </fieldset>
+    </div>
+    <div>
+      <fieldset>
+        <legend>lookup</legend>
+        <cadmus-refs-lookup
+          [service]="service"
+          [item]="item"
+          [required]="true"
+          label="Zotero"
+          (itemChange)="onItemChange($event)"
+        />
+      </fieldset>
+    </div>
     @if (item()) {
+    <hr />
     <div>
       <pre>{{ item() | json }}</pre>
     </div>
