@@ -42,12 +42,7 @@
             <div class="col">
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>Zotero library ID</mat-label>
-                <input
-                  matInput
-                  [formControl]="libraryId"
-                  placeholder="Zotero library ID"
-                  type="number"
-                />
+                <input matInput [formControl]="libraryId" type="number" />
                 @if (libraryId.touched && libraryId.invalid) {
                 <mat-error>library ID required</mat-error>
                 }
@@ -56,11 +51,7 @@
             <div class="col">
               <mat-form-field appearance="fill" class="w-100">
                 <mat-label>search term</mat-label>
-                <input
-                  matInput
-                  [formControl]="term"
-                  placeholder="search term"
-                />
+                <input matInput [formControl]="term" />
                 @if (term.touched && term.invalid) {
                 <mat-error>search term required</mat-error>
                 }
