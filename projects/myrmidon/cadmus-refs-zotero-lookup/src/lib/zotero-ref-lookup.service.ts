@@ -14,8 +14,8 @@ import {
 } from './zotero.service';
 
 export interface ZoteroLookupOptions extends ZoteroSearchParams {
+  libraryId: string;
   libraryType?: ZoteroLibraryType;
-  libraryName: string;
 }
 
 /**
@@ -32,20 +32,20 @@ export class ZoteroRefLookupService implements RefLookupService {
    * @param filter The lookup filter.
    * @param options The additional options. You can pass additional options
    * by passing an instance of ZoteroRefLookupOptions. You should pass the
-   * library type (which defaults to GROUP) and name.
+   * library type (which defaults to GROUP) and ID.
    * @returns Matched items.
    */
   public lookup(
     filter: RefLookupFilter,
     options?: ZoteroLookupOptions
   ): Observable<any[]> {
-    if (!options?.libraryName) {
+    if (!options?.libraryId) {
       return of([]);
     }
 
     return this._zotero
       .getItems(
-        options?.libraryName || '',
+        options?.libraryId || '',
         options?.libraryType || ZoteroLibraryType.GROUP,
         {
           ...((options as ZoteroSearchParams) || {}),
@@ -63,6 +63,6 @@ export class ZoteroRefLookupService implements RefLookupService {
    * @returns The item's name.
    */
   public getName(item: any | undefined): string {
-    return (item as ZoteroItem)?.key;
+    return (item as ZoteroItem)?.data?.title || item?.key;
   }
 }
