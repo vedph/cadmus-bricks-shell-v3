@@ -126,6 +126,7 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-09-03: fixes to Zotero lookup.
 - 2025-09-01: added experimental Zotero service in new library.
 - 2025-08-06: fix to asserted composite ID auto-scope (`@myrmidon/cadmus-refs-asserted-ids`).
 - 2025-07-30:
