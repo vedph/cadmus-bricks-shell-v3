@@ -496,6 +496,15 @@ export class ZoteroService {
   }
 
   //#region Library items methods
+  private checkCredentials(): void {
+    if (!this.userId) {
+      throwError(() => new Error('User ID is required'));
+    }
+    if (!this.apiKey) {
+      throwError(() => new Error('API key is required'));
+    }
+  }
+
   /**
    * Get items from a Zotero library.
    * @param libraryId The ID of the library.
@@ -515,6 +524,8 @@ export class ZoteroService {
     if (!libraryId) {
       return throwError(() => new Error('Library ID is required'));
     }
+
+    this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items`;
     const httpParams = this.buildParams(params);
@@ -560,6 +571,8 @@ export class ZoteroService {
       return throwError(() => new Error('Library ID is required'));
     }
 
+    this.checkCredentials();
+
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items/${itemKey}`;
     const httpParams = this.buildParams(params);
 
@@ -590,6 +603,8 @@ export class ZoteroService {
     if (!libraryId) {
       return throwError(() => new Error('Library ID is required'));
     }
+
+    this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items`;
 
@@ -624,6 +639,8 @@ export class ZoteroService {
       return throwError(() => new Error('Library ID is required'));
     }
 
+    this.checkCredentials();
+
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items/${itemKey}`;
 
     return this._http
@@ -656,6 +673,8 @@ export class ZoteroService {
     if (!libraryId) {
       return throwError(() => new Error('Library ID is required'));
     }
+
+    this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items/${itemKey}`;
 
@@ -691,6 +710,8 @@ export class ZoteroService {
       return throwError(() => new Error('Library ID is required'));
     }
 
+    this.checkCredentials();
+
     const url = `${this.apiBase}/${libraryType}/${libraryId}/collections`;
     const httpParams = this.buildParams(params);
 
@@ -722,6 +743,8 @@ export class ZoteroService {
     if (!libraryId) {
       return throwError(() => new Error('Library ID is required'));
     }
+
+    this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/collections/${collectionKey}`;
 
@@ -803,6 +826,8 @@ export class ZoteroService {
       return throwError(() => new Error('Library ID is required'));
     }
 
+    this.checkCredentials();
+
     const url = `${this.apiBase}/${libraryType}/${libraryId}/tags`;
 
     return this._http
@@ -821,6 +846,8 @@ export class ZoteroService {
   public getGroups(): Observable<ZoteroGroup[]> {
     const url = `${this.apiBase}/users/${this.userId}/groups`;
 
+    this.checkCredentials();
+
     return this._http
       .get<ZoteroGroup[]>(url, {
         headers: this.getHeaders(),
@@ -830,6 +857,8 @@ export class ZoteroService {
 
   public getGroup(groupId: string): Observable<ZoteroGroup> {
     const url = `${this.apiBase}/groups/${groupId}`;
+
+    this.checkCredentials();
 
     return this._http
       .get<ZoteroGroup>(url, {
@@ -848,6 +877,8 @@ export class ZoteroService {
   public getItemTemplate(
     itemType: ZoteroItemType
   ): Observable<ZoteroItemTemplate> {
+    this.checkCredentials();
+
     const url = `${this.apiBase}/items/new`;
     const params = new HttpParams().set('itemType', itemType);
 
@@ -864,6 +895,8 @@ export class ZoteroService {
    * @returns An observable with the response from the Zotero API.
    */
   public getItemTypes(): Observable<{ itemType: string; localized: string }[]> {
+    this.checkCredentials();
+
     const url = `${this.apiBase}/itemTypes`;
 
     return this._http
@@ -881,6 +914,8 @@ export class ZoteroService {
   public getItemFields(
     itemType?: ZoteroItemType
   ): Observable<{ field: string; localized: string }[]> {
+    this.checkCredentials();
+
     const url = `${this.apiBase}/itemFields`;
     let params = new HttpParams();
 
@@ -904,6 +939,8 @@ export class ZoteroService {
   public getCreatorTypes(
     itemType: ZoteroItemType
   ): Observable<{ creatorType: string; localized: string }[]> {
+    this.checkCredentials();
+
     const url = `${this.apiBase}/itemTypeCreatorTypes`;
     const params = new HttpParams().set('itemType', itemType);
 
@@ -926,9 +963,7 @@ export class ZoteroService {
     userID: number;
     access: any;
   }> {
-    if (!this.apiKey) {
-      return throwError(() => new Error('API key is required'));
-    }
+    this.checkCredentials();
 
     const url = `${this.apiBase}/keys/${this.apiKey}`;
 
@@ -950,10 +985,7 @@ export class ZoteroService {
     username: string;
     displayName: string;
   }> {
-    if (!this.userId) {
-      return throwError(() => new Error('User ID is required'));
-    }
-
+    this.checkCredentials();
     const url = `${this.apiBase}/users/${this.userId}`;
 
     return this._http

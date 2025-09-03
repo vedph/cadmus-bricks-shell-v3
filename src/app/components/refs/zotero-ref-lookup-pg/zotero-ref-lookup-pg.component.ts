@@ -74,6 +74,9 @@ export class ZoteroRefLookupPgComponent implements OnInit {
     this.user.setValue(this._localStorage.retrieve('zoteroUserId'));
     this.key.setValue(this._localStorage.retrieve('zoteroApiKey'));
     this.libraryId.setValue(this._localStorage.retrieve('zoteroLibraryId'));
+
+    this._ramStorage.store('zoteroApiKey', this.key.value);
+    this._ramStorage.store('zoteroUserId', this.user.value);
   }
 
   public onSubmit(): void {
