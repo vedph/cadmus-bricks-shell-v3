@@ -39,7 +39,7 @@ constructor(private zotero: ZoteroService) {}
 Search for items in a library by query string.
 
 ```ts
-this.zotero.search(ZoteroLibraryType.USER, 'userId', 'angular', {
+this.zotero.search('userId', 'angular', ZoteroLibraryType.USER, {
   itemType: ZoteroItemType.JOURNAL_ARTICLE,
   limit: 10,
   sort: ZoteroSortField.DATE,
@@ -55,9 +55,10 @@ this.zotero.search(ZoteroLibraryType.USER, 'userId', 'angular', {
 Search all fields (not just title/creator/year):
 
 ```ts
-this.zotero.searchEverything(ZoteroLibraryType.USER, 'userId', 'climate').subscribe(response => {
-  console.log(response.data);
-});
+this.zotero.searchEverything('userId', 'climate', ZoteroLibraryType.USER)
+  .subscribe(response => {
+    console.log(response.data);
+  });
 ```
 
 ---
@@ -67,14 +68,14 @@ this.zotero.searchEverything(ZoteroLibraryType.USER, 'userId', 'climate').subscr
 Get all items in a library (with optional filters):
 
 ```ts
-this.zotero.getItems(ZoteroLibraryType.USER, 'userId', { limit: 20 })
+this.zotero.getItems('userId', ZoteroLibraryType.USER, { limit: 20 })
   .subscribe(response => console.log(response.data));
 ```
 
 Get a single item by key:
 
 ```ts
-this.zotero.getItem(ZoteroLibraryType.USER, 'userId', 'ITEM_KEY')
+this.zotero.getItem('userId', 'ITEM_KEY', ZoteroLibraryType.USER)
   .subscribe(item => console.log(item));
 ```
 
@@ -91,21 +92,21 @@ const newItem = {
   creators: [{ creatorType: 'author', firstName: 'John', lastName: 'Doe' }]
 };
 
-this.zotero.createItem(ZoteroLibraryType.USER, 'userId', newItem)
+this.zotero.createItem('userId', newItem, ZoteroLibraryType.USER)
   .subscribe(item => console.log('Created:', item));
 ```
 
 **Update an item:**
 
 ```ts
-this.zotero.updateItem(ZoteroLibraryType.USER, 'userId', 'ITEM_KEY', { title: 'Updated Title' }, 123)
+this.zotero.updateItem('userId', 'ITEM_KEY', { title: 'Updated Title' }, 123, ZoteroLibraryType.USER)
   .subscribe(item => console.log('Updated:', item));
 ```
 
 **Delete an item:**
 
 ```ts
-this.zotero.deleteItem(ZoteroLibraryType.USER, 'userId', 'ITEM_KEY', 123)
+this.zotero.deleteItem('userId', 'ITEM_KEY', 123, ZoteroLibraryType.USER)
   .subscribe(() => console.log('Deleted'));
 ```
 
@@ -116,7 +117,7 @@ this.zotero.deleteItem(ZoteroLibraryType.USER, 'userId', 'ITEM_KEY', 123)
 **Get all collections:**
 
 ```ts
-this.zotero.getCollections(ZoteroLibraryType.USER, 'userId')
+this.zotero.getCollections('userId', ZoteroLibraryType.USER)
   .subscribe(response => console.log(response.data));
 ```
 
@@ -134,7 +135,7 @@ this.zotero.getCollection(ZoteroLibraryType.USER, 'userId', 'COLLECTION_KEY')
 Get all tags in a library:
 
 ```ts
-this.zotero.getTags(ZoteroLibraryType.USER, 'userId')
+this.zotero.getTags('userId', ZoteroLibraryType.USER)
   .subscribe(tags => console.log(tags));
 ```
 
@@ -217,7 +218,7 @@ this.zotero.getMyUserInfo()
 All methods return RxJS `Observable`s and handle errors with descriptive messages. Use `.subscribe()` with error handling as needed:
 
 ```ts
-this.zotero.getItems(...).subscribe({
+this.zotero.getItems('userId', ZoteroLibraryType.USER).subscribe({
   next: response => { /* ... */ },
   error: err => console.error('Zotero error:', err.message)
 });
