@@ -67,6 +67,6 @@ export class ZoteroRefLookupService implements RefLookupService {
       return '';
     }
     const zi = item as ZoteroItem;
-    return `${zi.data?.title} (${zi.data?.key})`;
+    return `${zi.data?.title} (${zi.library?.id}/${zi.data?.key})`;
   }
 }
