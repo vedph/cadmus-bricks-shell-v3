@@ -11,12 +11,28 @@ import { map, catchError, retry } from 'rxjs/operators';
 import { RamStorageService } from '@myrmidon/ngx-tools';
 
 // injection tokens for configuration
+/**
+ * Injection token for the Zotero API base URL. This is usually
+ * set to 'https://api.zotero.org' unless you are using another
+ * server.
+ */
 export const ZOTERO_API_BASE_TOKEN = new InjectionToken<string>(
   'ZOTERO_API_BASE'
 );
+/**
+ * Injection token for the Zotero API key. This is your personal
+ * API key. Note that this is not the name of the key, but the key
+ * itself, which is an alphanumeric string and is shown only once
+ * when creating the key in Zotero.
+ */
 export const ZOTERO_API_KEY_TOKEN = new InjectionToken<string>(
   'ZOTERO_API_KEY'
 );
+/**
+ * Injection token for the Zotero user ID. This is your personal
+ * Zotero user ID, which is a numeric string and is shown in your
+ * Zotero account settings.
+ */
 export const ZOTERO_USER_ID_TOKEN = new InjectionToken<string>(
   'ZOTERO_USER_ID'
 );

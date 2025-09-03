@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -15,13 +15,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
+import { LocalStorageService, RamStorageService } from '@myrmidon/ngx-tools';
+
 import {
   ZoteroItem,
   ZoteroRefLookupService,
   ZoteroService,
 } from '../../../../../projects/myrmidon/cadmus-refs-zotero-lookup/src/public-api';
 import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
-import { RamStorageService } from '@myrmidon/ngx-tools';
 
 @Component({
   selector: 'app-zotero-ref-lookup-pg',
@@ -39,7 +40,7 @@ import { RamStorageService } from '@myrmidon/ngx-tools';
   templateUrl: './zotero-ref-lookup-pg.component.html',
   styleUrl: './zotero-ref-lookup-pg.component.scss',
 })
-export class ZoteroRefLookupPgComponent {
+export class ZoteroRefLookupPgComponent implements OnInit {
   public user: FormControl<string | null>;
   public key: FormControl<string | null>;
   public libraryId: FormControl<string | null>;
@@ -53,7 +54,8 @@ export class ZoteroRefLookupPgComponent {
     formBuilder: FormBuilder,
     public service: ZoteroRefLookupService,
     private _zotero: ZoteroService,
-    private _storage: RamStorageService
+    private _ramStorage: RamStorageService,
+    private _localStorage: LocalStorageService
   ) {
     this.user = formBuilder.control(null, Validators.required);
     this.key = formBuilder.control(null, Validators.required);
@@ -67,10 +69,22 @@ export class ZoteroRefLookupPgComponent {
     });
   }
 
+  public ngOnInit(): void {
+    // load saved settings from local storage
+    this.user.setValue(this._localStorage.retrieve('zoteroUserId'));
+    this.key.setValue(this._localStorage.retrieve('zoteroApiKey'));
+    this.libraryId.setValue(this._localStorage.retrieve('zoteroLibraryId'));
+  }
+
   public onSubmit(): void {
     if (this.form.valid) {
-      this._storage.store('zoteroApiKey', this.key.value);
-      this._storage.store('zoteroUserId', this.user.value);
+      this._ramStorage.store('zoteroApiKey', this.key.value);
+      this._ramStorage.store('zoteroUserId', this.user.value);
+
+      // store in local settings so we can retrieve values later
+      this._localStorage.store('zoteroApiKey', this.key.value);
+      this._localStorage.store('zoteroUserId', this.user.value);
+      this._localStorage.store('zoteroLibraryId', this.libraryId.value);
 
       this.busy.set(true);
       this._zotero

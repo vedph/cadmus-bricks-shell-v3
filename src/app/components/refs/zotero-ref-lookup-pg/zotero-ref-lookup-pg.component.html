@@ -11,12 +11,13 @@
         <form [formGroup]="form" (submit)="onSubmit()">
           <div class="row">
             <div class="col">
-              <mat-form-field appearance="fill" class="w-100">
+              <mat-form-field appearance="fill">
                 <mat-label>Zotero user</mat-label>
                 <input
                   matInput
                   [formControl]="user"
                   placeholder="Zotero user name"
+                  type="number"
                 />
                 @if (user.touched && user.invalid) {
                 <mat-error>user required</mat-error>
@@ -24,7 +25,7 @@
               </mat-form-field>
             </div>
             <div class="col">
-              <mat-form-field appearance="fill" class="w-100">
+              <mat-form-field appearance="fill">
                 <mat-label>Zotero API key</mat-label>
                 <input
                   matInput
@@ -40,7 +41,7 @@
           </div>
           <div class="row">
             <div class="col">
-              <mat-form-field appearance="fill" class="w-100">
+              <mat-form-field appearance="fill">
                 <mat-label>Zotero library ID</mat-label>
                 <input matInput [formControl]="libraryId" type="number" />
                 @if (libraryId.touched && libraryId.invalid) {
@@ -49,7 +50,7 @@
               </mat-form-field>
             </div>
             <div class="col">
-              <mat-form-field appearance="fill" class="w-100">
+              <mat-form-field appearance="fill">
                 <mat-label>search term</mat-label>
                 <input matInput [formControl]="term" />
                 @if (term.touched && term.invalid) {
