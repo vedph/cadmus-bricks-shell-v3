@@ -63,6 +63,10 @@ export class ZoteroRefLookupService implements RefLookupService {
    * @returns The item's name.
    */
   public getName(item: any | undefined): string {
-    return (item as ZoteroItem)?.data?.title || item?.key;
+    if (!item) {
+      return '';
+    }
+    const zi = item as ZoteroItem;
+    return `${zi.data?.title} (${zi.data?.key})`;
   }
 }
