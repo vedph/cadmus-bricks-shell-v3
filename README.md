@@ -68,6 +68,7 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 - [@myrmidon/cadmus-refs-mufi-lookup](projects/myrmidon/cadmus-refs-mufi-lookup/README.md)
 - [@myrmidon/cadmus-refs-viaf-lookup](projects/myrmidon/cadmus-refs-viaf-lookup/README.md)
 - [@myrmidon/cadmus-refs-whg-lookup](projects/myrmidon/cadmus-refs-whg-lookup/README.md)
+- [@myrmidon/cadmus-refs-zotero-lookup](projects/myrmidon/cadmus-refs-zotero-lookup/README.md)
 
 ## Text
 
@@ -113,6 +114,7 @@ ng g library @myrmidon/cadmus-refs-mufi-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-proper-name --prefix cadmus
 ng g library @myrmidon/cadmus-refs-viaf-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-whg-lookup --prefix cadmus
+ng g library @myrmidon/cadmus-refs-zotero-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-text-block-view --prefix cadmus
 ng g library @myrmidon/cadmus-text-ed --prefix cadmus
 ng g library @myrmidon/cadmus-text-ed-md --prefix cadmus
