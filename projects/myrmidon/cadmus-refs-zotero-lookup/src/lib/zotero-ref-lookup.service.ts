@@ -32,20 +32,17 @@ export class ZoteroRefLookupService implements RefLookupService {
    * @param filter The lookup filter.
    * @param options The additional options. You can pass additional options
    * by passing an instance of ZoteroRefLookupOptions. You should pass the
-   * library type (which defaults to GROUP) and ID.
+   * library type (which defaults to GROUP) and ID, unless using the default
+   * library set via token injection.
    * @returns Matched items.
    */
   public lookup(
     filter: RefLookupFilter,
     options?: ZoteroLookupOptions
   ): Observable<any[]> {
-    if (!options?.libraryId) {
-      return of([]);
-    }
-
     return this._zotero
       .getItems(
-        options?.libraryId || '',
+        options?.libraryId,
         options?.libraryType || ZoteroLibraryType.GROUP,
         {
           ...((options as ZoteroSearchParams) || {}),

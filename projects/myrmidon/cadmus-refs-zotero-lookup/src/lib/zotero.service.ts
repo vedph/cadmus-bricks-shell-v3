@@ -37,6 +37,15 @@ export const ZOTERO_USER_ID_TOKEN = new InjectionToken<string>(
   'ZOTERO_USER_ID'
 );
 
+/**
+ * Injection token for the Zotero library ID. This is the ID of the
+ * default library to access. For personal libraries, this is your
+ * user ID. For group libraries, this is the numeric ID of the group.
+ */
+export const ZOTERO_LIBRARY_ID_TOKEN = new InjectionToken<string>(
+  'ZOTERO_LIBRARY_ID'
+);
+
 // default configuration
 export const DEFAULT_ZOTERO_API_BASE = 'https://api.zotero.org';
 
@@ -406,33 +415,40 @@ export interface ZoteroResponse<T> {
   providedIn: 'root',
 })
 export class ZoteroService {
-  private readonly defaultApiBase: string;
-  private readonly defaultApiKey?: string;
-  private readonly defaultUserId?: string;
+  private readonly _defaultApiBase: string;
+  private readonly _defaultApiKey?: string;
+  private readonly _defaultUserId?: string;
+  private readonly _defaultLibraryId?: string;
 
   constructor(
     private _http: HttpClient,
     private _storage: RamStorageService,
     @Optional() @Inject(ZOTERO_API_BASE_TOKEN) apiBase?: string,
     @Optional() @Inject(ZOTERO_API_KEY_TOKEN) apiKey?: string,
-    @Optional() @Inject(ZOTERO_USER_ID_TOKEN) userId?: string
+    @Optional() @Inject(ZOTERO_USER_ID_TOKEN) userId?: string,
+    @Optional() @Inject(ZOTERO_LIBRARY_ID_TOKEN) public libraryId?: string
   ) {
-    this.defaultApiBase = apiBase || DEFAULT_ZOTERO_API_BASE;
-    this.defaultApiKey = apiKey;
-    this.defaultUserId = userId;
+    this._defaultApiBase = apiBase || DEFAULT_ZOTERO_API_BASE;
+    this._defaultApiKey = apiKey;
+    this._defaultUserId = userId;
+    this._defaultLibraryId = libraryId;
   }
 
   // getters to retrieve values from storage or fall back to defaults
   private get apiBase(): string {
-    return this._storage.retrieve('zoteroApiBase') || this.defaultApiBase;
+    return this._storage.retrieve('zoteroApiBase') || this._defaultApiBase;
   }
 
   private get apiKey(): string | undefined {
-    return this._storage.retrieve('zoteroApiKey') || this.defaultApiKey;
+    return this._storage.retrieve('zoteroApiKey') || this._defaultApiKey;
   }
 
   private get userId(): string | undefined {
-    return this._storage.retrieve('zoteroUserId') || this.defaultUserId;
+    return this._storage.retrieve('zoteroUserId') || this._defaultUserId;
+  }
+
+  private get defaultLibraryId(): string | undefined {
+    return this._storage.retrieve('zoteroLibraryId') || this._defaultLibraryId;
   }
 
   private getHeaders(): HttpHeaders {
@@ -442,6 +458,9 @@ export class ZoteroService {
 
     if (this.apiKey) {
       headers = headers.set('Zotero-API-Key', this.apiKey);
+    } else {
+      console.warn('Zotero API key is not set');
+      throw new Error('API key is required');
     }
 
     return headers;
@@ -498,22 +517,37 @@ export class ZoteroService {
   //#region Library items methods
   private checkCredentials(): void {
     if (!this.userId) {
-      throwError(() => new Error('User ID is required'));
+      console.error('Zotero user ID is not set');
+      throw new Error('User ID is required');
     }
     if (!this.apiKey) {
-      throwError(() => new Error('API key is required'));
+      console.error('Zotero API key is not set');
+      throw new Error('API key is required');
     }
+  }
+
+  private getLibraryId(libraryId?: string | null): string {
+    if (!libraryId) {
+      libraryId = this.defaultLibraryId;
+      if (!libraryId) {
+        console.error('Zotero library ID is not set');
+        throw new Error('Zotero library ID is required');
+      }
+    }
+    return libraryId!;
   }
 
   /**
    * Get items from a Zotero library.
-   * @param libraryId The ID of the library.
+   * @param libraryId The ID of the library. If not provided and the library type
+   * is USER, the user ID will be used; else, the default library ID will be used
+   * if set. If neither is available, an error will be thrown.
    * @param libraryType The type of the library (user/group).
    * @param params Query parameters for the request.
    * @returns An observable with the response from the Zotero API.
    */
   public getItems(
-    libraryId: string,
+    libraryId: string | undefined | null,
     libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: ZoteroSearchParams = {}
   ): Observable<ZoteroResponse<ZoteroItem>> {
@@ -521,10 +555,7 @@ export class ZoteroService {
       libraryId = this.userId;
     }
 
-    if (!libraryId) {
-      return throwError(() => new Error('Library ID is required'));
-    }
-
+    libraryId = this.getLibraryId(libraryId);
     this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items`;
@@ -548,14 +579,16 @@ export class ZoteroService {
 
   /**
    * Get a single item from a Zotero library.
-   * @param libraryId The ID of the library.
+   * @param libraryId The ID of the library. If not provided and the library type
+   * is USER, the user ID will be used; else, the default library ID will be used
+   * if set. If neither is available, an error will be thrown.
    * @param itemKey The key of the item.
    * @param libraryType The type of the library (user/group).
    * @param params Query parameters for the request.
    * @returns An observable with the response from the Zotero API.
    */
   public getItem(
-    libraryId: string,
+    libraryId: string | undefined | null,
     itemKey: string,
     libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: {
@@ -567,10 +600,7 @@ export class ZoteroService {
       libraryId = this.userId;
     }
 
-    if (!libraryId) {
-      return throwError(() => new Error('Library ID is required'));
-    }
-
+    libraryId = this.getLibraryId(libraryId);
     this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items/${itemKey}`;
@@ -586,13 +616,15 @@ export class ZoteroService {
 
   /**
    * Create a new item in a Zotero library.
-   * @param libraryId The ID of the library.
+   * @param libraryId The ID of the library. If not provided and the library type
+   * is USER, the user ID will be used; else, the default library ID will be used
+   * if set. If neither is available, an error will be thrown.
    * @param item The item data to create.
    * @param libraryType The type of the library (user/group).
    * @returns An observable with the response from the Zotero API.
    */
   public createItem(
-    libraryId: string,
+    libraryId: string | undefined | null,
     item: Partial<ZoteroData>,
     libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP
   ): Observable<ZoteroItem> {
@@ -600,10 +632,7 @@ export class ZoteroService {
       libraryId = this.userId;
     }
 
-    if (!libraryId) {
-      return throwError(() => new Error('Library ID is required'));
-    }
-
+    libraryId = this.getLibraryId(libraryId);
     this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items`;
@@ -617,7 +646,9 @@ export class ZoteroService {
 
   /**
    * Update an existing item in a Zotero library.
-   * @param libraryId The ID of the library.
+   * @param libraryId The ID of the library. If not provided and the library type
+   * is USER, the user ID will be used; else, the default library ID will be used
+   * if set. If neither is available, an error will be thrown.
    * @param itemKey The key of the item.
    * @param item The item data to update.
    * @param version The version of the item.
@@ -625,7 +656,7 @@ export class ZoteroService {
    * @returns An observable with the response from the Zotero API.
    */
   public updateItem(
-    libraryId: string,
+    libraryId: string | undefined | null,
     itemKey: string,
     item: Partial<ZoteroData>,
     version: number,
@@ -635,10 +666,7 @@ export class ZoteroService {
       libraryId = this.userId;
     }
 
-    if (!libraryId) {
-      return throwError(() => new Error('Library ID is required'));
-    }
-
+    libraryId = this.getLibraryId(libraryId);
     this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items/${itemKey}`;
@@ -654,14 +682,16 @@ export class ZoteroService {
 
   /**
    * Delete an existing item from a Zotero library.
-   * @param libraryId The ID of the library.
+   * @param libraryId The ID of the library. If not provided and the library type
+   * is USER, the user ID will be used; else, the default library ID will be used
+   * if set. If neither is available, an error will be thrown.
    * @param itemKey The key of the item.
    * @param version The version of the item.
    * @param libraryType The type of the library (user/group).
    * @returns An observable with the response from the Zotero API.
    */
   public deleteItem(
-    libraryId: string,
+    libraryId: string | undefined | null,
     itemKey: string,
     version: number,
     libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP
@@ -670,10 +700,7 @@ export class ZoteroService {
       libraryId = this.userId;
     }
 
-    if (!libraryId) {
-      return throwError(() => new Error('Library ID is required'));
-    }
-
+    libraryId = this.getLibraryId(libraryId);
     this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/items/${itemKey}`;
@@ -692,13 +719,15 @@ export class ZoteroService {
   //#region Collections methods
   /**
    * Get all collections in a Zotero library.
-   * @param libraryId The ID of the library.
+   * @param libraryId The ID of the library. If not provided and the library type
+   * is USER, the user ID will be used; else, the default library ID will be used
+   * if set. If neither is available, an error will be thrown.
    * @param libraryType The type of the library (user/group).
    * @param params Optional query parameters.
    * @returns An observable with the response from the Zotero API.
    */
   public getCollections(
-    libraryId: string,
+    libraryId: string | undefined | null,
     libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: ZoteroCollectionParams = {}
   ): Observable<ZoteroResponse<ZoteroCollection>> {
@@ -706,10 +735,7 @@ export class ZoteroService {
       libraryId = this.userId;
     }
 
-    if (!libraryId) {
-      return throwError(() => new Error('Library ID is required'));
-    }
-
+    libraryId = this.getLibraryId(libraryId);
     this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/collections`;
@@ -731,19 +757,23 @@ export class ZoteroService {
       );
   }
 
+  /**
+   * Get a specific collection from a Zotero library.
+   * @param collectionKey The key of the collection.
+   * @param libraryId The ID of the library.
+   * @param libraryType The type of the library (user/group).
+   * @returns An observable with the response from the Zotero API.
+   */
   public getCollection(
-    libraryType: ZoteroLibraryType,
-    libraryId: string,
-    collectionKey: string
+    collectionKey: string,
+    libraryId?: string,
+    libraryType = ZoteroLibraryType.GROUP
   ): Observable<ZoteroCollection> {
     if (!libraryId && libraryType === ZoteroLibraryType.USER && this.userId) {
       libraryId = this.userId;
     }
 
-    if (!libraryId) {
-      return throwError(() => new Error('Library ID is required'));
-    }
-
+    libraryId = this.getLibraryId(libraryId);
     this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/collections/${collectionKey}`;
@@ -759,14 +789,16 @@ export class ZoteroService {
   //#region Search methods
   /**
    * Search for items in a Zotero library.
-   * @param libraryId The ID of the library.
+   * @param libraryId The ID of the library. If not provided and the library type
+   * is USER, the user ID will be used; else, the default library ID will be used
+   * if set. If neither is available, an error will be thrown.
    * @param query The search query.
    * @param libraryType The type of the library (user/group).
    * @param params Optional query parameters.
    * @returns An observable with the response from the Zotero API.
    */
   public search(
-    libraryId: string,
+    libraryId: string | undefined | null,
     query: string,
     libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: Omit<ZoteroSearchParams, 'q'> = {}
@@ -783,14 +815,16 @@ export class ZoteroService {
 
   /**
    * Search for items in a Zotero library using qmode=everything.
-   * @param libraryId The ID of the library.
+   * @param libraryId The ID of the library. If not provided and the library type
+   * is USER, the user ID will be used; else, the default library ID will be used
+   * if set. If neither is available, an error will be thrown.
    * @param query The search query.
    * @param libraryType The type of the library (user/group).
    * @param params Optional query parameters.
    * @returns An observable with the response from the Zotero API.
    */
   public searchEverything(
-    libraryId: string,
+    libraryId: string | undefined | null,
     query: string,
     libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP,
     params: Omit<ZoteroSearchParams, 'q' | 'qmode'> = {}
@@ -810,22 +844,21 @@ export class ZoteroService {
   //#region Tag methods
   /**
    * Get the tags for a Zotero library.
-   * @param libraryId The ID of the library.
+   * @param libraryId The ID of the library. If not provided and the library type
+   * is USER, the user ID will be used; else, the default library ID will be used
+   * if set. If neither is available, an error will be thrown.
    * @param libraryType The type of the library (user/group).
    * @returns An observable with the response from the Zotero API.
    */
   public getTags(
-    libraryId: string,
+    libraryId: string | undefined | null,
     libraryType: ZoteroLibraryType = ZoteroLibraryType.GROUP
   ): Observable<ZoteroTag[]> {
     if (!libraryId && libraryType === ZoteroLibraryType.USER && this.userId) {
       libraryId = this.userId;
     }
 
-    if (!libraryId) {
-      return throwError(() => new Error('Library ID is required'));
-    }
-
+    libraryId = this.getLibraryId(libraryId);
     this.checkCredentials();
 
     const url = `${this.apiBase}/${libraryType}/${libraryId}/tags`;

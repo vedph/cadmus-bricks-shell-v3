@@ -8,18 +8,83 @@ Add this library to your Angular project and ensure `HttpClientModule` is import
 
 ## Configuration
 
-Provide your Zotero API key and user ID in your app's providers:
+Provide your Zotero API key, user ID, and (optionally) a default library ID in your app's providers:
 
 ```ts
-import { ZOTERO_API_KEY_TOKEN, ZOTERO_USER_ID_TOKEN } from '@myrmidon/cadmus-refs-zotero-lookup';
+import {
+  ZOTERO_API_KEY_TOKEN,
+  ZOTERO_USER_ID_TOKEN,
+  ZOTERO_LIBRARY_ID_TOKEN
+} from '@myrmidon/cadmus-refs-zotero-lookup';
 
-@NgModule({
+export const appConfig: ApplicationConfig = {
   providers: [
-    { provide: ZOTERO_API_KEY_TOKEN, useValue: 'your-api-key' },
-    { provide: ZOTERO_USER_ID_TOKEN, useValue: 'your-user-id' }
+    // ...
+    // Zotero
+    {
+      provide: ZOTERO_API_KEY_TOKEN,
+      useFactory: (env: EnvService) => env.get('zoteroApiKey'),
+      deps: [EnvService],
+    },
+    {
+      provide: ZOTERO_USER_ID_TOKEN,
+      useFactory: (env: EnvService) => env.get('zoteroUserId'),
+      deps: [EnvService],
+    },
+    {
+      provide: ZOTERO_LIBRARY_ID_TOKEN,
+      useFactory: (env: EnvService) => env.get('zoteroLibraryId'),
+      deps: [EnvService],
+    },
   ]
-})
-export class AppModule {}
+};
+```
+
+- `ZOTERO_API_KEY_TOKEN`: Your Zotero API key (required).
+- `ZOTERO_USER_ID_TOKEN`: Your Zotero user ID (required for user libraries).
+- `ZOTERO_LIBRARY_ID_TOKEN`: The default library ID (optional, for convenience when working with a specific library).
+
+>If you do not provide a library ID when calling service methods, the default will be used if set.
+
+In turn, add these settings to your `env.js` like:
+
+```js
+// env.js
+
+// https://www.jvandemo.com/how-to-use-environment-variables-to-configure-your-angular-application-without-a-rebuild/
+(function (window) {
+  window.__env = window.__env || {};
+  // ...
+  // Zotero
+  window.__env.zoteroApiKey = "TODO:YOUR_ZOTERO_KEY";
+  window.__env.zoteroUserId = "TODO:YOUR_ZOTERO_USER_ID";
+  window.__env.zoteroLibraryId = "TODO:YOUR_ZOTERO_LIBRARY_ID";
+})(this);
+```
+
+💡 To avoid storing these sensitive data in your `env.js`, you can create a new `env.local.js`, exclude it from GitHub files (this is essential!), and then conditionally load it from `index.html` only when it's present:
+
+```html
+<!-- index.html ... -->
+    <script src="env.js"></script>
+    <script>
+      // check if a local environment file exists and load it
+      function loadLocalEnv() {
+        var script = document.createElement("script");
+        script.onload = function () {
+          console.log("Loaded local environment overrides.");
+        };
+        script.onerror = function () {
+          console.warn(
+            "Local environment file not found, using default values."
+          );
+        };
+        script.src = "env.local.js";
+        document.head.appendChild(script);
+      }
+      loadLocalEnv();
+    </script>
+<!-- ... -->
 ```
 
 ## Usage
@@ -68,8 +133,13 @@ this.zotero.searchEverything('userId', 'climate', ZoteroLibraryType.USER)
 Get all items in a library (with optional filters):
 
 ```ts
-this.zotero.getItems('userId', ZoteroLibraryType.USER, { limit: 20 })
-  .subscribe(response => console.log(response.data));
+this.zotero.getItems('userId', ZoteroLibraryType.USER, { limit: 20 }).subscribe({
+  next: items => { /* ... */ },
+  error: err => {
+    // This will catch missing config, network, and API errors
+    console.error('Zotero lookup failed:', err.message);
+  }
+});
 ```
 
 Get a single item by key:
@@ -243,3 +313,9 @@ The service provides TypeScript interfaces and enums for all major Zotero entiti
 - [Zotero API Item Types](https://www.zotero.org/support/dev/web_api/v3/basics#item_types)
 
 ---
+
+## History
+
+- 2025-09-04:
+  - better error handling.
+  - optional default library ID.
