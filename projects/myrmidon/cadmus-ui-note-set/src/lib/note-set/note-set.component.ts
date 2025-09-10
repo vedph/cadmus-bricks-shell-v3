@@ -1,5 +1,14 @@
 import { CommonModule, KeyValue } from '@angular/common';
-import { Component, OnInit, output, effect, model } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  output,
+  effect,
+  model,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -77,6 +86,7 @@ export interface NoteSet {
     MatSelectModule,
     MatTooltipModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteSetComponent implements OnInit {
   private _updating = false;
@@ -99,17 +109,32 @@ export class NoteSetComponent implements OnInit {
   public text: FormControl<string | null>;
   public reqNotes: FormControl<boolean>;
 
-  public keys: KeyValue<string, string>[];
-  public noteCount: number;
-  public currentDef: NoteSetDefinition | undefined;
-  public currentLen: number;
-  public missing: string[] | undefined;
-  public existing: string[] | undefined;
+  public readonly keys = signal<KeyValue<string, string>[]>([]);
+  public readonly currentDef = signal<NoteSetDefinition | undefined>(undefined);
+  public readonly currentLen = signal<number>(0);
+
+  public readonly noteCount = computed(
+    () => Object.values(this.set().notes ?? {}).filter((v) => !!v).length
+  );
+
+  public readonly missing = computed(() => {
+    return this.set()
+      .definitions.filter(
+        (def) =>
+          def.required && (!this.set().notes || !this.set().notes![def.key])
+      )
+      .map((def) => def.label || def.key);
+  });
+
+  public readonly existing = computed(() => {
+    return this.set()
+      .definitions.filter(
+        (def) => this.set().notes && this.set().notes![def.key]
+      )
+      .map((def) => def.label || def.key);
+  });
 
   constructor(formBuilder: FormBuilder, private _dialogService: DialogService) {
-    this.keys = [];
-    this.noteCount = 0;
-    this.currentLen = 0;
     // form
     this.text = formBuilder.control(null);
     this.key = formBuilder.control(null);
@@ -138,10 +163,10 @@ export class NoteSetComponent implements OnInit {
           this.preserveExistingNotes(this._previousSet, newSet);
         }
 
-        // Update the form with the potentially modified set
+        // update the form with the potentially modified set
         this.updateForm(newSet);
 
-        // Cache the current set for next time
+        // cache the current set for next time
         this._previousSet = { ...newSet };
         if (newSet.notes) {
           this._previousSet.notes = { ...newSet.notes };
@@ -174,22 +199,26 @@ export class NoteSetComponent implements OnInit {
       return;
     }
 
-    // initialize notes object if it doesn't exist
-    if (!newSet.notes) {
-      newSet.notes = {};
-    }
-
     // get valid keys from new definitions
     const validKeys = new Set(newSet.definitions.map((d) => d.key));
 
-    // for each previous note, preserve it if its key exists in new definitions
-    // and it doesn't already have a value in the new notes
+    // create a new notes object, preserving only valid keys
+    const preservedNotes: { [key: string]: string | null } = {
+      ...(newSet.notes ?? {}),
+    };
+
     Object.entries(previousSet.notes).forEach(([key, value]) => {
-      if (validKeys.has(key) && value !== null && !newSet.notes![key]) {
-        console.log(`Preserving note for key: ${key} with value: ${value}`);
-        newSet.notes![key] = value;
+      if (
+        validKeys.has(key) &&
+        value !== null &&
+        preservedNotes[key] == null // only if not already present
+      ) {
+        preservedNotes[key] = value;
       }
     });
+
+    // assign a new object reference to trigger change detection
+    newSet.notes = { ...preservedNotes };
   }
 
   public ngOnInit(): void {
@@ -210,17 +239,14 @@ export class NoteSetComponent implements OnInit {
         debounceTime(50)
       )
       .subscribe((n) => {
-        this.currentLen = n;
+        this.currentLen.set(n);
       });
   }
 
   private updateForm(set?: NoteSet): void {
     if (!set?.definitions.length) {
       this.form.reset();
-      this.keys = [];
-      this.noteCount = 0;
-      this.missing = [];
-      this.existing = [];
+      this.keys.set([]);
       return;
     }
 
@@ -231,12 +257,14 @@ export class NoteSetComponent implements OnInit {
     }
 
     // extract keys and labels
-    this.keys = safeSet.definitions.map((d) => {
-      return {
-        key: d.key,
-        value: d.label,
-      } as KeyValue<string, string>;
-    });
+    this.keys.set(
+      safeSet.definitions.map((d) => {
+        return {
+          key: d.key,
+          value: d.label,
+        } as KeyValue<string, string>;
+      })
+    );
 
     // if a key is currently selected, ensure it's still valid
     if (this.key.value) {
@@ -246,35 +274,15 @@ export class NoteSetComponent implements OnInit {
       if (!keyExists) {
         this.key.setValue(null);
         this.text.setValue(null);
-        this.currentDef = undefined;
-      } else if (this.currentDef) {
+        this.currentDef.set(undefined);
+      } else if (this.currentDef()) {
         // if still valid, refresh the text value in case it changed
         this.text.setValue(safeSet.notes[this.key.value] || null);
       }
     }
 
     // update notes count
-    this.updateNoteCount();
-    this.missing = this.getMissingNotes();
-    this.existing = this.getExistingNotes();
-    this.reqNotes.setValue(this.missing?.length ? false : true);
-  }
-
-  /**
-   * Update the count of non-falsy notes.
-   */
-  private updateNoteCount(): void {
-    if (!this.set().notes) {
-      this.noteCount = 0;
-    } else {
-      let n = 0;
-      Object.values(this.set()?.notes ?? {}).forEach((value) => {
-        if (value) {
-          n++;
-        }
-      });
-      this.noteCount = n;
-    }
+    this.reqNotes.setValue(this.missing()?.length ? false : true);
   }
 
   /**
@@ -282,7 +290,7 @@ export class NoteSetComponent implements OnInit {
    */
   private editNote(key: string | null): void {
     if (!key) {
-      this.currentDef = undefined;
+      this.currentDef.set(undefined);
       this.text.setValue(null);
       this.text.clearValidators();
       this.text.updateValueAndValidity();
@@ -299,16 +307,16 @@ export class NoteSetComponent implements OnInit {
     this.text.setValue(set.notes[key] || null);
 
     // update text validators
-    this.currentDef = set.definitions.find((d) => d.key === key);
-    if (!this.currentDef) {
+    this.currentDef.set(set.definitions.find((d) => d.key === key));
+    if (!this.currentDef()) {
       return;
     }
     const validators: ValidatorFn[] = [];
-    if (this.currentDef.required) {
+    if (this.currentDef()!.required) {
       validators.push(Validators.required);
     }
-    if (this.currentDef.maxLength) {
-      validators.push(Validators.maxLength(this.currentDef.maxLength));
+    if (this.currentDef()!.maxLength) {
+      validators.push(Validators.maxLength(this.currentDef()!.maxLength!));
     }
     this.text.setValidators(validators);
     this.text.updateValueAndValidity();
@@ -316,35 +324,9 @@ export class NoteSetComponent implements OnInit {
   }
 
   public revertNote(): void {
-    if (this.currentDef) {
-      this.editNote(this.currentDef.key);
+    if (this.currentDef()) {
+      this.editNote(this.currentDef()!.key);
     }
-  }
-
-  /**
-   * Get the list of missing notes.
-   */
-  private getMissingNotes(): string[] {
-    const missing: string[] = [];
-    this.set().definitions.forEach((def) => {
-      if (
-        def.required &&
-        (!this.set().notes || !this.set()?.notes?.[def.key])
-      ) {
-        missing.push(def.label || def.key);
-      }
-    });
-    return missing;
-  }
-
-  private getExistingNotes(): string[] {
-    const existing: string[] = [];
-    this.set().definitions.forEach((def) => {
-      if (this.set().notes && this.set()?.notes?.[def.key]) {
-        existing.push(def.label || def.key);
-      }
-    });
-    return existing;
   }
 
   private saveNote(note: KeyValue<string, string | null>): void {
@@ -355,12 +337,12 @@ export class NoteSetComponent implements OnInit {
     }
 
     // save note
-    set.notes[note.key] = note.value;
+    set.notes = { ...set.notes, [note.key]: note.value };
 
     // emit note change
-    if (this.currentDef) {
+    if (this.currentDef()) {
       this.noteChange.emit({
-        key: this.currentDef.key,
+        key: this.currentDef()!.key,
         value: note.value,
       });
     }
@@ -379,10 +361,7 @@ export class NoteSetComponent implements OnInit {
 
       // update UI
       this.text.markAsPristine();
-      this.updateNoteCount();
-      this.missing = this.getMissingNotes();
-      this.existing = this.getExistingNotes();
-      this.reqNotes.setValue(this.missing?.length ? false : true);
+      this.reqNotes.setValue(this.missing()?.length ? false : true);
     } finally {
       this._updating = false;
     }
@@ -396,7 +375,7 @@ export class NoteSetComponent implements OnInit {
       return;
     }
     this.saveNote({
-      key: this.currentDef.key,
+      key: this.currentDef()!.key,
       value: this.text.value?.trim() || '',
     });
   }
@@ -405,17 +384,17 @@ export class NoteSetComponent implements OnInit {
    * Clear the currently edited note.
    */
   public clear(): void {
-    if (!this.currentDef) {
+    if (!this.currentDef()) {
       return;
     }
     this._dialogService
-      .confirm('Confirmation', `Delete note ${this.currentDef.label}?`)
+      .confirm('Confirmation', `Delete note ${this.currentDef()!.label}?`)
       .pipe(take(1))
       .subscribe((yes) => {
         if (yes) {
           this.text.reset();
           this.saveNote({
-            key: this.currentDef!.key,
+            key: this.currentDef()!.key,
             value: null,
           });
         }

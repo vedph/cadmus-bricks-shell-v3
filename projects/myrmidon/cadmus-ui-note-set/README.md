@@ -4,6 +4,13 @@
 - 📦 dependencies:
   - `ngx-markdown`
 
+- [CadmusUiNoteSet](#cadmusuinoteset)
+  - [NoteSetComponent](#notesetcomponent)
+    - [Usage](#usage)
+  - [History](#history)
+    - [9.0.1](#901)
+    - [9.0.0](#900)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 ## NoteSetComponent
@@ -11,10 +18,10 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 - 🔑 `NoteSetComponent`
 - 🚩 `cadmus-ui-note-set`
 - ▶️ input:
-  - set (`NoteSet`): object with definitions and note values.
+  - `set` (`NoteSet`): object with definitions and note values.
 - 🔥 output:
-  - noteChange (`KeyValue<string, string | null>`): emitted whenever a single note is changed.
-  - setChange (`NoteSet`): emitted when any changes occurs.
+  - `noteChange` (`KeyValue<string, string | null>`): emitted whenever a single note is changed.
+  - `setChange` (`NoteSet`): emitted when any changes occurs.
 
 The `NoteSetComponent` provides a user interface for managing a set of notes, each with its own key, label, and metadata. Notes can be plain text or Markdown, and can have validation rules applied.
 
@@ -153,6 +160,10 @@ private updateDefinitions(): void {
 ```
 
 ## History
+
+### 9.0.1
+
+- 2025-09-10: refactored to use `OnPush`.
 
 ### 9.0.0
 
