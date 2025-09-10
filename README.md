@@ -133,6 +133,7 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-cod-location` (9.0.2)
 - `@myrmidon/cadmus-mat-physical-grid` (9.0.2)
 - `@myrmidon/cadmus-mat-physical-size` (9.0.9)
+- `@myrmidon/cadmus-mat-physical-state` (9.0.1)
 
 💡 Prompt for check:
 
