@@ -151,12 +151,12 @@
     }
   </div>
   <!-- editor -->
-  @if (edited) {
+  @if (edited()) {
   <div>
-    <mat-expansion-panel [expanded]="edited" [disabled]="!edited">
+    <mat-expansion-panel [expanded]="edited()" [disabled]="!edited()">
       <mat-expansion-panel-header>
         <mat-panel-title>{{
-          edited.name | flatLookup : nameEntries() : "id" : "value"
+          edited()?.name | flatLookup : nameEntries() : "id" : "value"
         }}</mat-panel-title>
       </mat-expansion-panel-header>
       <div class="form-row">

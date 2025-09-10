@@ -132,6 +132,21 @@ These changes will not affect compatibility in any way, so it is safe to progres
 
 - `@myrmidon/cadmus-cod-location` (9.0.2)
 - `@myrmidon/cadmus-mat-physical-grid` (9.0.2)
+- `@myrmidon/cadmus-mat-physical-size` (9.0.9)
+
+💡 Prompt for check:
+
+```txt
+Check that this Angular component has been properly refactored to use Signals and Observables for a fully reactive state. To do this, review this Angular component and refactor it to use Signals, ensuring the following:
+
+* Use reactive forms, signals, or observables for all reactive state.
+* Use computed signals for derived state.
+* As many signals were refactored from simple variables, ensure that in the template and in the rest of the component's code all references to these variables are updated to use signal accessors (e.g., `mySignal()`). This is important because TypeScript will not flag these as errors, but they will lead to runtime issues as they miss the brackets which invoke the function.
+* Legacy decorators `@Input`/`@Output` must not be present, but they should have been replaced with `input()`/`output()` functions.
+* Detect `ngClass`/`ngStyle` usage.
+* Detect any mutable state (e.g., direct object mutation). Change detection is based on reference checks, so mutable patterns will lead to bugs and we must be sure to catch and fix them all. Be careful to detect changes inside objects or arrays.
+* In templates, there must be only the modern Angular `@if`/`@for` and the like, instead of `*ngIf`/`*ngFor`, etc.
+```
 
 ## History
 

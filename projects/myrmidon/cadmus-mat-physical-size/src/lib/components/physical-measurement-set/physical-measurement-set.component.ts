@@ -1,10 +1,12 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   input,
   model,
   OnDestroy,
   OnInit,
+  signal,
   ViewChild,
 } from '@angular/core';
 import {
@@ -57,6 +59,7 @@ export interface PhysicalMeasurement extends PhysicalDimension {
   ],
   templateUrl: './physical-measurement-set.component.html',
   styleUrl: './physical-measurement-set.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
@@ -107,8 +110,8 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   public tag: FormControl<string | null>;
   public editedForm: FormGroup;
 
-  public editedIndex: number = -1;
-  public edited?: PhysicalMeasurement;
+  public readonly editedIndex = signal<number>(-1);
+  public readonly edited = signal<PhysicalMeasurement | undefined>(undefined);
 
   constructor(formBuilder: FormBuilder) {
     this.name = formBuilder.control(null);
@@ -150,27 +153,27 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   }
 
   public closeMeasurement(): void {
-    this.editedIndex = -1;
-    this.edited = undefined;
+    this.editedIndex.set(-1);
+    this.edited.set(undefined);
   }
 
   private updateEditedForm(): void {
-    if (!this.edited) {
+    if (!this.edited()) {
       this.editedForm.reset();
     } else {
-      this.value.setValue(this.edited.value);
-      this.unit.setValue(this.edited.unit);
-      this.tag.setValue(this.edited.tag || null);
+      this.value.setValue(this.edited()!.value);
+      this.unit.setValue(this.edited()!.unit);
+      this.tag.setValue(this.edited()!.tag || null);
       this.editedForm.markAsPristine();
     }
   }
 
   public editMeasurement(index: number): void {
-    if (this.editedIndex === index) {
+    if (this.editedIndex() === index) {
       return;
     }
-    this.editedIndex = index;
-    this.edited = this.measurements()[index];
+    this.editedIndex.set(index);
+    this.edited.set(this.measurements()[index]);
 
     this.updateEditedForm();
   }
@@ -190,12 +193,12 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.editedIndex = -1;
-    this.edited = {
+    this.editedIndex.set(-1);
+    this.edited.set({
       name: this.name.value,
       value: 0,
       unit: this.defaultUnit() || this.unitEntries()?.[0]?.id || 'cm',
-    } as PhysicalMeasurement;
+    } as PhysicalMeasurement);
 
     if (!this.nameEntries?.length) {
       this.name.reset();
@@ -213,12 +216,12 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.editedIndex = -1;
-    this.edited = {
+    this.editedIndex.set(-1);
+    this.edited.set({
       name: this.custom.value,
       value: 0,
       unit: this.defaultUnit() || this.unitEntries()?.[0]?.id || 'cm',
-    } as PhysicalMeasurement;
+    } as PhysicalMeasurement);
 
     this.updateEditedForm();
     this.custom.reset();
@@ -272,12 +275,12 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   }
 
   public saveMeasurement(): void {
-    this.edited = {
+    this.edited.set({
       name: this.edited!.name,
       value: this.value.value,
       unit: this.unit.value,
       tag: this.tag.value || undefined,
-    } as PhysicalMeasurement;
+    } as PhysicalMeasurement);
 
     const measurements = [...this.measurements()];
     // get the index of the existing measurement with the same name
@@ -285,16 +288,16 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       (m) => m.name === this.edited!.name
     );
     // append or replace
-    if (this.editedIndex === -1) {
-      measurements.push(this.edited);
+    if (this.editedIndex() === -1) {
+      measurements.push(this.edited()!);
     } else {
-      measurements[this.editedIndex] = this.edited;
+      measurements[this.editedIndex()] = this.edited()!;
     }
 
     // if distinct, remove another existing measurement with the same name
     if (
       existingIndex > -1 &&
-      existingIndex !== this.editedIndex &&
+      existingIndex !== this.editedIndex() &&
       this.distinct()
     ) {
       measurements.splice(existingIndex, 1);
@@ -307,7 +310,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   }
 
   public onDimensionChange(dimension?: PhysicalDimension): void {
-    this.edited = { ...this.edited, ...dimension! } as PhysicalMeasurement;
+    this.edited.set({ ...this.edited(), ...dimension! } as PhysicalMeasurement);
   }
 
   public moveMeasurementUp(index: number): void {

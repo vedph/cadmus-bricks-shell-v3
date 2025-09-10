@@ -24,11 +24,11 @@
       mat-icon-button
       matSuffix
       matTooltip="Toggle visual editor"
-      (click)="visualExpanded = !visualExpanded"
+      (click)="visualExpanded.set(!visualExpanded())"
     >
-      @if (visualExpanded) {
+      @if (visualExpanded()) {
       <mat-icon class="mat-primary">publish</mat-icon>
-      } @if (!visualExpanded) {
+      } @if (!visualExpanded()) {
       <mat-icon class="mat-primary">get_app</mat-icon>
       }
     </button>
@@ -36,8 +36,8 @@
 
   <mat-expansion-panel
     id="visual"
-    [expanded]="visualExpanded"
-    (expandedChange)="visualExpanded = $event"
+    [expanded]="visualExpanded()"
+    (expandedChange)="visualExpanded.set($event)"
   >
     <form [formGroup]="form">
       <div class="form-row">
@@ -66,8 +66,8 @@
         } }
 
         <!-- label -->
-        @if (label) {
-        <span class="label">{{ label }}</span>
+        @if (label()) {
+        <span class="label">{{ label() }}</span>
         }
       </div>
 

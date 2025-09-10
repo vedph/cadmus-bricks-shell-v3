@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
 import {
+  ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   input,
   model,
   OnDestroy,
   OnInit,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -61,6 +64,7 @@ export interface PhysicalSize {
     MatSelectModule,
     MatTooltipModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PhysicalSizeComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
@@ -119,8 +123,58 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
 
   public text: FormControl<string | null>;
 
-  public label?: string;
-  public visualExpanded?: boolean;
+  public readonly visualExpanded = signal<boolean>(false);
+
+  // trick to force label refresh on form changes
+  private readonly formChanged = signal(0);
+
+  public readonly label = computed(() => {
+    // read the signal to make this computed depend on it
+    this.formChanged();
+
+    const wValue = this.wValue.value;
+    const hValue = this.hValue.value;
+    const dValue = this.dValue.value;
+    const wUnit = this.wUnit.value;
+    const hUnit = this.hUnit.value;
+    const dUnit = this.dUnit.value;
+    const hBeforeW = this.hBeforeW();
+
+    // determine the unique unit if any
+    let uniqueUnit: string | undefined = undefined;
+    if (wValue) uniqueUnit = wUnit;
+    if (hValue)
+      uniqueUnit = uniqueUnit
+        ? uniqueUnit === hUnit
+          ? uniqueUnit
+          : undefined
+        : hUnit;
+    if (dValue)
+      uniqueUnit = uniqueUnit
+        ? uniqueUnit === dUnit
+          ? uniqueUnit
+          : undefined
+        : dUnit;
+
+    const getDimensionLabel = (value: number, unit?: string | null): string => {
+      if (!value) return '';
+      let s = value.toFixed(2);
+      if (unit) s += ' ' + unit;
+      return s;
+    };
+
+    const sb: string[] = [];
+    if (hBeforeW) {
+      if (hValue) sb.push(getDimensionLabel(hValue, uniqueUnit ? null : hUnit));
+      if (wValue) sb.push(getDimensionLabel(wValue, uniqueUnit ? null : wUnit));
+    } else {
+      if (wValue) sb.push(getDimensionLabel(wValue, uniqueUnit ? null : wUnit));
+      if (hValue) sb.push(getDimensionLabel(hValue, uniqueUnit ? null : hUnit));
+    }
+    if (dValue) sb.push(getDimensionLabel(dValue, uniqueUnit ? null : dUnit));
+
+    return sb.join(' × ') + (uniqueUnit ? ' ' + uniqueUnit : '');
+  });
 
   constructor(formBuilder: FormBuilder) {
     this.tag = formBuilder.control(null, Validators.maxLength(50));
@@ -206,12 +260,14 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
       .pipe(distinctUntilChanged(), debounceTime(400))
       .subscribe((_) => {
         this.size.set(this.getSize());
+        // notify the label computed to update
+        this.formChanged.update((v) => v + 1);
         if (
           this.isModelValid(this.size()) &&
           this.tag.valid &&
           this.note.valid
         ) {
-          this.updateLabel();
+          // this.updateLabel();
           // update text
           setTimeout(() => {
             this.text.setValue(
@@ -243,6 +299,8 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     if (size) {
       this.updateForm(size);
       this.size.set(size);
+      // manually trigger label update since updateForm uses emitEvent: false
+      this.formChanged.update((v) => v + 1);
     }
   }
 
@@ -299,78 +357,6 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     );
   }
 
-  private updateLabel(): void {
-    const sb: string[] = [];
-
-    // determine the unique unit if any
-    let uniqueUnit: string | undefined = undefined;
-    if (this.wValue.value) {
-      uniqueUnit = this.wUnit.value;
-    }
-
-    if (this.hValue.value) {
-      if (!uniqueUnit) {
-        uniqueUnit = this.hUnit.value;
-      } else if (uniqueUnit !== this.hUnit.value) {
-        uniqueUnit = undefined;
-      }
-    }
-
-    if (this.dValue.value) {
-      if (!uniqueUnit) {
-        uniqueUnit = this.dUnit.value;
-      } else if (uniqueUnit !== this.dUnit.value) {
-        uniqueUnit = undefined;
-      }
-    }
-
-    if (this.hBeforeW()) {
-      if (this.hValue.value) {
-        sb.push(
-          this.getDimensionLabel(
-            this.hValue.value,
-            uniqueUnit ? null : this.hUnit.value
-          )
-        );
-      }
-      if (this.wValue.value) {
-        sb.push(
-          this.getDimensionLabel(
-            this.wValue.value,
-            uniqueUnit ? null : this.wUnit.value
-          )
-        );
-      }
-    } else {
-      if (this.wValue.value) {
-        sb.push(
-          this.getDimensionLabel(
-            this.wValue.value,
-            uniqueUnit ? null : this.wUnit.value
-          )
-        );
-      }
-      if (this.hValue.value) {
-        sb.push(
-          this.getDimensionLabel(
-            this.hValue.value,
-            uniqueUnit ? null : this.hUnit.value
-          )
-        );
-      }
-    }
-    if (this.dValue.value) {
-      sb.push(
-        this.getDimensionLabel(
-          this.dValue.value,
-          uniqueUnit ? null : this.dUnit.value
-        )
-      );
-    }
-
-    this.label = sb.join(' × ') + (uniqueUnit ? ' ' + uniqueUnit : '');
-  }
-
   private resetUnits(): void {
     this.wUnit.setValue(this.defaultWUnit(), { emitEvent: false });
     this.hUnit.setValue(this.defaultHUnit(), { emitEvent: false });
@@ -381,7 +367,7 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     if (!model) {
       this.form.reset({ emitEvent: false });
       this.resetUnits();
-      this.label = undefined;
+      // this.label.set(undefined);
     } else {
       this.tag.setValue(model.tag || null, { emitEvent: false });
       this.note.setValue(model.note || null, { emitEvent: false });
@@ -417,7 +403,7 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
       }
 
       this.form.markAsPristine();
-      this.updateLabel();
+      // this.updateLabel();
     }
   }
 

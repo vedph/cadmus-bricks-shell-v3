@@ -81,6 +81,10 @@ This component allows you to edit a set of physical measurements. For each one y
 
 ## History
 
+### 9.0.9
+
+- 2025-09-10: set components change detection strategy to `OnPush`.
+
 ### 9.0.8
 
 - 2025-07-08: fixed `unitDisabled` (renamed from `staticUnit`).
