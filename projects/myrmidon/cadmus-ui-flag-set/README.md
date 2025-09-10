@@ -2,6 +2,13 @@
 
 📦 `@myrmidon/cadmus-ui-flag-set`
 
+- [CadmusUiFlagSet](#cadmusuiflagset)
+  - [FlagSetComponent](#flagsetcomponent)
+    - [FlagSetBadge](#flagsetbadge)
+  - [History](#history)
+    - [9.0.1](#901)
+    - [8.0.1](#801)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 ## FlagSetComponent
@@ -13,13 +20,13 @@ A set of checkable flags. This component replaces the legacy (V2) [Cadmus UI fla
 - 🔑 `FlagSetComponent`
 - 🚩 `cadmus-ui-flag-set`
 - ▶️ input:
-  - flags (`Flag[]`): the flags set.
-  - checkedIds (`string[]`)
-  - allowCustom (`boolean?`)
-  - hideToolbar (`boolean?`)
-  - numbering (`boolean?`)
+  - `flags` (`Flag[]`): the flags set.
+  - `checkedIds` (`string[]`)
+  - `allowCustom` (`boolean?`)
+  - `hideToolbar` (`boolean?`)
+  - `numbering` (`boolean?`)
 - 🔥 output:
-  - checkedIdsChange (`string[]`)
+  - `checkedIdsChange` (`string[]`)
 
 This component represents a set of checkable flags. The available flags are specified by `flags`, using this mode (`Flag`):
 
@@ -101,10 +108,10 @@ A set of flags badges, used to provide a compact visualization of a set of selec
 - 🔑 `FlagSetBadge`
 - 🚩 `cadmus-ui-flag-set`
 - ▶️ input:
-  - flags (`Flag[]`): the flags set.
-  - noInitials (`boolean`): true to hide flag initials and just show the color.
-  - flagSymbol (`string`): the symbol to use for the flag. Default is a filled circle.
-  - size (`string`): the CSS-like size of the flag symbol. Default is `1em`.
+  - `flags` (`Flag[]`): the flags set.
+  - `noInitials` (`boolean`): true to hide flag initials and just show the color.
+  - `flagSymbol` (`string`): the symbol to use for the flag. Default is a filled circle.
+  - `size` (`string`): the CSS-like size of the flag symbol. Default is `1em`.
 
 ## History
 
