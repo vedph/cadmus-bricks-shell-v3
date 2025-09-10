@@ -2,6 +2,14 @@
 
 📦 `@myrmidon/cadmus-cod-location`
 
+- [CadmusCodLocation](#cadmuscodlocation)
+  - [Models](#models)
+  - [String Representation](#string-representation)
+  - [Editor](#editor)
+  - [History](#history)
+    - [9.0.2](#902)
+    - [9.0.1](#901)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 - codicologic location component.
@@ -51,12 +59,20 @@ Another pipe (`CodLocationRangePipe`) can be used to convert to string an array 
 
 The `CodLocationComponent` is used to edit a location using its string format. It has these properties:
 
-- label: the label to display for the editor.
-- required: true if the location is required.
-- single: true if the location refers to a single sheet. If false, it refers to 1 or more ranges.
-- location: the location(s) edited, an array of `CodLocationRange` (or `null`). When changes, `locationChange` is emitted.
+- 🔑 `CodLocationComponent`
+- 🚩 `cadmus-cod-location`
+- ▶️ input:
+  - `label` (`string`): the label to display for the editor.
+  - `required` (`boolean`): true if the location is required.
+  - `single` (`boolean`): true if the location refers to a single sheet. If false, it refers to 1 or more ranges.
+  - `location` (`CodLocationRange[] | null`): the location(s) edited, an _array_ of `CodLocationRange` (or `null`).
+- 🔥 output:`locationChange` (`CodLocationRange[]`)
 
 ## History
+
+### 9.0.2
+
+- 2025-09-10: set change detection to `OnPush`.
 
 ### 9.0.1
 

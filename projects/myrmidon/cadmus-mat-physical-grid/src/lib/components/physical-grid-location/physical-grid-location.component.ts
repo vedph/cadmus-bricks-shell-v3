@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
@@ -6,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
   output,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -81,6 +83,7 @@ interface PhysicalGridCell {
   ],
   templateUrl: './physical-grid-location.component.html',
   styleUrl: './physical-grid-location.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
   private readonly _excelColumnPipe: ExcelColumnPipe = new ExcelColumnPipe();
@@ -144,7 +147,7 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
   public form: FormGroup;
 
   // the interactive grid viewmodel
-  public rows: PhysicalGridCell[][] = [];
+  public readonly rows = signal<PhysicalGridCell[][]>([]);
 
   constructor(formBuilder: FormBuilder) {
     this.preset = formBuilder.control(null);
@@ -183,7 +186,6 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
     // when mode changes, reset cells
     effect(() => {
       console.log('mode', this.mode());
-      //this.resetCells();@@
     });
   }
 
@@ -221,7 +223,7 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
   private updateGrid(): void {
     const location = this.location();
     console.log('updateGrid: location', location);
-    this.rows = [];
+    const rows: PhysicalGridCell[][] = [];
     for (let y = 1; y <= this.rowCount.value; y++) {
       const row: PhysicalGridCell[] = [];
       for (let x = 1; x <= this.columnCount.value; x++) {
@@ -235,8 +237,9 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
           ordinal: selIndex + 1,
         });
       }
-      this.rows.push(row);
+      rows.push(row);
     }
+    this.rows.set(rows);
   }
 
   public setGridSize(): void {
@@ -268,7 +271,7 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
         ) {
           // filter by selected if not undefined
           if (selected !== undefined) {
-            const cell = this.rows[row - 1][column - 1];
+            const cell = this.rows()[row - 1][column - 1];
             if (cell.selected === selected) {
               neighbors.push({ row, column });
             }
@@ -353,12 +356,16 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
     if (!this.location()) {
       return;
     }
-    this.rows.forEach((row) =>
-      row.forEach((c) => {
-        c.selected = false;
-        c.ordinal = 0;
-      })
+    // create a new grid with all cells deselected and ordinals reset
+    const newRows = this.rows().map((row) =>
+      row.map((c) => ({
+        ...c,
+        selected: false,
+        ordinal: 0,
+      }))
     );
+    this.rows.set(newRows);
+
     this.text.setValue('');
     this.text.markAsDirty();
     this.text.updateValueAndValidity();
@@ -376,7 +383,7 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
 
   private getSelectedCells(): PhysicalGridCell[] {
     // get all the selected cells in their ordinal order
-    return this.rows
+    return this.rows()
       .map((row) => row.filter((c) => c.selected))
       .reduce((acc, val) => acc.concat(val), [])
       .sort((a, b) => (a.ordinal || 0) - (b.ordinal || 0));
@@ -385,9 +392,18 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
   private updateSelectedOrdinals(): number {
     let ordinal = 1;
     const selected = this.getSelectedCells();
-    selected.forEach((c) => {
-      c.ordinal = ordinal++;
-    });
+    // create a new grid with updated ordinals for selected cells
+    const newRows = this.rows().map((row) =>
+      row.map((c) => {
+        if (
+          selected.some((sel) => sel.row === c.row && sel.column === c.column)
+        ) {
+          return { ...c, ordinal: ordinal++ };
+        }
+        return { ...c, ordinal: 0 };
+      })
+    );
+    this.rows.set(newRows);
     return ordinal;
   }
 
@@ -398,12 +414,23 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
    */
   private deselectNonContiguousCells(cell: PhysicalGridCell): void {
     const selected = this.getSelectedCells();
-    selected.forEach((c) => {
-      if (c !== cell && !this.areContiguous(c, cell)) {
-        c.selected = false;
-        c.ordinal = 0;
-      }
-    });
+    // create a new grid with non-contiguous cells deselected
+    const newRows = this.rows().map((row) =>
+      row.map((c) => {
+        if (
+          c.selected &&
+          c !== cell &&
+          !this.areContiguous(
+            { row: c.row, column: c.column },
+            { row: cell.row, column: cell.column }
+          )
+        ) {
+          return { ...c, selected: false, ordinal: 0 };
+        }
+        return { ...c };
+      })
+    );
+    this.rows.set(newRows);
   }
 
   private getMaxSelectedOrdinal(): number {
@@ -412,70 +439,129 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
   }
 
   public toggleCell(cell: PhysicalGridCell) {
+    const currentRows = this.rows();
+    let newRows: PhysicalGridCell[][] = currentRows.map((row) =>
+      row.map((c) => ({ ...c }))
+    );
+
+    // find the cell in the newRows grid
+    const targetCell = newRows[cell.row - 1][cell.column - 1];
+
     // (a) DESELECT
-    if (cell.selected) {
-      // deselect cell
-      const n = cell.ordinal;
-      cell.selected = false;
-      cell.ordinal = 0;
+    if (targetCell.selected) {
+      const n = targetCell.ordinal;
+      targetCell.selected = false;
+      targetCell.ordinal = 0;
 
-      // if not contiguous, we are done, just update ordinals
       if (this.mode() !== 'contiguous') {
-        this.updateSelectedOrdinals();
-        return;
-      }
-
-      // else find the new reference cell as the one before or after the deselected cell
-      let cells = this.rows
-        .map((row) => row.find((c) => c.ordinal === n - 1))
-        .filter((c): c is PhysicalGridCell => !!c);
-      if (!cells.length) {
-        cells = this.rows
-          .map((row) => row.find((c) => c.ordinal === n + 1))
+        // update ordinals
+        let ordinal = 1;
+        newRows = newRows.map((row) =>
+          row.map((c) => {
+            if (c.selected) {
+              return { ...c, ordinal: ordinal++ };
+            }
+            return { ...c, ordinal: 0 };
+          })
+        );
+        this.rows.set(newRows);
+      } else {
+        // else find the new reference cell as the one before or after the deselected cell
+        let cells = newRows
+          .map((row) => row.find((c) => c.ordinal === n - 1))
           .filter((c): c is PhysicalGridCell => !!c);
-      }
-      if (cells.length) {
-        cell = cells[0];
-      }
-      // if found, deselect all non-contiguous cells and update ordinals
-      if (cell) {
-        this.deselectNonContiguousCells(cell);
-        this.updateSelectedOrdinals();
+        if (!cells.length) {
+          cells = newRows
+            .map((row) => row.find((c) => c.ordinal === n + 1))
+            .filter((c): c is PhysicalGridCell => !!c);
+        }
+        let refCell = cells.length ? cells[0] : targetCell;
+        // deselect all non-contiguous cells and update ordinals
+        const refCoords = { row: refCell.row, column: refCell.column };
+        newRows = newRows.map((row) =>
+          row.map((c) => {
+            if (
+              c.selected &&
+              (c.row !== refCoords.row || c.column !== refCoords.column) &&
+              !this.areContiguous({ row: c.row, column: c.column }, refCoords)
+            ) {
+              return { ...c, selected: false, ordinal: 0 };
+            }
+            return { ...c };
+          })
+        );
+        // update ordinals
+        let ordinal = 1;
+        newRows = newRows.map((row) =>
+          row.map((c) => {
+            if (c.selected) {
+              return { ...c, ordinal: ordinal++ };
+            }
+            return { ...c, ordinal: 0 };
+          })
+        );
+        this.rows.set(newRows);
       }
     } else {
       // (b) SELECT
       switch (this.mode()) {
         case 'single':
           // deselect all cells and select the new one
-          this.rows.forEach((row) =>
-            row.forEach((c) => {
-              c.selected = false;
-              c.ordinal = 0;
-            })
+          newRows = newRows.map((row) =>
+            row.map((c) =>
+              c.row === targetCell.row && c.column === targetCell.column
+                ? { ...c, selected: true, ordinal: 1 }
+                : { ...c, selected: false, ordinal: 0 }
+            )
           );
-          cell.selected = true;
           break;
         case 'contiguous':
-          this.deselectNonContiguousCells(cell);
-          cell.selected = true;
+          // deselect all non-contiguous cells
+          const refCoords = { row: targetCell.row, column: targetCell.column };
+          newRows = newRows.map((row) =>
+            row.map((c) => {
+              if (
+                c.selected &&
+                (c.row !== refCoords.row || c.column !== refCoords.column) &&
+                !this.areContiguous({ row: c.row, column: c.column }, refCoords)
+              ) {
+                return { ...c, selected: false, ordinal: 0 };
+              }
+              return { ...c };
+            })
+          );
+          // select the new cell
+          newRows[targetCell.row - 1][targetCell.column - 1].selected = true;
           break;
         case 'multiple':
-          cell.selected = true;
+          newRows[targetCell.row - 1][targetCell.column - 1].selected = true;
           break;
       }
       // update ordinals
-      cell.ordinal = this.getMaxSelectedOrdinal() + 1;
-      this.updateSelectedOrdinals();
+      let ordinal = 1;
+      newRows = newRows.map((row) =>
+        row.map((c) => {
+          if (c.selected) {
+            return { ...c, ordinal: ordinal++ };
+          }
+          return { ...c, ordinal: 0 };
+        })
+      );
+      this.rows.set(newRows);
     }
 
     // update the location
-    const selected = this.getSelectedCells();
+    const selected: PhysicalGridCell[] = [];
+    this.rows().forEach((row) =>
+      row.forEach((c) => {
+        if (c.selected) selected.push(c);
+      })
+    );
+    selected.sort((a, b) => (a.ordinal || 0) - (b.ordinal || 0));
     this.location.set({
       rows: this.rowCount.value,
       columns: this.columnCount.value,
-      coords: selected.map((c) => {
-        return { row: c.row, column: c.column };
-      }),
+      coords: selected.map((c) => ({ row: c.row, column: c.column })),
     });
 
     // update the selected cells text

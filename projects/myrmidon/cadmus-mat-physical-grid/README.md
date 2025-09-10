@@ -2,6 +2,15 @@
 
 📦 `@myrmidon/cadmus-mat-physical-grid`
 
+- [CadmusMatPhysicalGrid](#cadmusmatphysicalgrid)
+  - [String Format](#string-format)
+  - [Component](#component)
+  - [Service](#service)
+  - [Pipe](#pipe)
+  - [History](#history)
+    - [9.0.2](#902)
+    - [9.0.1](#901)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 This library contains a component representing a physical grid location (`PhysicalGridLocation`), i.e. a bounding rectangle ideally overlaid on top of a 2D physical surface. The surface of the rectangle is covered by a grid, where columns are labeled with letters, like in an Excel spreadsheet, and rows are numbered.
@@ -100,6 +109,10 @@ Injectable service for converting physical grid coordinates to/from string repre
 >The pipe returns empty string for null, undefined, or invalid inputs.
 
 ## History
+
+### 9.0.2
+
+- 2025-09-10: ensured component state is reactive and set it to `OnPush`.
 
 ### 9.0.1
 

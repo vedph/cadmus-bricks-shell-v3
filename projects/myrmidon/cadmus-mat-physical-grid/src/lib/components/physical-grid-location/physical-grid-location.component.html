@@ -86,7 +86,7 @@
       <mat-icon>window</mat-icon>
     </mat-expansion-panel-header>
     <div>
-      @for (r of rows; track $index) {
+      @for (r of rows(); track $index) {
       <div class="row">
         @for (c of r; track $index) {
         <div

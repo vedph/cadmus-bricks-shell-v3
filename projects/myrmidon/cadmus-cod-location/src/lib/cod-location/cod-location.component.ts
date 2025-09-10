@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
@@ -28,6 +29,12 @@ import {
   COD_LOCATION_RANGES_PATTERN,
 } from '../cod-location-parser';
 
+/**
+ * Component for editing a CodLocationRange array.
+ * The location can be a single sheet (e.g. "1r") or a range
+ * (e.g. "1r-2v"), or multiple ranges separated by spaces
+ * (e.g. "1r-2v 3r 4r-5v").
+ */
 @Component({
   selector: 'cadmus-cod-location',
   templateUrl: './cod-location.component.html',
@@ -39,6 +46,7 @@ import {
     MatIconModule,
     MatInputModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CodLocationComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
@@ -62,7 +70,9 @@ export class CodLocationComponent implements OnInit, OnDestroy {
   public readonly single = input<boolean>();
 
   /**
-   * The location.
+   * The location. Unless null, this is always represented by
+   * an array of ranges, even when single is true (in this case,
+   * the array  will contain a single range with start=end).
    */
   public readonly location = model<CodLocationRange[] | null>(null);
 

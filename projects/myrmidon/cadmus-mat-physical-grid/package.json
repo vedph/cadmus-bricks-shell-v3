@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-mat-physical-grid",
-  "version": "9.0.1",
+  "version": "9.0.2",
   "description": "Cadmus - material description: physical grid.",
   "keywords": [
     "Cadmus",
@@ -16,7 +16,8 @@
   },
   "peerDependencies": {
     "@angular/common": "^20.0.0",
-    "@angular/core": "^20.0.0"
+    "@angular/core": "^20.0.0",
+    "@angular/material": "^20.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

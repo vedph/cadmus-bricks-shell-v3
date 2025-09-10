@@ -128,6 +128,10 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-09-10:
+  - set `CodLocationComponent` to `OnPush` (`@myrmidon/cadmus-cod-location`).
+  - set `PhysicalGridLocationComponent` to `OnPush` (`@myrmidon/cadmus-mat-physical-grid`).
+
 ### 9.0.7
 
 - 2025-09-03:
