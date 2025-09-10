@@ -276,7 +276,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
 
   public saveMeasurement(): void {
     this.edited.set({
-      name: this.edited!.name,
+      name: this.edited()!.name,
       value: this.value.value,
       unit: this.unit.value,
       tag: this.tag.value || undefined,
