@@ -3,6 +3,18 @@
 - 📦 `@myrmidon/cadmus-mat-physical-size`
 - 🧱 [backend: physical size brick](https://github.com/vedph/cadmus-bricks/blob/master/docs/physical-size.md)
 
+- [CadmusMatPhysicalSize](#cadmusmatphysicalsize)
+  - [PhysicalSizeComponent](#physicalsizecomponent)
+  - [PhysicalDimensionComponent](#physicaldimensioncomponent)
+  - [PhysicalMeasurementSet](#physicalmeasurementset)
+  - [History](#history)
+    - [9.0.8](#908)
+    - [9.0.7](#907)
+    - [9.0.6](#906)
+    - [9.0.5](#905)
+    - [9.0.4](#904)
+    - [9.0.3](#903)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 ## PhysicalSizeComponent
@@ -25,14 +37,14 @@ In both modes, every change (i.e. saving text using the button in text mode, or 
   - `physical-size-tags` (tagEntries)
   - `physical-size-dim-tags` (dimTagEntries)
 - ▶️ input:
-  - size (`PhysicalSize`)
-  - defaultWUnit (`string`): default unit for width (default=`cm`).
-  - defaultHUnit (`string`): default unit for height (default=`cm`).
-  - defaultDUnit (`string`): default unit for depth (default=`cm`).
-  - hBeforeW (`boolean?`): true if the height comes before the width (both in text and visual representation).
-  - hideTag (`boolean?`)
+  - `size` (`PhysicalSize`)
+  - `defaultWUnit` (`string`): default unit for width (default=`cm`).
+  - `defaultHUnit` (`string`): default unit for height (default=`cm`).
+  - `defaultDUnit` (`string`): default unit for depth (default=`cm`).
+  - `hBeforeW` (`boolean?`): true if the height comes before the width (both in text and visual representation).
+  - `hideTag` (`boolean?`)
 - 🔥 output:
-  - sizeChange (`PhysicalSize`)
+  - `sizeChange` (`PhysicalSize`)
 
 ## PhysicalDimensionComponent
 
@@ -41,14 +53,14 @@ This component allows you to edit a single physical dimension (value, unit, and 
 - 🚩 `cadmus-mat-physical-dimension`
 - 🔑 `PhysicalDimensionComponent`
 - 📚 thesauri:
-  - `physical-size-units` (unitEntries)
-  - `physical-size-dim-tags` (tagEntries)
+  - `physical-size-units` (for `unitEntries`)
+  - `physical-size-dim-tags` (for `tagEntries`)
 - ▶️ input:
-  - dimension (`PhysicalDimension`)
-  - disabled (`boolean?`)
-  - hideTag (`boolean?`)
+  - `dimension` (`PhysicalDimension`)
+  - `disabled` (`boolean?`)
+  - `hideTag` (`boolean?`)
 - 🔥 output:
-  - dimensionChange (`PhysicalDimension`)
+  - `dimensionChange` (`PhysicalDimension`)
 
 ## PhysicalMeasurementSet
 
@@ -57,15 +69,15 @@ This component allows you to edit a set of physical measurements. For each one y
 - 🚩 `cadmus-mat-physical-measurement-set`
 - 🔑 `PhysicalMeasurementSetComponent`
 - 📚 thesauri:
-  - `physical-size-units` (unitEntries)
-  - `physical-size-dim-tags` (dimTagEntries)
-  - `physical-size-set-names` (nameEntries)
+  - `physical-size-units` (for `unitEntries`)
+  - `physical-size-dim-tags` (for `dimTagEntries`)
+  - `physical-size-set-names` (for `nameEntries`)
 - ▶️ input:
-  - measurements (`PhysicalMeasurement[]`)
-  - allowCustomName (`boolean?`): true to allow users entering custom names for measurements, rather than only picking them from a dropdown.
-  - defaultUnit (`string`)
+  - `measurements` (`PhysicalMeasurement[]`)
+  - `allowCustomName` (`boolean?`): true to allow users entering custom names for measurements, rather than only picking them from a dropdown.
+  - `defaultUnit` (`string`)
 - 🔥 output:
-  - measurementsChange (`PhysicalMeasurement[]`)
+  - `measurementsChange` (`PhysicalMeasurement[]`)
 
 ## History
 
