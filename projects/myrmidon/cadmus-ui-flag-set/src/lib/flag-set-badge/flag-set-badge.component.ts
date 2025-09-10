@@ -1,4 +1,9 @@
-import { Component, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core';
 
 import { MatTooltip } from '@angular/material/tooltip';
 
@@ -14,6 +19,7 @@ import { Flag } from '../flag-set/flag-set.component';
   imports: [MatTooltip, ColorToContrastPipe],
   templateUrl: './flag-set-badge.component.html',
   styleUrl: './flag-set-badge.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FlagSetBadgeComponent {
   /**

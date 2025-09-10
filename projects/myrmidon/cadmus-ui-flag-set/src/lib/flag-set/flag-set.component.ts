@@ -4,7 +4,15 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Component, effect, input, OnDestroy, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  OnDestroy,
+  output,
+} from '@angular/core';
 import {
   BehaviorSubject,
   combineLatest,
@@ -54,6 +62,7 @@ interface FlagViewModel extends Flag {
   ],
   templateUrl: './flag-set.component.html',
   styleUrl: './flag-set.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FlagSetComponent implements OnDestroy {
   private readonly _sub?: Subscription;
@@ -90,7 +99,37 @@ export class FlagSetComponent implements OnDestroy {
    */
   public readonly checkedIdsChange = output<string[]>();
 
-  public userFlags: FlagViewModel[] = [];
+  public readonly userFlags = computed<FlagViewModel[]>(() => {
+    const flags = this.flags() ?? [];
+    const checkedIds = this.checkedIds() ?? [];
+    const allowCustom = this.allowCustom();
+
+    // map input flags to view models
+    const assignedIds = new Set<string>();
+    const userFlags = flags.map((f) => {
+      assignedIds.add(f.id);
+      return {
+        ...f,
+        checked: checkedIds.includes(f.id),
+      };
+    });
+
+    // add custom flags for any checkedId not in flags
+    if (allowCustom) {
+      checkedIds.forEach((id) => {
+        if (!assignedIds.has(id)) {
+          userFlags.push({
+            id,
+            label: id,
+            custom: true,
+            checked: true,
+          });
+        }
+      });
+    }
+    return userFlags;
+  });
+
   public customFlag: FormControl<string | null>;
   public customForm: FormGroup;
 
@@ -127,7 +166,6 @@ export class FlagSetComponent implements OnDestroy {
   private update(flags: FlagViewModel[], checkedIds: string[]): void {
     // create user flags from input flags and checked IDs
     const assignedIds = new Set<string>();
-    this.userFlags = [...flags];
     flags.forEach((f) => {
       f.checked = checkedIds.includes(f.id);
       assignedIds.add(f.id);
@@ -137,12 +175,15 @@ export class FlagSetComponent implements OnDestroy {
     if (this.allowCustom()) {
       checkedIds.forEach((id) => {
         if (!assignedIds.has(id)) {
-          this.userFlags.push({
-            id,
-            label: id,
-            custom: true,
-            checked: true,
-          });
+          const newFlags = [
+            ...this.userFlags(),
+            {
+              id,
+              label: id,
+              custom: true,
+              checked: true,
+            },
+          ];
         }
       });
     }
@@ -160,7 +201,7 @@ export class FlagSetComponent implements OnDestroy {
     }
 
     // do not add if the ID already exists
-    if (this.userFlags.some((f) => f.id === id)) {
+    if (this.userFlags().some((f) => f.id === id)) {
       return;
     }
 
@@ -178,11 +219,9 @@ export class FlagSetComponent implements OnDestroy {
   }
 
   public onFlagChecked(flag: FlagViewModel, checked: boolean): void {
-    flag.checked = checked;
-
     let ids = [...this._ids$.value];
-    if (flag.checked) {
-      ids.push(flag.id);
+    if (checked) {
+      if (!ids.includes(flag.id)) ids.push(flag.id);
       // if flag has blacks, remove them
       if (flag.blackIds?.length) {
         ids = ids.filter((id) => !flag.blackIds!.includes(id));
@@ -205,16 +244,16 @@ export class FlagSetComponent implements OnDestroy {
   }
 
   public toggleAll(): void {
+    const currentIds = new Set(this._ids$.value);
+    const allFlags = this.userFlags();
     const ids: string[] = [];
-    this.userFlags.forEach((f) => {
-      if (f.checked) {
-        f.checked = false;
-      } else {
-        f.checked = true;
+    allFlags.forEach((f) => {
+      if (!currentIds.has(f.id)) {
         ids.push(f.id);
       }
+      // if already checked, do not add
     });
-    this._ids$.next(ids);
+    this._ids$.next(ids.length ? ids : []);
     this.checkedIdsChange.emit(this._ids$.value);
   }
 }

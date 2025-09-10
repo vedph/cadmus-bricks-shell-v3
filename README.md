@@ -134,8 +134,9 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-mat-physical-grid` (9.0.2)
 - `@myrmidon/cadmus-mat-physical-size` (9.0.9)
 - `@myrmidon/cadmus-mat-physical-state` (9.0.1)
-- `@myrmidon/cadmus-ui-note-set` (10.0.1)
 - `@myrmidon/cadmus-ui-custom-action-bar` (9.0.1)
+- `@myrmidon/cadmus-ui-flag-set` (9.0.2)
+- `@myrmidon/cadmus-ui-note-set` (10.0.1)
 
 💡 Prompt for check:
 
@@ -160,8 +161,9 @@ Check that this Angular component has been properly refactored to use Signals an
   - refactored `@myrmidon/cadmus-mat-physical-grid` for `OnPush`.
   - refactored `@myrmidon/cadmus-mat-physical-size` for `OnPush`.
   - refactored `@myrmidon/cadmus-mat-physical-state` for `OnPush`.
-  - refactored `@myrmidon/cadmus-ui-note-set` for `OnPush`.
   - refactored `@myrmidon/cadmus-ui-custom-action-bar` for `OnPush`.
+  - refactored `@myrmidon/cadmus-ui-flag-set` for `OnPush`.
+  - refactored `@myrmidon/cadmus-ui-note-set` for `OnPush`.
 
 ### 9.0.7
 

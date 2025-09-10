@@ -44,7 +44,7 @@
 </div>
 }
 <div class="form-row">
-  @for (f of userFlags; track f.id; let index = $index) {
+  @for (f of userFlags(); track f.id; let index = $index) {
   <mat-checkbox
     [checked]="f.checked"
     (change)="onFlagChecked(f, $event.checked)"

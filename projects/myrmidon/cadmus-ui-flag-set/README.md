@@ -6,6 +6,7 @@
   - [FlagSetComponent](#flagsetcomponent)
     - [FlagSetBadge](#flagsetbadge)
   - [History](#history)
+    - [9.0.2](#902)
     - [9.0.1](#901)
     - [8.0.1](#801)
 
@@ -21,10 +22,10 @@ A set of checkable flags. This component replaces the legacy (V2) [Cadmus UI fla
 - 🚩 `cadmus-ui-flag-set`
 - ▶️ input:
   - `flags` (`Flag[]`): the flags set.
-  - `checkedIds` (`string[]`)
-  - `allowCustom` (`boolean?`)
-  - `hideToolbar` (`boolean?`)
-  - `numbering` (`boolean?`)
+  - `checkedIds` (`string[]`): the IDs of checked flags.
+  - `allowCustom` (`boolean?`): allow custom-defined flags.
+  - `hideToolbar` (`boolean?`): hide toolbar.
+  - `numbering` (`boolean?`): number flags when displaying their list.
 - 🔥 output:
   - `checkedIdsChange` (`string[]`)
 
@@ -114,6 +115,10 @@ A set of flags badges, used to provide a compact visualization of a set of selec
   - `size` (`string`): the CSS-like size of the flag symbol. Default is `1em`.
 
 ## History
+
+### 9.0.2
+
+- 2025-09-10: set components to `OnPush`.
 
 ### 9.0.1
 
