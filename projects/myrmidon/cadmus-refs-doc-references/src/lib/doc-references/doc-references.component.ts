@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
@@ -66,6 +67,7 @@ export interface DocReference {
     MatInputModule,
     MatSelectModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocReferencesComponent implements AfterViewInit, OnDestroy {
   private _updatingForm: boolean | undefined;
@@ -82,7 +84,6 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
 
   // doc-reference-types
   public readonly typeEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
 

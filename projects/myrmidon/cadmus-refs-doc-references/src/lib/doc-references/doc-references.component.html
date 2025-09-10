@@ -78,7 +78,7 @@
         <div style="flex: 0 0 auto">
           <!-- tag (bound) -->
           @if (tagEntries()) {
-          <mat-form-field style="width: 8em">
+          <mat-form-field>
             <mat-label>tag</mat-label>
             <mat-select formControlName="tag">
               @for (e of tagEntries(); track e) {
@@ -91,7 +91,7 @@
           }
           <!-- tag (free) -->
           @else {
-          <mat-form-field style="width: 8em">
+          <mat-form-field>
             <mat-label>tag</mat-label>
             <input matInput formControlName="tag" />
             @if ( $any(item)['controls'].tag.hasError('max-length') &&

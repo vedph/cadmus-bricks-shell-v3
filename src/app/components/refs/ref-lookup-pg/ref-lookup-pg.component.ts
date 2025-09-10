@@ -219,6 +219,7 @@ export class RefLookupPgComponent {
   }
 
   public onItemChange(item: any | undefined): void {
+    console.log(item);
     this.item = item;
   }
 

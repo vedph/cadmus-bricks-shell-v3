@@ -42,13 +42,13 @@
       type="button"
       mat-icon-button
       matTooltip="Toggle references"
-      (click)="visualExpanded = !visualExpanded"
+      (click)="visualExpanded.set(!visualExpanded())"
       [matBadge]="references.value.length"
       [matBadgeHidden]="!references.value.length"
     >
-      @if (visualExpanded) {
+      @if (visualExpanded()) {
       <mat-icon class="mat-primary">publish</mat-icon>
-      } @if (!visualExpanded) {
+      } @if (!visualExpanded()) {
       <mat-icon class="mat-primary">get_app</mat-icon>
       }
     </button>
@@ -56,8 +56,8 @@
   <div>
     <!-- references -->
     <mat-expansion-panel
-      [expanded]="visualExpanded"
-      (expandedChange)="visualExpanded = $event"
+      [expanded]="visualExpanded()"
+      (expandedChange)="visualExpanded.set($event)"
     >
       <cadmus-refs-lookup-doc-references
         [typeEntries]="refTypeEntries()"

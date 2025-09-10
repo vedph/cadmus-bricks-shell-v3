@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -26,24 +26,28 @@ import { ViafRefLookupService } from '../../../../../projects/myrmidon/cadmus-re
 })
 export class RefLookupSetPgComponent implements OnDestroy {
   private _sub?: Subscription;
-  public item?: any;
-  public configs: RefLookupConfig[];
+  public readonly item = signal<any>(undefined);
+  public readonly configs: RefLookupConfig[];
 
   constructor(viafService: ViafRefLookupService) {
     this.configs = [
       {
         name: 'colors',
-        iconUrl: 'img/colors128.png',
+        iconUrl: '/img/colors128.png',
         description: 'Colors',
         label: 'color',
         service: new WebColorLookup(),
+        itemIdGetter: (item: any) => item?.value,
+        itemLabelGetter: (item: any) => item?.name,
       },
       {
         name: 'VIAF',
-        iconUrl: 'img/viaf128.png',
+        iconUrl: '/img/viaf128.png',
         description: 'Virtual International Authority File',
         label: 'ID',
         service: viafService,
+        itemIdGetter: (item: any) => item?.viafid,
+        itemLabelGetter: (item: any) => item?.term,
       },
     ];
   }
@@ -52,11 +56,11 @@ export class RefLookupSetPgComponent implements OnDestroy {
     this._sub?.unsubscribe();
   }
 
-  public onItemChange(item: any): void {
-    this.item = item;
+  public onItemChange(event: any): void {
+    this.item.set(event.item);
   }
 
-  public onMoreRequest(item: any): void {
+  public onMoreRequest(event: any): void {
     console.log('MORE REQUEST');
   }
 }

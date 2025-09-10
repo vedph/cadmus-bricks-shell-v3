@@ -134,6 +134,12 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-mat-physical-grid` (9.0.2)
 - `@myrmidon/cadmus-mat-physical-size` (9.0.9)
 - `@myrmidon/cadmus-mat-physical-state` (9.0.1)
+- `@myrmidon/cadmus-refs-assertion` (10.0.4)
+- `@myrmidon/cadmus-refs-doc-references` (10.0.2)
+- `@myrmidon/cadmus-refs-lookup` (10.0.3)
+- `@myrmidon/cadmus-text-ed` (9.0.1)
+- `@myrmidon/cadmus-text-ed-md` (10.0.3)
+- `@myrmidon/cadmus-text-ed-txt` (9.0.1)
 - `@myrmidon/cadmus-ui-custom-action-bar` (9.0.1)
 - `@myrmidon/cadmus-ui-flag-set` (9.0.2)
 - `@myrmidon/cadmus-ui-note-set` (10.0.1)
@@ -161,6 +167,12 @@ Check that this Angular component has been properly refactored to use Signals an
   - refactored `@myrmidon/cadmus-mat-physical-grid` for `OnPush`.
   - refactored `@myrmidon/cadmus-mat-physical-size` for `OnPush`.
   - refactored `@myrmidon/cadmus-mat-physical-state` for `OnPush`.
+  - refactored `@myrmidon/cadmus-refs-assertion` for `OnPush`.
+  - refactored `@myrmidon/cadmus-refs-doc-references` for `OnPush`.
+  - refactored `@myrmidon/cadmus-refs-lookup` for `OnPush`.
+  - refactored `@myrmidon/cadmus-text-ed` for `OnPush`.
+  - refactored `@myrmidon/cadmus-text-ed-md` for `OnPush`.
+  - refactored `@myrmidon/cadmus-text-ed-txt` for `OnPush`.
   - refactored `@myrmidon/cadmus-ui-custom-action-bar` for `OnPush`.
   - refactored `@myrmidon/cadmus-ui-flag-set` for `OnPush`.
   - refactored `@myrmidon/cadmus-ui-note-set` for `OnPush`.

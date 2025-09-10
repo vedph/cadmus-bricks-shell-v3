@@ -2,6 +2,12 @@
 
 📦 `@myrmidon/cadmus-refs-assertion`
 
+- [CadmusRefsAssertion](#cadmusrefsassertion)
+  - [AssertionComponent](#assertioncomponent)
+    - [10.0.4](#1004)
+    - [9.0.1](#901)
+    - [9.0.0](#900)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 ## AssertionComponent
@@ -21,6 +27,10 @@ This component provides an editable assertion. The assertion decorates some othe
   - `doc-reference-tags` (refTagEntries)
 - 🔥 output:
   - `assertionChange` (`Assertion`)
+
+### 10.0.4
+
+- 2025-09-10: refactored for `OnPush`.
 
 ### 9.0.1
 

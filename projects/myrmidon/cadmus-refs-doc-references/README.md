@@ -11,12 +11,16 @@ This component provides an editable list of generic and compact document referen
 - 🔑 `DocReferencesComponent`
 - 🚩 `cadmus-refs-doc-references`
 - ▶️ input:
-  - references (`DocReference[]`)
+  - `references` (`DocReference[]`)
 - 📚 thesauri:
-  - `doc-reference-types` (typeEntries)
-  - `doc-reference-tags` (tagEntries)
+  - `doc-reference-types` (for `typeEntries`)
+  - `doc-reference-tags` (for `tagEntries`)
 - 🔥 output:
-  - referencesChange (`DocReference[]`)
+  - `referencesChange` (`DocReference[]`)
+
+### 10.0.2
+
+- 2025-09-10: refactored for `OnPush`.
 
 ### 9.0.0
 

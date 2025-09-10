@@ -1,10 +1,12 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
   model,
   OnDestroy,
   OnInit,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -64,6 +66,7 @@ export interface Assertion {
     // bricks
     LookupDocReferencesComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertionComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
@@ -78,10 +81,8 @@ export class AssertionComponent implements OnInit, OnDestroy {
 
   // assertion-tags
   public readonly assTagEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-types
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
@@ -105,7 +106,7 @@ export class AssertionComponent implements OnInit, OnDestroy {
    */
   public readonly defaultPicker = input<'citation' | 'lookup'>('citation');
 
-  public visualExpanded?: boolean;
+  public readonly visualExpanded = signal<boolean>(false);
 
   constructor(formBuilder: FormBuilder) {
     this.tag = formBuilder.control(null, Validators.maxLength(50));

@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, input, model, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  input,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -77,9 +85,10 @@ export interface RefLookupService {
     MatInputModule,
     MatSelectModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RefLookupComponent {
-  public lookupActive: boolean;
+  public readonly lookupActive = signal<boolean>(false);
   public invalid$: BehaviorSubject<boolean>;
 
   /**
@@ -156,7 +165,6 @@ export class RefLookupComponent {
 
   constructor(formBuilder: FormBuilder, private _dialog: MatDialog) {
     this.invalid$ = new BehaviorSubject<boolean>(false);
-    this.lookupActive = false;
     this.lookup = formBuilder.control(null);
     this.form = formBuilder.group({
       lookup: this.lookup,
@@ -225,16 +233,16 @@ export class RefLookupComponent {
   public clear(): void {
     this.item.set(undefined);
     this.lookup.reset();
-    this.lookupActive = false;
+    this.lookupActive.set(false);
   }
 
   public pickItem(item: any): void {
     this.item.set(item);
-    this.lookupActive = false;
+    this.lookupActive.set(false);
   }
 
   public requestMore(): void {
-    this.lookupActive = false;
+    this.lookupActive.set(false);
     this.moreRequest.emit(this.item());
   }
 
@@ -308,7 +316,9 @@ export class RefLookupComponent {
       })
       .afterClosed()
       .subscribe((result) => {
-        this.options.set(result);
+        // defensive: always set a new object reference, in case the dialog
+        // has modified the options object in place
+        this.options.set(result ? { ...result } : result);
       });
   }
 }

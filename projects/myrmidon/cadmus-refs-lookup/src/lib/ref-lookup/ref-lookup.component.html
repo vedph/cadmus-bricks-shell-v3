@@ -8,7 +8,7 @@
   </mat-autocomplete>
 
   <!-- active -->
-  @if (lookupActive) {
+  @if (lookupActive()) {
   <mat-form-field>
     <input
       matInput
@@ -32,7 +32,7 @@
   }
 
   <!-- inactive -->
-  @if (!lookupActive) {
+  @else {
   <div class="flex-row">
     <div class="labeled">
       @if (label()) {
@@ -42,11 +42,10 @@
         <span class="required">&nbsp;required</span>
         }
       </div>
-      } @if (!lookupActive) {
-      <button type="button" mat-flat-button (click)="lookupActive = true">
+      }
+      <button type="button" mat-flat-button (click)="lookupActive.set(true)">
         {{ getLookupName(item()) || label() }}
       </button>
-      }
     </div>
     <!-- buttons -->
     @if (linkTemplate()) {

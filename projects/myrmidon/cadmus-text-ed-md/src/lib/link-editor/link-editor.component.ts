@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   Inject,
   model,
@@ -52,6 +53,7 @@ export interface LinkEditorComponentData {
   ],
   templateUrl: './link-editor.component.html',
   styleUrl: './link-editor.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LinkEditorComponent implements OnInit {
   public external?: boolean;
@@ -87,7 +89,7 @@ export class LinkEditorComponent implements OnInit {
    */
   public readonly closeRequest = output();
 
-  public inDialog = false;
+  public readonly inDialog;
 
   constructor(
     private _thesService: ThesaurusService,

@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Inject,
@@ -8,6 +9,7 @@ import {
   OnInit,
   Optional,
   output,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -54,6 +56,7 @@ export interface EmojiImeComponentData {
   ],
   templateUrl: './emoji-ime.component.html',
   styleUrl: './emoji-ime.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmojiImeComponent implements OnInit, AfterViewInit, OnDestroy {
   private _sub?: Subscription;
@@ -64,8 +67,8 @@ export class EmojiImeComponent implements OnInit, AfterViewInit, OnDestroy {
   public name: FormControl<string | null>;
   public form: FormGroup;
 
-  public emojis: UnicodeEmoji[] = [];
-  public inDialog = false;
+  public readonly emojis = signal<UnicodeEmoji[]>([]);
+  public readonly inDialog;
 
   /**
    * The icon size. Default is 32.
@@ -113,9 +116,9 @@ export class EmojiImeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private lookupEmoji(): void {
     if (this.name.value) {
-      this.emojis = this._emojiService.lookupEmoji(this.name.value);
-      if (this.autoPick() && this.emojis.length === 1) {
-        this.pickEmoji(this.emojis[0]);
+      this.emojis.set(this._emojiService.lookupEmoji(this.name.value));
+      if (this.autoPick() && this.emojis().length === 1) {
+        this.pickEmoji(this.emojis()[0]);
       }
     }
   }

@@ -2,6 +2,16 @@
 
 📦 `@myrmidon/cadmus-text-ed-md`
 
+- [CadmusTextEdMd](#cadmustextedmd)
+  - [Plugins](#plugins)
+    - [Toggle Bold](#toggle-bold)
+    - [Toggle Italic](#toggle-italic)
+    - [Insert Link](#insert-link)
+  - [Example](#example)
+  - [History](#history)
+    - [10.0.3](#1003)
+    - [9.0.0](#900)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 This library contains Markdown-related plugins for the Cadmus [text editing service](../cadmus-text-ed/README.md).
@@ -69,6 +79,10 @@ storage.store(ASSERTED_COMPOSITE_ID_CONFIGS_KEY, [
 For an example usage with a Monaco editor instance see the [text editor service demo page](../../../src/app/text/text-ed-pg/text-ed-pg.component.ts).
 
 ## History
+
+### 10.0.3
+
+- 2025-10-09: refactored for `OnPush`.
 
 ### 9.0.0
 

@@ -1,4 +1,10 @@
-import { Component, input, model } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  model,
+  signal,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +22,9 @@ import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
 
 import { LookupDocReferenceComponent } from '../ref-lookup-doc-reference/ref-lookup-doc-reference.component';
 
+/**
+ * Document references editor component.
+ */
 @Component({
   selector: 'cadmus-refs-lookup-doc-references',
   imports: [
@@ -33,10 +42,11 @@ import { LookupDocReferenceComponent } from '../ref-lookup-doc-reference/ref-loo
   ],
   templateUrl: './ref-lookup-doc-references.component.html',
   styleUrl: './ref-lookup-doc-references.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LookupDocReferencesComponent {
-  public edited?: DocReference;
-  public editedIndex: number = -1;
+  public readonly edited = signal<DocReference | undefined>(undefined);
+  public readonly editedIndex = signal<number>(-1);
 
   /**
    * The references.
@@ -45,7 +55,6 @@ export class LookupDocReferencesComponent {
 
   // doc-reference-types
   public readonly typeEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
 
@@ -74,21 +83,21 @@ export class LookupDocReferencesComponent {
   }
 
   public editReference(entry: DocReference, index: number): void {
-    this.editedIndex = index;
-    this.edited = entry;
+    this.editedIndex.set(index);
+    this.edited.set(entry);
   }
 
   public closeReference(): void {
-    this.editedIndex = -1;
-    this.edited = undefined;
+    this.editedIndex.set(-1);
+    this.edited.set(undefined);
   }
 
   public saveReference(entry: DocReference): void {
     const entries = [...this.references()];
-    if (this.editedIndex === -1) {
+    if (this.editedIndex() === -1) {
       entries.push(entry);
     } else {
-      entries.splice(this.editedIndex, 1, entry);
+      entries.splice(this.editedIndex(), 1, entry);
     }
     this.references.set(entries);
     this.closeReference();
@@ -99,7 +108,7 @@ export class LookupDocReferencesComponent {
       .confirm('Confirmation', 'Delete Reference?')
       .subscribe((yes: boolean | undefined) => {
         if (yes) {
-          if (this.editedIndex === index) {
+          if (this.editedIndex() === index) {
             this.closeReference();
           }
           const entries = [...this.references()];

@@ -10,11 +10,11 @@
       (itemChange)="onItemChange($event)"
       (moreRequest)="onMoreRequest($event)"
     />
-    @if (item) {
+    @if (item()) {
     <hr />
     <div>
       <code>
-        <pre>{{ item | json }}</pre>
+        <pre>{{ item() | json }}</pre>
       </code>
     </div>
     }

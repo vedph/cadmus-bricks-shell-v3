@@ -1,4 +1,11 @@
-import { Component, input, OnDestroy, OnInit, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  output,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -146,6 +153,7 @@ export interface RefLookupSetEvent {
     MatSelectModule,
     RefLookupComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RefLookupSetComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
@@ -200,7 +208,7 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
     this._sub?.unsubscribe();
   }
 
-  private eventToItem(item: any): RefLookupSetEvent {
+  private itemToEvent(item: any): RefLookupSetEvent {
     return {
       configs: this.configs(),
       config: this.config.value!,
@@ -218,13 +226,15 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
     if (!this.config.value) {
       return;
     }
-    this.itemChange.emit(this.eventToItem(item));
+    const event = this.itemToEvent(item);
+    this.itemChange.emit(event);
   }
 
   public onMoreRequest(item: any): void {
     if (!this.config.value) {
       return;
     }
-    this.moreRequest.emit(this.eventToItem(item));
+    const event = this.itemToEvent(item);
+    this.moreRequest.emit(event);
   }
 }

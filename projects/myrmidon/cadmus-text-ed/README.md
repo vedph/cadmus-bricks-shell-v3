@@ -12,6 +12,8 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Local Configuration](#local-configuration)
   - [Linking to Monaco](#linking-to-monaco)
   - [Example](#example)
+  - [History](#history)
+    - [9.0.1](#901)
 
 ## Text Editing Service
 
@@ -308,3 +310,9 @@ This page has a UI where you can just set the parameters for a text edit operati
 - Ctrl+I: [toggle italic](../cadmus-text-ed-md/README.md#toggle-italic).
 - Ctrl+E: [insert emoji](../cadmus-text-ed-txt/README.md#insert-unicode-emoji).
 - Ctrl+L: [insert link](../cadmus-text-ed-md/README.md#insert-link).
+
+## History
+
+### 9.0.1
+
+- 2025-09-10: updated package config.

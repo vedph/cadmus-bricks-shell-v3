@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 
 import {
   MatDialogRef,
@@ -17,6 +17,7 @@ import {
   templateUrl: './ref-lookup-options.component.html',
   styleUrls: ['./ref-lookup-options.component.css'],
   imports: [CommonModule, MatDialogModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RefLookupOptionsComponent {
   constructor(

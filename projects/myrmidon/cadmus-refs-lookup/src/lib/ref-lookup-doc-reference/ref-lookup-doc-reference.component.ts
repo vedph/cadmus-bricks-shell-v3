@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -67,6 +68,7 @@ export const LOOKUP_CONFIGS_KEY = 'cadmus-refs-lookup.configs';
   ],
   templateUrl: './ref-lookup-doc-reference.component.html',
   styleUrl: './ref-lookup-doc-reference.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LookupDocReferenceComponent implements OnDestroy {
   private _lookupConfig?: RefLookupConfig;

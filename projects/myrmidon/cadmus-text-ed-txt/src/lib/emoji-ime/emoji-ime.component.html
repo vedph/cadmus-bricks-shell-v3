@@ -1,7 +1,7 @@
 <form
   [formGroup]="form"
   [style.margin]="inDialog ? '16px' : '0'"
-  (submit)="pickEmoji(emojis[0])"
+  (submit)="pickEmoji(emojis()[0])"
 >
   <!-- name -->
   <div>
@@ -13,7 +13,7 @@
   <!-- list -->
   <table>
     <tbody>
-      @for (e of emojis; track e.code) {
+      @for (e of emojis(); track e.code) {
       <tr>
         <td class="name">{{ e.name }}</td>
         <td class="code">{{ e.code | uppercase }}</td>

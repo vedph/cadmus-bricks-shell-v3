@@ -11,6 +11,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Configuring Set](#configuring-set)
   - [LookupDocReferencesComponent](#lookupdocreferencescomponent)
   - [History](#history)
+    - [10.0.3](#1003)
     - [10.0.2](#1002)
     - [10.0.1](#1001)
     - [10.0.0](#1000)
@@ -23,18 +24,18 @@ Generic reference lookup component. This can be used to provide quick lookup int
 - 🔑 `RefLookupComponent`
 - 🚩 `cadmus-refs-lookup`
 - ▶️ input:
-  - label (`string?`)
-  - limit (`number`, default=10): max number of items to retrieve for lookup.
-  - baseFilter (`unknown`): the base filter object to supply when filtering data in this lookup. If you have more filtering criteria set by your client code, set this property to an object representing the filter criteria. This object will be used as the base object when invoking the lookup service.
-  - service\* (`RefLookupService`)
-  - item (`unknown?`): current lookup item.
-  - required (`boolean?`)
-  - hasMore (`boolean?`)
-  - linkTemplate (`string?`): the optional template to be used when building the URI pointing to the external resource and linked by the _Link_ button. The ID placeholder is represented by a property path included in `{}`, e.g. `{id}` or `{some.id}`. If undefined, no link button will be displayed.
-  - optDialog (`unknown`): when using quick options, this is a component used to customize the lookup `options`.
-  - options (`unknown`): options for lookup.
+  - `label` (`string?`)
+  - `limit` (`number`, default=10): max number of items to retrieve for lookup.
+  - `baseFilter` (`unknown`): the base filter object to supply when filtering data in this lookup. If you have more filtering criteria set by your client code, set this property to an object representing the filter criteria. This object will be used as the base object when invoking the lookup service.
+  - `service`\* (`RefLookupService`)
+  - `item` (`unknown?`): current lookup item.
+  - `required` (`boolean?`)
+  - `hasMore` (`boolean?`)
+  - `linkTemplate` (`string?`): the optional template to be used when building the URI pointing to the external resource and linked by the _Link_ button. The ID placeholder is represented by a property path included in `{}`, e.g. `{id}` or `{some.id}`. If undefined, no link button will be displayed.
+  - `optDialog` (`unknown`): when using quick options, this is a component used to customize the lookup `options`.
+  - `options` (`unknown`): options for lookup.
 - 🔥 output:
-  - moreRequest (`unknown?`): request for a more complex lookup. This receives the current item, if any.
+  - `moreRequest` (`unknown?`): request for a more complex lookup. This receives the current item, if any.
 
 The lookup component is a general purpose lookup where:
 
@@ -98,12 +99,12 @@ A set of lookup items. Each has its own configuration and uses a specific servic
 - 🔑 `RefLookupSetComponent`
 - 🚩 `cadmus-refs-lookup-set`
 - ▶️ input:
-  - configs\* (`RefLookupConfig[]`)
-  - iconSize (`IconSize`, default=24x24)
+  - `configs`\* (`RefLookupConfig[]`)
+  - `iconSize` (`IconSize`, default=24x24)
 - 🔥 output:
-  - configChange (`RefLookupConfig`): emitted when the currently selected lookup configuration changes.
-  - itemChange (`RefLookupSetEvent`)
-  - moreRequest (`RefLookupSetEvent`)
+  - `configChange` (`RefLookupConfig`): emitted when the currently selected lookup configuration changes.
+  - `itemChange` (`RefLookupSetEvent`)
+  - `moreRequest` (`RefLookupSetEvent`)
 
 A lookup set is a combination of several lookup components, each connected to a different source.
 
@@ -255,14 +256,14 @@ A set of documental references (with the same model as those in `@myrmidon/cadmu
 - 🔑 `LookupDocReferencesComponent`
 - 🚩 `cadmus-refs-lookup-doc-references`
 - ▶️ input:
-  - references (`DocReference[]`)
-  - typeEntries (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-types`)
-  - tagEntries (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-tags`)
-  - noLookup (`boolean`) to disable the lookup set
-  - noCitation (`boolean`) to disable the citation set
-  - defaultPicker (`string`): either `citation` or `lookup` to set the default picker
+  - `references` (`DocReference[]`)
+  - `typeEntries` (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-types`)
+  - `tagEntries` (`ThesaurusEntry[]` or undefined, from 📚 `doc-reference-tags`)
+  - `noLookup` (`boolean`) to disable the lookup set
+  - `noCitation` (`boolean`) to disable the citation set
+  - `defaultPicker` (`string`): either `citation` or `lookup` to set the default picker
 - 🔥 output:
-  - referencesChange (`DocReference[]`)
+  - `referencesChange` (`DocReference[]`)
 
 Usage:
 
@@ -382,6 +383,10 @@ import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 ```
 
 ## History
+
+### 10.0.3
+
+- 2025-09-10: refactored for `OnPush`.
 
 ### 10.0.2
 
