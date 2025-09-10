@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -63,6 +64,7 @@ export interface PhysicalState {
   ],
   templateUrl: './physical-state.component.html',
   styleUrls: ['./physical-state.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PhysicalStateComponent {
   public type: FormControl<string>;
@@ -73,6 +75,9 @@ export class PhysicalStateComponent {
   public note: FormControl<string | null>;
   public form: FormGroup;
 
+  /**
+   * The state being edited.
+   */
   public readonly state = model<PhysicalState>();
 
   /**
@@ -90,6 +95,9 @@ export class PhysicalStateComponent {
   // physical-state-features
   public readonly featEntries = input<ThesaurusEntry[]>();
 
+  /**
+   * Flags computed from featEntries.
+   */
   public readonly flags = computed(() => {
     return this.featEntries()?.map(entryToFlag) || [];
   });
@@ -155,7 +163,7 @@ export class PhysicalStateComponent {
     const month = (d.getMonth() + 1).toString().padStart(2, '0');
     const day = d.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
-}
+  }
 
   private getState(): PhysicalState {
     return {

@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-mat-physical-state",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "description": "Cadmus - material description: physical state.",
   "keywords": [
     "Cadmus",
@@ -17,7 +17,8 @@
   "peerDependencies": {
     "@angular/common": "^20.0.0",
     "@angular/core": "^20.0.0",
-    "@myrmidon/cadmus-ui-flag-set": "^9.0.0"
+    "@angular/material": "^20.0.0",
+    "@myrmidon/cadmus-ui-flag-set": "^9.0.1"
   },
   "dependencies": {
     "tslib": "^2.3.0"

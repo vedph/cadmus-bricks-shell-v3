@@ -5,6 +5,7 @@
 - [CadmusMatPhysicalState](#cadmusmatphysicalstate)
   - [PhysicalStateComponent](#physicalstatecomponent)
   - [History](#history)
+    - [9.0.1](#901)
     - [8.0.3](#803)
     - [8.0.2](#802)
     - [8.0.1](#801)
@@ -27,6 +28,10 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - `stateCancel`
 
 ## History
+
+### 9.0.1
+
+- 2025-09-10: set component to `OnPush`.
 
 ### 8.0.3
 
