@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-asserted-ids",
-  "version": "10.0.8",
+  "version": "10.0.9",
   "description": "Cadmus - asserted IDs components.",
   "keywords": [
     "Cadmus",
@@ -17,6 +17,7 @@
   "peerDependencies": {
     "@angular/common": "^20.0.0",
     "@angular/core": "^20.0.0",
+    "@angular/material": "^20.0.0",
     "@myrmidon/ngx-mat-tools": "^1.0.0",
     "@myrmidon/cadmus-api": "^14.0.3",
     "@myrmidon/cadmus-refs-assertion": "^10.0.3"

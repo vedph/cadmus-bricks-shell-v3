@@ -1,4 +1,11 @@
-import { Component, input, Input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  Input,
+  output,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -41,11 +48,13 @@ import {
     MatInputModule,
     AssertedCompositeIdComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedCompositeIdsComponent {
   private _ids: AssertedCompositeId[];
-  private _editedIndex: number;
-  public edited?: AssertedCompositeId;
+
+  public readonly editedIndex = signal<number>(-1);
+  public readonly edited = signal<AssertedCompositeId | undefined>(undefined);
 
   /**
    * The asserted IDs.
@@ -63,16 +72,12 @@ export class AssertedCompositeIdsComponent {
 
   // asserted-id-scopes
   public readonly idScopeEntries = input<ThesaurusEntry[]>();
-
   // asserted-id-tags
   public readonly idTagEntries = input<ThesaurusEntry[]>();
-
   // assertion-tags
   public readonly assTagEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-types
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
@@ -118,7 +123,6 @@ export class AssertedCompositeIdsComponent {
 
   constructor(formBuilder: FormBuilder, private _dialogService: DialogService) {
     this._ids = [];
-    this._editedIndex = -1;
     this.entries = formBuilder.control([], { nonNullable: true });
     // form
     this.form = formBuilder.group({
@@ -150,21 +154,21 @@ export class AssertedCompositeIdsComponent {
   }
 
   public editId(id: AssertedCompositeId, index: number): void {
-    this._editedIndex = index;
-    this.edited = id;
+    this.editedIndex.set(index);
+    this.edited.set(id);
   }
 
   public closeId(): void {
-    this._editedIndex = -1;
-    this.edited = undefined;
+    this.editedIndex.set(-1);
+    this.edited.set(undefined);
   }
 
   public saveId(entry: AssertedCompositeId): void {
     const entries = [...this.entries.value];
-    if (this._editedIndex === -1) {
+    if (this.editedIndex() === -1) {
       entries.push(entry);
     } else {
-      entries.splice(this._editedIndex, 1, entry);
+      entries.splice(this.editedIndex(), 1, entry);
     }
     this.entries.setValue(entries);
     this.entries.markAsDirty();
@@ -178,7 +182,7 @@ export class AssertedCompositeIdsComponent {
       .pipe(take(1))
       .subscribe((yes) => {
         if (yes) {
-          if (this._editedIndex === index) {
+          if (this.editedIndex() === index) {
             this.closeId();
           }
           const entries = [...this.entries.value];

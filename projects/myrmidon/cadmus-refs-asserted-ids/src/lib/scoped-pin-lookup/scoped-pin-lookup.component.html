@@ -3,11 +3,11 @@
   <div>
     <form [formGroup]="keyForm" class="form-row">
       <!-- key -->
-      @if (keys.length > 1) {
+      @if (keys().length > 1) {
       <mat-form-field>
         <mat-label>type</mat-label>
         <mat-select [formControl]="key">
-          @for (k of keys; track k) {
+          @for (k of keys(); track k) {
           <mat-option [value]="k">{{ k }}</mat-option>
           }
         </mat-select>
@@ -26,8 +26,8 @@
   </div>
 
   <!-- builder -->
-  @if (info) {
-  <mat-expansion-panel [expanded]="info" [disabled]="!info">
+  @if (info()) {
+  <mat-expansion-panel [expanded]="info()" [disabled]="!info()">
     <mat-expansion-panel-header>ID builder</mat-expansion-panel-header>
     <!-- ID -->
     <div>
@@ -80,7 +80,7 @@
             </button>
           </td>
           <td>pin</td>
-          <td>{{ info!.pin.value }}</td>
+          <td>{{ info()!.pin.value }}</td>
         </tr>
         <!-- item ID -->
         <tr>
@@ -94,13 +94,13 @@
             </button>
           </td>
           <td>item ID</td>
-          <td>{{ info!.item?.id }}</td>
+          <td>{{ info()!.item?.id }}</td>
         </tr>
         <!-- item title -->
         <tr>
           <td></td>
           <td>item title</td>
-          <td>{{ info!.item?.title }}</td>
+          <td>{{ info()!.item?.title }}</td>
         </tr>
         <!-- part ID -->
         <tr>
@@ -114,7 +114,7 @@
             </button>
           </td>
           <td>part ID</td>
-          <td>{{ info!.part?.id }}</td>
+          <td>{{ info()!.part?.id }}</td>
         </tr>
         <!-- part type ID -->
         <tr>
@@ -128,7 +128,7 @@
             </button>
           </td>
           <td>part type ID</td>
-          <td>{{ info!.part?.typeId }}</td>
+          <td>{{ info()!.part?.typeId }}</td>
         </tr>
         <!-- part role ID -->
         <tr>
@@ -142,10 +142,10 @@
             </button>
           </td>
           <td>part role ID</td>
-          <td>{{ info!.part?.roleId }}</td>
+          <td>{{ info()!.part?.roleId }}</td>
         </tr>
         <!-- part's metadata -->
-        @for (m of info!.part?.metadata; track m; let i = $index) {
+        @for (m of info()!.part?.metadata; track m; let i = $index) {
         <tr>
           <td>
             <button

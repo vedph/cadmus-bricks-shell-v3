@@ -1,4 +1,4 @@
-import { Component, effect, Inject, input, model, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, Inject, input, model, output, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -74,13 +74,14 @@ export interface AssertedCompositeId {
     // local
     PinTargetLookupComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedCompositeIdComponent {
   private _updatingForm: boolean | undefined;
   private _lookupConfigDirty = true;
 
-  public extLookupConfigs: RefLookupConfig[];
-  public targetExpanded = false;
+  public readonly extLookupConfigs = signal<RefLookupConfig[]>([]);
+  public readonly targetExpanded = signal<boolean>(false);
   // form
   public target: FormControl<PinTarget | null>;
   public scope: FormControl<string | null>;
@@ -90,16 +91,12 @@ export class AssertedCompositeIdComponent {
 
   // asserted-id-scopes
   public readonly idScopeEntries = input<ThesaurusEntry[]>();
-
   // asserted-id-tags
   public readonly idTagEntries = input<ThesaurusEntry[]>();
-
   // assertion-tags
   public readonly assTagEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-types
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
@@ -175,8 +172,9 @@ export class AssertedCompositeIdComponent {
     });
 
     // external lookup configs
-    this.extLookupConfigs =
-      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || [];
+    this.extLookupConfigs.set(
+      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || []
+    );
 
     // when id changes, update form
     effect(() => {
@@ -206,7 +204,7 @@ export class AssertedCompositeIdComponent {
     this.target.markAsDirty();
     this.target.updateValueAndValidity();
     if (this.form.valid) {
-      this.targetExpanded = false;
+      this.targetExpanded.set(false);
     }
   }
 
@@ -247,7 +245,7 @@ export class AssertedCompositeIdComponent {
   }
 
   public onEditorClose(): void {
-    this.targetExpanded = false;
+    this.targetExpanded.set(false);
   }
 
   public onExtMoreRequest(event: RefLookupSetEvent): void {
@@ -267,7 +265,7 @@ export class AssertedCompositeIdComponent {
     }
     if (
       !this.scope.value ||
-      this.extLookupConfigs.some((c) => c.name === this.scope.value)
+      this.extLookupConfigs().some((c) => c.name === this.scope.value)
     ) {
       this.scope.setValue(config.name || null);
       this.scope.markAsDirty();

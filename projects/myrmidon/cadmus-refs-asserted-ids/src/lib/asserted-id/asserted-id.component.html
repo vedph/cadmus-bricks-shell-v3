@@ -69,7 +69,10 @@
       <!-- lookup -->
       @if (!noEidLookup()) {
       <div>
-        <mat-expansion-panel [(expanded)]="lookupExpanded">
+        <mat-expansion-panel
+          [expanded]="lookupExpanded()"
+          (expandedChange)="lookupExpanded.set($event)"
+        >
           <mat-expansion-panel-header>lookup</mat-expansion-panel-header>
           <cadmus-scoped-pin-lookup (idPick)="onIdPick($event)" />
         </mat-expansion-panel>

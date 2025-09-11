@@ -84,13 +84,13 @@
           <mat-label>part</mat-label>
           <mat-select [formControl]="itemPart">
             <mat-option [value]="null">(any)</mat-option>
-            @for (p of itemParts; track p) {
+            @for (p of itemParts(); track p) {
             <mat-option [value]="p">{{
-              p.typeId | flatLookup : modelEntries : "id" : "value"
+              p.typeId | flatLookup : modelEntries() : "id" : "value"
             }}</mat-option>
             }
           </mat-select>
-          <mat-hint>parts: {{ itemParts.length }}</mat-hint>
+          <mat-hint>parts: {{ itemParts().length }}</mat-hint>
         </mat-form-field>
         }
       </fieldset>
@@ -99,11 +99,11 @@
       @if (byTypeMode.value) {
       <div>
         <!-- part type filter -->
-        @if (partTypeKeys.length) {
+        @if (partTypeKeys().length) {
         <mat-form-field>
           <mat-label>part type</mat-label>
           <mat-select [formControl]="partTypeKey">
-            @for (k of partTypeKeys; track k) {
+            @for (k of partTypeKeys(); track k) {
             <mat-option [value]="k">{{ k }}</mat-option>
             }
           </mat-select>
@@ -117,8 +117,8 @@
         <!-- pin lookup -->
         <cadmus-refs-lookup
           [service]="pinLookupService"
-          [baseFilter]="filter"
-          [options]="pinFilterOptions"
+          [baseFilter]="filter()"
+          [options]="pinFilterOptions()"
           label="pin"
           (itemChange)="onPinLookupChange($event)"
         />
@@ -126,7 +126,7 @@
       }
     </div>
     <!-- data -->
-    @if (lookupData?.pin?.name) {
+    @if (lookupData()?.pin?.name) {
     <mat-expansion-panel id="data">
       <mat-expansion-panel-header>pin data</mat-expansion-panel-header>
       <!-- table -->
@@ -138,128 +138,128 @@
         </thead>
         <tbody>
           <!-- pin name -->
-          @if (lookupData?.pin?.name) {
+          @if (lookupData()?.pin?.name) {
           <tr>
             <td class="fit-width">
               <button
                 type="button"
                 mat-icon-button
                 matTooltip="Copy value"
-                [cdkCopyToClipboard]="lookupData!.pin!.name"
+                [cdkCopyToClipboard]="lookupData()!.pin!.name"
                 (cdkCopyToClipboardCopied)="onCopied()"
               >
                 <mat-icon class="mat-primary">content_copy</mat-icon>
               </button>
             </td>
             <td>pin name</td>
-            <td>{{ lookupData!.pin.name }}</td>
+            <td>{{ lookupData()!.pin.name }}</td>
           </tr>
           }
           <!-- pin value -->
-          @if (lookupData?.pin?.value) {
+          @if (lookupData()?.pin?.value) {
           <tr>
             <td class="fit-width">
               <button
                 type="button"
                 mat-icon-button
                 matTooltip="Copy value"
-                [cdkCopyToClipboard]="lookupData!.pin!.value"
+                [cdkCopyToClipboard]="lookupData()!.pin!.value"
                 (cdkCopyToClipboardCopied)="onCopied()"
               >
                 <mat-icon class="mat-primary">content_copy</mat-icon>
               </button>
             </td>
             <td>pin value</td>
-            <td>{{ lookupData!.pin.value }}</td>
+            <td>{{ lookupData()!.pin.value }}</td>
           </tr>
           }
           <!-- item ID -->
-          @if (lookupData?.pin?.itemId) {
+          @if (lookupData()?.pin?.itemId) {
           <tr>
             <td>
               <button
                 type="button"
                 mat-icon-button
-                [cdkCopyToClipboard]="lookupData!.pin!.itemId"
+                [cdkCopyToClipboard]="lookupData()!.pin!.itemId"
                 (cdkCopyToClipboardCopied)="onCopied()"
               >
                 <mat-icon class="mat-primary">content_copy</mat-icon>
               </button>
             </td>
             <td>item ID</td>
-            <td>{{ lookupData!.pin.itemId }}</td>
+            <td>{{ lookupData()!.pin.itemId }}</td>
           </tr>
           }
           <!-- item title -->
-          @if (lookupData?.item?.title) {
+          @if (lookupData()?.item?.title) {
           <tr>
             <td>
               <button
                 type="button"
                 mat-icon-button
-                [cdkCopyToClipboard]="lookupData!.item!.title"
+                [cdkCopyToClipboard]="lookupData()!.item!.title"
                 (cdkCopyToClipboardCopied)="onCopied()"
               >
                 <mat-icon class="mat-primary">content_copy</mat-icon>
               </button>
             </td>
             <td>item title</td>
-            <td>{{ lookupData!.item!.title }}</td>
+            <td>{{ lookupData()!.item!.title }}</td>
           </tr>
           }
           <!-- part ID -->
-          @if (lookupData?.pin?.partId) {
+          @if (lookupData()?.pin?.partId) {
           <tr>
             <td>
               <button
                 type="button"
                 mat-icon-button
-                [cdkCopyToClipboard]="lookupData!.pin!.partId"
+                [cdkCopyToClipboard]="lookupData()!.pin!.partId"
                 (cdkCopyToClipboardCopied)="onCopied()"
               >
                 <mat-icon class="mat-primary">content_copy</mat-icon>
               </button>
             </td>
             <td>part ID</td>
-            <td>{{ lookupData!.pin.partId }}</td>
+            <td>{{ lookupData()!.pin.partId }}</td>
           </tr>
           }
           <!-- part type ID -->
-          @if (lookupData?.pin?.partTypeId) {
+          @if (lookupData()?.pin?.partTypeId) {
           <tr>
             <td>
               <button
                 type="button"
                 mat-icon-button
-                [cdkCopyToClipboard]="lookupData!.pin!.partTypeId"
+                [cdkCopyToClipboard]="lookupData()!.pin!.partTypeId"
                 (cdkCopyToClipboardCopied)="onCopied()"
               >
                 <mat-icon class="mat-primary">content_copy</mat-icon>
               </button>
             </td>
             <td>part type ID</td>
-            <td>{{ lookupData!.pin!.partTypeId }}</td>
+            <td>{{ lookupData()!.pin!.partTypeId }}</td>
           </tr>
           }
           <!-- part role ID -->
-          @if (lookupData?.pin?.roleId) {
+          @if (lookupData()?.pin?.roleId) {
           <tr>
             <td>
               <button
                 type="button"
                 mat-icon-button
-                [cdkCopyToClipboard]="lookupData!.pin!.roleId!"
+                [cdkCopyToClipboard]="lookupData()!.pin!.roleId!"
                 (cdkCopyToClipboardCopied)="onCopied()"
               >
                 <mat-icon class="mat-primary">content_copy</mat-icon>
               </button>
             </td>
             <td>part role ID</td>
-            <td>{{ lookupData!.pin!.roleId }}</td>
+            <td>{{ lookupData()!.pin!.roleId }}</td>
           </tr>
           }
           <!-- part's metadata -->
-          @for ( m of lookupData?.metaPart?.metadata || []; track m; let i =
+          @for ( m of lookupData()?.metaPart?.metadata || []; track m; let i =
           $index) {
           <tr>
             <td>

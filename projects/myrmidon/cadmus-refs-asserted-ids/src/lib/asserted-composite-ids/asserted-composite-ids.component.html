@@ -19,7 +19,7 @@
     <tbody>
       @for ( entry of entries.value; track entry; let i = $index; let first =
       $first; let last = $last) {
-      <tr [class.selected]="entry === edited">
+      <tr [class.selected]="entry === edited()">
         <td class="fit-width">
           <button
             type="button"
@@ -70,10 +70,10 @@
   }
 
   <!-- editor -->
-  <mat-expansion-panel [expanded]="edited" [disabled]="!edited">
+  <mat-expansion-panel [expanded]="edited()" [disabled]="!edited()">
     <mat-expansion-panel-header
-      ><mat-icon>{{ edited?.target?.name ? "login" : "logout" }}</mat-icon> ID
-      {{ edited?.target?.label }}</mat-expansion-panel-header
+      ><mat-icon>{{ edited()?.target?.name ? "login" : "logout" }}</mat-icon> ID
+      {{ edited()?.target?.label }}</mat-expansion-panel-header
     >
     <cadmus-refs-asserted-composite-id
       [idScopeEntries]="idScopeEntries()"
@@ -87,7 +87,7 @@
       [canEditTarget]="canEditTarget()"
       [lookupDefinitions]="lookupDefinitions()"
       [defaultPartTypeKey]="defaultPartTypeKey()"
-      [id]="edited"
+      [id]="edited()"
       (idChange)="onIdChange($event)"
       (editorClose)="closeId()"
     />

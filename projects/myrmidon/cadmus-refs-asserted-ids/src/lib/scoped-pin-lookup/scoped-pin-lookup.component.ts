@@ -1,4 +1,4 @@
-import { Component, Inject, output } from '@angular/core';
+import { Component, Inject, output, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -77,8 +77,10 @@ export class ScopedPinLookupComponent {
   // lookup
   public key: FormControl<string | null>;
   public keyForm: FormGroup;
-  public keys: string[];
-  public info?: LookupInfo;
+
+  public readonly keys = signal<string[]>([]);
+  public readonly info = signal<LookupInfo | undefined>(undefined);
+
   // builder
   public id: FormControl<string | null>;
   public idForm: FormGroup;
@@ -97,7 +99,7 @@ export class ScopedPinLookupComponent {
   ) {
     // lookup
     // keys are all the defined lookup searches
-    this.keys = Object.keys(lookupDefs);
+    this.keys.set(Object.keys(lookupDefs));
     // the selected key defines the lookup scope
     this.key = formBuilder.control(null);
     this.keyForm = formBuilder.group({
@@ -115,8 +117,8 @@ export class ScopedPinLookupComponent {
 
   public ngOnInit(): void {
     // pre-select a unique key
-    if (this.keys.length === 1) {
-      this.key.setValue(this.keys[0]);
+    if (this.keys().length === 1) {
+      this.key.setValue(this.keys()[0]);
       this.key.markAsDirty();
       this.key.updateValueAndValidity();
     }
@@ -146,7 +148,7 @@ export class ScopedPinLookupComponent {
           if (result.item) {
             info.item = result.item;
             info.part = result.part as MetadataPart;
-            this.info = info;
+            this.info.set(info);
           }
         },
         error: (error) => {
@@ -162,22 +164,22 @@ export class ScopedPinLookupComponent {
 
     switch (type) {
       case 'pin':
-        id += this.info?.pin.value;
+        id += this.info()?.pin.value;
         break;
       case 'itemId':
-        id += this.info!.item?.id || '';
+        id += this.info()?.item?.id || '';
         break;
       case 'partId':
-        id += this.info!.part?.id || '';
+        id += this.info()?.part?.id || '';
         break;
       case 'partTypeId':
-        id += this.info!.part?.typeId || '';
+        id += this.info()?.part?.typeId || '';
         break;
       case 'partRoleId':
-        id += this.info!.part?.roleId || '';
+        id += this.info()?.part?.roleId || '';
         break;
       case 'metadata':
-        id += this.info!.part!.metadata[metaIndex].value;
+        id += this.info()?.part?.metadata[metaIndex].value;
         break;
     }
 
@@ -191,7 +193,7 @@ export class ScopedPinLookupComponent {
       return;
     }
     this.idPick.emit(this.id.value!);
-    this.info = undefined;
+    this.info.set(undefined);
   }
 
   public resetId(): void {

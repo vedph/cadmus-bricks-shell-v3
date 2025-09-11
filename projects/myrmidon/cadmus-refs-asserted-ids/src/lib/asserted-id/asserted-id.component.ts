@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   Inject,
@@ -7,6 +8,7 @@ import {
   OnDestroy,
   OnInit,
   output,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -69,6 +71,7 @@ export interface AssertedId {
     AssertionComponent,
     ScopedPinLookupComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedIdComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
@@ -81,20 +84,16 @@ export class AssertedIdComponent implements OnInit, OnDestroy {
   public assertion: FormControl<Assertion | null>;
   public form: FormGroup;
 
-  public lookupExpanded: boolean;
+  public readonly lookupExpanded = signal<boolean>(false);
 
   // asserted-id-scopes
   public readonly idScopeEntries = input<ThesaurusEntry[]>();
-
   // asserted-id-tags
   public readonly idTagEntries = input<ThesaurusEntry[]>();
-
   // assertion-tags
   public readonly assTagEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-types
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
@@ -139,7 +138,6 @@ export class AssertedIdComponent implements OnInit, OnDestroy {
       scope: this.scope,
       assertion: this.assertion,
     });
-    this.lookupExpanded = false;
 
     // when id changes, update form
     effect(() => {
@@ -169,7 +167,7 @@ export class AssertedIdComponent implements OnInit, OnDestroy {
     this.value.setValue(id);
     this.value.markAsDirty();
     this.value.updateValueAndValidity();
-    this.lookupExpanded = false;
+    this.lookupExpanded.set(false);
   }
 
   private updateForm(value: AssertedId | undefined): void {

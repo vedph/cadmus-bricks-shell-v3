@@ -60,7 +60,10 @@
 
     <!-- target -->
     <div class="boxed">
-      <mat-expansion-panel [(expanded)]="targetExpanded">
+      <mat-expansion-panel
+        [expanded]="targetExpanded()"
+        (expandedChange)="targetExpanded.set($event)"
+      >
         <mat-expansion-panel-header>target</mat-expansion-panel-header>
         <cadmus-pin-target-lookup
           [pinByTypeMode]="pinByTypeMode()"
@@ -69,7 +72,7 @@
           [lookupDefinitions]="lookupDefinitions()"
           [defaultPartTypeKey]="defaultPartTypeKey()"
           [target]="target.value || undefined"
-          [extLookupConfigs]="extLookupConfigs"
+          [extLookupConfigs]="extLookupConfigs()"
           (targetChange)="onTargetChange($event)"
           (editorClose)="onEditorClose()"
           (extMoreRequest)="onExtMoreRequest($event)"

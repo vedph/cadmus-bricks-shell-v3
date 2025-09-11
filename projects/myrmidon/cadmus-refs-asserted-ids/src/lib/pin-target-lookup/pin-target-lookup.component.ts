@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   Inject,
@@ -7,6 +8,7 @@ import {
   OnDestroy,
   OnInit,
   output,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -20,11 +22,9 @@ import {
   Subscription,
   debounceTime,
   distinctUntilChanged,
-  filter,
   forkJoin,
   take,
 } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // material
 import { ClipboardModule } from '@angular/cdk/clipboard';
@@ -133,6 +133,7 @@ export interface PinTarget {
     RefLookupComponent,
     RefLookupSetComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PinTargetLookupComponent implements OnInit, OnDestroy {
   private readonly _subs: Subscription[] = [];
@@ -193,11 +194,20 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
    */
   public readonly extLookupConfigChange = output<RefLookupConfig>();
 
+  public readonly filter = signal<PinRefLookupFilter>({
+    text: '',
+    limit: 10,
+  });
+  public readonly pinFilterOptions = signal<IndexLookupDefinition | undefined>(
+    undefined
+  );
+  public readonly lookupData = signal<PinLookupData | undefined>(undefined);
   // by type
-  public modelEntries: ThesaurusEntry[];
-  public partTypeKeys: string[];
+  public readonly modelEntries = signal<ThesaurusEntry[]>([]);
+  public readonly partTypeKeys = signal<string[]>([]);
   // by item
-  public itemParts: Part[];
+  public readonly itemParts = signal<Part[]>([]);
+
   // form - by item
   public item: FormControl<Item | null>;
   public itemPart: FormControl<Part | null>;
@@ -210,10 +220,6 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   public external: FormControl<boolean>;
   public form: FormGroup;
 
-  public filter: PinRefLookupFilter;
-  public pinFilterOptions?: IndexLookupDefinition;
-  public lookupData?: PinLookupData;
-
   constructor(
     @Inject('indexLookupDefinitions')
     private _presetLookupDefs: IndexLookupDefinitions,
@@ -224,15 +230,6 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     private _snackbar: MatSnackBar,
     formBuilder: FormBuilder
   ) {
-    this.partTypeKeys = [];
-    this.itemParts = [];
-    this.modelEntries = [];
-    // this is the default filter for the pin lookup, which will
-    // be merged with values provided by user here
-    this.filter = {
-      text: '',
-      limit: 10,
-    };
     // form
     this.item = formBuilder.control(null);
     this.itemPart = formBuilder.control(null);
@@ -296,15 +293,15 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       this.lookupDefinitions.set(this._presetLookupDefs);
     }
     // keys are all the defined lookup searches
-    this.partTypeKeys = Object.keys(this.lookupDefinitions()!);
+    this.partTypeKeys.set(Object.keys(this.lookupDefinitions()!));
 
     // if no keys, get them from thesaurus model-types;
     // if this is not available, just force by item mode.
-    if (!this.partTypeKeys.length) {
+    if (!this.partTypeKeys().length) {
       if (this.modelEntries?.length) {
         // set lookupDefinitions from thesaurus entries
         const defs: IndexLookupDefinitions = {};
-        this.modelEntries.forEach((e) => {
+        this.modelEntries().forEach((e) => {
           defs[e.value] = {
             name: e.value,
             typeId: e.id,
@@ -312,17 +309,17 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         });
         this.lookupDefinitions.set(defs);
         // set type keys from thesaurus entries
-        this.partTypeKeys = this.modelEntries.map((e) => e.value);
+        this.partTypeKeys.set(this.modelEntries().map((e) => e.value));
       }
     }
 
     // if still no keys, force by item mode
-    if (!this.partTypeKeys.length) {
+    if (!this.partTypeKeys().length) {
       this.forceByItem();
     } else {
       // set default key
       this.partTypeKey.setValue(
-        this.defaultPartTypeKey() || this.partTypeKeys[0]
+        this.defaultPartTypeKey() || this.partTypeKeys()[0]
       );
     }
   }
@@ -339,11 +336,11 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         .pipe(distinctUntilChanged(), debounceTime(300))
         .subscribe((item) => {
           this.itemPart.setValue(null, { emitEvent: false });
-          this.itemParts = item?.parts || [];
-          this.filter = {
-            ...this.filter,
+          this.itemParts.set(item?.parts || []);
+          this.filter.set({
+            ...this.filter(),
             itemId: item?.id,
-          };
+          });
         })
     );
 
@@ -356,10 +353,10 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
           if (!this.gid.value || this.gid.pristine) {
             this.gid.setValue(this.buildGid());
           }
-          this.filter = {
-            ...this.filter,
+          this.filter.set({
+            ...this.filter(),
             partId: part?.id,
-          };
+          });
           this.updateTarget(true);
         })
     );
@@ -369,9 +366,9 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       this.partTypeKey.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(300))
         .subscribe((key) => {
-          this.pinFilterOptions = key
-            ? this.lookupDefinitions()![key]
-            : undefined;
+          this.pinFilterOptions.set(
+            key ? this.lookupDefinitions()![key] : undefined
+          );
         })
     );
 
@@ -396,8 +393,8 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     // load model-types thesaurus entries
     this._thesService.getThesaurus('model-types', true).subscribe({
       next: (t) => {
-        this.modelEntries = t.entries || [];
-        if (this.modelEntries?.length) {
+        this.modelEntries.set(t.entries || []);
+        if (this.modelEntries()?.length) {
           this.setupKeys();
         } else {
           this.forceByItem();
@@ -418,7 +415,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   private buildGid(): string | null {
     // the GID is the part ID if any, or the item ID, followed by
     // the pin's value (=EID)
-    const pin = this.lookupData?.pin;
+    const pin = this.lookupData()?.pin;
     if (!pin?.value) {
       return null;
     }
@@ -428,26 +425,26 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   }
 
   private buildLabel(): string | null {
-    if (!this.lookupData?.pin) {
+    if (!this.lookupData()?.pin) {
       return null;
     }
     const sb: string[] = [];
     // pin value
-    if (this.lookupData.pin.value) {
-      sb.push(this.lookupData.pin.value);
+    if (this.lookupData()?.pin.value) {
+      sb.push(this.lookupData()!.pin.value);
       sb.push(' | ');
     }
     // item title
-    sb.push(this.lookupData.item?.title || this.lookupData.pin?.itemId);
+    sb.push(this.lookupData()?.item?.title || this.lookupData()!.pin!.itemId);
     // part type and role
-    if (this.lookupData.pin.partTypeId) {
-      const e = this.modelEntries?.find(
-        (e) => e.id === this.lookupData!.pin.partTypeId
+    if (this.lookupData()?.pin?.partTypeId) {
+      const e = this.modelEntries()?.find(
+        (e) => e.id === this.lookupData()!.pin.partTypeId
       );
       sb.push(' (');
-      sb.push(e?.value || this.lookupData.pin.partTypeId);
-      if (this.lookupData.pin.roleId) {
-        sb.push(`, ${this.lookupData.pin.roleId}`);
+      sb.push(e?.value || this.lookupData()?.pin?.partTypeId!);
+      if (this.lookupData()?.pin?.roleId) {
+        sb.push(`, ${this.lookupData()?.pin?.roleId}`);
       }
       sb.push(')');
     }
@@ -461,7 +458,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         label: this.label.value || '',
       };
     } else {
-      const pin = this.lookupData?.pin;
+      const pin = this.lookupData()?.pin;
       return {
         gid: this.gid.value || '',
         label: this.label.value || '',
@@ -514,7 +511,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     try {
       // reset if no target
       if (!target) {
-        this.lookupData = undefined;
+        this.lookupData.set(undefined);
         this.item.reset();
         this.itemPart.reset();
         this.gid.reset();
@@ -526,7 +523,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       this.gid.setValue(target.gid || '', { emitEvent: false });
       this.label.setValue(target.label || '', { emitEvent: false });
       // reset lookup
-      this.lookupData = {
+      this.lookupData.set({
         pin: {
           itemId: target.itemId || '',
           partId: target.partId || '',
@@ -535,7 +532,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
           name: target.name || '',
           value: target.value || '',
         },
-      };
+      });
 
       // if target is internal, get item
       if (target.itemId) {
@@ -580,7 +577,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   public onItemLookupChange(item: unknown): void {
     if (!item) {
       this.itemPart.setValue(null);
-      this.itemParts = [];
+      this.itemParts.set([]);
       return;
     }
     // load item's parts
@@ -595,7 +592,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
           console.error('Error getting item', error);
         }
         this.itemPart.setValue(null);
-        this.itemParts = [];
+        this.itemParts.set([]);
         this.updateTarget(true); // suppress emit to avoid double emission
       },
     });
@@ -617,15 +614,15 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       .pipe(take(1))
       .subscribe({
         next: (result) => {
-          this.lookupData = {
+          this.lookupData.set({
             pin: pin,
             item: result.item!,
             metaPart: result.part as MetadataPart,
-          };
+          });
           this.updateTarget(true); // suppress emit to avoid double emission
         },
         error: (error) => {
-          this.lookupData = undefined;
+          this.lookupData.set(undefined);
           console.error('Error loading item/metadata', error);
         },
       });
