@@ -5,21 +5,22 @@
       <mat-icon>add_circle</mat-icon> ID
     </button>
   </div>
-  @if (ids().length) {
+  @if (editedIds.value.length) {
   <table>
     <thead>
       <tr>
         <th></th>
-        <th>id</th>
-        <th>rnk</th>
+        <th>ID</th>
+        <th>rank</th>
         <th>tag</th>
-        <th>src</th>
+        <th>refs</th>
       </tr>
     </thead>
     <tbody>
-      @for (id of ids(); track id; let i = $index) {
-      <tr [class.selected]="i === editedIndex">
-        <td>
+      @for (id of editedIds.value; track id.id; let i = $index; let first =
+      $first; let last = $last) {
+      <tr [class.selected]="i === editedIndex()">
+        <td class="fit-width">
           <button
             type="button"
             mat-icon-button
@@ -31,6 +32,24 @@
           <button
             type="button"
             mat-icon-button
+            matTooltip="Move this ID up"
+            [disabled]="first"
+            (click)="moveIdUp(i)"
+          >
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Move this ID down"
+            [disabled]="last"
+            (click)="moveIdDown(i)"
+          >
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
             matTooltip="Delete this ID"
             (click)="deleteId(i)"
           >
@@ -38,9 +57,9 @@
           </button>
         </td>
         <td>{{ id.id }}</td>
-        <td style="text-align: center">{{ id.rank }}</td>
-        <td>{{ id.tag }}</td>
-        <td style="text-align: center">{{ id.sources?.length || 0 }}</td>
+        <td>{{ id.rank }}</td>
+        <td>{{ id.tag | flatLookup : tagEntries() : "id" : "value" }}</td>
+        <td>{{ id.sources?.length || 0 }}</td>
       </tr>
       }
     </tbody>
@@ -49,17 +68,17 @@
 
   <!-- editor -->
   <mat-expansion-panel
-    [(expanded)]="editorOpen"
-    [disabled]="!editorOpen"
+    [expanded]="edited()"
+    [disabled]="!edited()"
     class="boxed"
   >
     <mat-expansion-panel-header>
       <mat-panel-title>ID</mat-panel-title>
       <mat-panel-description>
-        {{ editedId?.id }}
+        {{ edited()?.id }}
       </mat-panel-description>
     </mat-expansion-panel-header>
-    <form [formGroup]="subForm" (submit)="saveEditedId()">
+    <form [formGroup]="idForm" (submit)="saveEditedId()">
       <!-- id -->
       <div class="form-row">
         <mat-form-field>
@@ -99,8 +118,7 @@
         }
       </div>
       <!-- sources -->
-      <div>
-        <h4>ID sources</h4>
+      <fieldset>
         <cadmus-refs-lookup-doc-references
           [tagEntries]="refTagEntries()"
           [typeEntries]="refTypeEntries()"
@@ -110,7 +128,7 @@
           [references]="sources.value"
           (referencesChange)="onSourcesChange($event)"
         />
-      </div>
+      </fieldset>
       <div>
         <button
           (click)="closeEditedId()"
@@ -122,7 +140,7 @@
         </button>
         <button
           type="submit"
-          [disabled]="form.invalid || form.pristine"
+          [disabled]="form.invalid"
           mat-icon-button
           matTooltip="Save ID changes"
         >

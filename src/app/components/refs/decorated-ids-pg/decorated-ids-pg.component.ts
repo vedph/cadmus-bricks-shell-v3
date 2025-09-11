@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatCardModule } from '@angular/material/card';
@@ -22,10 +22,10 @@ import {
   ],
 })
 export class DecoratedIdsPgComponent {
-  public ids: DecoratedId[];
+  public readonly ids = signal<DecoratedId[]>([]);
 
   constructor() {
-    this.ids = [
+    this.ids.set([
       {
         id: 'alpha',
         rank: 1,
@@ -37,10 +37,10 @@ export class DecoratedIdsPgComponent {
           },
         ],
       },
-    ];
+    ]);
   }
 
   public onIdsChange(ids: DecoratedId[]): void {
-    this.ids = ids;
+    this.ids.set(ids);
   }
 }

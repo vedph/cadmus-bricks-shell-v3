@@ -5,6 +5,7 @@
 - [CadmusRefsDecoratedIds](#cadmusrefsdecoratedids)
   - [DecoratedIdsComponent](#decoratedidscomponent)
   - [History](#history)
+    - [9.0.3](#903)
     - [9.0.1](#901)
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
@@ -21,13 +22,20 @@ This component provides an editable list of simple identifiers decorated with so
   - `noCitation`: true to disable the citation builder.
   - `defaultPicker` (`citation` (default) or `lookup`): the default picker to show when the editor opens.
 - 📚 thesauri:
-  - `decorated-id-tags` (tagEntries)
-  - `doc-reference-tags` (refTagEntries)
-  - `doc-reference-types` (refTypeEntries)
+  - `decorated-id-tags` (for `tagEntries`)
+  - `doc-reference-tags` (for `refTagEntries`)
+  - `doc-reference-types` (for `refTypeEntries`)
 - 🔥 output:
   - `idsChange` (`DecoratedId[]`)
 
 ## History
+
+### 9.0.3
+
+- 2025-09-11:
+  - refactored for `OnPush`.
+  - added move up/down.
+  - added tag lookup in ID tags list.
 
 ### 9.0.1
 

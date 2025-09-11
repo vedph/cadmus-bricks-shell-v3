@@ -17,8 +17,8 @@ td.fit-width {
 tr.selected {
   background-color: #d0d0d0 !important;
 }
-.selected {
-  background-color: #f0f0c0;
+td.center {
+  text-align: center;
 }
 .boxed {
   border: 1px solid silver;
@@ -35,4 +35,12 @@ tr.selected {
 }
 .nr {
   width: 4em;
+}
+fieldset {
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 6px;
+}
+legend {
+  color: silver;
 }

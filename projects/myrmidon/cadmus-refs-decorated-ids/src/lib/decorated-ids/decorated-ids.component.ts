@@ -1,4 +1,11 @@
-import { Component, effect, input, model } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  input,
+  model,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -7,6 +14,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { debounceTime, filter } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -14,7 +23,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { FlatLookupPipe, NgxToolsValidators } from '@myrmidon/ngx-tools';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
 import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
@@ -31,8 +42,6 @@ export interface DecoratedId {
 
 /**
  * Decorated IDs real-time editor.
- * To avoid circular updates, in your container bind ids to initialIds
- * and handle idsChange for ids.setValue.
  */
 @Component({
   selector: 'cadmus-refs-decorated-ids',
@@ -47,34 +56,36 @@ export interface DecoratedId {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatTooltipModule,
     LookupDocReferencesComponent,
+    FlatLookupPipe,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DecoratedIdsComponent {
-  private _dropNextInput?: boolean;
+  private _updatingForm = false;
 
-  public editedIndex: number;
-  public editedId: DecoratedId | undefined;
-  public editorOpen: boolean;
+  public readonly editedIndex = signal<number>(-1);
+  public readonly edited = signal<DecoratedId | undefined>(undefined);
 
-  public subForm: FormGroup;
   public id: FormControl<string | null>;
   public rank: FormControl<number>;
   public tag: FormControl<string | null>;
   public sources: FormControl<DocReference[]>;
+  public idForm: FormGroup;
+
+  public editedIds: FormControl<DecoratedId[]>;
   public form: FormGroup;
 
   /**
    * The IDs to edit.
    */
-  public readonly ids = model<DecoratedId[]>([]);
+  public readonly ids = model<DecoratedId[] | undefined>(undefined);
 
   // decorated-id-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-types
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
 
@@ -94,9 +105,6 @@ export class DecoratedIdsComponent {
   public readonly defaultPicker = input<'citation' | 'lookup'>('citation');
 
   constructor(formBuilder: FormBuilder) {
-    this.editedIndex = -1;
-    this.editorOpen = false;
-
     this.id = formBuilder.control(null, [
       Validators.required,
       Validators.maxLength(50),
@@ -104,60 +112,89 @@ export class DecoratedIdsComponent {
     this.rank = formBuilder.control(0, { nonNullable: true });
     this.tag = formBuilder.control(null, Validators.maxLength(50));
     this.sources = formBuilder.control([], { nonNullable: true });
-    this.subForm = formBuilder.group({
+    this.idForm = formBuilder.group({
       id: this.id,
       rank: this.rank,
       tag: this.tag,
       sources: this.sources,
     });
+
+    this.editedIds = formBuilder.control([], {
+      validators: NgxToolsValidators.strictMinLengthValidator(1),
+      nonNullable: true,
+    });
     this.form = formBuilder.group({
-      subForm: this.subForm,
+      ids: this.editedIds,
     });
 
-    // when ids change, close ID editor
+    // when ids change, update form and close ID editor
     effect(() => {
-      if (this._dropNextInput) {
-        this._dropNextInput = false;
-        return;
-      }
-      console.log('ids change', this.ids());
+      const ids = this.ids();
+      console.log('ids change', ids);
       this.closeIdEditor();
+      this.updateForm(ids);
     });
+
+    // autosave
+    this.form.valueChanges
+      .pipe(
+        // react only on user changes, when form is valid
+        filter(() => !this._updatingForm && this.form.valid),
+        debounceTime(500),
+        takeUntilDestroyed()
+      )
+      .subscribe((values) => {
+        this.save();
+      });
+  }
+
+  private updateForm(ids: DecoratedId[] | undefined): void {
+    this._updatingForm = true;
+
+    this.idForm.reset();
+
+    if (!ids?.length) {
+      this.form.reset();
+    } else {
+      this.editedIds.setValue(ids || [], { emitEvent: false });
+      this.form.markAsPristine();
+    }
+
+    // reset guard only after marking controls
+    this._updatingForm = false;
   }
 
   private closeIdEditor(): void {
-    this.editedIndex = -1;
-    this.editedId = undefined;
-    this.subForm?.reset();
-    this.subForm?.disable();
-    this.editorOpen = false;
+    this.editedIndex.set(-1);
+    this.edited.set(undefined);
+    this.idForm?.reset();
+    this.idForm?.disable();
   }
 
   private openIdEditor(id: DecoratedId): void {
-    this.subForm.enable();
+    this.idForm.enable();
 
-    this.editedId = id;
+    this.edited.set(id);
     this.sources.setValue(id.sources || []);
     this.id.setValue(id.id);
     this.rank.setValue(id.rank || 0);
     this.tag.setValue(id.tag || null);
 
-    this.subForm.markAsPristine();
-    this.editorOpen = true;
+    this.idForm.markAsPristine();
   }
 
   public addId(): void {
-    this.editedIndex = -1;
+    this.editedIndex.set(-1);
     this.openIdEditor({ id: '' });
   }
 
   public editId(index: number): void {
-    this.editedIndex = index;
-    this.openIdEditor(this.ids()[index]);
+    this.editedIndex.set(index);
+    this.openIdEditor(this.ids()![index]);
   }
 
   private getEditedId(): DecoratedId | null {
-    if (!this.editedId) {
+    if (!this.edited) {
       return null;
     }
     return {
@@ -169,17 +206,45 @@ export class DecoratedIdsComponent {
   }
 
   public deleteId(index: number): void {
-    if (this.editedIndex === index) {
+    if (this.editedIndex() === index) {
       this.closeEditedId();
     }
     this.closeEditedId();
-    this._dropNextInput = true;
-    this.ids.set(this.ids().splice(index, 1));
+
+    const ids = [...this.editedIds.value];
+    ids.splice(index, 1);
+    this.editedIds.setValue(ids);
+  }
+
+  public moveIdUp(index: number): void {
+    if (index < 1) {
+      return;
+    }
+    const entry = this.editedIds.value[index];
+    const entries = [...this.editedIds.value];
+    entries.splice(index, 1);
+    entries.splice(index - 1, 0, entry);
+    this.editedIds.setValue(entries);
+    this.editedIds.markAsDirty();
+    this.editedIds.updateValueAndValidity();
+  }
+
+  public moveIdDown(index: number): void {
+    if (index + 1 >= this.editedIds.value.length) {
+      return;
+    }
+    const entry = this.editedIds.value[index];
+    const entries = [...this.editedIds.value];
+    entries.splice(index, 1);
+    entries.splice(index + 1, 0, entry);
+    this.editedIds.setValue(entries);
+    this.editedIds.markAsDirty();
+    this.editedIds.updateValueAndValidity();
   }
 
   public onSourcesChange(sources: DocReference[]): void {
     this.sources.setValue(sources);
-    this.subForm.markAsDirty();
+    this.idForm.markAsDirty();
   }
 
   public closeEditedId(): void {
@@ -187,7 +252,7 @@ export class DecoratedIdsComponent {
   }
 
   public saveEditedId(): void {
-    if (this.subForm.invalid) {
+    if (this.idForm.invalid) {
       return;
     }
     const id = this.getEditedId();
@@ -195,14 +260,37 @@ export class DecoratedIdsComponent {
       return;
     }
 
-    const ids = [...this.ids()];
-    if (this.editedIndex === -1) {
+    // if this is a new ID and any of the existing IDs
+    // has the same ID, do nothing
+    if (
+      this.editedIndex() === -1 &&
+      this.editedIds.value.some((i) => i.id === id.id)
+    ) {
+      return;
+    }
+
+    const ids = [...this.editedIds.value];
+    if (this.editedIndex() === -1) {
       ids.push(id);
     } else {
-      ids.splice(this.editedIndex, 1, id);
+      ids.splice(this.editedIndex(), 1, id);
     }
     this.closeEditedId();
-    this._dropNextInput = true;
+    this.editedIds.setValue(ids);
+  }
+
+  public save(pristine = true): void {
+    if (this.form.invalid) {
+      // show validation errors
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const ids = this.editedIds.value?.length ? this.editedIds.value : undefined;
     this.ids.set(ids);
+
+    if (pristine) {
+      this.form.markAsPristine();
+    }
   }
 }
