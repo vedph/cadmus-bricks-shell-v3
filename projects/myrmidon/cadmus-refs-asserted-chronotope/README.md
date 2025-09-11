@@ -2,6 +2,16 @@
 
 📦 `@myrmidon/cadmus-refs-asserted-chronotope`
 
+- [CadmusRefsAssertedChronotope](#cadmusrefsassertedchronotope)
+  - [AssertedChronotopeComponent](#assertedchronotopecomponent)
+  - [AssertedChronotopeSet](#assertedchronotopeset)
+  - [AssertedChronotopesPipe](#assertedchronotopespipe)
+  - [History](#history)
+    - [10.0.3](#1003)
+    - [10.0.2](#1002)
+    - [10.0.1](#1001)
+    - [9.0.0](#900)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 ## AssertedChronotopeComponent
@@ -11,30 +21,30 @@ Editor for a chronotope (place and/or date) with an optional [assertion](../cadm
 - 🔑 `AssertedChronotopeComponent`
 - 🚩 `cadmus-refs-asserted-chronotope`
 - ▶️ input:
-  - chronotope (`AssertedChronotope`)
+  - `chronotope` (`AssertedChronotope`)
 - 📚 thesauri:
-  - `chronotope-tags` (tagEntries)
-  - `assertion-tags` (assTagEntries)
-  - `doc-reference-types` (refTypeEntries)
-  - `doc-reference-tags` (refTagEntries)
+  - `chronotope-tags` (for `tagEntries`)
+  - `assertion-tags` (for `assTagEntries`)
+  - `doc-reference-types` (for `refTypeEntries`)
+  - `doc-reference-tags` (for `refTagEntries`)
 - 🔥 output:
-  - chronotopeChange (`AssertedChronotope`)
+  - `chronotopeChange` (`AssertedChronotope`)
 
 ## AssertedChronotopeSet
 
 A set of asserted chronotopes.
 
 - 🔑 `AssertedChronotopeSet`
-- 🚩 `cadmus-`
+- 🚩 `cadmus-asserted-chronotope-set`
 - ▶️ input:
   - chronotopes (`AssertedChronotope[]`)
 - 📚 thesauri:
-  - `chronotope-tags` (tagEntries)
-  - `chronotope-assertion-tags` (assTagEntries)
-  - `chronotope-reference-types` (refTypeEntries)
-  - `chronotope-reference-tags` (refTagEntries)
+  - `chronotope-tags` (for `tagEntries`)
+  - `chronotope-assertion-tags` (for `assTagEntries`)
+  - `chronotope-reference-types` (for `refTypeEntries`)
+  - `chronotope-reference-tags` (for `refTagEntries`)
 - 🔥 output:
-  - chronotopesChange  (`AssertedChronotope[]`)
+  - `chronotopesChange`  (`AssertedChronotope[]`)
 
 ## AssertedChronotopesPipe
 
@@ -43,6 +53,10 @@ A set of asserted chronotopes.
 A pipe to transform a single chronotope or an array of chronotopes into a string.
 
 ## History
+
+### 10.0.3
+
+- 2025-09-11: refactored for `OnPush`.
 
 ### 10.0.2
 

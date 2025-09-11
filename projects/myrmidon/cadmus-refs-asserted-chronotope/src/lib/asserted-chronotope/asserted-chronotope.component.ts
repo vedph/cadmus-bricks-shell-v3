@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
@@ -31,13 +32,7 @@ import {
   HistoricalDateModel,
   HistoricalDatePipe,
 } from '@myrmidon/cadmus-refs-historical-date';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  merge,
-  Subscription,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, Subscription } from 'rxjs';
 
 /**
  * A place with an optional assertion.
@@ -86,6 +81,7 @@ export interface AssertedChronotope {
     HistoricalDateComponent,
     HistoricalDatePipe,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedChronotopeComponent implements OnInit, OnDestroy {
   private _subs: Subscription[] = [];
@@ -100,13 +96,10 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
 
   // chronotope-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
-
   // assertion-tags
   public assTagEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-types
   public refTypeEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public refTagEntries = input<ThesaurusEntry[]>();
 

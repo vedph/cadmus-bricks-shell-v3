@@ -1,4 +1,12 @@
-import { Component, effect, input, model, OnInit, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  input,
+  model,
+  OnInit,
+  output,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -44,6 +52,7 @@ import {
     AssertedChronotopeComponent,
     HistoricalDatePipe,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedChronotopeSetComponent implements OnInit {
   public editedIndex: number;
