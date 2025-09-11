@@ -1,10 +1,12 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   input,
   model,
   OnDestroy,
   OnInit,
+  signal,
   ViewChild,
 } from '@angular/core';
 import {
@@ -41,7 +43,7 @@ export interface DecoratedCount {
 }
 
 /**
- * Decorated counts component.
+ * Decorated counts editor component.
  */
 @Component({
   selector: 'cadmus-refs-decorated-counts',
@@ -60,6 +62,7 @@ export interface DecoratedCount {
     MatTooltipModule,
     FlatLookupPipe,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DecoratedCountsComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;
@@ -98,12 +101,13 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
   public batch: FormControl<string | null>;
   public form: FormGroup;
 
-  public editedIndex: number = -1;
-  public edited?: DecoratedCount;
   public tag: FormControl<string | null>;
   public value: FormControl<number>;
   public note: FormControl<string | null>;
   public editedForm: FormGroup;
+
+  public readonly editedIndex = signal<number>(-1);
+  public readonly edited = signal<DecoratedCount | undefined>(undefined);
 
   constructor(formBuilder: FormBuilder) {
     // add count form
@@ -145,9 +149,18 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
     this._sub?.unsubscribe();
   }
 
+  private areCountsEqual(a: DecoratedCount, b: DecoratedCount): boolean {
+    return (
+      a.id === b.id &&
+      a.value === b.value &&
+      a.tag === b.tag &&
+      a.note === b.note
+    );
+  }
+
   public closeCount(): void {
-    this.editedIndex = -1;
-    this.edited = undefined;
+    this.editedIndex.set(-1);
+    this.edited.set(undefined);
   }
 
   private focusCount(): void {
@@ -157,12 +170,12 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
   }
 
   public editCount(index: number): void {
-    this.editedIndex = index;
-    this.edited = this.counts()![index];
+    this.editedIndex.set(index);
+    this.edited.set(this.counts()![index]);
 
-    this.value.setValue(this.edited.value);
-    this.tag.setValue(this.edited.tag || null);
-    this.note.setValue(this.edited.note || null);
+    this.value.setValue(this.edited()!.value, { emitEvent: false });
+    this.tag.setValue(this.edited()!.tag || null, { emitEvent: false });
+    this.note.setValue(this.edited()!.note || null, { emitEvent: false });
     this.editedForm.markAsPristine();
 
     this.focusCount();
@@ -177,11 +190,11 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.editedIndex = -1;
-    this.edited = {
+    this.editedIndex.set(-1);
+    this.edited.set({
       id: this.custom.value,
       value: 0,
-    } as DecoratedCount;
+    } as DecoratedCount);
     this.editedForm.reset();
 
     this.custom.reset();
@@ -201,11 +214,11 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.editedIndex = -1;
-    this.edited = {
+    this.editedIndex.set(-1);
+    this.edited.set({
       id: this.id.value,
       value: 0,
-    } as DecoratedCount;
+    } as DecoratedCount);
     this.editedForm.reset();
 
     if (!this.idEntries?.length) {
@@ -257,29 +270,46 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
     if (!this.edited || !this.editedForm.valid) {
       return;
     }
-    this.edited.value = this.value.value;
-    this.edited.tag = this.tag.value ? this.tag.value?.trim() : undefined;
-    this.edited.note = this.note.value ? this.note.value?.trim() : undefined;
 
+    // create the new count
+    const count: DecoratedCount = {
+      id: this.edited()!.id,
+      value: this.value.value,
+      tag: this.tag.value ? this.tag.value?.trim() : undefined,
+      note: this.note.value ? this.note.value?.trim() : undefined,
+    };
+
+    // create a copy of the existing counts
     const counts = [...(this.counts() || [])];
+
+    // check for exact duplicate (excluding the currently edited index)
+    const isDuplicate = counts.some(
+      (c, i) => i !== this.editedIndex() && this.areCountsEqual(c, count)
+    );
+    if (isDuplicate) {
+      // do nothing if duplicate
+      return;
+    }
+
     // get the index of the existing count with the same ID
-    const existingIndex = counts.findIndex((m) => m.id === this.edited!.id);
+    const existingIndex = counts.findIndex((m) => m.id === count.id);
     // append or replace
-    if (this.editedIndex === -1) {
-      counts.push(this.edited);
+    if (this.editedIndex() === -1) {
+      counts.push(count);
     } else {
-      counts[this.editedIndex] = this.edited;
+      counts[this.editedIndex()] = count;
     }
 
     // if distinct, remove another existing count with the same ID
     if (
       existingIndex > -1 &&
-      existingIndex !== this.editedIndex &&
+      existingIndex !== this.editedIndex() &&
       this.distinct()
     ) {
       counts.splice(existingIndex, 1);
     }
 
+    // save the updated counts
     this.counts.set(counts);
 
     // close the editor

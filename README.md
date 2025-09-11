@@ -138,6 +138,7 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-refs-assertion` (10.0.4)
 - `@myrmidon/cadmus-refs-chronotope` (9.0.1)
 - `@myrmidon/cadmus-refs-citation` (1.0.2)
+- `@myrmidon/cadmus-refs-decorated-counts` (9.0.1)
 - `@myrmidon/cadmus-refs-doc-references` (10.0.2)
 - `@myrmidon/cadmus-refs-historical-date` (9.0.2)
 - `@myrmidon/cadmus-refs-lookup` (10.0.3)
@@ -171,6 +172,7 @@ Check that this Angular component has been properly refactored to use Signals an
   - refactored `@myrmidon/cadmus-refs-asserted-chronotope` for `OnPush`.
   - refactored `@myrmidon/cadmus-refs-chronotope` for `OnPush`.
   - refactored `@myrmidon/cadmus-refs-citation` for `OnPush`.
+  - refactored `@myrmidon/cadmus-refs-decorated-counts` for `OnPush`.
   - refactored `@myrmidon/cadmus-refs-historical-date` for `OnPush`.
 - 2025-09-10:
   - refactored `@myrmidon/cadmus-cod-location` for `OnPush`.

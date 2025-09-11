@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Component } from '@angular/core';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
@@ -9,6 +9,7 @@ import {
   DecoratedCount,
   DecoratedCountsComponent,
 } from '@myrmidon/cadmus-refs-decorated-counts';
+import { MatCheckbox } from "@angular/material/checkbox";
 
 @Component({
   selector: 'app-decorated-counts-pg',
@@ -20,11 +21,19 @@ import {
     ReactiveFormsModule,
     MatCardModule,
     DecoratedCountsComponent,
-  ],
+    MatCheckbox
+],
 })
 export class DecoratedCountsPgComponent {
   public counts: DecoratedCount[];
   public idEntries: ThesaurusEntry[];
+
+  public readonly distinct: FormControl<boolean> = new FormControl(true, {
+    nonNullable: true,
+  });
+  public readonly allowCustomId: FormControl<boolean> = new FormControl(true, {
+    nonNullable: true,
+  });
 
   constructor() {
     this.idEntries = [

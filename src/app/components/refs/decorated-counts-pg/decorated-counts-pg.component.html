@@ -5,11 +5,19 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    <div class="form-row">
+      <mat-checkbox [formControl]="distinct">distinct</mat-checkbox>
+      <mat-checkbox [formControl]="allowCustomId">custom IDs</mat-checkbox>
+    </div>
+    <hr>
     <cadmus-refs-decorated-counts
       [idEntries]="idEntries"
+      [distinct]="distinct.value"
+      [allowCustomId]="allowCustomId.value"
       [counts]="counts"
       (countsChange)="onCountsChange($event)"
-    ></cadmus-refs-decorated-counts>
+    />
+    <hr>
     @if (counts) {
     <div>
       <pre>{{ counts | json }}</pre>
