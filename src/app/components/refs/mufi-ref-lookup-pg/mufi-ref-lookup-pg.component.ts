@@ -13,7 +13,7 @@ import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 import {
   MufiRefLookupService,
   MufiChar,
-} from '../../../../../projects/myrmidon/cadmus-refs-mufi-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-mufi-lookup';
 
 @Component({
   selector: 'app-mufi-ref-lookup-pg',

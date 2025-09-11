@@ -8,7 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import {
   Assertion,
   AssertionComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-assertion/src/public-api';
+} from '@myrmidon/cadmus-refs-assertion';
 
 @Component({
   selector: 'app-assertion-pg',

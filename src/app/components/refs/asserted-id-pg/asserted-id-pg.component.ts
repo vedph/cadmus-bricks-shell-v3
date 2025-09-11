@@ -8,7 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import {
   AssertedId,
   AssertedIdComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-asserted-ids/src/public-api';
+} from '@myrmidon/cadmus-refs-asserted-ids';
 
 @Component({
   selector: 'app-asserted-id-pg',

@@ -14,7 +14,7 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import {
   ExternalId,
   ExternalIdsComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-external-ids/src/public-api';
+} from '@myrmidon/cadmus-refs-external-ids';
 
 @Component({
   selector: 'app-external-ids-pg',

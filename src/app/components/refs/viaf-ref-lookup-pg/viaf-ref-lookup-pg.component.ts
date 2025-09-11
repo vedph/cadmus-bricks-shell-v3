@@ -19,8 +19,8 @@ import {
   ViafSearchResult,
   ViafService,
   ViafSuggestResult,
-} from '../../../../../projects/myrmidon/cadmus-refs-viaf-lookup/src/public-api';
-import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-viaf-lookup';
+import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 
 @Component({
   selector: 'app-viaf-ref-lookup-pg',

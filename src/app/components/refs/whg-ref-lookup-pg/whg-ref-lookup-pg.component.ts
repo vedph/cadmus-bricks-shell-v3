@@ -12,11 +12,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
-import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 import {
   GeoJsonFeature,
   WhgRefLookupService,
-} from '../../../../../projects/myrmidon/cadmus-refs-whg-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-whg-lookup';
 
 @Component({
   selector: 'app-whg-ref-lookup-pg',

@@ -5,8 +5,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatCardModule } from '@angular/material/card';
 
-import { AssertedId } from '../../../../../projects/myrmidon/cadmus-refs-asserted-ids/src/lib/asserted-id/asserted-id.component';
-import { AssertedIdsComponent } from '../../../../../projects/myrmidon/cadmus-refs-asserted-ids/src/public-api';
+import { AssertedId } from '@myrmidon/cadmus-refs-asserted-ids';
+import { AssertedIdsComponent } from '@myrmidon/cadmus-refs-asserted-ids';
 
 @Component({
   selector: 'app-asserted-ids-pg',

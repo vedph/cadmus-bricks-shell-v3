@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import {
   Chronotope,
   ChronotopeComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-chronotope/src/public-api';
+} from '@myrmidon/cadmus-refs-chronotope';
 
 @Component({
   selector: 'app-chronotope-pg',

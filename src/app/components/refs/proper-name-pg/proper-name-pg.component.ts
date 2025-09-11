@@ -10,7 +10,7 @@ import {
   AssertedProperName,
   CadmusProperNamePipe,
   ProperNameComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-proper-name/src/public-api';
+} from '@myrmidon/cadmus-refs-proper-name';
 
 @Component({
   selector: 'app-proper-name-pg',

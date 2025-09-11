@@ -12,7 +12,7 @@ import {
   Flag,
   FlagSetBadgeComponent,
   FlagSetComponent,
-} from '../../../../../projects/myrmidon/cadmus-ui-flag-set/src/public-api';
+} from '@myrmidon/cadmus-ui-flag-set';
 
 const COLORS = [
   { id: 'r', label: 'red', color: 'red' },

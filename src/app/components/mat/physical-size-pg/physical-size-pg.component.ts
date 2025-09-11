@@ -17,7 +17,7 @@ import {
   PhysicalSize,
   PhysicalSizeComponent,
   PhysicalSizePipe,
-} from '../../../../../projects/myrmidon/cadmus-mat-physical-size/src/public-api';
+} from '@myrmidon/cadmus-mat-physical-size';
 
 @Component({
   selector: 'app-physical-size-pg',

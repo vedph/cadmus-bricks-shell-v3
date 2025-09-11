@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
 import { RefLookupDummyOptComponent } from '../ref-lookup-dummy-opt/ref-lookup-dummy-opt.component';
-import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 
 export interface WebColor {
   name: string;

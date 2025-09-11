@@ -14,13 +14,13 @@ import { EnvService, RamStorageService } from '@myrmidon/ngx-tools';
 import {
   LOOKUP_CONFIGS_KEY,
   RefLookupConfig,
-} from '../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
-import { ViafRefLookupService } from '../../projects/myrmidon/cadmus-refs-viaf-lookup/src/public-api';
-import { GeoNamesRefLookupService } from '../../projects/myrmidon/cadmus-refs-geonames-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-lookup';
+import { ViafRefLookupService } from '@myrmidon/cadmus-refs-viaf-lookup';
+import { GeoNamesRefLookupService } from '@myrmidon/cadmus-refs-geonames-lookup';
 import {
   GeoJsonFeature,
   WhgRefLookupService,
-} from '../../projects/myrmidon/cadmus-refs-whg-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-whg-lookup';
 import {
   CIT_SCHEME_SERVICE_SETTINGS_KEY,
   CitMappedValues,

@@ -8,7 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import {
   DocReference,
   DocReferencesComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-doc-references/src/public-api';
+} from '@myrmidon/cadmus-refs-doc-references';
 
 @Component({
   selector: 'app-doc-references-pg',

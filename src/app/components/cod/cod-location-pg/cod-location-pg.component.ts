@@ -15,7 +15,7 @@ import {
   CodLocationComponent,
   CodLocationRange,
   CodLocationRangePipe,
-} from '../../../../../projects/myrmidon/cadmus-cod-location/src/public-api';
+} from '@myrmidon/cadmus-cod-location';
 
 @Component({
   selector: 'app-cod-location-pg',

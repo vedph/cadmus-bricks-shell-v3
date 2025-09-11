@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import {
   NoteSet,
   NoteSetComponent,
-} from '../../../../../projects/myrmidon/cadmus-ui-note-set/src/public-api';
+} from '@myrmidon/cadmus-ui-note-set';
 import { MatButton } from '@angular/material/button';
 
 @Component({

@@ -9,8 +9,8 @@ import { WebColorLookup } from '../ref-lookup-pg/ref-lookup-pg.component';
 import {
   RefLookupConfig,
   RefLookupSetComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
-import { ViafRefLookupService } from '../../../../../projects/myrmidon/cadmus-refs-viaf-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-lookup';
+import { ViafRefLookupService } from '@myrmidon/cadmus-refs-viaf-lookup';
 
 @Component({
   selector: 'app-ref-lookup-set-pg',

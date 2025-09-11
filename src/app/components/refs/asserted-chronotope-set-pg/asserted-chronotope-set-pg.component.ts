@@ -8,7 +8,7 @@ import {
   AssertedChronotope,
   AssertedChronotopeSetComponent,
   AssertedChronotopesPipe,
-} from '../../../../../projects/myrmidon/cadmus-refs-asserted-chronotope/src/public-api';
+} from '@myrmidon/cadmus-refs-asserted-chronotope';
 
 @Component({
   selector: 'app-asserted-chronotope-set-pg',

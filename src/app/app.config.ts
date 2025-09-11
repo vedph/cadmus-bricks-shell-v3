@@ -26,9 +26,9 @@ import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
 import {
   PROXY_INTERCEPTOR_OPTIONS,
   ProxyInterceptor,
-} from '../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
-import { GEONAMES_USERNAME_TOKEN } from '../../projects/myrmidon/cadmus-refs-geonames-lookup/src/public-api';
-import { WHG_USERNAME_TOKEN } from '../../projects/myrmidon/cadmus-refs-whg-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-lookup';
+import { GEONAMES_USERNAME_TOKEN } from '@myrmidon/cadmus-refs-geonames-lookup';
+import { WHG_USERNAME_TOKEN } from '@myrmidon/cadmus-refs-whg-lookup';
 
 // local
 import { MockItemService } from './services/mock-item.service';

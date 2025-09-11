@@ -8,7 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import {
   DecoratedCount,
   DecoratedCountsComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-decorated-counts/src/public-api';
+} from '@myrmidon/cadmus-refs-decorated-counts';
 
 @Component({
   selector: 'app-decorated-counts-pg',

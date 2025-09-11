@@ -19,7 +19,7 @@ import {
   TextBlock,
   TextBlockEventArgs,
   TextBlockViewComponent,
-} from '../../../../../projects/myrmidon/cadmus-text-block-view/src/public-api';
+} from '@myrmidon/cadmus-text-block-view';
 
 @Component({
   selector: 'app-text-block-view-pg',

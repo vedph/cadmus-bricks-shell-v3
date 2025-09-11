@@ -7,7 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import {
   DecoratedId,
   DecoratedIdsComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-decorated-ids/src/public-api';
+} from '@myrmidon/cadmus-refs-decorated-ids';
 
 @Component({
   selector: 'app-decorated-ids-pg',

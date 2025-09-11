@@ -164,6 +164,7 @@ Check that this Angular component has been properly refactored to use Signals an
 👉 For the libraries history, see the README of each library in this workspace.
 
 - 2025-09-11:
+  - removed NG0912 component collision from the app by importing from NPM packages only.
   - refactored `@myrmidon/cadmus-refs-citation` for `OnPush`.
 - 2025-09-10:
   - refactored `@myrmidon/cadmus-cod-location` for `OnPush`.

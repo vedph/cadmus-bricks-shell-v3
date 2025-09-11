@@ -16,7 +16,7 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import {
   AssertedCompositeId,
   AssertedCompositeIdsComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-asserted-ids/src/public-api';
+} from '@myrmidon/cadmus-refs-asserted-ids';
 
 @Component({
   selector: 'app-asserted-composite-ids-pg',

@@ -9,7 +9,7 @@ import {
   HistoricalDateComponent,
   HistoricalDateModel,
   HistoricalDatePipe,
-} from '../../../../../projects/myrmidon/cadmus-refs-historical-date/src/public-api';
+} from '@myrmidon/cadmus-refs-historical-date';
 
 @Component({
   selector: 'app-historical-date-pg',

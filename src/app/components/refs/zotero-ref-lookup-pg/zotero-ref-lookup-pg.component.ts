@@ -21,8 +21,8 @@ import {
   ZoteroItem,
   ZoteroRefLookupService,
   ZoteroService,
-} from '../../../../../projects/myrmidon/cadmus-refs-zotero-lookup/src/public-api';
-import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-zotero-lookup';
+import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 
 @Component({
   selector: 'app-zotero-ref-lookup-pg',

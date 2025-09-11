@@ -17,14 +17,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
-import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 import {
   GeoNamesBBox,
   GeoNamesRefLookupService,
   GeoNamesSearchRequest,
   GeoNamesService,
   GeoNamesToponym,
-} from '../../../../../projects/myrmidon/cadmus-refs-geonames-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-geonames-lookup';
 
 interface Pair<T> {
   key: string;

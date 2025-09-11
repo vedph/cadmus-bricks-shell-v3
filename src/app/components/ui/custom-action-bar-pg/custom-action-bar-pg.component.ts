@@ -8,7 +8,7 @@ import {
   BarCustomAction,
   BarCustomActionRequest,
   CustomActionBarComponent,
-} from '../../../../../projects/myrmidon/cadmus-ui-custom-action-bar/src/public-api';
+} from '@myrmidon/cadmus-ui-custom-action-bar';
 
 @Component({
   selector: 'app-custom-action-bar-pg',

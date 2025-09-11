@@ -10,9 +10,10 @@ import { RefLookupConfig } from '@myrmidon/cadmus-refs-lookup';
 import {
   PinTarget,
   PinTargetLookupComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-asserted-ids/src/public-api';
+} from '@myrmidon/cadmus-refs-asserted-ids';
+import { ViafRefLookupService } from '@myrmidon/cadmus-refs-viaf-lookup';
+
 import { WebColorLookup } from '../ref-lookup-pg/ref-lookup-pg.component';
-import { ViafRefLookupService } from '../../../../../projects/myrmidon/cadmus-refs-viaf-lookup/src/public-api';
 
 @Component({
   selector: 'app-pin-target-lookup-pg',

@@ -18,7 +18,7 @@ import {
   PhysicalGridCoordsPipe,
   PhysicalGridLocation,
   PhysicalGridLocationComponent,
-} from '../../../../../projects/myrmidon/cadmus-mat-physical-grid/src/public-api';
+} from '@myrmidon/cadmus-mat-physical-grid';
 
 @Component({
   selector: 'app-physical-grid-pg',

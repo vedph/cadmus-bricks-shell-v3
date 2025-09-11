@@ -13,7 +13,7 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import {
   PhysicalStateComponent,
   PhysicalState,
-} from '../../../../../projects/myrmidon/cadmus-mat-physical-state/src/public-api';
+} from '@myrmidon/cadmus-mat-physical-state';
 
 @Component({
   selector: 'app-physical-state-pg',

@@ -6,8 +6,8 @@ import { MatCardModule } from '@angular/material/card';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
-import { LookupDocReferencesComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
-import { DocReference } from '../../../../../projects/myrmidon/cadmus-refs-doc-references/src/public-api';
+import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
+import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
 
 @Component({
   selector: 'app-ref-lookup-doc-references-pg',

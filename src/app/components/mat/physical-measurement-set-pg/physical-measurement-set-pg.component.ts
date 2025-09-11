@@ -11,7 +11,7 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import {
   PhysicalMeasurementSetComponent,
   PhysicalMeasurement,
-} from '../../../../../projects/myrmidon/cadmus-mat-physical-size/src/public-api';
+} from '@myrmidon/cadmus-mat-physical-size';
 
 @Component({
   selector: 'app-physical-measurement-set-pg',

@@ -12,7 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 
-import { RefLookupOptionsComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+import { RefLookupOptionsComponent } from '@myrmidon/cadmus-refs-lookup';
 
 @Component({
   selector: 'app-ref-lookup-dummy-opt',

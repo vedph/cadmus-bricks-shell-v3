@@ -22,9 +22,9 @@ import {
   DbpediaOptions,
   DbpediaResult,
   DbpediaService,
-} from '../../../../../projects/myrmidon/cadmus-refs-dbpedia-lookup/src/public-api';
-import { DbpediaRefLookupService } from '../../../../../projects/myrmidon/cadmus-refs-dbpedia-lookup/src/lib/services/dbpedia-ref-lookup.service';
-import { RefLookupComponent } from '../../../../../projects/myrmidon/cadmus-refs-lookup/src/public-api';
+} from '@myrmidon/cadmus-refs-dbpedia-lookup';
+import { DbpediaRefLookupService } from '@myrmidon/cadmus-refs-dbpedia-lookup';
+import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 
 @Component({
   selector: 'app-dbpedia-ref-lookup-pg',

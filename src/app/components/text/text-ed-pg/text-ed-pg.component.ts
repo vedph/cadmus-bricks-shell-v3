@@ -26,17 +26,17 @@ import {
   MdBoldCtePlugin,
   MdItalicCtePlugin,
   MdLinkCtePlugin,
-} from '../../../../../projects/myrmidon/cadmus-text-ed-md/src/public-api';
-import { TxtEmojiCtePlugin } from '../../../../../projects/myrmidon/cadmus-text-ed-txt/src/public-api';
+} from '@myrmidon/cadmus-text-ed-md';
+import { TxtEmojiCtePlugin } from '@myrmidon/cadmus-text-ed-txt';
 import {
   CadmusTextEdResult,
   CadmusTextEdService,
-} from '../../../../../projects/myrmidon/cadmus-text-ed/src/public-api';
-import { EmojiImeComponent } from '../../../../../projects/myrmidon/cadmus-text-ed-txt/src/lib/emoji-ime/emoji-ime.component';
+} from '@myrmidon/cadmus-text-ed';
+import { EmojiImeComponent } from '@myrmidon/cadmus-text-ed-txt';
 import {
   EmojiService,
   UnicodeEmoji,
-} from '../../../../../projects/myrmidon/cadmus-text-ed-txt/src/lib/emoji.service';
+} from '@myrmidon/cadmus-text-ed-txt';
 
 @Component({
   selector: 'app-text-ed-pg',
