@@ -26,7 +26,7 @@ import {
   CitMappedValues,
   CitSchemeSettings,
   MapFormatter,
-} from '../../projects/myrmidon/cadmus-refs-citation/src/public-api';
+} from '@myrmidon/cadmus-refs-citation';
 
 // local
 import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.component';

@@ -1,4 +1,10 @@
-import { Component, computed, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  output,
+} from '@angular/core';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -8,13 +14,16 @@ import { ColorToContrastPipe } from '@myrmidon/ngx-tools';
 import { CitStep } from '../../models';
 
 /**
- * A component to display a citation step.
+ * A component to display a citation step. This just displays the step
+ * with its optional errors, and raises an event when clicked. No editing
+ * happens in this component.
  */
 @Component({
   selector: 'cadmus-citation-step',
   imports: [MatRippleModule, MatTooltipModule, ColorToContrastPipe],
   templateUrl: './citation-step.component.html',
   styleUrl: './citation-step.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CitationStepComponent {
   /**
@@ -39,6 +48,8 @@ export class CitationStepComponent {
   });
 
   public handleClick(): void {
-    this.stepClick.emit(this.step()!);
+    const step = this.step();
+    console.log('step click', step);
+    this.stepClick.emit(step!);
   }
 }

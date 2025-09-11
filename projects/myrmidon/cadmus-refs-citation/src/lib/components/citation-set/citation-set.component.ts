@@ -1,4 +1,11 @@
-import { Component, computed, Inject, input, model } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  model,
+  signal,
+} from '@angular/core';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,6 +37,7 @@ import { CompactCitationComponent } from '../compact-citation/compact-citation.c
   ],
   templateUrl: './citation-set.component.html',
   styleUrl: './citation-set.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CitationSetComponent {
   /**
@@ -68,8 +76,10 @@ export class CitationSetComponent {
     }
   );
 
-  public editedCitation?: Citation | CitationSpan;
-  public editedCitationIndex?: number;
+  public readonly editedCitation = signal<Citation | CitationSpan | undefined>(
+    undefined
+  );
+  public readonly editedCitationIndex = signal<number | undefined>(undefined);
 
   constructor(private _schemeService: CitSchemeService) {}
 
@@ -103,27 +113,27 @@ export class CitationSetComponent {
   public newCitation(): void {
     const schemeId =
       this.defaultSchemeId() || this._schemeService.getSchemes()[0].id;
-    this.editedCitation = this._schemeService.createEmptyCitation(schemeId);
-    this.editedCitationIndex = -1;
+    this.editedCitation.set(this._schemeService.createEmptyCitation(schemeId));
+    this.editedCitationIndex.set(-1);
   }
 
   public editCitation(index: number): void {
-    this.editedCitation = this.editedCitations()[index];
-    this.editedCitationIndex = index;
+    this.editedCitation.set(this.editedCitations()[index]);
+    this.editedCitationIndex.set(index);
   }
 
   public closeCitation(): void {
-    this.editedCitation = undefined;
-    this.editedCitationIndex = undefined;
+    this.editedCitation.set(undefined);
+    this.editedCitationIndex.set(undefined);
   }
 
   public saveCitation(citation: Citation | CitationSpan): void {
     const citations = [...this.editedCitations()];
 
-    if (this.editedCitationIndex === -1) {
+    if (this.editedCitationIndex() === -1) {
       citations.push(citation);
     } else {
-      citations.splice(this.editedCitationIndex!, 1, citation);
+      citations.splice(this.editedCitationIndex()!, 1, citation);
     }
     this._schemeService.compactCitations(citations);
     this.citations.set(citations);

@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -9,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   output,
+  signal,
   ViewChild,
 } from '@angular/core';
 import {
@@ -47,7 +49,14 @@ export type CitationError = {
 type StepEditMode = 'string' | 'masked' | 'number' | 'set';
 
 /**
- * A component for editing a literary citation using a citation scheme.
+ * A component for editing a literary citation using any of the available citation
+ * schemes. This component shows all the steps of the citation (via CitationStepComponent),
+ * and allows editing each step according to its type (string, masked string, numeric,
+ * closed set). It also allows switching to a free text mode, where the user can
+ * type the citation as a string, which is then parsed according to the scheme.
+ * Users can change scheme, and optionally restrict it to a specified last step.
+ * The component validates the citation according to the scheme and shows validation
+ * errors.
  */
 @Component({
   selector: 'cadmus-refs-citation',
@@ -64,12 +73,18 @@ type StepEditMode = 'string' | 'masked' | 'number' | 'set';
   ],
   templateUrl: './citation.component.html',
   styleUrl: './citation.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CitationComponent implements OnInit, OnDestroy {
   private readonly _subs: Subscription[] = [];
   private readonly _focusHelper: DynamicFocus;
-  private _dropNextUpdate = false;
-  private _updatingCit?: boolean;
+  // this flag prevents effect from reacting to internal changes
+  private _updatingFromParent = false;
+  // this flag prevents scheme subscription from reacting
+  // to programmatic scheme updates
+  private _updatingSchemeFromCitation = false;
+  // track last parent citation
+  private _lastParentCitation: Citation | undefined = undefined;
 
   /**
    * The citation to edit.
@@ -115,34 +130,35 @@ export class CitationComponent implements OnInit, OnDestroy {
    */
   public scheme: FormControl<CitScheme>;
   public lastStep: FormControl<string | null>;
-  public lastStepIndex: number;
+
+  public readonly lastStepIndex = signal<number>(0);
 
   /**
    * The free text input.
    */
-  public freeMode: boolean = false;
+  public readonly freeMode = signal<boolean>(false);
   public text: FormControl<string | null>;
   public textForm: FormGroup;
 
-  public editedStep?: CitStep;
-  public stepEditMode: StepEditMode = 'string';
+  public readonly editedStep = signal<CitStep | undefined>(undefined);
+  public readonly stepEditMode = signal<StepEditMode>('string');
   // set-editor form
-  public setEditorItems: string[] = [];
+  public readonly setEditorItems = signal<string[]>([]);
   public setEditorItem: FormControl<string | null>;
   public setEditorForm: FormGroup;
   // number-editor form
-  public minNrValue?: number;
-  public maxNrValue?: number;
+  public readonly minNrValue = signal<number | undefined>(undefined);
+  public readonly maxNrValue = signal<number | undefined>(undefined);
   public nrEditorValue: FormControl<number>;
   public nrEditorSuffix: FormControl<string | null>;
   public nrEditorForm: FormGroup;
-  public hasSuffix?: boolean;
+  public readonly hasSuffix = signal<boolean | undefined>(undefined);
   // string-editor form
   public strEditorValue: FormControl<string | null>;
   public strEditorForm: FormGroup;
 
-  public editedCitation?: Citation;
-  public errors: { [key: string]: string } = {};
+  public readonly editedCitation = signal<Citation | undefined>(undefined);
+  public readonly errors = signal<{ [key: string]: string }>({});
 
   constructor(
     formBuilder: FormBuilder,
@@ -160,7 +176,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     // form
     this.scheme = formBuilder.control(defaultScheme!, { nonNullable: true });
     this.lastStep = formBuilder.control(null);
-    this.lastStepIndex = defaultScheme ? defaultScheme.path.length - 1 : 0;
+    this.lastStepIndex.set(defaultScheme ? defaultScheme.path.length - 1 : 0);
 
     // free text form
     this.text = formBuilder.control(null, [
@@ -194,35 +210,59 @@ export class CitationComponent implements OnInit, OnDestroy {
     // when citation changes, update edited citation
     effect(() => {
       const citation = this.citation();
-      console.log('citation change', citation);
-      if (this._dropNextUpdate) {
-        console.log('drop next update');
-        this._dropNextUpdate = false;
+      // only process if the citation actually changed from the last one we processed
+      if (this._lastParentCitation === citation) {
         return;
       }
 
-      // Exit early if no service or schemes available
+      console.log('citation input change from parent', citation);
+      this._lastParentCitation = citation;
+
       if (!this._schemeService || !this.schemes().length) {
+        console.warn('no service or schemes');
         return;
       }
 
-      // close step editor
-      this.editedStep = undefined;
-      this.text.reset();
-      // update scheme to the one of the citation
-      this.scheme.setValue(
-        this._schemeService.getScheme(
-          citation?.schemeId || this.scheme.value?.id
-        ) || this.schemes()[0],
-        { emitEvent: false }
-      );
-      // when undefined, return an empty citation so that user can fill it
-      if (!citation?.steps?.length) {
-        this.editedCitation = this.createEmptyCitation();
-      } else {
-        this.editedCitation = citation;
+      // prevent infinite loops
+      if (this._updatingFromParent) {
+        return;
       }
-      console.log('edited citation', this.editedCitation);
+
+      this._updatingFromParent = true;
+
+      try {
+        // close any open editors
+        this.editedStep.set(undefined);
+        this.text.reset();
+
+        if (citation?.steps?.length) {
+          // create a deep copy to work with internally
+          const citationCopy = deepCopy(citation);
+          this.editedCitation.set(citationCopy);
+
+          // update scheme to match the citation's scheme (only if different)
+          const targetScheme = this._schemeService.getScheme(citation.schemeId);
+          if (targetScheme && targetScheme.id !== this.scheme.value?.id) {
+            this._updatingSchemeFromCitation = true;
+            this.scheme.setValue(targetScheme, { emitEvent: false });
+            this.lastStepIndex.set(targetScheme.path.length - 1);
+            this.lastStep.setValue(
+              targetScheme.path[targetScheme.path.length - 1] || null,
+              { emitEvent: false }
+            );
+          }
+        } else {
+          // create empty citation with current scheme
+          this.editedCitation.set(
+            this.createEmptyCitation(this.scheme.value?.id)
+          );
+        }
+
+        console.log('edited citation', this.editedCitation());
+      } finally {
+        this._updatingFromParent = false;
+        this._updatingSchemeFromCitation = false;
+      }
     });
   }
 
@@ -244,27 +284,36 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     // if no citation, create an empty one
     if (!this.citation()?.steps?.length) {
-      this.editedCitation = this.createEmptyCitation();
+      this.editedCitation.set(this.createEmptyCitation());
     }
 
-    // on scheme change, reset citation and free text, and
-    // reset allowPartial if the scheme does not allow it
+    // on scheme change, reset citation and free text
     this._subs.push(
       this.scheme.valueChanges
         .pipe(distinctUntilChanged(), debounceTime(100))
         .subscribe((scheme) => {
-          if (this._updatingCit || !scheme || !this._schemeService) {
-            this._updatingCit = false;
+          // skip if this change was triggered by a citation change
+          if (
+            this._updatingSchemeFromCitation ||
+            !scheme ||
+            !this._schemeService
+          ) {
+            this._updatingSchemeFromCitation = false;
             return;
           }
-          console.log('scheme change', scheme);
-          this.editedStep = undefined;
+
+          console.log('user changed scheme to', scheme);
+
+          // close any open editors
+          this.editedStep.set(undefined);
           this.text.reset();
-          this.editedCitation = this.createEmptyCitation(scheme.id);
-          this.lastStep.setValue(
-            this.scheme.value?.path[scheme.path.length - 1] || null
-          );
-          this.lastStepIndex = scheme.path.length - 1;
+
+          // create new empty citation with the new scheme
+          this.editedCitation.set(this.createEmptyCitation(scheme.id));
+
+          // update last step
+          this.lastStep.setValue(scheme.path[scheme.path.length - 1] || null);
+          this.lastStepIndex.set(scheme.path.length - 1);
         })
     );
 
@@ -277,17 +326,17 @@ export class CitationComponent implements OnInit, OnDestroy {
             return;
           }
 
-          this.lastStepIndex = this.scheme.value.path.indexOf(s || '');
+          this.lastStepIndex.set(this.scheme.value.path.indexOf(s || ''));
           // truncate or extend citation steps according to last step index
-          const cit = this.editedCitation;
+          const cit = this.editedCitation();
           if (!cit) {
             return;
           }
           const newCit: Citation = {
             schemeId: cit.schemeId,
-            steps: cit.steps.slice(0, this.lastStepIndex + 1),
+            steps: cit.steps.slice(0, this.lastStepIndex() + 1),
           };
-          for (let i = cit.steps.length; i <= this.lastStepIndex; i++) {
+          for (let i = cit.steps.length; i <= this.lastStepIndex(); i++) {
             newCit.steps.push({
               stepId: this.scheme.value.path[i],
               format: this.scheme.value.steps[this.scheme.value.path[i]].format,
@@ -295,7 +344,7 @@ export class CitationComponent implements OnInit, OnDestroy {
               value: '',
             });
           }
-          this.editedCitation = newCit;
+          this.editedCitation.set(newCit);
           this.validateCitation(newCit);
         })
     );
@@ -321,19 +370,21 @@ export class CitationComponent implements OnInit, OnDestroy {
           this.scheme.value.id
         );
         if (cit?.steps?.length) {
-          this.editedCitation = cit;
+          this.editedCitation.set(cit);
           this.validateCitation(cit);
-          this.freeMode = false;
+          this.freeMode.set(false);
         } else {
           return;
         }
       }
     } else {
       // if was toggled on, render citation into string
-      this.editedStep = undefined;
-      this.freeMode = true;
-      if (this.editedCitation) {
-        this.text.setValue(this._schemeService.toString(this.editedCitation!));
+      this.editedStep.set(undefined);
+      this.freeMode.set(true);
+      if (this.editedCitation()) {
+        this.text.setValue(
+          this._schemeService.toString(this.editedCitation()!)
+        );
         setTimeout(() => {
           this.freeInput?.nativeElement.focus();
         }, 100);
@@ -342,37 +393,37 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public closeFreeMode(): void {
-    this.freeMode = false;
+    this.freeMode.set(false);
   }
 
   //#region Step editing
   public editStep(step: CitStep | null): void {
     if (!step || !this.scheme.value || !this._schemeService) {
-      this.editedStep = undefined;
+      this.editedStep.set(undefined);
       return;
     }
 
-    console.log(step);
-    this.editedStep = step;
+    console.log('edit step', step);
+    this.editedStep.set(step);
 
     // set edit mode according to step type
     const stepDef = this.scheme.value.steps[step.stepId];
     const stepDomain = this._schemeService.getStepDomain(
       step.stepId,
-      this.editedCitation,
+      this.editedCitation(),
       this.scheme.value.id
     );
 
     if (!stepDomain) {
-      this.editedStep = undefined;
+      this.editedStep.set(undefined);
       return;
     }
 
     switch (stepDef?.type) {
       case 'set':
         // closed set of strings
-        this.setEditorItems = stepDomain.set!;
-        this.stepEditMode = 'set';
+        this.setEditorItems.set(stepDomain.set!);
+        this.stepEditMode.set('set');
         this.setEditorItem.setValue(step.value);
         // focus
         this._focusHelper.focusElement({
@@ -383,18 +434,18 @@ export class CitationComponent implements OnInit, OnDestroy {
 
       case 'numeric':
         // numeric with min/max and optional suffix
-        this.stepEditMode = 'number';
+        this.stepEditMode.set('number');
         const validators = [Validators.required];
         if (stepDef.domain.range) {
           let n = stepDomain.range?.min;
-          this.minNrValue = n !== undefined && n !== null ? n : undefined;
-          if (this.minNrValue !== undefined) {
-            validators.push(Validators.min(this.minNrValue));
+          this.minNrValue.set(n !== undefined && n !== null ? n : undefined);
+          if (this.minNrValue() !== undefined) {
+            validators.push(Validators.min(this.minNrValue()!));
           }
           n = stepDomain.range?.max;
-          this.maxNrValue = n !== undefined && n !== null ? n : undefined;
-          if (this.maxNrValue !== undefined) {
-            validators.push(Validators.max(this.maxNrValue));
+          this.maxNrValue.set(n !== undefined && n !== null ? n : undefined);
+          if (this.maxNrValue() !== undefined) {
+            validators.push(Validators.max(this.maxNrValue()!));
           }
         }
         this.nrEditorValue.setValue(step.n!);
@@ -411,7 +462,7 @@ export class CitationComponent implements OnInit, OnDestroy {
         } else {
           this.nrEditorSuffix.clearValidators();
         }
-        this.hasSuffix = !!stepDef.suffixPattern;
+        this.hasSuffix.set(!!stepDef.suffixPattern);
         // focus
         this._focusHelper.focusElement({
           target: 'nr-field',
@@ -421,7 +472,7 @@ export class CitationComponent implements OnInit, OnDestroy {
 
       case 'masked':
         // masked string
-        this.stepEditMode = 'masked';
+        this.stepEditMode.set('masked');
         this.strEditorValue.setValidators([
           Validators.required,
           Validators.pattern(stepDef.maskPattern!),
@@ -437,7 +488,7 @@ export class CitationComponent implements OnInit, OnDestroy {
 
       default:
         // free string
-        this.stepEditMode = 'string';
+        this.stepEditMode.set('string');
         this.strEditorValue.setValidators([Validators.required]);
         this.strEditorValue.setValue(step.value);
         this.strEditorValue.updateValueAndValidity();
@@ -451,98 +502,145 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public saveSetStep(): void {
-    if (!this.editedStep || this.setEditorForm.invalid) {
+    if (!this.editedStep() || this.setEditorForm.invalid) {
       return;
     }
 
-    // update step value in new citation
+    // create new citation object (don't mutate existing)
     const cit: Citation = {
-      ...(this.editedCitation || {
+      ...(this.editedCitation() || {
         schemeId: this.scheme.value.id,
         steps: [],
       }),
+      steps: [...(this.editedCitation()?.steps || [])], // clone steps array
     };
-    const index = this.scheme.value.path.indexOf(this.editedStep!.stepId);
+
+    // get the index of the step to update
+    const index = this.scheme.value.path.indexOf(this.editedStep()!.stepId);
     if (index === -1) {
       return;
     }
-    this.editedStep.value = this.setEditorItem.value!;
-    this.editedStep.n =
-      1 + this.setEditorItems.indexOf(this.setEditorItem.value!);
 
-    // update citation
-    cit.steps[index] = this.editedStep;
-    this.editedCitation = cit;
-    this.editedStep = undefined;
+    // create new step object
+    const newStep: CitStep = {
+      ...this.editedStep()!,
+      value: this.setEditorItem.value!,
+      n: 1 + this.setEditorItems().indexOf(this.setEditorItem.value!),
+    };
+    // this.editedStep.set(newStep);
+
+    // update cloned citation's step
+    cit.steps[index] = newStep;
+
+    // commit changes
+    this.editedCitation.set(cit);
+    this.editedStep.set(undefined);
     this.validateCitation(cit);
 
     // reset editor
-    this.strEditorValue.reset();
+    this.setEditorItem.reset();
   }
 
   public saveNumberStep(): void {
-    if (!this.editedStep || this.nrEditorForm.invalid || !this._schemeService) {
+    if (
+      !this.editedStep() ||
+      this.nrEditorForm.invalid ||
+      !this._schemeService
+    ) {
       return;
     }
 
-    // update step value in new citation
+    // update step value in a new citation object
     const cit: Citation = {
-      ...(this.editedCitation || {
+      ...(this.editedCitation() || {
         schemeId: this.scheme.value?.id || '',
         steps: [],
       }),
+      steps: [...(this.editedCitation()?.steps || [])],
     };
+
+    // get the index of the step to update
     const index =
-      this.scheme.value?.path.indexOf(this.editedStep!.stepId) ?? -1;
+      this.scheme.value?.path.indexOf(this.editedStep()!.stepId) ?? -1;
     if (index === -1) {
       return;
     }
 
-    const format = cit.steps[index].format;
+    // format value if needed
+    const format = cit.steps[index]?.format;
+    let value: string;
     if (format) {
       const formatter = this._schemeService.getFormatter(format);
-      this.editedStep.value =
+      value =
         formatter?.format(this.nrEditorValue.value) ||
         this.nrEditorValue.value.toString();
     } else {
-      this.editedStep.value = this.nrEditorValue.value.toString();
+      value = this.nrEditorValue.value.toString();
     }
-    this.editedStep.n = this.nrEditorValue.value;
-    this.editedStep.suffix = this.nrEditorSuffix.value || undefined;
 
-    // update citation
-    cit.steps[index] = this.editedStep;
-    this.editedCitation = cit;
-    this.editedStep = undefined;
+    // create a new step object
+    const newStep: CitStep = {
+      ...this.editedStep()!,
+      value,
+      n: this.nrEditorValue.value,
+      suffix: this.nrEditorSuffix.value || undefined,
+    };
+    // this.editedStep.set(newStep);
+
+    // update cloned citation's step
+    cit.steps[index] = newStep;
+
+    // commit changes
+    this.editedCitation.set(cit);
+    this.editedStep.set(undefined);
     this.validateCitation(cit);
 
     // reset editor
     this.nrEditorValue.reset();
+    this.nrEditorSuffix.reset();
   }
 
   public saveStringStep(): void {
-    if (!this.editedStep || this.strEditorForm.invalid || !this.scheme.value) {
+    if (
+      !this.editedStep() ||
+      this.strEditorForm.invalid ||
+      !this.scheme.value
+    ) {
       return;
     }
 
-    // update step value in new citation
+    // create new citation object
     const cit: Citation = {
-      ...(this.editedCitation || {
+      ...(this.editedCitation() || {
         schemeId: this.scheme.value.id,
         steps: [],
       }),
+      steps: [...(this.editedCitation()?.steps || [])],
     };
-    const index = this.scheme.value.path.indexOf(this.editedStep!.stepId);
+
+    // get the index of the step to update
+    const index = this.scheme.value.path.indexOf(this.editedStep()!.stepId);
     if (index === -1) {
       return;
     }
-    this.editedStep.value = this.strEditorValue.value || '';
 
-    // update citation
-    cit.steps[index] = this.editedStep;
-    this.editedCitation = cit;
-    this.editedStep = undefined;
+    // create a new step object
+    const newStep: CitStep = {
+      ...this.editedStep()!,
+      value: this.strEditorValue.value || '',
+    };
+    // this.editedStep.set(newStep);
+
+    // update cloned citation's step
+    cit.steps[index] = newStep;
+
+    // commit changes
+    this.editedCitation.set(cit);
+    this.editedStep.set(undefined);
     this.validateCitation(cit);
+
+    // reset editor
+    this.strEditorValue.reset();
   }
   //#endregion
 
@@ -556,11 +654,11 @@ export class CitationComponent implements OnInit, OnDestroy {
 
     if (!citation?.steps.length) {
       errors[''] = 'No citation';
-      this.errors = errors;
+      this.errors.set(errors);
       return false;
     }
 
-    for (let i = 0; i <= this.lastStepIndex; i++) {
+    for (let i = 0; i <= this.lastStepIndex(); i++) {
       const step = citation.steps[i];
       if (!step) {
         break;
@@ -579,7 +677,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       if (domain.set?.length) {
         if (!domain.set.includes(step.value)) {
           errors[step.stepId] = `Invalid set value: ${step.value}`;
-          this.errors = errors;
+          this.errors.set(errors);
           return false;
         }
       } else if (domain.range) {
@@ -590,7 +688,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           n < domain.range.min
         ) {
           errors[step.stepId] = `Value below min: ${step.stepId}`;
-          this.errors = errors;
+          this.errors.set(errors);
           return false;
         }
         if (
@@ -599,7 +697,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           n > domain.range.max
         ) {
           errors[step.stepId] = `Value above max: ${step.stepId}`;
-          this.errors = errors;
+          this.errors.set(errors);
           return false;
         }
         if (
@@ -607,19 +705,19 @@ export class CitationComponent implements OnInit, OnDestroy {
           !new RegExp(domain.suffix).test(step.suffix || '')
         ) {
           errors[step.stepId] = `Invalid suffix: ${step.stepId}`;
-          this.errors = errors;
+          this.errors.set(errors);
           return false;
         }
       } else if (domain.mask) {
         if (!new RegExp(domain.mask).test(step.value)) {
           errors[step.stepId] = `Invalid string: ${step.stepId}`;
-          this.errors = errors;
+          this.errors.set(errors);
           return false;
         }
       }
     }
 
-    this.errors = errors;
+    this.errors.set(errors);
     return true;
   }
   //#endregion
@@ -629,10 +727,9 @@ export class CitationComponent implements OnInit, OnDestroy {
   }
 
   public save(): void {
-    if (!this._schemeService || !this.validateCitation(this.editedCitation)) {
+    if (!this._schemeService || !this.validateCitation(this.editedCitation())) {
       return;
     }
-    this._dropNextUpdate = true;
-    this.citation.set(deepCopy(this.editedCitation!));
+    this.citation.set(deepCopy(this.editedCitation!()));
   }
 }

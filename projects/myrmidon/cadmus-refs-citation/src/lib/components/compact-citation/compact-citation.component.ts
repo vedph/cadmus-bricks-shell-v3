@@ -1,10 +1,12 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   input,
   model,
   OnDestroy,
+  signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { distinctUntilChanged, Subscription } from 'rxjs';
@@ -42,14 +44,11 @@ import { CitSchemeService } from '../../services/cit-scheme.service';
   ],
   templateUrl: './compact-citation.component.html',
   styleUrl: './compact-citation.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompactCitationComponent implements OnDestroy {
   private _dropNextUpdate = false;
   private _sub?: Subscription;
-
-  public editedIndex = -1;
-  public edited?: Citation;
-  public formError?: string;
 
   /**
    * The scheme keys to use in this component. The full list of schemes is
@@ -60,8 +59,8 @@ export class CompactCitationComponent implements OnDestroy {
 
   public readonly abSchemeKeys = computed<string[] | undefined>(() => {
     // when editing B, the only allowed scheme is the one of A
-    return this.editedIndex === 1 && this.a?.schemeId
-      ? [this.a!.schemeId]
+    return this.editedIndex() === 1 && this.a()?.schemeId
+      ? [this.a()!.schemeId]
       : this.schemeKeys();
   });
 
@@ -98,8 +97,12 @@ export class CompactCitationComponent implements OnDestroy {
     return (this.citation() as Citation).schemeId;
   });
 
-  public a?: Citation;
-  public b?: Citation;
+  public readonly editedIndex = signal<number>(-1);
+  public readonly edited = signal<Citation | undefined>(undefined);
+  public readonly formError = signal<string | undefined>(undefined);
+
+  public readonly a = signal<Citation | undefined>(undefined);
+  public readonly b = signal<Citation | undefined>(undefined);
 
   public readonly range = new FormControl<boolean>(false, {
     nonNullable: true,
@@ -112,13 +115,13 @@ export class CompactCitationComponent implements OnDestroy {
         this.closeCitation();
 
         // if the range was set to true, add and edit B if missing
-        if (v && !this.b) {
-          this.b = deepCopy(this.a);
+        if (v && !this.b()) {
+          this.b.set(deepCopy(this.a()));
           this.editB();
         }
         // if the range was set to false, remove B and save
-        if (!v && this.b) {
-          this.b = undefined;
+        if (!v && this.b()) {
+          this.b.set(undefined);
           this.save();
         }
       });
@@ -148,69 +151,74 @@ export class CompactCitationComponent implements OnDestroy {
   private updateAB(citation?: Citation | CitationSpan) {
     if (!citation) {
       this.range.reset();
-      this.a = undefined;
-      this.b = undefined;
+      this.a.set(undefined);
+      this.b.set(undefined);
       return;
     }
 
     const span = citation as CitationSpan;
     const isSpan = !!span.a;
-    this.a = isSpan ? (span as CitationSpan).a : (citation as Citation);
-    this.b = isSpan ? (span as CitationSpan).b : undefined;
+    this.a.set(isSpan ? (span as CitationSpan).a : (citation as Citation));
+    this.b.set(isSpan ? (span as CitationSpan).b : undefined);
     this.range.setValue(isSpan, { emitEvent: false });
 
     this.validate();
   }
 
   public editA() {
-    this.editedIndex = 0;
-    this.edited = this.a
-      ? deepCopy(this.a)
-      : this._schemeService.createEmptyCitation(this.defaultSchemeId());
+    this.editedIndex.set(0);
+    this.edited.set(
+      this.a()
+        ? deepCopy(this.a())
+        : this._schemeService.createEmptyCitation(this.defaultSchemeId())
+    );
   }
 
   public editB() {
-    this.edited = deepCopy(this.b);
-    this.editedIndex = 1;
+    this.edited.set(deepCopy(this.b()));
+    this.editedIndex.set(1);
   }
 
   private validate(): boolean {
     if (this.range.value) {
       // in range mode, A must be set and B must be after A
-      if (!this.a || !this.b) {
-        this.formError = 'A and B are required';
+      if (!this.a() || !this.b()) {
+        this.formError.set('A and B are required');
         return false;
       }
-      const compResult = this._schemeService.compareCitations(this.a, this.b);
+      const compResult = this._schemeService.compareCitations(
+        this.a(),
+        this.b()
+      );
       // A must come before B
       if (compResult >= 0) {
-        this.formError = 'B must come after A';
+        this.formError.set('B must come after A');
         return false;
       }
     } else {
       // in single mode, A is required
-      if (!this.a) {
-        this.formError = 'citation required';
+      if (!this.a()) {
+        this.formError.set('citation required');
         return false;
       }
     }
-    this.formError = undefined;
+    this.formError.set(undefined);
     return true;
   }
 
   public closeCitation(): void {
-    this.edited = undefined;
-    this.editedIndex = -1;
+    this.edited.set(undefined);
+    this.editedIndex.set(-1);
   }
 
   public onCitationChange(citation?: Citation): void {
-    if (this.editedIndex === 0) {
-      this.a = citation;
+    if (this.editedIndex() === 0) {
+      this.a.set(citation);
       if (!citation) {
-        this.b = undefined;
+        this.b.set(undefined);
       }
-    } else if (this.editedIndex === 1) {
-      this.b = citation;
+    } else if (this.editedIndex() === 1) {
+      this.b.set(citation);
     }
     if (!this.validate()) {
       return;
@@ -221,9 +229,9 @@ export class CompactCitationComponent implements OnDestroy {
 
   private save(): void {
     if (this.range.value) {
-      this.citation.set(deepCopy({ a: this.a, b: this.b }));
+      this.citation.set(deepCopy({ a: this.a(), b: this.b() }));
     } else {
-      this.citation.set(deepCopy(this.a));
+      this.citation.set(deepCopy(this.a()));
     }
   }
 }

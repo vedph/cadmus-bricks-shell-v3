@@ -22,6 +22,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [CitationSetComponent](#citationsetcomponent)
     - [CitationPipe](#citationpipe)
   - [History](#history)
+    - [1.0.2](#102)
     - [1.0.1](#101)
     - [1.0.0](#100)
     - [0.0.3](#003)
@@ -748,6 +749,10 @@ Use like:
 ```
 
 ## History
+
+### 1.0.2
+
+- 2025-09-10: refactored for `OnPush`.
 
 ### 1.0.1
 

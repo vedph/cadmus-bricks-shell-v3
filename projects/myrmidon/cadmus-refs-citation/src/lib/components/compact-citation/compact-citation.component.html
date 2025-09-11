@@ -24,24 +24,24 @@
   <!-- editor -->
   <mat-expansion-panel
     id="editor"
-    [expanded]="editedIndex > -1"
-    [disabled]="editedIndex === -1"
+    [expanded]="editedIndex() > -1"
+    [disabled]="editedIndex() === -1"
   >
     <fieldset>
       <!-- label -->
-      <legend>{{ !range.value || editedIndex === 0 ? "A" : "B" }}</legend>
+      <legend>{{ !range.value || editedIndex() === 0 ? "A" : "B" }}</legend>
       <!-- editor -->
       <cadmus-refs-citation
         [schemeKeys]="abSchemeKeys()"
         [allowFreeMode]="allowFreeMode()"
         [allowPartial]="allowPartial()"
-        [citation]="edited"
+        [citation]="edited()"
         (citationChange)="onCitationChange($event)"
         (cancel)="closeCitation()"
       />
     </fieldset>
-    @if (formError) {
-    <div class="error">{{ formError }}</div>
+    @if (formError()) {
+    <div class="error">{{ formError() }}</div>
     }
   </mat-expansion-panel>
 </div>

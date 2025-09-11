@@ -2,16 +2,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
+import { RamStorageService } from '@myrmidon/ngx-tools';
 import {
   CitMappedValues,
   CitSchemeService,
   CitSchemeSet,
   MapFormatter,
-} from '../../../../../projects/myrmidon/cadmus-refs-citation/src/public-api';
+} from '@myrmidon/cadmus-refs-citation';
 
 import { DC_SCHEME, OD_SCHEME } from '../../../cit-schemes';
 import { CitationPgComponent } from './citation-pg.component';
-import { RamStorageService } from '@myrmidon/ngx-tools';
 
 describe('CitationPgComponent', () => {
   let component: CitationPgComponent;

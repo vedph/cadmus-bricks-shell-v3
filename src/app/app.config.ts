@@ -8,10 +8,8 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
-  withJsonpSupport,
   withFetch,
 } from '@angular/common/http';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 // material
 import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
@@ -54,7 +52,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
-    provideAnimationsAsync(),
+    // provideAnimationsAsync(),
     provideHttpClient(withFetch()),
     provideNativeDateAdapter(),
     importProvidersFrom(NgeMonacoModule.forRoot({})),

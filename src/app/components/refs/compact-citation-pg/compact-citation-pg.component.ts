@@ -15,7 +15,7 @@ import {
   CitationSpan,
   CitSchemeService,
   CompactCitationComponent,
-} from '../../../../../projects/myrmidon/cadmus-refs-citation/src/public-api';
+} from '@myrmidon/cadmus-refs-citation';
 
 @Component({
   selector: 'app-compact-citation-pg',

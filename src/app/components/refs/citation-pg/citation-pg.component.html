@@ -27,34 +27,27 @@
     </div>
     <hr />
     <cadmus-refs-citation
-      [citation]="citation"
+      [citation]="citation()"
       [allowFreeMode]="allowFreeMode.value"
       [allowPartial]="allowPartial.value"
       (citationChange)="onCitationChange($event)"
     />
     <hr />
-    @if (citation) {
-    <div class="text-cit">{{ citText }}</div>
+    @if (citation()) {
+    <div class="text-cit">{{ citText() }}</div>
     <div>
       <code>
-        <pre>{{ citation | json }}</pre>
+        <pre>{{ citation() | json }}</pre>
       </code>
     </div>
     <div>
-      <cadmus-refs-citation-view [citation]="citation" defaultSchemeId="dc" />
+      <cadmus-refs-citation-view [citation]="citation()" defaultSchemeId="dc" />
     </div>
     }
     <hr />
-    @if (error) {
-    <div class="error">
-      <code>
-        <pre>{{ error | json }}</pre>
-      </code>
-    </div>
-    } @else {
-    <div class="valid">(valid)</div>
     <fieldset>
       <legend>list</legend>
+      <p class="muted">Add the current citation to this list to see how citations get sorted.</p>
       <div class="form-row">
         <button
           type="button"
@@ -84,7 +77,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (c of citations; track c) {
+            @for (c of citations(); track c) {
             <tr>
               <td class="fit-width">
                 <button
@@ -103,6 +96,5 @@
         </table>
       </div>
     </fieldset>
-    }
   </mat-card-content>
 </mat-card>

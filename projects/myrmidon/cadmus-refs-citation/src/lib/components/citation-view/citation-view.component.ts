@@ -1,4 +1,10 @@
-import { Component, computed, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+  output,
+} from '@angular/core';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -15,6 +21,7 @@ import { CitSchemeService } from '../../services/cit-scheme.service';
   imports: [MatTooltipModule, ColorToContrastPipe],
   templateUrl: './citation-view.component.html',
   styleUrl: './citation-view.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CitationViewComponent {
   /**

@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-citation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Cadmus - literary citations component.",
   "keywords": [
     "Cadmus",
@@ -16,7 +16,9 @@
   },
   "peerDependencies": {
     "@angular/common": "^20.0.0",
-    "@angular/core": "^20.0.0"
+    "@angular/core": "^20.0.0",
+    "@angular/material": "^20.0.0",
+    "@myrmidon/ngx-tools": "^2.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

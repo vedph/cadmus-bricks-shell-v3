@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,7 +15,7 @@ import {
   CitationSetComponent,
   CitationSpan,
   CitSchemeService,
-} from '../../../../../projects/myrmidon/cadmus-refs-citation/src/public-api';
+} from '@myrmidon/cadmus-refs-citation';
 
 @Component({
   selector: 'app-citation-set-pg',

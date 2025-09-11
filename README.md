@@ -135,6 +135,7 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-mat-physical-size` (9.0.9)
 - `@myrmidon/cadmus-mat-physical-state` (9.0.1)
 - `@myrmidon/cadmus-refs-assertion` (10.0.4)
+- `@myrmidon/cadmus-refs-citation` (1.0.2)
 - `@myrmidon/cadmus-refs-doc-references` (10.0.2)
 - `@myrmidon/cadmus-refs-lookup` (10.0.3)
 - `@myrmidon/cadmus-text-ed` (9.0.1)
@@ -162,6 +163,8 @@ Check that this Angular component has been properly refactored to use Signals an
 
 👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-09-11:
+  - refactored `@myrmidon/cadmus-refs-citation` for `OnPush`.
 - 2025-09-10:
   - refactored `@myrmidon/cadmus-cod-location` for `OnPush`.
   - refactored `@myrmidon/cadmus-mat-physical-grid` for `OnPush`.

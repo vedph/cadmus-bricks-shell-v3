@@ -18,6 +18,8 @@
     "@angular/common": "^20.0.0",
     "@angular/core": "^20.0.0",
     "@angular/material": "^20.0.0",
+    "@myrmidon/cadmus-refs-citation": "^1.0.1",
+    "@myrmidon/cadmus-refs-doc-references": "^10.0.1",
     "@myrmidon/cadmus-refs-lookup": "^10.0.3"
   },
   "dependencies": {

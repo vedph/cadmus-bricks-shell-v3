@@ -1,7 +1,7 @@
 import {
   CIT_FORMATTER_ROMAN_UPPER,
   CitScheme,
-} from '../../projects/myrmidon/cadmus-refs-citation/src/public-api';
+} from '@myrmidon/cadmus-refs-citation';
 
 export const OD_SCHEME: CitScheme = {
   id: 'od',
