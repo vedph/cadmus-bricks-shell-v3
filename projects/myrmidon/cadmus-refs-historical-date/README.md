@@ -3,6 +3,14 @@
 - 📦 `@myrmidon/cadmus-refs-historical-date`
 - 🧱 [historical date backend model](https://github.com/vedph/cadmus-bricks/blob/master/docs/historical-date.md)
 
+- [CadmusRefsHistoricalDate](#cadmusrefshistoricaldate)
+  - [HistoricalDateComponent](#historicaldatecomponent)
+  - [DatationComponent](#datationcomponent)
+  - [HistoricalDatePipe](#historicaldatepipe)
+  - [History](#history)
+    - [9.0.1](#901)
+    - [9.0.0](#900)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
 
 ## HistoricalDateComponent
@@ -12,11 +20,11 @@ Historical date editor.
 - 🔑 `HistoricalDateComponent`
 - 🚩 `cadmus-refs-historical-date`
 - ▶️ input:
-  - date (`HistoricalDateModel`)
-  - label (`string?`)
-  - disabled (`boolean?`)
+  - `date` (`HistoricalDateModel`)
+  - `label` (`string?`)
+  - `disabled` (`boolean?`)
 - 🔥 output:
-  - dateChange (`HistoricalDateModel`)
+  - `dateChange` (`HistoricalDateModel`)
 
 ## DatationComponent
 
@@ -25,11 +33,10 @@ Datation editor.
 - 🔑 `DatationComponent`
 - 🚩 `cadmus-refs-datation`
 - ▶️ input:
-  - datation (`DatationModel`)
-  - label (`string?`)
-- 📚 thesauri:
+  - `datation` (`DatationModel`)
+  - `label` (`string?`)
 - 🔥 output:
-  - datationChange (`DatationModel`)
+  - `datationChange` (`DatationModel`)
 
 ## HistoricalDatePipe
 
@@ -47,6 +54,10 @@ Example:
 ```
 
 ## History
+
+### 9.0.2
+
+- 2025-09-11: refactored for `OnPush`.
 
 ### 9.0.1
 

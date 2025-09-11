@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
@@ -37,6 +38,7 @@ import { Datation, DatationModel } from './datation';
     MatFormFieldModule,
     MatInputModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DatationComponent implements OnInit, OnDestroy {
   private _sub?: Subscription;

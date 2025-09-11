@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, input, effect, model, output } from '@angular/core';
+import { Component, OnInit, input, effect, model, output, ChangeDetectionStrategy, signal } from '@angular/core';
 import {
   FormGroup,
   FormControl,
@@ -49,6 +49,7 @@ import { DatationComponent } from '../datation/datation.component';
     MatSlideToggleModule,
     DatationComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HistoricalDateComponent implements OnInit {
   private _sub?: Subscription;
@@ -69,12 +70,12 @@ export class HistoricalDateComponent implements OnInit {
   public readonly disabled = input<boolean>();
 
   // set by date text:
-  public invalidDateText?: boolean;
-  public dateValue?: number;
-  public visualExpanded?: boolean;
+  public readonly invalidDateText = signal<boolean | undefined>(undefined);
+  public readonly dateValue = signal<number | undefined>(undefined);
+  public readonly visualExpanded = signal<boolean | undefined>(undefined);
   // set by events:
-  public a?: DatationModel;
-  public b?: DatationModel;
+  public readonly a = signal<DatationModel | undefined>(undefined);
+  public readonly b = signal<DatationModel | undefined>(undefined);
 
   // form
   public form: FormGroup;
@@ -93,7 +94,7 @@ export class HistoricalDateComponent implements OnInit {
     // when disabled change, toggle form
     effect(() => {
       if (this.disabled()) {
-        this.visualExpanded = false;
+        this.visualExpanded.set(false);
         this.form.disable();
       } else {
         this.form.enable();
@@ -113,15 +114,15 @@ export class HistoricalDateComponent implements OnInit {
       .subscribe((text) => {
         const hd = HistoricalDate.parse(text);
         if (hd) {
-          this.invalidDateText = false;
-          this.dateValue = hd.getSortValue();
+          this.invalidDateText.set(false);
+          this.dateValue.set(hd.getSortValue());
           this.range.setValue(hd.getDateType() === HistoricalDateType.range);
-          this.a = hd.a;
-          this.b = hd.b;
+          this.a.set(hd.a);
+          this.b.set(hd.b);
           this.date.set(hd);
         } else {
-          this.invalidDateText = true;
-          this.dateValue = 0;
+          this.invalidDateText.set(true);
+          this.dateValue.set(0);
         }
       });
     this.updateForm(this.date());
@@ -149,28 +150,28 @@ export class HistoricalDateComponent implements OnInit {
   }
 
   public onDatationAChange(datation: DatationModel | undefined): void {
-    this.a = datation;
+    this.a.set(datation);
   }
 
   public onDatationBChange(datation: DatationModel | undefined): void {
-    this.b = datation;
+    this.b.set(datation);
   }
 
   public resetDatations(): void {
     this.range.setValue(false);
-    this.a = undefined;
-    this.b = undefined;
+    this.a.set(undefined);
+    this.b.set(undefined);
   }
 
   public setDatations(): void {
     const hd = new HistoricalDate();
-    hd.a = new Datation(this.a);
+    hd.a = new Datation(this.a());
     if (this.range.value) {
-      hd.b = new Datation(this.b);
+      hd.b = new Datation(this.b());
     }
 
     this.dateText.setValue(hd.toString());
-    this.visualExpanded = false;
+    this.visualExpanded.set(false);
     this.updateFromText();
   }
 
@@ -178,20 +179,20 @@ export class HistoricalDateComponent implements OnInit {
     try {
       const hd = HistoricalDate.parse(this.dateText.value);
       if (hd) {
-        this.invalidDateText = false;
-        this.dateValue = hd.getSortValue();
+        this.invalidDateText.set(false);
+        this.dateValue.set(hd.getSortValue());
         this.range.setValue(hd.getDateType() === HistoricalDateType.range);
-        this.a = hd.a;
-        this.b = hd.b;
+        this.a.set(hd.a);
+        this.b.set(hd.b);
         this.date.set(hd);
       } else {
-        this.invalidDateText = true;
-        this.dateValue = 0;
+        this.invalidDateText.set(true);
+        this.dateValue.set(0);
       }
     } catch (error) {
       console.log(error);
-      this.invalidDateText = true;
-      this.dateValue = 0;
+      this.invalidDateText.set(true);
+      this.dateValue.set(0);
     }
   }
 

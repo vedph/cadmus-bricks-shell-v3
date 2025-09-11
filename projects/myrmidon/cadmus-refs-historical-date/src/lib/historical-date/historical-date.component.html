@@ -10,13 +10,13 @@
       <mat-hint>A or A--B</mat-hint>
     </mat-form-field>
     <span>
-      @if (dateText.value && invalidDateText) {
+      @if (dateText.value && invalidDateText()) {
       <mat-icon class="mat-warn">error</mat-icon>
       }
     </span>
     <span>
-      @if (!invalidDateText) {
-      <span class="date-sort-value"> {{ dateValue | number : "1.2-2" }}</span>
+      @if (!invalidDateText()) {
+      <span class="date-sort-value"> {{ dateValue() | number : "1.2-2" }}</span>
       }
     </span>
     <button
@@ -24,30 +24,29 @@
       mat-icon-button
       matTooltip="Toggle visual editor"
       [disabled]="disabled()"
-      (click)="visualExpanded = !visualExpanded"
+      (click)="visualExpanded.set(!visualExpanded())"
     >
-      @if (visualExpanded) {
+      @if (visualExpanded()) {
       <mat-icon class="mat-primary">publish</mat-icon>
-      } @if (!visualExpanded) {
+      } @if (!visualExpanded()) {
       <mat-icon class="mat-primary">get_app</mat-icon>
       }
     </button>
   </div>
 
   <mat-expansion-panel
-    [expanded]="!disabled() && visualExpanded"
-    (expandedChange)="!disabled() && (visualExpanded = $event)"
-    style="max-width: 500px"
+    [expanded]="!disabled() && visualExpanded()"
+    (expandedChange)="!disabled() && visualExpanded.set($event)"
   >
     <cadmus-refs-datation
-      [datation]="a"
+      [datation]="a()"
       (datationChange)="onDatationAChange($event)"
       [label]="'A'"
     />
 
     @if (range.value) {
     <cadmus-refs-datation
-      [datation]="b"
+      [datation]="b()"
       (datationChange)="onDatationBChange($event)"
       [label]="'B'"
     />

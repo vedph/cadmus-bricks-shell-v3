@@ -137,6 +137,7 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-refs-assertion` (10.0.4)
 - `@myrmidon/cadmus-refs-citation` (1.0.2)
 - `@myrmidon/cadmus-refs-doc-references` (10.0.2)
+- `@myrmidon/cadmus-refs-historical-date` (9.0.2)
 - `@myrmidon/cadmus-refs-lookup` (10.0.3)
 - `@myrmidon/cadmus-text-ed` (9.0.1)
 - `@myrmidon/cadmus-text-ed-md` (10.0.3)
@@ -166,6 +167,7 @@ Check that this Angular component has been properly refactored to use Signals an
 - 2025-09-11:
   - removed NG0912 component collision from the app by importing from NPM packages only.
   - refactored `@myrmidon/cadmus-refs-citation` for `OnPush`.
+  - refactored `@myrmidon/cadmus-refs-historical-date` for `OnPush`.
 - 2025-09-10:
   - refactored `@myrmidon/cadmus-cod-location` for `OnPush`.
   - refactored `@myrmidon/cadmus-mat-physical-grid` for `OnPush`.
