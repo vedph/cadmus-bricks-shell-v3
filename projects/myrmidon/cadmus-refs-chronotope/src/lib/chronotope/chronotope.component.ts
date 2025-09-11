@@ -1,10 +1,9 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
   model,
-  OnDestroy,
-  OnInit,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -14,9 +13,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, filter } from 'rxjs/operators';
 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -61,11 +60,10 @@ export interface Chronotope {
     MatSlideToggleModule,
     HistoricalDateComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChronotopeComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
-  private _updatingForm: boolean | undefined;
-  private _dropNextInput?: boolean;
+export class ChronotopeComponent {
+  private _updatingForm = false;
 
   /**
    * The chronotope to edit.
@@ -77,77 +75,88 @@ export class ChronotopeComponent implements OnInit, OnDestroy {
 
   public tag: FormControl<string | null>;
   public place: FormControl<string | null>;
+  public date: FormControl<HistoricalDateModel | null>;
   public hasDate: FormControl<boolean>;
   public form: FormGroup;
-
-  public initialDate?: HistoricalDateModel;
-  public date?: HistoricalDateModel;
 
   constructor(formBuilder: FormBuilder) {
     this.tag = formBuilder.control(null, Validators.maxLength(50));
     this.place = formBuilder.control(null, Validators.maxLength(50));
+    this.date = formBuilder.control(null);
     this.hasDate = formBuilder.control(false, { nonNullable: true });
     this.form = formBuilder.group({
       tag: this.tag,
       place: this.place,
+      date: this.date,
       hasDate: this.hasDate,
     });
 
     // when chronotope changes, update form
     effect(() => {
-      if (this._dropNextInput) {
-        this._dropNextInput = false;
-        return;
-      }
-      this.updateForm(this.chronotope());
+      const chronotope = this.chronotope();
+      this.updateForm(chronotope);
     });
-  }
 
-  public ngOnInit(): void {
-    this._sub = this.form.valueChanges
-      .pipe(debounceTime(350))
-      .subscribe((_) => {
-        if (!this._updatingForm) {
-          this.emitChronotopeChange();
-        }
+    // autosave
+    this.form.valueChanges
+      .pipe(
+        filter(() => {
+          // only save if form is valid and, if hasDate is true, date is set
+          const values = this.form.getRawValue();
+          return (
+            !this._updatingForm &&
+            this.form.valid &&
+            (!values.hasDate || !!values.date)
+          );
+        }),
+        debounceTime(500),
+        takeUntilDestroyed()
+      )
+      .subscribe(() => {
+        this.save();
       });
   }
 
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
+  private updateForm(chronotope: Chronotope | undefined): void {
+    this._updatingForm = true;
+
+    if (!chronotope) {
+      this.form.reset();
+    } else {
+      this.tag.setValue(chronotope.tag || null, { emitEvent: false });
+      this.place.setValue(chronotope.place || null, { emitEvent: false });
+      this.date.setValue(chronotope.date || null, { emitEvent: false });
+      this.hasDate.setValue(chronotope.date ? true : false, {
+        emitEvent: false,
+      });
+      this.form.markAsPristine();
+    }
+
+    this._updatingForm = false;
   }
 
   public onDateChange(date?: HistoricalDateModel): void {
-    this.date = date;
-    setTimeout(() => this.emitChronotopeChange(), 0);
-  }
-
-  private updateForm(value: Chronotope | undefined): void {
-    this._updatingForm = true;
-    if (!value) {
-      this.initialDate = undefined;
-      this.form.reset();
-    } else {
-      this.initialDate = value.date;
-      this.tag.setValue(value.tag || null);
-      this.place.setValue(value.place || null);
-      this.hasDate.setValue(value.date ? true : false);
-      this.form.markAsPristine();
-    }
-    this._updatingForm = false;
-    this.emitChronotopeChange();
+    this.date.setValue(date || null);
+    this.date.updateValueAndValidity();
+    // this.save();
   }
 
   private getChronotope(): Chronotope {
     return {
       tag: this.tag.value?.trim(),
       place: this.place.value?.trim(),
-      date: this.hasDate.value ? this.date : undefined,
+      date: this.hasDate.value && this.date.value ? this.date.value : undefined,
     };
   }
 
-  public emitChronotopeChange(): void {
-    this._dropNextInput = true;
+  public save(pristine = true): void {
+    if (this.form.invalid || (this.hasDate.value && !this.date.value)) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.chronotope.set(this.getChronotope());
+    if (pristine) {
+      this.form.markAsPristine();
+    }
   }
 }

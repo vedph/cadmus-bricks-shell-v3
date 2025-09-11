@@ -39,9 +39,9 @@
   @if (hasDate.value) {
   <div>
     <cadmus-refs-historical-date
-      [date]="initialDate"
+      [date]="date.value || undefined"
       (dateChange)="onDateChange($event)"
-    ></cadmus-refs-historical-date>
+    />
   </div>
   }
 </form>
