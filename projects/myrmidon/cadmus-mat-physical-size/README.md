@@ -79,7 +79,41 @@ This component allows you to edit a set of physical measurements. For each one y
 - 🔥 output:
   - `measurementsChange` (`PhysicalMeasurement[]`)
 
+## PhysicalSizePipe
+
+The `PhysicalSizePipe` is an Angular pipe that formats a PhysicalSize object into a human-readable string, displaying its width, height, and (optionally) depth, with their units.
+
+Add the pipe to your template to display a formatted physical size:
+
+```html
+<!-- Example usage in a template -->
+<span>{{ size | physicalSize }}</span>
+```
+
+Parameters:
+
+- `value` (PhysicalSize): The physical size object to format.
+- `hBeforeW` (boolean, optional, default: false): If true, displays height -before width (e.g., "10 × 20 cm" instead of "20 × 10 cm").
+
+Examples:
+
+```html
+{{ size | physicalSize }}
+<!-- e.g.: 20.00 × 10.00 × 5.00 cm -->
+```
+
+Height before width:
+
+```html
+{{ size | physicalSize:true }}
+<!-- e.g.: 10.00 × 20.00 × 5.00 cm -->
+ ```
+
 ## History
+
+### 9.0.10
+
+- 2025-09-12: fix to default sizes.
 
 ### 9.0.9
 

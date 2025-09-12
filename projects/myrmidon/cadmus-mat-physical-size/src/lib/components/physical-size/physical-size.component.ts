@@ -229,21 +229,6 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
       this.updateForm(size);
     });
 
-    // when defaultWUnit changes, update control
-    effect(() => {
-      this.wUnit.setValue(this.defaultWUnit());
-    });
-
-    // when defaultHUnit changes, update control
-    effect(() => {
-      this.hUnit.setValue(this.defaultHUnit());
-    });
-
-    // when defaultDUnit changes, update control
-    effect(() => {
-      this.dUnit.setValue(this.defaultDUnit());
-    });
-
     // when hBeforeW changes, update text
     effect(() => {
       setTimeout(() => {
@@ -363,39 +348,47 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     this.dUnit.setValue(this.defaultDUnit(), { emitEvent: false });
   }
 
-  private updateForm(model?: PhysicalSize | null): void {
-    if (!model) {
+  private updateForm(size?: PhysicalSize | null): void {
+    if (!size) {
       this.form.reset({ emitEvent: false });
       this.resetUnits();
-      // this.label.set(undefined);
     } else {
-      this.tag.setValue(model.tag || null, { emitEvent: false });
-      this.note.setValue(model.note || null, { emitEvent: false });
+      this.tag.setValue(size.tag || null, { emitEvent: false });
+      this.note.setValue(size.note || null, { emitEvent: false });
 
-      if (model.w?.value) {
-        this.wValue.setValue(model.w.value, { emitEvent: false });
-        this.wUnit.setValue(model.w.unit, { emitEvent: false });
-        this.wTag.setValue(model.w.tag || null, { emitEvent: false });
+      if (size.w?.value) {
+        this.wValue.setValue(size.w.value, { emitEvent: false });
+        // use the model's unit if available, otherwise use default
+        this.wUnit.setValue(size.w.unit || this.defaultWUnit(), {
+          emitEvent: false,
+        });
+        this.wTag.setValue(size.w.tag || null, { emitEvent: false });
       } else {
         this.wValue.reset(undefined, { emitEvent: false });
         this.wUnit.setValue(this.defaultWUnit(), { emitEvent: false });
         this.wTag.reset(undefined, { emitEvent: false });
       }
 
-      if (model.h?.value) {
-        this.hValue.setValue(model.h.value, { emitEvent: false });
-        this.hUnit.setValue(model.h.unit, { emitEvent: false });
-        this.hTag.setValue(model.h.tag || null, { emitEvent: false });
+      if (size.h?.value) {
+        this.hValue.setValue(size.h.value, { emitEvent: false });
+        // use the model's unit if available, otherwise use default
+        this.hUnit.setValue(size.h.unit || this.defaultHUnit(), {
+          emitEvent: false,
+        });
+        this.hTag.setValue(size.h.tag || null, { emitEvent: false });
       } else {
         this.hValue.reset(undefined, { emitEvent: false });
         this.hUnit.setValue(this.defaultHUnit(), { emitEvent: false });
         this.hTag.reset(undefined, { emitEvent: false });
       }
 
-      if (model.d?.value) {
-        this.dValue.setValue(model.d.value, { emitEvent: false });
-        this.dUnit.setValue(model.d.unit, { emitEvent: false });
-        this.dTag.setValue(model.d.tag || null, { emitEvent: false });
+      if (size.d?.value) {
+        this.dValue.setValue(size.d.value, { emitEvent: false });
+        // use the model's unit if available, otherwise use default
+        this.dUnit.setValue(size.d.unit || this.defaultDUnit(), {
+          emitEvent: false,
+        });
+        this.dTag.setValue(size.d.tag || null, { emitEvent: false });
       } else {
         this.dValue.reset(undefined, { emitEvent: false });
         this.dUnit.setValue(this.defaultDUnit(), { emitEvent: false });
@@ -403,7 +396,6 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
       }
 
       this.form.markAsPristine();
-      // this.updateLabel();
     }
   }
 
