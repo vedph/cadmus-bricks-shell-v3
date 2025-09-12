@@ -126,9 +126,9 @@ ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
 
 ## OnPush Progress
 
-Starting from versions above 9.0.7, bricks are getting a long-term refactoring to make components' state fully reactive (mostly via signals) and set their change detection strategy to OnPush. This will be required for future migration to zone-less.
+Starting from image versions above 9.0.7, bricks are getting a long-term refactoring to make components' state fully reactive (mostly via signals) and set their change detection strategy to `OnPush`. This will be required for future migration to zone-less.
 
-These changes will not affect compatibility in any way, so it is safe to progressively enhance libraries. In this section I am keeping track of the changes. The following list contains the libraries which have been refactored until now:
+These changes will not affect compatibility in any way, so it is safe to progressively enhance libraries. The following list contains the libraries which have been refactored:
 
 - `@myrmidon/cadmus-cod-location` (9.0.2)
 - `@myrmidon/cadmus-mat-physical-grid` (9.0.2)

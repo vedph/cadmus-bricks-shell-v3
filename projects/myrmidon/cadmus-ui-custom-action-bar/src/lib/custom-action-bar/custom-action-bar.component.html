@@ -3,7 +3,7 @@
   <button
     type="button"
     mat-icon-button
-    [ngStyle]="action.style || null"
+    [style]="action.style || null"
     [matTooltip]="action?.tip || ''"
     [disabled]="
       disabled() || (action.disabled ? action.disabled(payload) : false)
