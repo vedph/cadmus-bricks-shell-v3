@@ -1,11 +1,12 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
   model,
   OnDestroy,
-  output,
   QueryList,
+  signal,
   ViewChildren,
 } from '@angular/core';
 import {
@@ -63,6 +64,7 @@ export interface RankedExternalId extends ExternalId {
     MatTooltipModule,
     AssertionComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExternalIdsComponent implements OnDestroy {
   private _idSubscription: Subscription | undefined;
@@ -88,24 +90,21 @@ export class ExternalIdsComponent implements OnDestroy {
 
   // assertion-tags
   public readonly assTagEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-types
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
   public idsArr: FormArray;
   public form: FormGroup;
+
   // edited assertion
-  public assEdOpen: boolean;
-  public assertionNr?: number;
-  public initialAssertion?: Assertion;
-  public assertion?: Assertion;
+  public readonly assEdOpen = signal<boolean>(false);
+  public readonly assertionNr = signal<number>(0);
+  public readonly assertion = signal<Assertion | undefined>(undefined);
 
   constructor(private _formBuilder: FormBuilder) {
     this._idsSubs = [];
-    this.assEdOpen = false;
     // form
     this.idsArr = _formBuilder.array([]);
     this.form = _formBuilder.group({
@@ -225,22 +224,22 @@ export class ExternalIdsComponent implements OnDestroy {
     // save the currently edited assertion if any
     this.saveAssertion();
     // edit the new assertion
-    this.initialAssertion = (this.idsArr.at(index) as FormGroup).controls[
+    this.assertion.set((this.idsArr.at(index) as FormGroup).controls[
       'assertion'
-    ].value;
-    this.assertionNr = index + 1;
-    this.assEdOpen = true;
+    ].value);
+    this.assertionNr.set(index + 1);
+    this.assEdOpen.set(true);
   }
 
   public onAssertionChange(assertion: Assertion | undefined): void {
-    this.assertion = assertion;
+    this.assertion.set(assertion);
   }
 
   public saveAssertion(): void {
     // save the currently edited assertion if any
     if (this.assertionNr) {
-      const g = this.idsArr.at(this.assertionNr - 1) as FormGroup;
-      g.controls['assertion'].setValue(this.assertion);
+      const g = this.idsArr.at(this.assertionNr()! - 1) as FormGroup;
+      g.controls['assertion'].setValue(this.assertion());
       this.closeAssertion();
       this.emitIdsChange();
     }
@@ -248,9 +247,9 @@ export class ExternalIdsComponent implements OnDestroy {
 
   private closeAssertion(): void {
     if (this.assertionNr) {
-      this.assEdOpen = false;
-      this.assertionNr = 0;
-      this.initialAssertion = undefined;
+      this.assEdOpen.set(false);
+      this.assertionNr.set(0);
+      this.assertion.set(undefined);
     }
   }
 

@@ -4,6 +4,8 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
+⚠️ This library is no longer in use.
+
 ## History
 
 ### 9.0.0

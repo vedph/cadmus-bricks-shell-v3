@@ -14,35 +14,37 @@
     $first; let last = $last) {
     <div>
       <!-- child form -->
-      <div [formGroupName]="i">
+      <div [formGroupName]="i" class="form-row">
         <!-- child actions -->
-        {{ i + 1 }}.
-        <button
-          mat-icon-button
-          type="button"
-          matTooltip="Remove this ID"
-          (click)="removeId(i)"
-        >
-          <mat-icon class="mat-warn">remove_circle</mat-icon>
-        </button>
-        <button
-          [disabled]="first"
-          mat-icon-button
-          type="button"
-          matTooltip="Move ID up"
-          (click)="moveIdUp(i)"
-        >
-          <mat-icon>arrow_upward</mat-icon>
-        </button>
-        <button
-          [disabled]="last"
-          mat-icon-button
-          type="button"
-          matTooltip="Move ID down"
-          (click)="moveIdDown(i)"
-        >
-          <mat-icon>arrow_downward</mat-icon>
-        </button>
+        <div>{{ i + 1 }}.</div>
+        <div>
+          <button
+            mat-icon-button
+            type="button"
+            matTooltip="Remove this ID"
+            (click)="removeId(i)"
+          >
+            <mat-icon class="mat-warn">remove_circle</mat-icon>
+          </button>
+          <button
+            [disabled]="first"
+            mat-icon-button
+            type="button"
+            matTooltip="Move ID up"
+            (click)="moveIdUp(i)"
+          >
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <button
+            [disabled]="last"
+            mat-icon-button
+            type="button"
+            matTooltip="Move ID down"
+            (click)="moveIdDown(i)"
+          >
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+        </div>
         <!-- child controls -->
         <!-- value -->
         <mat-form-field>
@@ -58,10 +60,9 @@
           <mat-error>ID too long </mat-error>
           }
         </mat-form-field>
-        &nbsp;
         <!-- scope (bound) -->
         @if (scopeEntries()?.length) {
-        <mat-form-field style="width: 8em">
+        <mat-form-field>
           <mat-label>scope</mat-label>
           <mat-select formControlName="scope">
             @for (e of scopeEntries(); track e) {
@@ -74,7 +75,7 @@
         }
         <!-- scope (free) -->
         @else {
-        <mat-form-field style="width: 8em">
+        <mat-form-field>
           <mat-label>scope</mat-label>
           <input matInput formControlName="scope" />
           @if ( $any(item)['controls'].scope?.hasError('max-length') &&
@@ -83,10 +84,10 @@
           <mat-error>scope too long </mat-error>
           }
         </mat-form-field>
-        } &nbsp;
+        }
         <!-- tag (bound) -->
         @if (tagEntries()?.length) {
-        <mat-form-field style="width: 8em">
+        <mat-form-field>
           <mat-label>tag</mat-label>
           <mat-select formControlName="tag">
             @for (e of tagEntries(); track e) {
@@ -99,7 +100,7 @@
         }
         <!-- tag (free) -->
         @else {
-        <mat-form-field style="width: 8em">
+        <mat-form-field>
           <mat-label>tag</mat-label>
           <input matInput formControlName="tag" />
           @if ( $any(item)['controls'].tag?.hasError('max-length') &&
@@ -109,8 +110,7 @@
           }
         </mat-form-field>
         }
-        <!-- assertion -->
-        &nbsp;
+        <!-- button -->
         <button
           type="button"
           mat-icon-button
@@ -124,17 +124,21 @@
     }
     <!-- assertion -->
     @if (idsArr.length) {
-    <mat-expansion-panel [disabled]="!assertionNr" [(expanded)]="assEdOpen">
+    <mat-expansion-panel
+      [disabled]="!assertionNr()"
+      [expanded]="assEdOpen()"
+      (expandedChange)="assEdOpen.set($event)"
+    >
       <mat-expansion-panel-header
-        >#{{ assertionNr }} assertion</mat-expansion-panel-header
+        >#{{ assertionNr() }} assertion</mat-expansion-panel-header
       >
       <cadmus-refs-assertion
-        [assertion]="initialAssertion"
+        [assertion]="assertion()"
         [assTagEntries]="assTagEntries()"
         [refTagEntries]="refTagEntries()"
         [refTypeEntries]="refTypeEntries()"
         (assertionChange)="onAssertionChange($event)"
-      ></cadmus-refs-assertion>
+      />
       <button
         class="mat-primary"
         type="button"
