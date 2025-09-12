@@ -1,7 +1,30 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+tbody tr:nth-child(odd) {
+  background-color: #e2e2e2;
+}
 th {
+  text-align: left;
   font-weight: normal;
   color: silver;
-  text-align: left;
+}
+td.fit-width {
+  width: 1px;
+  white-space: nowrap;
+}
+td.type {
+  background-color: #e0e0e0;
+  padding: 4px;
+}
+td.value {
+  border: 1px solid silver;
+  padding: 4px;
+  min-width: 150px;
+}
+tr.selected {
+  background-color: #d0d0d0 !important;
 }
 .nr {
   background-color: #f0f0f0;
@@ -22,18 +45,6 @@ th {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-}
-table {
-  border-collapse: collapse;
-}
-td.type {
-  background-color: #e0e0e0;
-  padding: 4px;
-}
-td.value {
-  border: 1px solid silver;
-  padding: 4px;
-  min-width: 150px;
 }
 mat-expansion-panel {
   margin: 8px 0;

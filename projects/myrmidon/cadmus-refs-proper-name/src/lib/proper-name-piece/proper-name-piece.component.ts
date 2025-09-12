@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   effect,
   input,
@@ -6,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
   output,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -53,6 +55,7 @@ import { ProperNamePiece, TypeThesaurusEntry } from '../models';
     MatSelectModule,
     MatTooltipModule,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProperNamePieceComponent implements OnInit, OnDestroy {
   // input sources to be combined
@@ -82,7 +85,7 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
   public form: FormGroup;
 
   // the preset values (if any) of the current type
-  public typeValues: ThesaurusEntry[];
+  public readonly typeValues = signal<ThesaurusEntry[]>([]);
 
   constructor(formBuilder: FormBuilder) {
     this.type = formBuilder.control(null, Validators.required);
@@ -98,7 +101,6 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
     this._types$ = new BehaviorSubject<TypeThesaurusEntry[] | undefined>(
       undefined
     );
-    this.typeValues = [];
 
     // when piece changes, update the stream
     effect(() => {
@@ -143,20 +145,20 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
   private updateTypeValues(): void {
     // no preset values if no types
     if (!this._types$.value?.length) {
-      this.typeValues = [];
+      this.typeValues.set([]);
     } else {
       // get type's values if any
       const type = this.type.value as TypeThesaurusEntry;
       if (type?.values?.length) {
-        this.typeValues = type.values;
+        this.typeValues.set(type.values);
       } else {
-        this.typeValues = [];
+        this.typeValues.set([]);
       }
       // if we got values and there is an invalid value, reset it
       if (
-        this.typeValues.length &&
+        this.typeValues().length &&
         this.value.value &&
-        this.typeValues.every((e) => e.id !== this.value.value)
+        this.typeValues().every((e) => e.id !== this.value.value)
       ) {
         this.value.reset();
       }
@@ -176,7 +178,7 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
     // type: TypeThesaurusEntry or string
     const typeEntity = types?.find((t) => t.id === piece!.type);
     this.type.setValue(typeEntity || piece?.type || null);
-    this.typeValues = typeEntity?.values || [];
+    this.typeValues.set(typeEntity?.values || []);
 
     // value: ThesaurusEntry or string
     this.value.setValue(

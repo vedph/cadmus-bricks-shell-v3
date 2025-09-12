@@ -2,6 +2,14 @@
 
 📦 `@myrmidon/cadmus-refs-proper-name`
 
+- [CadmusRefsProperName](#cadmusrefspropername)
+  - [ProperNameComponent](#propernamecomponent)
+  - [Editor](#editor)
+  - [ProperNamePipe](#propernamepipe)
+  - [History](#history)
+    - [10.0.2](#1002)
+    - [9.0.0](#900)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 ## ProperNameComponent
@@ -9,17 +17,17 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 - 🔑 `ProperNameComponent`
 - 🚩 `cadmus-refs-proper-name`
 - ▶️ input:
-  - name (`AssertedProperName`)
-  - hideAssertion (`boolean?`)
+  - `name` (`AssertedProperName`)
+  - `hideAssertion` (`boolean?`)
 - 📚 thesauri:
-  - `name-piece-types` (typeEntries)
-  - `name-languages` (langEntries)
-  - `name-tags` (tagEntries)
-  - `assertion-tags` (assTagEntries)
-  - `doc-reference-types` (refTypeEntries)
-  - `doc-reference-tags` (refTagEntries)
+  - `name-piece-types` (for `typeEntries`)
+  - `name-languages` (for `langEntries`)
+  - `name-tags` (for `tagEntries`)
+  - `assertion-tags` (for `assTagEntries`)
+  - `doc-reference-types` (for `refTypeEntries`)
+  - `doc-reference-tags` (for `refTagEntries`)
 - 🔥 output:
-  - nameChange (`AssertedProperName`)
+  - `nameChange` (`AssertedProperName`)
 
 ## Editor
 
@@ -123,6 +131,10 @@ The `properName` concatenates all the name's pieces in their order, eventually f
 - `legend`: true to append the types legend to the concatenated values.
 
 ## History
+
+### 10.0.2
+
+- 2025-09-12: refactored for `OnPush`.
 
 ### 9.0.0
 

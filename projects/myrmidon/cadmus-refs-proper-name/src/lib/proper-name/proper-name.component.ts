@@ -1,11 +1,13 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   input,
   model,
   OnDestroy,
   OnInit,
-  output,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -74,17 +76,19 @@ export interface AssertedProperName extends ProperName {
     ProperNamePieceComponent,
     FlatLookupPipe,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProperNameComponent implements OnInit, OnDestroy {
   private readonly _subs: Subscription[] = [];
-  private _updating?: boolean;
   private _typeEntries$: BehaviorSubject<ThesaurusEntry[] | undefined>;
   private _name$: BehaviorSubject<AssertedProperName | undefined>;
 
-  public pieceTypes: TypeThesaurusEntry[];
-  public editedPieceIndex: number;
-  public editedPiece?: ProperNamePiece;
-  public purgedTypeEntries?: ThesaurusEntry[];
+  public readonly pieceTypes = signal<TypeThesaurusEntry[]>([]);
+  public readonly editedPieceIndex = signal<number>(-1);
+  public readonly editedPiece = signal<ProperNamePiece | undefined>(undefined);
+  public readonly purgedTypeEntries = signal<ThesaurusEntry[] | undefined>(
+    undefined
+  );
 
   /**
    * The proper name.
@@ -95,12 +99,10 @@ export class ProperNameComponent implements OnInit, OnDestroy {
    * The optional thesaurus name piece's type entries (name-piece-types).
    */
   public readonly typeEntries = input<ThesaurusEntry[]>();
-
   /**
    * The optional thesaurus proper name languages entries (name-languages).
    */
   public readonly langEntries = input<ThesaurusEntry[]>();
-
   /**
    * The optional thesaurus name's tag entries (name-tags).
    */
@@ -109,10 +111,8 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   // thesauri for assertions
   // assertion-tags
   public readonly assTagEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-types
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
-
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
@@ -127,20 +127,21 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   public pieces: FormControl<ProperNamePiece[]>;
   public assertion: FormControl<Assertion | null>;
   public form: FormGroup;
-  // edited assertion
-  public assEdOpen: boolean;
 
-  public ordered?: boolean;
-  public valueEntries: ThesaurusEntry[];
+  // edited assertion
+  public readonly assEdOpen = signal<boolean>(false);
+  public readonly ordered = computed(() =>
+    this.pieceTypes().some((t) => t.ordinal)
+  );
+  public readonly valueEntries = computed(() =>
+    this._nameService.getValueEntries(this.pieceTypes())
+  );
 
   constructor(
     formBuilder: FormBuilder,
     private _nameService: ProperNameService
   ) {
-    this.assEdOpen = false;
-    this.editedPieceIndex = -1;
-    this.pieceTypes = [];
-    this.valueEntries = [];
+    this.assEdOpen.set(false);
 
     // main form
     this.language = formBuilder.control(null, [
@@ -212,26 +213,28 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   private updatePurgedTypeEntries(): void {
     if (this._typeEntries$.value) {
       // copy all entries by removing last * from IDs if present
-      this.purgedTypeEntries = this._typeEntries$.value.map((e) => {
-        return e.id[e.id.length - 1] === '*'
-          ? { ...e, id: e.id.substring(0, e.id.length - 1) }
-          : e;
-      });
+      this.purgedTypeEntries.set(
+        this._typeEntries$.value.map((e) => {
+          return e.id[e.id.length - 1] === '*'
+            ? { ...e, id: e.id.substring(0, e.id.length - 1) }
+            : e;
+        })
+      );
     } else {
-      this.purgedTypeEntries = undefined;
+      this.purgedTypeEntries.set(undefined);
     }
   }
 
   //#region Pieces
   public editPiece(piece: ProperNamePiece, index: number): void {
-    this.editedPieceIndex = index;
-    this.editedPiece = piece;
+    this.editedPieceIndex.set(index);
+    this.editedPiece.set(piece);
   }
 
   public addPiece(): void {
     this.editPiece(
       {
-        type: this.pieceTypes.length ? this.pieceTypes[0].id : '',
+        type: this.pieceTypes.length ? this.pieceTypes()[0].id : '',
         value: '',
       },
       -1
@@ -239,12 +242,12 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   }
 
   public closePiece(): void {
-    this.editedPieceIndex = -1;
-    this.editedPiece = undefined;
+    this.editedPieceIndex.set(-1);
+    this.editedPiece.set(undefined);
   }
 
   private getTypeOrdinal(id: string): number {
-    return this.pieceTypes.find((t) => t.id === id)?.ordinal || -1;
+    return this.pieceTypes().find((t) => t.id === id)?.ordinal || -1;
   }
 
   private updatePieces(pieces: ProperNamePiece[]): void {
@@ -259,15 +262,15 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     const pieces = [...this.pieces.value];
 
     // just replace if editing an existing piece
-    if (this.editedPieceIndex > -1) {
-      pieces.splice(this.editedPieceIndex, 1, piece!);
+    if (this.editedPieceIndex() > -1) {
+      pieces.splice(this.editedPieceIndex(), 1, piece!);
       this.updatePieces(pieces);
       this.closePiece();
       return;
     }
 
     // also replace a single piece if one is already present
-    const type = this.pieceTypes.find((t) => t.id === piece!.type);
+    const type = this.pieceTypes().find((t) => t.id === piece!.type);
     if (type?.single) {
       const i = this.pieces.value.findIndex((p) => p.type === piece!.type);
       if (i > -1) {
@@ -279,7 +282,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     }
 
     // else add: if ordered, insert at the right place; else just append
-    if (this.ordered && pieces.length) {
+    if (this.ordered() && pieces.length) {
       const n = type?.ordinal || 0;
       const i = n
         ? pieces.findIndex((p) => n < this.getTypeOrdinal(p.type))
@@ -304,7 +307,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     this.pieces.markAsDirty();
     this.pieces.updateValueAndValidity();
 
-    if (this.editedPieceIndex === index) {
+    if (this.editedPieceIndex() === index) {
       this.closePiece();
     }
 
@@ -343,31 +346,23 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   }
   //#endregion
 
-  private updateValueEntries(types: TypeThesaurusEntry[]): void {
-    this.valueEntries = this._nameService.getValueEntries(types);
-  }
-
   private updateForm(
     name?: AssertedProperName,
     typeEntries?: ThesaurusEntry[]
   ): void {
     this.closePiece();
-    this.assEdOpen = false;
+    this.assEdOpen.set(false);
 
     // no name
     if (!name) {
       this.pieces.setValue([]);
       this.form.reset();
-      this.pieceTypes = this._nameService.parseTypeEntries(typeEntries);
-      this.ordered = this.pieceTypes.some((t) => t.ordinal);
-      this.updateValueEntries(this.pieceTypes);
+      this.pieceTypes.set(this._nameService.parseTypeEntries(typeEntries));
       return;
     }
 
     // name
-    this.pieceTypes = this._nameService.parseTypeEntries(typeEntries);
-    this.ordered = this.pieceTypes.some((t) => t.ordinal);
-    this.updateValueEntries(this.pieceTypes);
+    this.pieceTypes.set(this._nameService.parseTypeEntries(typeEntries));
 
     this.language.setValue(name.language, { emitEvent: false });
     this.tag.setValue(name.tag || null, { emitEvent: false });
@@ -384,7 +379,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
 
   public saveAssertion(): void {
     this.name.set(this.getName());
-    this.assEdOpen = false;
+    this.assEdOpen.set(false);
   }
 
   private getName(): AssertedProperName | undefined {

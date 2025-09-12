@@ -72,17 +72,17 @@
     <tbody>
       @for ( piece of pieces.value; track piece; let i = $index; let first =
       $first; let last = $last) {
-      <tr>
-        <td>
+      <tr [class.selected]="i === editedPieceIndex()">
+        <td class="fit-width">
           <span class="nr">{{ i + 1 }}.</span>
         </td>
-        <td class="type">
-          {{ piece.type | flatLookup : purgedTypeEntries : "id" : "value" }}
+        <td class="fit-width">
+          {{ piece.type | flatLookup : purgedTypeEntries() : "id" : "value" }}
         </td>
         <td class="value">
-          {{ piece.value | flatLookup : valueEntries : "id" : "value" }}
+          {{ piece.value | flatLookup : valueEntries() : "id" : "value" }}
         </td>
-        <td class="button-row">
+        <td class="fit-width">
           <button
             mat-icon-button
             type="button"
@@ -99,7 +99,7 @@
           >
             <mat-icon class="mat-warn">remove_circle</mat-icon>
           </button>
-          @if (!ordered) {
+          @if (!ordered()) {
           <button
             [disabled]="first"
             mat-icon-button
@@ -126,26 +126,31 @@
   </table>
 
   <!-- piece -->
-  <mat-expansion-panel [disabled]="!editedPiece" [expanded]="editedPiece">
+  @if (editedPiece()) {
+  <mat-expansion-panel [disabled]="!editedPiece()" [expanded]="editedPiece()">
     <mat-expansion-panel-header>
       {{
-        editedPieceIndex === -1
+        editedPieceIndex() === -1
           ? "new piece"
-          : "piece #" + (editedPieceIndex + 1)
+          : "piece #" + (editedPieceIndex() + 1)
       }}</mat-expansion-panel-header
     >
     <cadmus-refs-proper-name-piece
-      [piece]="editedPiece!"
-      [types]="pieceTypes"
+      [piece]="editedPiece()!"
+      [types]="pieceTypes()"
       (editorClose)="closePiece()"
       (pieceChange)="savePiece($event)"
-    ></cadmus-refs-proper-name-piece>
+    />
   </mat-expansion-panel>
+  }
 
   <!-- assertion -->
   @if (!hideAssertion()) {
   <div>
-    <mat-expansion-panel [(expanded)]="assEdOpen">
+    <mat-expansion-panel
+      [expanded]="assEdOpen()"
+      (expandedChange)="assEdOpen.set($event)"
+    >
       <mat-expansion-panel-header>assertion</mat-expansion-panel-header>
       <cadmus-refs-assertion
         [assertion]="assertion.value || undefined"
@@ -153,7 +158,7 @@
         [refTagEntries]="refTagEntries()"
         [refTypeEntries]="refTypeEntries()"
         (assertionChange)="onAssertionChange($event)"
-      ></cadmus-refs-assertion>
+      />
       <div style="margin: 8px 0">
         <button
           class="mat-primary"
