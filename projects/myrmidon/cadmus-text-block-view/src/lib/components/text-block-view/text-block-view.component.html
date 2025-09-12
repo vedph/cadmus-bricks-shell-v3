@@ -1,33 +1,32 @@
 <div class="cadmus-text-block-view-row">
   @for (block of blocks(); track getBlockId($index, block)) {
+  <div class="cadmus-text-block-view-col">
     <div
-      class="cadmus-text-block-view-col"
-      >
-      <div
-        class="cadmus-text-block-view-t"
-        [ngClass]="block.layerIds || [] | arrayIntersect : selectedIds()"
-        [id]="block.id"
-        (click)="onBlockClick(block, false)"
-        >
-        {{ block.text }}
-      </div>
-      @if (!block.htmlDecoration) {
-        <div
-          class="cadmus-text-block-view-d"
-          (click)="onBlockClick(block, true)"
-          [title]="block.tip"
-          >
-          {{ block.decoration }}
-        </div>
-      }
-      @if (block.htmlDecoration) {
-        <div
-          class="cadmus-text-block-view-row"
-          (click)="onBlockClick(block, true)"
-          [title]="block.tip"
-          [innerHtml]="block.decoration | safeHtml : 'html'"
-        ></div>
-      }
+      class="cadmus-text-block-view-t"
+      [class]="
+        (block.layerIds || [] | arrayIntersect : selectedIds()).join(' ')
+      "
+      [id]="block.id"
+      (click)="onBlockClick(block, false)"
+    >
+      {{ block.text }}
     </div>
+    @if (!block.htmlDecoration) {
+    <div
+      class="cadmus-text-block-view-d"
+      (click)="onBlockClick(block, true)"
+      [title]="block.tip"
+    >
+      {{ block.decoration }}
+    </div>
+    } @if (block.htmlDecoration) {
+    <div
+      class="cadmus-text-block-view-row"
+      (click)="onBlockClick(block, true)"
+      [title]="block.tip"
+      [innerHtml]="block.decoration | safeHtml : 'html'"
+    ></div>
+    }
+  </div>
   }
 </div>

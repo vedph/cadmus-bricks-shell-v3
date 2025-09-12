@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-text-block-view",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "description": "Cadmus - text blocks view.",
   "keywords": [
     "Cadmus",
@@ -17,6 +17,7 @@
   "peerDependencies": {
     "@angular/common": "^20.0.0",
     "@angular/core": "^20.0.0",
+    "@angular/material": "^20.0.0",
     "@myrmidon/ngx-mat-tools": "^1.0.0"
   },
   "dependencies": {

@@ -9,7 +9,11 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 - 🔑 `TextBlockViewComponent`
 - 🚩 `cadmus-text-block-view`
 - ▶️ input:
-  - blocks (`TextBlock[]`)
-  - selectedIds (`string[]?`)
+  - `blocks` (`TextBlock[]`)
+  - `selectedIds` (`string[]?`)
 - 🔥 output:
-  - blockClick (`TextBlockEventArgs`)
+  - `blockClick` (`TextBlockEventArgs`)
+
+## History
+
+- 2025-09-12: refactored for `OnPush`.
