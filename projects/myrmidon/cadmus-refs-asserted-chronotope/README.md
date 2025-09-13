@@ -7,6 +7,7 @@
   - [AssertedChronotopeSet](#assertedchronotopeset)
   - [AssertedChronotopesPipe](#assertedchronotopespipe)
   - [History](#history)
+    - [10.0.4](#1004)
     - [10.0.3](#1003)
     - [10.0.2](#1002)
     - [10.0.1](#1001)
@@ -50,9 +51,17 @@ A set of asserted chronotopes.
 
 - 🚩 `assertedChronotopes`
 
-A pipe to transform a single chronotope or an array of chronotopes into a string.
+A pipe to transform a single chronotope or an array of chronotopes into a string. Example:
+
+```html
+{{ chronotopes | assertedChronotopes }}
+```
 
 ## History
+
+### 10.0.4
+
+- 2025-09-13: fixed missing refactoring of `AssertedChronotopeSetComponent`.
 
 ### 10.0.3
 

@@ -5,7 +5,7 @@ import {
   input,
   model,
   OnInit,
-  output,
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -24,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
-import { NgxToolsValidators } from '@myrmidon/ngx-tools';
+import { deepCopy, NgxToolsValidators } from '@myrmidon/ngx-tools';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 import { HistoricalDatePipe } from '@myrmidon/cadmus-refs-historical-date';
 
@@ -55,9 +55,8 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedChronotopeSetComponent implements OnInit {
-  public editedIndex: number;
-  public initialChronotope: AssertedChronotope | undefined;
-  public editedChronotope: AssertedChronotope | undefined;
+  public readonly editedIndex = signal<number>(-1);
+  public readonly edited = signal<AssertedChronotope | undefined>(undefined);
 
   /**
    * The edited chronotopes.
@@ -77,7 +76,6 @@ export class AssertedChronotopeSetComponent implements OnInit {
   public form: FormGroup;
 
   constructor(formBuilder: FormBuilder, private _dialogService: DialogService) {
-    this.editedIndex = -1;
     // form
     this.entries = formBuilder.control([], {
       validators: NgxToolsValidators.strictMinLengthValidator(1),
@@ -119,37 +117,33 @@ export class AssertedChronotopeSetComponent implements OnInit {
     index = -1
   ): void {
     if (!chronotope) {
-      this.editedIndex = -1;
-      this.initialChronotope = undefined;
+      this.editedIndex.set(-1);
+      this.edited.set(undefined);
     } else {
-      // reset the chronotope editor and then edit the given one
-      this.initialChronotope = undefined;
-      setTimeout(() => {
-        this.editedIndex = index;
-        this.initialChronotope = chronotope;
-      }, 0);
+      this.editedIndex.set(index);
+      this.edited.set(deepCopy(chronotope));
     }
   }
 
   public onChronotopeChange(chronotope?: AssertedChronotope): void {
-    this.editedChronotope = chronotope!;
+    this.edited.set(chronotope!);
   }
 
   public onChronotopeSave(): void {
     if (
-      !this.editedChronotope ||
-      Object.keys(this.editedChronotope).length === 0 ||
-      (!this.editedChronotope.place && !this.editedChronotope.date)
+      !this.edited() ||
+      Object.keys(this.edited() || {}).length === 0 ||
+      (!this.edited()?.place && !this.edited()?.date)
     ) {
       return;
     }
 
     const chronotopes = [...this.entries.value];
 
-    if (this.editedIndex > -1) {
-      chronotopes.splice(this.editedIndex, 1, this.editedChronotope);
+    if (this.editedIndex() > -1) {
+      chronotopes.splice(this.editedIndex(), 1, this.edited()!);
     } else {
-      chronotopes.push(this.editedChronotope);
+      chronotopes.push(this.edited()!);
     }
 
     this.entries.setValue(chronotopes);
@@ -204,6 +198,7 @@ export class AssertedChronotopeSetComponent implements OnInit {
   }
 
   private saveChronotopes(): void {
-    this.chronotopes.set(this.entries.value?.length ? this.entries.value : []);
+    const chronotopes = this.entries.value?.length ? this.entries.value : [];
+    this.chronotopes.set(chronotopes);
   }
 }

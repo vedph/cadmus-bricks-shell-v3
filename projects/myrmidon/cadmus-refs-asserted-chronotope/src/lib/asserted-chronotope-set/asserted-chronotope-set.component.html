@@ -21,7 +21,7 @@
     <tbody>
       @for ( entry of entries.value; track entry; let i = $index; let first =
       $first; let last = $last) {
-      <tr>
+      <tr [class.selected]="i === editedIndex()">
         <td class="fit-width">
           <button
             type="button"
@@ -64,21 +64,21 @@
       }
     </tbody>
   </table>
-  } @if (initialChronotope) {
+  } @if (edited()) {
   <fieldset>
     <mat-expansion-panel
-      [disabled]="editedIndex < 0"
-      [expanded]="initialChronotope"
+      [disabled]="!edited()"
+      [expanded]="edited()"
     >
       <mat-expansion-panel-header
-        >chronotope #{{ editedIndex + 1 }}</mat-expansion-panel-header
+        >chronotope #{{ editedIndex() + 1 }}</mat-expansion-panel-header
       >
       <cadmus-refs-asserted-chronotope
         [tagEntries]="tagEntries()"
         [assTagEntries]="assTagEntries()"
         [refTagEntries]="refTagEntries()"
         [refTypeEntries]="refTypeEntries()"
-        [chronotope]="initialChronotope"
+        [chronotope]="edited()"
         (chronotopeChange)="onChronotopeChange($event)"
       />
       <div class="form-row" style="margin-top: 8px">
