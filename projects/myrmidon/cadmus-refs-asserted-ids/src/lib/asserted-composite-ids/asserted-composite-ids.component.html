@@ -1,10 +1,10 @@
-<form [formGroup]="form">
+<div>
   <!-- buttons -->
   <button type="button" class="mat-primary" mat-flat-button (click)="addId()">
     <mat-icon>add_circle</mat-icon> ID
   </button>
   <!-- list -->
-  @if (entries.value.length) {
+  @if (ids().length) {
   <table>
     <thead>
       <tr>
@@ -17,15 +17,15 @@
       </tr>
     </thead>
     <tbody>
-      @for ( entry of entries.value; track entry; let i = $index; let first =
-      $first; let last = $last) {
-      <tr [class.selected]="entry === edited()">
+      @for ( id of ids(); track id; let i = $index; let first = $first; let last
+      = $last) {
+      <tr [class.selected]="i === editedIndex()">
         <td class="fit-width">
           <button
             type="button"
             mat-icon-button
             matTooltip="Edit this ID"
-            (click)="editId(entry, i)"
+            (click)="editId(id, i)"
           >
             <mat-icon class="mat-primary">edit</mat-icon>
           </button>
@@ -56,20 +56,20 @@
             <mat-icon class="mat-warn">remove_circle</mat-icon>
           </button>
         </td>
-        <td>{{ entry.scope }}</td>
+        <td>{{ id.scope }}</td>
         <td>
-          <mat-icon>{{ entry?.target?.name ? "login" : "logout" }}</mat-icon>
+          <mat-icon>{{ id?.target?.name ? "login" : "logout" }}</mat-icon>
         </td>
-        <td>{{ entry?.target?.label }}</td>
-        <td>{{ entry?.target?.gid }}</td>
-        <td>{{ entry?.assertion ? "Y" : "N" }}</td>
+        <td>{{ id?.target?.label }}</td>
+        <td>{{ id?.target?.gid }}</td>
+        <td>{{ id?.assertion ? "Y" : "N" }}</td>
       </tr>
       }
     </tbody>
   </table>
   }
-
   <!-- editor -->
+  @if (edited()) {
   <mat-expansion-panel [expanded]="edited()" [disabled]="!edited()">
     <mat-expansion-panel-header
       ><mat-icon>{{ edited()?.target?.name ? "login" : "logout" }}</mat-icon> ID
@@ -92,4 +92,5 @@
       (editorClose)="closeId()"
     />
   </mat-expansion-panel>
-</form>
+  }
+</div>

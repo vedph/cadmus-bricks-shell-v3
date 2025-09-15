@@ -16,6 +16,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
   - [History](#history)
+    - [10.0.10](#10010)
     - [10.0.9](#1009)
     - [10.0.8](#1008)
     - [10.0.5](#1005)
@@ -371,6 +372,10 @@ A collection of asserted composite IDs.
   - `idsChange` (`AssertedCompositeId[]`)
 
 ## History
+
+### 10.0.10
+
+- 2025-09-15: refactored `AssertedIdsComponent` and `AssertedCompositeIdsComponent` dropping form.
 
 ### 10.0.9
 

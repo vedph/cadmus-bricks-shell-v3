@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, effect, input, model, output, signal } from '@angular/core';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  model,
+  signal,
+} from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { take } from 'rxjs';
 
 // material
@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 // myrmidon
 import { DialogService } from '@myrmidon/ngx-mat-tools';
+import { deepCopy } from '@myrmidon/ngx-tools';
 
 // cadmus
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
@@ -66,31 +67,7 @@ export class AssertedIdsComponent {
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
-  public entries: FormControl<AssertedId[]>;
-  public form: FormGroup;
-
-  constructor(formBuilder: FormBuilder, private _dialogService: DialogService) {
-    this.entries = formBuilder.control([], { nonNullable: true });
-    // form
-    this.form = formBuilder.group({
-      ids: this.entries,
-    });
-
-    // when ids change, update form
-    effect(() => {
-      this.updateForm(this.ids());
-    });
-  }
-
-  private updateForm(ids: AssertedId[]): void {
-    if (!ids?.length) {
-      this.form.reset();
-      return;
-    }
-    this.entries.setValue(ids, { emitEvent: false });
-    this.entries.updateValueAndValidity();
-    this.form.markAsPristine();
-  }
+  constructor(private _dialogService: DialogService) {}
 
   public addId(): void {
     this.editId(
@@ -104,7 +81,7 @@ export class AssertedIdsComponent {
 
   public editId(id: AssertedId, index: number): void {
     this.editedIndex.set(index);
-    this.edited.set(id);
+    this.edited.set(deepCopy(id));
   }
 
   public closeId(): void {
@@ -112,16 +89,14 @@ export class AssertedIdsComponent {
     this.edited.set(undefined);
   }
 
-  public saveId(entry: AssertedId): void {
-    const entries = [...this.entries.value];
+  public saveId(id: AssertedId): void {
+    const ids = [...this.ids()];
     if (this.editedIndex() === -1) {
-      entries.push(entry);
+      ids.push(id);
     } else {
-      entries.splice(this.editedIndex(), 1, entry);
+      ids.splice(this.editedIndex(), 1, id);
     }
-    this.entries.setValue(entries);
-    this.entries.markAsDirty();
-    this.entries.updateValueAndValidity();
+    this.ids.set(ids);
     this.closeId();
   }
 
@@ -134,12 +109,9 @@ export class AssertedIdsComponent {
           if (this.editedIndex() === index) {
             this.closeId();
           }
-          const entries = [...this.entries.value];
-          entries.splice(index, 1);
-          this.entries.setValue(entries);
-          this.entries.markAsDirty();
-          this.entries.updateValueAndValidity();
-          this.ids.set(this.entries.value);
+          const ids = [...this.ids()];
+          ids.splice(index, 1);
+          this.ids.set(ids);
         }
       });
   }
@@ -148,32 +120,25 @@ export class AssertedIdsComponent {
     if (index < 1) {
       return;
     }
-    const entry = this.entries.value[index];
-    const entries = [...this.entries.value];
-    entries.splice(index, 1);
-    entries.splice(index - 1, 0, entry);
-    this.entries.setValue(entries);
-    this.entries.markAsDirty();
-    this.entries.updateValueAndValidity();
-    this.ids.set(this.entries.value);
+    const id = this.ids()[index];
+    const ids = [...this.ids()];
+    ids.splice(index, 1);
+    ids.splice(index - 1, 0, id);
+    this.ids.set(ids);
   }
 
   public moveIdDown(index: number): void {
-    if (index + 1 >= this.entries.value.length) {
+    if (index + 1 >= this.ids().length) {
       return;
     }
-    const entry = this.entries.value[index];
-    const entries = [...this.entries.value];
-    entries.splice(index, 1);
-    entries.splice(index + 1, 0, entry);
-    this.entries.setValue(entries);
-    this.entries.markAsDirty();
-    this.entries.updateValueAndValidity();
-    this.ids.set(this.entries.value);
+    const id = this.ids()[index];
+    const ids = [...this.ids()];
+    ids.splice(index, 1);
+    ids.splice(index + 1, 0, id);
+    this.ids.set(ids);
   }
 
   public onIdChange(id?: AssertedId): void {
     this.saveId(id!);
-    this.ids.set(this.entries.value);
   }
 }

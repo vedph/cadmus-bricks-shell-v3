@@ -2,17 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   input,
-  Input,
-  output,
+  model,
   signal,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { take } from 'rxjs';
 
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
+import { deepCopy } from '@myrmidon/ngx-tools';
 
 import {
   AssertedCompositeId,
@@ -51,24 +45,13 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedCompositeIdsComponent {
-  private _ids: AssertedCompositeId[];
-
-  public readonly editedIndex = signal<number>(-1);
-  public readonly edited = signal<AssertedCompositeId | undefined>(undefined);
-
   /**
    * The asserted IDs.
    */
-  @Input()
-  public get ids(): AssertedCompositeId[] {
-    return this._ids;
-  }
-  public set ids(value: AssertedCompositeId[]) {
-    if (this._ids !== value) {
-      this._ids = value || [];
-      this.updateForm(value);
-    }
-  }
+  public readonly ids = model<AssertedCompositeId[]>([]);
+
+  public readonly editedIndex = signal<number>(-1);
+  public readonly edited = signal<AssertedCompositeId | undefined>(undefined);
 
   // asserted-id-scopes
   public readonly idScopeEntries = input<ThesaurusEntry[]>();
@@ -113,36 +96,7 @@ export class AssertedCompositeIdsComponent {
    */
   public readonly defaultPartTypeKey = input<string>();
 
-  /**
-   * Emitted whenever any ID changes.
-   */
-  public readonly idsChange = output<AssertedCompositeId[]>();
-
-  public entries: FormControl<AssertedCompositeId[]>;
-  public form: FormGroup;
-
-  constructor(formBuilder: FormBuilder, private _dialogService: DialogService) {
-    this._ids = [];
-    this.entries = formBuilder.control([], { nonNullable: true });
-    // form
-    this.form = formBuilder.group({
-      ids: this.entries,
-    });
-  }
-
-  private updateForm(ids: AssertedCompositeId[]): void {
-    if (!ids?.length) {
-      this.form.reset();
-      return;
-    }
-    this.entries.setValue(ids, { emitEvent: false });
-    this.entries.updateValueAndValidity();
-    this.form.markAsPristine();
-  }
-
-  private emitIdsChange(): void {
-    this.idsChange.emit(this.entries.value);
-  }
+  constructor(private _dialogService: DialogService) {}
 
   public addId(): void {
     this.editId(
@@ -155,7 +109,7 @@ export class AssertedCompositeIdsComponent {
 
   public editId(id: AssertedCompositeId, index: number): void {
     this.editedIndex.set(index);
-    this.edited.set(id);
+    this.edited.set(deepCopy(id));
   }
 
   public closeId(): void {
@@ -164,15 +118,13 @@ export class AssertedCompositeIdsComponent {
   }
 
   public saveId(entry: AssertedCompositeId): void {
-    const entries = [...this.entries.value];
+    const ids = [...this.ids()];
     if (this.editedIndex() === -1) {
-      entries.push(entry);
+      ids.push(entry);
     } else {
-      entries.splice(this.editedIndex(), 1, entry);
+      ids.splice(this.editedIndex(), 1, entry);
     }
-    this.entries.setValue(entries);
-    this.entries.markAsDirty();
-    this.entries.updateValueAndValidity();
+    this.ids.set(ids);
     this.closeId();
   }
 
@@ -185,12 +137,9 @@ export class AssertedCompositeIdsComponent {
           if (this.editedIndex() === index) {
             this.closeId();
           }
-          const entries = [...this.entries.value];
-          entries.splice(index, 1);
-          this.entries.setValue(entries);
-          this.entries.markAsDirty();
-          this.entries.updateValueAndValidity();
-          this.emitIdsChange();
+          const ids = [...this.ids()];
+          ids.splice(index, 1);
+          this.ids.set(ids);
         }
       });
   }
@@ -199,32 +148,25 @@ export class AssertedCompositeIdsComponent {
     if (index < 1) {
       return;
     }
-    const entry = this.entries.value[index];
-    const entries = [...this.entries.value];
-    entries.splice(index, 1);
-    entries.splice(index - 1, 0, entry);
-    this.entries.setValue(entries);
-    this.entries.markAsDirty();
-    this.entries.updateValueAndValidity();
-    this.emitIdsChange();
+    const id = this.ids()[index];
+    const ids = [...this.ids()];
+    ids.splice(index, 1);
+    ids.splice(index - 1, 0, id);
+    this.ids.set(ids);
   }
 
   public moveIdDown(index: number): void {
-    if (index + 1 >= this.entries.value.length) {
+    if (index + 1 >= this.ids().length) {
       return;
     }
-    const entry = this.entries.value[index];
-    const entries = [...this.entries.value];
-    entries.splice(index, 1);
-    entries.splice(index + 1, 0, entry);
-    this.entries.setValue(entries);
-    this.entries.markAsDirty();
-    this.entries.updateValueAndValidity();
-    this.emitIdsChange();
+    const id = this.ids()[index];
+    const ids = [...this.ids()];
+    ids.splice(index, 1);
+    ids.splice(index + 1, 0, id);
+    this.ids.set(ids);
   }
 
   public onIdChange(id?: AssertedCompositeId): void {
     this.saveId(id!);
-    this.emitIdsChange();
   }
 }

@@ -1,10 +1,10 @@
-<form [formGroup]="form">
+<div>
   <div>
     <button type="button" mat-flat-button class="mat-primary" (click)="addId()">
       <mat-icon>add_circle</mat-icon> ID
     </button>
   </div>
-  @if (entries.value.length) {
+  @if (ids().length) {
   <table>
     <thead>
       <tr>
@@ -14,15 +14,15 @@
       </tr>
     </thead>
     <tbody>
-      @for ( entry of entries.value; track entry; let i = $index; let first =
-      $first; let last = $last) {
-      <tr [class.selected]="entry === edited()">
+      @for ( id of ids(); track id; let i = $index; let first = $first; let last
+      = $last) {
+      <tr [class.selected]="i === editedIndex()">
         <td class="fit-width">
           <button
             type="button"
             mat-icon-button
             matTooltip="Edit this ID"
-            (click)="editId(entry, i)"
+            (click)="editId(id, i)"
           >
             <mat-icon class="mat-primary">edit</mat-icon>
           </button>
@@ -53,14 +53,13 @@
             <mat-icon class="mat-warn">remove_circle</mat-icon>
           </button>
         </td>
-        <td>{{ entry.scope }}</td>
-        <td>{{ entry.value }}</td>
+        <td>{{ id.scope }}</td>
+        <td>{{ id.value }}</td>
       </tr>
       }
     </tbody>
   </table>
-  }
-
+  } @if (edited()) {
   <mat-expansion-panel [expanded]="edited()" [disabled]="!edited()">
     <mat-expansion-panel-header
       >ID #{{ editedIndex() + 1 }}</mat-expansion-panel-header
@@ -77,4 +76,5 @@
       (editorClose)="closeId()"
     />
   </mat-expansion-panel>
-</form>
+  }
+</div>
