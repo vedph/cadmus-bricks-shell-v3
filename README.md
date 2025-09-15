@@ -21,11 +21,11 @@ To use a brick:
 
 ## Docker
 
-🐋 Quick Docker image build (the only purpose of this image is letting testers play with controls in the incubator):
+🐋 Quick **Docker image** build (the only purpose of this image is letting testers play with controls in the incubator):
 
 1. `npm run build-lib`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker build . -t vedph2020/cadmus-bricks-v3:9.0.7 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
+3. `docker build . -t vedph2020/cadmus-bricks-v3:10.0.0 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
 
@@ -172,6 +172,11 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+### 10.0.0
+
+- 2025-09:15:
+  - minor fixes.
+  - Docker image.
 - 2025-09-12:
   - refactored `@myrmidon/cadmus-text-block-view` for `OnPush`.
   - refactored `@myrmidon/cadmus-refs-external-ids` for `OnPush`.
