@@ -49,3 +49,12 @@ tr.selected {
 mat-expansion-panel {
   margin: 8px 0;
 }
+fieldset {
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 6px;
+  margin: 8px 0;
+}
+legend {
+  color: silver;
+}

@@ -7,6 +7,7 @@
   - [Editor](#editor)
   - [ProperNamePipe](#propernamepipe)
   - [History](#history)
+    - [10.0.3](#1003)
     - [10.0.2](#1002)
     - [9.0.0](#900)
 
@@ -131,6 +132,10 @@ The `properName` concatenates all the name's pieces in their order, eventually f
 - `legend`: true to append the types legend to the concatenated values.
 
 ## History
+
+### 10.0.3
+
+- 2025-09-15: aesthetic improvements.
 
 ### 10.0.2
 
