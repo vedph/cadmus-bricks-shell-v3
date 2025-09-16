@@ -172,6 +172,8 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-09-16: more robust input coords in physical grid.
+
 ### 10.0.0
 
 - 2025-09:15:

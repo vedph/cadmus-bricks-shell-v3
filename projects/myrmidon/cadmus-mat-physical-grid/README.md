@@ -8,6 +8,7 @@
   - [Service](#service)
   - [Pipe](#pipe)
   - [History](#history)
+    - [9.0.3](#903)
     - [9.0.2](#902)
     - [9.0.1](#901)
 
@@ -76,14 +77,14 @@ Injectable service for converting physical grid coordinates to/from string repre
 - 🔑 `PhysicalGridCoordsService`
 - **Methods**:
   - `physicalGridCoordsToString(coords, includeDimensions?)`: Convert coordinates to Excel-like string format.
-    - `coords` (`PhysicalGridCoords[] | PhysicalGridLocation`): coordinates or location to convert
+    - `coords` (`PhysicalGridCoords[] | PhysicalGridLocation`): coordinates or location to convert.
     - `includeDimensions` (`boolean`, default: `false`): whether to include grid dimensions in output (e.g., "5x4: A1 B2")
-    - Returns: `string` - Excel-like representation (e.g., "A1 B2 C3" or "5x4: A1 B2 C3")
+    - Returns: `string` - Excel-like representation (e.g., "A1 B2 C3" or "5x4: A1 B2 C3").
   - `parsePhysicalGridCoords(text, defaultColumns?, defaultRows?, includeDimensions?)`: Parse string to coordinates.
-    - `text` (`string | null | undefined`): text to parse (e.g., "A1 B2" or "5x4: A1 B2")
-    - `defaultColumns` (`number`, default: `3`): default number of columns when not specified
-    - `defaultRows` (`number`, default: `3`): default number of rows when not specified
-    - `includeDimensions` (`boolean`, default: `false`): whether to return full `PhysicalGridLocation` or just coordinates array
+    - `text` (`string | null | undefined`): text to parse (e.g., "A1 B2" or "5x4: A1 B2").
+    - `defaultColumns` (`number`, default: `3`): default number of columns when not specified.
+    - `defaultRows` (`number`, default: `3`): default number of rows when not specified.
+    - `includeDimensions` (`boolean`, default: `false`): whether to return full `PhysicalGridLocation` or just coordinates array.
     - Returns: `PhysicalGridLocation | PhysicalGridCoords[] | undefined`
 
 ## Pipe
@@ -92,8 +93,8 @@ Injectable service for converting physical grid coordinates to/from string repre
 - 🔑 `PhysicalGridCoordsPipe`
 - 📦 Standalone pipe for transforming coordinates to string representation.
 - ▶️ **Input**: `PhysicalGridLocation | PhysicalGridCoords[] | null | undefined`
-- 🎛️ **Parameter**: `includeDimensions` (`boolean`, default: `false`) - whether to include dimensions
-- 🔥 **Output**: `string` - Excel-like coordinate representation or empty string for invalid input
+- 🎛️ **Parameter**: `includeDimensions` (`boolean`, default: `false`) - whether to include dimensions.
+- 🔥 **Output**: `string` - Excel-like coordinate representation or empty string for invalid input.
 - 💡 **Usage**:
 
   ```html
@@ -109,6 +110,10 @@ Injectable service for converting physical grid coordinates to/from string repre
 >The pipe returns empty string for null, undefined, or invalid inputs.
 
 ## History
+
+### 9.0.3
+
+- 2025-09-16: more robust grid location input.
 
 ### 9.0.2
 

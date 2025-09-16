@@ -227,7 +227,7 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
     for (let y = 1; y <= this.rowCount.value; y++) {
       const row: PhysicalGridCell[] = [];
       for (let x = 1; x <= this.columnCount.value; x++) {
-        const selIndex = location
+        const selIndex = location?.coords
           ? location.coords.findIndex((c) => c.row === y && c.column === x)
           : -1;
         row.push({
@@ -431,11 +431,6 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
       })
     );
     this.rows.set(newRows);
-  }
-
-  private getMaxSelectedOrdinal(): number {
-    const selected = this.getSelectedCells();
-    return selected.reduce((acc, val) => Math.max(acc, val.ordinal || 0), 0);
   }
 
   public toggleCell(cell: PhysicalGridCell) {
