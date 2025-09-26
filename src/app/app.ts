@@ -31,6 +31,7 @@ import {
 // local
 import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.component';
 import { DC_SCHEME, OD_SCHEME } from './cit-schemes';
+import { ZoteroRefLookupService } from '@myrmidon/cadmus-refs-zotero-lookup';
 
 @Component({
   selector: 'app-root',
@@ -96,6 +97,46 @@ export class App {
         service: inject(WhgRefLookupService),
         itemIdGetter: (item: GeoJsonFeature) => item?.properties.place_id,
         itemLabelGetter: (item: GeoJsonFeature) => item?.properties.title,
+      },
+      // Zotero
+      {
+        name: 'Zotero',
+        iconUrl: '/img/zotero128.png',
+        description: 'Zotero bibliography',
+        label: 'ID',
+        service: inject(ZoteroRefLookupService),
+        itemIdGetter: (item: any) =>
+          // use a global ID by concatenating library ID and item key
+          item ? `${item.library?.id}/${item.key}` : '',
+        itemLabelGetter: (item: any) => {
+          // customize this as you prefer
+          if (!item) {
+            return '';
+          }
+          const sb: string[] = [];
+          if (item.data?.creators && Array.isArray(item.data.creators)) {
+            const creators = item.data.creators;
+            for (let i = 0; i < creators.length; i++) {
+              const c = creators[i];
+              if (i > 0) {
+                sb.push('; ');
+              }
+              if (c.lastName) {
+                sb.push(c.lastName);
+              }
+              if (c.firstName) {
+                sb.push(' ' + c.firstName.charAt(0) + '.');
+              }
+            }
+          }
+          sb.push(': ');
+          if (item.title) {
+            sb.push(item.title);
+          } else if (item.data?.title) {
+            sb.push(item.data?.title);
+          }
+          return sb.join('');
+        },
       },
     ] as RefLookupConfig[]);
   }

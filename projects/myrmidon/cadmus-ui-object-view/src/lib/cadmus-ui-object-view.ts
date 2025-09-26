@@ -73,7 +73,7 @@ export class ObjectViewComponent {
   /**
    * The object to view.
    */
-  public readonly data = input<any>(null);
+  public readonly data = input<any>(undefined);
   /**
    * The title to show in the toolbar.
    */

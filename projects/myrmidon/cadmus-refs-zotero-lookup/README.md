@@ -87,6 +87,96 @@ In turn, add these settings to your `env.js` like:
 <!-- ... -->
 ```
 
+If you want to use the **Zotero lookup component**, configure it in your `app.ts` like this:
+
+```ts
+import {
+  ZOTERO_API_KEY_TOKEN,
+  ZOTERO_USER_ID_TOKEN,
+  ZOTERO_LIBRARY_ID_TOKEN,
+  ZoteroRefLookupService,
+} from '@myrmidon/cadmus-refs-zotero-lookup';
+
+// ...
+
+@Component({
+  selector: 'app-root',
+  imports: [
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    GravatarPipe,
+  ],
+  templateUrl: './app.html',
+  styleUrl: './app.scss',
+})
+export class App implements OnInit, OnDestroy {
+  constructor(
+    @Inject('itemBrowserKeys')
+    private _itemBrowserKeys: { [key: string]: string },
+    private _authService: AuthJwtService,
+    private _appRepository: AppRepository,
+    private _router: Router,
+    env: EnvService,
+    storage: RamStorageService
+  ) {
+    this.version = env.get('version') || '';
+
+    // configure citation schemes
+    this.configureCitationService(storage);
+
+    // configure external lookup for asserted composite IDs
+    storage.store(LOOKUP_CONFIGS_KEY, [
+      // Zotero
+      {
+        name: 'Zotero',
+        iconUrl: '/img/zotero128.png',
+        description: 'Zotero bibliography',
+        label: 'ID',
+        service: inject(ZoteroRefLookupService),
+        itemIdGetter: (item: any) =>
+          // use a global ID by concatenating library ID and item key
+          item ? `${item.library?.id}/${item.key}` : '',
+        itemLabelGetter: (item: any) => {
+          // customize this as you prefer
+          if (!item) {
+            return '';
+          }
+          const sb: string[] = [];
+          if (item.data?.creators && Array.isArray(item.data.creators)) {
+            const creators = item.data.creators;
+            for (let i = 0; i < creators.length; i++) {
+              const c = creators[i];
+              if (i > 0) {
+                sb.push('; ');
+              }
+              if (c.lastName) {
+                sb.push(c.lastName);
+              }
+              if (c.firstName) {
+                sb.push(' ' + c.firstName.charAt(0) + '.');
+              }
+            }
+          }
+          sb.push(': ');
+          if (item.title) {
+            sb.push(item.title);
+          } else if (item.data?.title) {
+            sb.push(item.data?.title);
+          }
+          return sb.join('');
+        },
+      }
+    ] as RefLookupConfig[]);
+  }
+
+  // ...
+}
+```
+
 ## Usage
 
 Inject `ZoteroService` into your component or service:

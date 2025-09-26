@@ -110,7 +110,11 @@
         [citation]="parsedCitation"
         (citationChange)="onCitationChange($event)"
       />
-      } }
+      } } @if (pickedItem()) {
+      <div>
+        <cadmus-ui-object-view [data]="pickedItem()" title="picked item" />
+      </div>
+      }
     </fieldset>
   </mat-expansion-panel>
 

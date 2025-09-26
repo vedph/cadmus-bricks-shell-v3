@@ -6,24 +6,27 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## ObjectViewComponent
 
-A component for displaying a read-only view of an object's properties in a structured and customizable way.
+A component for displaying a read-only view of an object's properties in a structured and customizable way, with user-defined filtering.
 
 - 🔑 `ObjectViewComponent`
 - 🚩 `cadmus-ui-object-view`
 - ▶️ input:
-  - `object` (`Record<string, unknown>`): the object to display.
-  - `label` (`string?`): optional label/title for the view.
-  - `fields` (`ObjectViewField[]?`): optional array of fields to control display order, labels, and formatting.
-  - `emptyMessage` (`string?`): message to show when the object is empty.
+  - `data` (any): the item to view.
+  - `title` (`string`): the title for the viewer's toolbar.
+  - `hideEmptyArrays` (`boolean`): true to hide empty arrays.
+  - `hideEmptyObjects` (`boolean`): true to hide empty objects.
+  - `hideEmptyArrays` (`boolean`): true to hide empty strings.
+  - `hideZeroNumbers` (`boolean`): true to hide 0 numbers.
+  - `hideFalseBooleans` (`boolean`): true to hide false booleans.
+  - `copyOnPick` (`boolean`): true to copy the value to clipboard when picked (default is `true`).
 - 🔥 output:
-  - `fieldClick` (`string`): emits the name of the field when a field is clicked (if enabled).
+  - `valuePick` (`ValuePickEvent`): emits the key and value of the picked property when clicked.
 
 ## Usage
 
 1. Import `ObjectViewComponent` in your standalone component's `imports`.
-2. Provide the object to display via the `object` input.
-3. Optionally, configure `fields` to customize which properties are shown, their order, and labels.
-4. Optionally, handle the `fieldClick` event for interactivity.
+2. Provide the object to display via the `data` input.
+3. Optionally configure the settings as you prefer.
 
 ### Example
 
@@ -77,12 +80,3 @@ export class MyComponent {
 </code>
 }
 ```
-
-### Features
-
-- Displays object properties in a clean, readable format.
-- Supports custom field labels, order, and formatting.
-- Emits events when fields are clicked (optional).
-- Shows a customizable message when the object is empty.
-
-> 💡 Use this component to quickly visualize object data in forms, detail panels, or read-only views.

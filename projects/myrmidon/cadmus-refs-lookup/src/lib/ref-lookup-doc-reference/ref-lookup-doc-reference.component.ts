@@ -7,6 +7,7 @@ import {
   model,
   OnDestroy,
   output,
+  signal,
 } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -35,6 +36,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
+import { ObjectViewComponent } from '@myrmidon/cadmus-ui-object-view';
 
 import {
   RefLookupConfig,
@@ -65,6 +67,7 @@ export const LOOKUP_CONFIGS_KEY = 'cadmus-refs-lookup.configs';
     MatTooltipModule,
     RefLookupSetComponent,
     CitationComponent,
+    ObjectViewComponent,
   ],
   templateUrl: './ref-lookup-doc-reference.component.html',
   styleUrl: './ref-lookup-doc-reference.component.css',
@@ -108,6 +111,8 @@ export class LookupDocReferenceComponent implements OnDestroy {
    * Emitted when the user closes the editor.
    */
   public readonly cancel = output<void>();
+
+  public readonly pickedItem = signal<any>(undefined);
 
   public readonly pickerEnabled = computed<boolean>(
     () =>
@@ -211,6 +216,7 @@ export class LookupDocReferenceComponent implements OnDestroy {
 
   public onLookupConfigChange(config: RefLookupConfig): void {
     this._lookupConfig = config;
+    this.pickedItem.set(undefined); // reset picked item
   }
 
   private parseCitation(): void {
@@ -247,6 +253,7 @@ export class LookupDocReferenceComponent implements OnDestroy {
       this.citation.setValue(item.itemId);
       this.citation.markAsDirty();
       this.citation.updateValueAndValidity();
+      this.pickedItem.set(item);
       this.pickerExpanded = false;
     }
   }
