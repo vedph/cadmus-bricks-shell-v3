@@ -1,7 +1,7 @@
 <div class="object-view-container">
   <!-- toolbar -->
   <mat-toolbar class="toolbar">
-    <span><mat-icon>list_alt</mat-icon></span>
+    <span><mat-icon>list_alt</mat-icon> {{ title() }}</span>
     <span class="spacer"></span>
 
     <!-- expand/collapse all -->
@@ -115,9 +115,9 @@
           [style.padding-left.px]="node.level * 20"
         >
           <div class="name-cell">
+            @if (node.type !== 'primitive') {
             <button
               type="button"
-              *ngIf="node.type !== 'primitive'"
               mat-icon-button
               (click)="handleToggleNode(node)"
               class="expand-button"
@@ -126,6 +126,7 @@
                 >{{ node.expanded ? 'expand_less' : 'expand_more' }}</mat-icon
               >
             </button>
+            }
             <span
               class="name-text"
               [class.highlighted]="isNameHighlighted(node.key)"

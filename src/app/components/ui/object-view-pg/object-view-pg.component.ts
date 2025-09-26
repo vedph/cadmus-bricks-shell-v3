@@ -1,3 +1,4 @@
+import { JsonPipe } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 
@@ -5,7 +6,7 @@ import { ObjectViewComponent } from '@myrmidon/cadmus-ui-object-view';
 
 @Component({
   selector: 'app-object-view-pg',
-  imports: [MatCardModule, ObjectViewComponent],
+  imports: [MatCardModule, ObjectViewComponent, JsonPipe],
   templateUrl: './object-view-pg.component.html',
   styleUrls: ['./object-view-pg.component.scss'],
 })
@@ -33,4 +34,10 @@ export class ObjectViewPgComponent {
       },
     ],
   });
+
+  public readonly value = signal<any>(undefined);
+
+  public onValuePick(event: any): void {
+    this.value.set(event);
+  }
 }

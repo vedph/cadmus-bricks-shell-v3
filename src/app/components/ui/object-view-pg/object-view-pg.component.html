@@ -5,6 +5,12 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <cadmus-ui-object-view [data]="data()" />
+    <cadmus-ui-object-view [data]="data()" (valuePick)="onValuePick($event)" />
+    @if (value()) {
+    <hr />
+    <code>
+      <pre>{{ value() | json }}</pre>
+    </code>
+    }
   </mat-card-content>
 </mat-card>

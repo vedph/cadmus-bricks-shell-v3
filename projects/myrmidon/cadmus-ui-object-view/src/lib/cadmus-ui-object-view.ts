@@ -73,38 +73,41 @@ export class ObjectViewComponent {
   /**
    * The object to view.
    */
-  readonly data = input<any>(null);
-
+  public readonly data = input<any>(null);
+  /**
+   * The title to show in the toolbar.
+   */
+  public readonly title = input('Object Viewer');
   /*
    * True to hide empty arrays.
    */
-  readonly hideEmptyArrays = input(false);
+  public readonly hideEmptyArrays = input(false);
   /**
    * True to hide empty objects.
    */
-  readonly hideEmptyObjects = input(false);
+  public readonly hideEmptyObjects = input(false);
   /**
    * True to hide empty strings.
    */
-  readonly hideEmptyStrings = input(false);
+  public readonly hideEmptyStrings = input(false);
   /**
    * True to hide zero numbers.
    */
-  readonly hideZeroNumbers = input(false);
+  public readonly hideZeroNumbers = input(false);
   /**
    * True to hide false booleans.
    */
-  readonly hideFalseBooleans = input(false);
+  public readonly hideFalseBooleans = input(false);
 
   /**
    * True to copy the value to clipboard when picked.
    */
-  readonly copyOnPick = input(true);
+  public readonly copyOnPick = input(true);
 
   /**
    * Emits when a value is picked.
    */
-  readonly valuePick = output<ValuePickEvent>();
+  public readonly valuePick = output<ValuePickEvent>();
 
   public readonly dataTree = signal<DataNode[]>([]);
   public readonly settingsPanelExpanded = signal(false);
