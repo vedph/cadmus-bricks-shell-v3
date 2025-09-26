@@ -19,11 +19,12 @@ export class ObjectViewPgComponent {
       },
       {
         first: 'JD',
+        last: '',
         type: 'alias',
       },
     ],
     sex: 'male',
-    'birth-date': '2020/01/01',
+    'birth-date': '2020-12-31',
     inventory: [
       {
         type: 'weapon',

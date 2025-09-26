@@ -2,62 +2,87 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.0.
 
-## Code scaffolding
+- 📦 `@myrmidon/cadmus-ui-object-view`
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## ObjectViewComponent
 
-```bash
-ng generate component component-name
+A component for displaying a read-only view of an object's properties in a structured and customizable way.
+
+- 🔑 `ObjectViewComponent`
+- 🚩 `cadmus-ui-object-view`
+- ▶️ input:
+  - `object` (`Record<string, unknown>`): the object to display.
+  - `label` (`string?`): optional label/title for the view.
+  - `fields` (`ObjectViewField[]?`): optional array of fields to control display order, labels, and formatting.
+  - `emptyMessage` (`string?`): message to show when the object is empty.
+- 🔥 output:
+  - `fieldClick` (`string`): emits the name of the field when a field is clicked (if enabled).
+
+## Usage
+
+1. Import `ObjectViewComponent` in your standalone component's `imports`.
+2. Provide the object to display via the `object` input.
+3. Optionally, configure `fields` to customize which properties are shown, their order, and labels.
+4. Optionally, handle the `fieldClick` event for interactivity.
+
+### Example
+
+```ts
+import { JsonPipe } from '@angular/common';
+import { ObjectViewComponent, ObjectViewField } from '@myrmidon/cadmus-ui-object-view';
+
+@Component({
+  // ...
+  imports: [ObjectViewComponent, JsonPipe],
+})
+export class MyComponent {
+    public readonly data = signal<any>({
+    names: [
+      {
+        first: 'John',
+        last: 'Doe',
+      },
+      {
+        first: 'JD',
+        last: '',
+        type: 'alias',
+      },
+    ],
+    sex: 'male',
+    'birth-date': '2020-12-31',
+    inventory: [
+      {
+        type: 'weapon',
+        size: {
+          width: 4,
+          height: 22,
+        },
+      },
+    ],
+  });
+
+  public readonly value = signal<any>(undefined);
+
+  public onValuePick(event: any): void {
+    this.value.set(event);
+  }
+} 
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
+```html
+<cadmus-ui-object-view [data]="data()" (valuePick)="onValuePick($event)" />
+@if (value()) {
+<code>
+  <pre>{{ value() | json }}</pre>
+</code>
+}
 ```
 
-## Building
+### Features
 
-To build the library, run:
+- Displays object properties in a clean, readable format.
+- Supports custom field labels, order, and formatting.
+- Emits events when fields are clicked (optional).
+- Shows a customizable message when the object is empty.
 
-```bash
-ng build cadmus-ui-object-view
-```
-
-This command will compile your project, and the build artifacts will be placed in the `dist/` directory.
-
-### Publishing the Library
-
-Once the project is built, you can publish your library by following these steps:
-
-1. Navigate to the `dist` directory:
-   ```bash
-   cd dist/cadmus-ui-object-view
-   ```
-
-2. Run the `npm publish` command to publish your library to the npm registry:
-   ```bash
-   npm publish
-   ```
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+> 💡 Use this component to quickly visualize object data in forms, detail panels, or read-only views.

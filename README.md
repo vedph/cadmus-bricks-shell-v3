@@ -82,6 +82,7 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 - [@myrmidon/cadmus-ui-custom-action-bar](projects/myrmidon/cadmus-ui-custom-action-bar/README.md)
 - [@myrmidon/cadmus-ui-flag-set](projects/myrmidon/cadmus-ui-flag-set/README.md)
 - [@myrmidon/cadmus-ui-note-set](projects/myrmidon/cadmus-ui-note-set/README.md)
+- [@myrmidon/cadmus-ui-object-view](projects/myrmidon/cadmus-ui-object-view/README.md)
 
 ## V3 Creation
 
@@ -122,6 +123,7 @@ ng g library @myrmidon/cadmus-text-ed-txt --prefix cadmus
 ng g library @myrmidon/cadmus-ui-custom-action-bar --prefix cadmus
 ng g library @myrmidon/cadmus-ui-flag-set --prefix cadmus
 ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus
+ng g library @myrmidon/cadmus-ui-object-view --prefix cadmus
 ```
 
 ## OnPush Progress
@@ -153,6 +155,7 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-ui-custom-action-bar` (9.0.1)
 - `@myrmidon/cadmus-ui-flag-set` (9.0.2)
 - `@myrmidon/cadmus-ui-note-set` (10.0.1)
+- `@myrmidon/cadmus-ui-object-view` (0.0.1)
 
 💡 Prompt for check:
 
@@ -172,6 +175,7 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-09-26: 🆕 added object view library.
 - 2025-09-16: more robust input coords in physical grid.
 
 ### 10.0.0

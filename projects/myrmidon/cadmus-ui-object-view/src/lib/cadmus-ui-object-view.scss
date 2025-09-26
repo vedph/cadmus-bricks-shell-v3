@@ -53,7 +53,9 @@
 .expand-button {
   width: 24px;
   height: 24px;
-  line-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .expand-button mat-icon {

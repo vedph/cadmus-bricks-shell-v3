@@ -9,7 +9,7 @@
       type="button"
       mat-icon-button
       (click)="handleExpandAll()"
-      matTooltip="Expand All"
+      matTooltip="Expand all"
     >
       <mat-icon>unfold_more</mat-icon>
     </button>
@@ -17,7 +17,7 @@
       type="button"
       mat-icon-button
       (click)="handleCollapseAll()"
-      matTooltip="Collapse All"
+      matTooltip="Collapse all"
     >
       <mat-icon>unfold_less</mat-icon>
     </button>
@@ -157,7 +157,7 @@
               *ngIf="node.type !== 'primitive'"
               class="expand-all-icon"
               (click)="handleToggleNodeRecursive(node, $event)"
-              matTooltip="Expand/Collapse All Descendants"
+              matTooltip="Toggle all descendants"
             >
               {{ node.expanded ? 'unfold_less' : 'unfold_more' }}
             </mat-icon>
