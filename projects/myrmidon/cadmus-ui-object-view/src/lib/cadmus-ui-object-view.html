@@ -44,64 +44,62 @@
 
     <div class="settings-content">
       <!-- search filters -->
-      <div class="filter-section form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>name</mat-label>
-          <input
-            matInput
-            [ngModel]="nameFilter()"
-            (input)="handleNameFilterChange($event)"
-          />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+      <div class="filter-section">
+        <fieldset>
+          <legend>filters</legend>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>name</mat-label>
+              <input
+                matInput
+                [ngModel]="nameFilter()"
+                (input)="handleNameFilterChange($event)"
+              />
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>value</mat-label>
-          <input
-            matInput
-            [ngModel]="valueFilter()"
-            (input)="handleValueFilterChange($event)"
-          />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>value</mat-label>
+              <input
+                matInput
+                [ngModel]="valueFilter()"
+                (input)="handleValueFilterChange($event)"
+              />
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+            <mat-checkbox
+              [ngModel]="currentFilterSettings().hideEmptyArrays"
+              (change)="handleFilterSettingChange('hideEmptyArrays', $event.checked)"
+            >
+              no empty arrays
+            </mat-checkbox>
+            <mat-checkbox
+              [ngModel]="currentFilterSettings().hideEmptyObjects"
+              (change)="handleFilterSettingChange('hideEmptyObjects', $event.checked)"
+            >
+              no empty objects
+            </mat-checkbox>
+            <mat-checkbox
+              [ngModel]="currentFilterSettings().hideEmptyStrings"
+              (change)="handleFilterSettingChange('hideEmptyStrings', $event.checked)"
+            >
+              no empty strings
+            </mat-checkbox>
+            <mat-checkbox
+              [ngModel]="currentFilterSettings().hideZeroNumbers"
+              (change)="handleFilterSettingChange('hideZeroNumbers', $event.checked)"
+            >
+              no zero numbers
+            </mat-checkbox>
+            <mat-checkbox
+              [ngModel]="currentFilterSettings().hideFalseBooleans"
+              (change)="handleFilterSettingChange('hideFalseBooleans', $event.checked)"
+            >
+              no false booleans
+            </mat-checkbox>
+          </div>
+        </fieldset>
       </div>
-
-      <!-- hide options -->
-      <fieldset>
-        <legend>hide properties</legend>
-        <div class="form-row">
-          <mat-checkbox
-            [ngModel]="currentFilterSettings().hideEmptyArrays"
-            (change)="handleFilterSettingChange('hideEmptyArrays', $event.checked)"
-          >
-            empty arrays
-          </mat-checkbox>
-          <mat-checkbox
-            [ngModel]="currentFilterSettings().hideEmptyObjects"
-            (change)="handleFilterSettingChange('hideEmptyObjects', $event.checked)"
-          >
-            empty objects
-          </mat-checkbox>
-          <mat-checkbox
-            [ngModel]="currentFilterSettings().hideEmptyStrings"
-            (change)="handleFilterSettingChange('hideEmptyStrings', $event.checked)"
-          >
-            empty strings
-          </mat-checkbox>
-          <mat-checkbox
-            [ngModel]="currentFilterSettings().hideZeroNumbers"
-            (change)="handleFilterSettingChange('hideZeroNumbers', $event.checked)"
-          >
-            zero numbers
-          </mat-checkbox>
-          <mat-checkbox
-            [ngModel]="currentFilterSettings().hideFalseBooleans"
-            (change)="handleFilterSettingChange('hideFalseBooleans', $event.checked)"
-          >
-            false booleans
-          </mat-checkbox>
-        </div>
-      </fieldset>
     </div>
   </mat-expansion-panel>
 
