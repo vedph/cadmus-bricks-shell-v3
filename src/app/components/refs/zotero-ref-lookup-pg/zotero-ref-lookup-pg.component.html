@@ -13,12 +13,7 @@
             <div class="col">
               <mat-form-field appearance="fill">
                 <mat-label>Zotero user</mat-label>
-                <input
-                  matInput
-                  [formControl]="user"
-                  placeholder="Zotero user name"
-                  type="number"
-                />
+                <input matInput [formControl]="user" type="number" />
                 @if (user.touched && user.invalid) {
                 <mat-error>user required</mat-error>
                 }
@@ -27,12 +22,7 @@
             <div class="col">
               <mat-form-field appearance="fill">
                 <mat-label>Zotero API key</mat-label>
-                <input
-                  matInput
-                  [formControl]="key"
-                  placeholder="Zotero API key"
-                  type="password"
-                />
+                <input matInput [formControl]="key" type="password" />
                 @if (key.touched && key.invalid) {
                 <mat-error>key required</mat-error>
                 }
@@ -84,7 +74,7 @@
         <legend>lookup</legend>
         <cadmus-refs-lookup
           [service]="service"
-          [options]="{libraryId: libraryId.value }"
+          [options]="{ libraryId: libraryId.value }"
           [item]="item"
           [required]="true"
           label="Zotero"

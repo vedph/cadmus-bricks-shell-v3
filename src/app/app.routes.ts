@@ -316,6 +316,14 @@ export const routes: Routes = [
         (m) => m.NoteSetPgComponent
       ),
   },
+  // ui/object-view
+  {
+    path: 'ui/object-view',
+    loadComponent: () =>
+      import('./components/ui/object-view-pg/object-view-pg.component').then(
+        (m) => m.ObjectViewPgComponent
+      ),
+  },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', component: HomeComponent },
 ];

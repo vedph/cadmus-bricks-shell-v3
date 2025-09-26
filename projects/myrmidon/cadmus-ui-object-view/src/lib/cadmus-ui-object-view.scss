@@ -1,0 +1,156 @@
+.object-view-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  background: #f5f5f5;
+  color: #333;
+  min-height: 56px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.settings-panel {
+  margin: 0;
+}
+
+.settings-content {
+  display: flex;
+  gap: 24px;
+  padding: 16px;
+}
+
+.filter-section,
+.hide-section {
+  flex: 1;
+}
+
+.filter-section h4,
+.hide-section h4 {
+  margin: 0 0 16px 0;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.filter-field {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.hide-section mat-checkbox {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.table-container {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid #e0e0e0;
+}
+
+.data-table {
+  width: 100%;
+}
+
+.name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expand-button {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+}
+
+.expand-button mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.name-text {
+  font-family: "Roboto Mono", monospace;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.value-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.value-text {
+  font-family: "Roboto Mono", monospace;
+  font-size: 13px;
+  flex: 1;
+}
+
+.value-text.object-count {
+  color: #666;
+  font-style: italic;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover .value-text {
+  background-color: #e3f2fd;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlighted {
+  background-color: #ffeb3b;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.expand-all-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.expand-all-icon:hover {
+  opacity: 1;
+}
+
+mat-row:nth-child(even) {
+  background-color: #fafafa;
+}
+
+mat-row:hover {
+  background-color: #f0f0f0;
+}
+
+fieldset {
+  border: 1px solid silver;
+  border-radius: 6px;
+  padding: 6px;
+}
+legend {
+  color: silver;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}

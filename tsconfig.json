@@ -90,6 +90,9 @@
       ],
       "@myrmidon/cadmus-ui-note-set": [
         "./dist/myrmidon/cadmus-ui-note-set"
+      ],
+      "@myrmidon/cadmus-ui-object-view": [
+        "./dist/myrmidon/cadmus-ui-object-view"
       ]
     },
     "strict": true,
@@ -292,6 +295,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-refs-zotero-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-ui-object-view/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-ui-object-view/tsconfig.spec.json"
     }
   ]
 }
