@@ -48,7 +48,6 @@ interface DataNode {
   key: string;
   value: any;
   type: 'primitive' | 'object' | 'array';
-  expanded: boolean;
   children?: DataNode[];
   count?: number;
   level: number;
@@ -83,6 +82,8 @@ interface DataNode {
 })
 export class ObjectViewComponent {
   private readonly _snackBar = inject(MatSnackBar);
+  private _isUpdatingExpansion = false;
+  private readonly _maxDepth = 50; // Prevent infinite recursion
 
   /**
    * The object to view.
@@ -92,6 +93,34 @@ export class ObjectViewComponent {
    * The title to show in the toolbar.
    */
   public readonly title = input('Object Viewer');
+  /**
+   * Property names to exclude from the object tree.
+   * These are typically service references or other non-data properties.
+   */
+  public readonly propertyBlacklist = input<string[]>([
+    'service',
+    'services',
+    '_service',
+    '_services',
+    'injector',
+    '_injector',
+    'elementRef',
+    '_elementRef',
+    'changeDetectorRef',
+    '_changeDetectorRef',
+    'viewContainerRef',
+    '_viewContainerRef',
+    'renderer',
+    '_renderer',
+    'document',
+    '_document',
+    'window',
+    '_window',
+    'zone',
+    '_zone',
+    'ngZone',
+    '_ngZone',
+  ]);
   /*
    * True to hide empty arrays.
    */
@@ -127,6 +156,11 @@ export class ObjectViewComponent {
    * The data tree built from the input object.
    */
   public readonly dataTree = signal<DataNode[]>([]);
+
+  /**
+   * Tracks expansion state for nodes by their stable path-based ID.
+   */
+  public readonly expansionState = signal<Map<string, boolean>>(new Map());
 
   /**
    * True if the settings panel is expanded.
@@ -183,7 +217,12 @@ export class ObjectViewComponent {
     const tree = this.dataTree();
     if (!tree.length) return [];
 
-    return this.filterAndFlattenNodes(tree);
+    try {
+      return this.filterAndFlattenNodes(tree);
+    } catch (error) {
+      console.error('Error in displayedNodes computation:', error);
+      return [];
+    }
   });
 
   constructor() {
@@ -201,35 +240,94 @@ export class ObjectViewComponent {
     // sync data tree when input data changes
     effect(() => {
       const inputData = this.data();
-      if (inputData) {
+      if (inputData && !this._isUpdatingExpansion) {
         try {
-          const tree = this.createNodeTree(inputData, '', 0, new WeakSet());
+          // Filter the object to remove blacklisted properties
+          const filteredData = this.filterBlacklistedProperties(inputData);
+          const tree = this.createNodeTree(
+            filteredData,
+            '',
+            0,
+            new WeakSet(),
+            ''
+          );
           this.dataTree.set(tree);
         } catch (error) {
           console.error('Error building data tree:', error);
           this.dataTree.set([]);
         }
-      } else {
+      } else if (!inputData) {
         this.dataTree.set([]);
+        this.expansionState.set(new Map());
       }
     });
+  }
+
+  private filterBlacklistedProperties(obj: any): any {
+    if (obj === null || obj === undefined) {
+      return obj;
+    }
+
+    // for primitive types, return as-is
+    if (typeof obj !== 'object') {
+      return obj;
+    }
+
+    // handle arrays
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.filterBlacklistedProperties(item));
+    }
+
+    // handle objects
+    const blacklist = new Set(this.propertyBlacklist());
+    const filtered: any = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+      // skip blacklisted properties
+      if (blacklist.has(key)) {
+        continue;
+      }
+
+      // skip function properties (these are typically methods or service references)
+      if (typeof value === 'function') {
+        continue;
+      }
+
+      // skip properties that look like Angular or framework internals
+      if (key.startsWith('__') || key.startsWith('ɵ') || key.startsWith('ng')) {
+        continue;
+      }
+
+      // recursively filter nested objects
+      try {
+        filtered[key] = this.filterBlacklistedProperties(value);
+      } catch (error) {
+        // if we can't process a property (e.g., circular reference, getter that throws),
+        // replace it with a placeholder
+        filtered[key] = '[Unprocessable Property]';
+      }
+    }
+
+    return filtered;
   }
 
   private createNodeTree(
     obj: any,
     key: string,
     level: number,
-    visited: WeakSet<object>
+    visited: WeakSet<object>,
+    parentPath: string
   ): DataNode[] {
+    const currentPath = parentPath ? `${parentPath}.${key}` : key;
+
     if (obj === null || obj === undefined) {
       return [
         {
           key,
           value: obj,
           type: 'primitive',
-          expanded: false,
           level,
-          id: this.generateNodeId(key, level),
+          id: currentPath,
         },
       ];
     }
@@ -241,9 +339,8 @@ export class ObjectViewComponent {
           key,
           value: '[Circular Reference]',
           type: 'primitive',
-          expanded: false,
           level,
-          id: this.generateNodeId(key, level),
+          id: currentPath,
         },
       ];
     }
@@ -253,11 +350,10 @@ export class ObjectViewComponent {
         key,
         value: obj,
         type: 'array',
-        expanded: false,
         count: obj.length,
         level,
         children: [],
-        id: this.generateNodeId(key, level),
+        id: currentPath,
       };
 
       if (typeof obj === 'object') {
@@ -270,7 +366,8 @@ export class ObjectViewComponent {
           item,
           index.toString(),
           level + 1,
-          visited
+          visited,
+          currentPath
         );
         node.children!.push(...childNodes);
       });
@@ -283,11 +380,10 @@ export class ObjectViewComponent {
         key,
         value: obj,
         type: 'object',
-        expanded: false,
         count: Object.keys(obj).length,
         level,
         children: [],
-        id: this.generateNodeId(key, level),
+        id: currentPath,
       };
 
       visited.add(obj);
@@ -298,7 +394,8 @@ export class ObjectViewComponent {
           propValue,
           propKey,
           level + 1,
-          visited
+          visited,
+          currentPath
         );
         node.children!.push(...childNodes);
       });
@@ -312,24 +409,35 @@ export class ObjectViewComponent {
         key,
         value: obj,
         type: 'primitive',
-        expanded: false,
         level,
-        id: this.generateNodeId(key, level),
+        id: currentPath,
       },
     ];
   }
 
-  private generateNodeId(key: string, level: number): string {
-    return `${level}-${key}-${Math.random().toString(36).substr(2, 9)}`;
-  }
+  private filterAndFlattenNodes(
+    nodes: DataNode[],
+    visited: Set<string> = new Set(),
+    depth: number = 0
+  ): DataNode[] {
+    // Prevent infinite recursion
+    if (depth > this._maxDepth) {
+      console.warn('Maximum depth reached in filterAndFlattenNodes');
+      return [];
+    }
 
-  private filterAndFlattenNodes(nodes: DataNode[]): DataNode[] {
     const result: DataNode[] = [];
     const filters = this.currentFilterSettings();
     const nameFilterValue = this.nameFilter();
     const valueFilterValue = this.valueFilter();
+    const expansionMap = this.expansionState();
 
     for (const node of nodes) {
+      // Check for circular references using node IDs
+      if (visited.has(node.id)) {
+        continue;
+      }
+
       if (this.shouldHideNode(node, filters)) {
         continue;
       }
@@ -340,13 +448,22 @@ export class ObjectViewComponent {
           node,
           nameFilterValue,
           valueFilterValue,
-          filters
+          filters,
+          new Set(visited),
+          depth + 1
         )
       ) {
         result.push(node);
 
-        if (node.expanded && node.children) {
-          result.push(...this.filterAndFlattenNodes(node.children));
+        const isExpanded = expansionMap.get(node.id) || false;
+        if (isExpanded && node.children) {
+          // Add current node to visited set for this branch
+          const newVisited = new Set(visited);
+          newVisited.add(node.id);
+
+          result.push(
+            ...this.filterAndFlattenNodes(node.children, newVisited, depth + 1)
+          );
         }
       }
     }
@@ -391,15 +508,30 @@ export class ObjectViewComponent {
     node: DataNode,
     nameFilter: string,
     valueFilter: string,
-    filters: FilterSettings
+    filters: FilterSettings,
+    visited: Set<string> = new Set(),
+    depth: number = 0
   ): boolean {
-    if (!node.children) return false;
+    // Prevent infinite recursion
+    if (depth > this._maxDepth || !node.children || visited.has(node.id)) {
+      return false;
+    }
+
+    const newVisited = new Set(visited);
+    newVisited.add(node.id);
 
     return node.children.some(
       (child) =>
         !this.shouldHideNode(child, filters) &&
         (this.matchesFilters(child, nameFilter, valueFilter) ||
-          this.hasMatchingDescendant(child, nameFilter, valueFilter, filters))
+          this.hasMatchingDescendant(
+            child,
+            nameFilter,
+            valueFilter,
+            filters,
+            newVisited,
+            depth + 1
+          ))
     );
   }
 
@@ -420,57 +552,108 @@ export class ObjectViewComponent {
   }
 
   private setAllNodesExpanded(expanded: boolean): void {
-    const updateAllNodes = (nodes: DataNode[]): DataNode[] => {
-      return nodes.map((node) => ({
-        ...node,
-        expanded: node.type !== 'primitive' ? expanded : false,
-        children: node.children ? updateAllNodes(node.children) : undefined,
-      }));
+    this._isUpdatingExpansion = true;
+
+    const newExpansionState = new Map<string, boolean>();
+
+    const updateExpansionRecursive = (nodes: DataNode[]) => {
+      for (const node of nodes) {
+        if (node.type !== 'primitive') {
+          newExpansionState.set(node.id, expanded);
+        }
+        if (node.children) {
+          updateExpansionRecursive(node.children);
+        }
+      }
     };
 
-    this.dataTree.set(updateAllNodes(this.dataTree()));
+    updateExpansionRecursive(this.dataTree());
+    this.expansionState.set(newExpansionState);
+
+    this._isUpdatingExpansion = false;
   }
 
   private setNodeExpandedRecursive(node: DataNode, expanded: boolean): void {
-    this.updateNodeInTree(node.id, { expanded });
+    this._isUpdatingExpansion = true;
 
-    if (node.children) {
-      node.children.forEach((child) => {
-        if (child.type !== 'primitive') {
-          this.setNodeExpandedRecursive(child, expanded);
-        }
-      });
-    }
+    const currentState = new Map(this.expansionState());
+    const visited = new Set<string>();
+
+    const updateNodeRecursive = (currentNode: DataNode, depth: number = 0) => {
+      // Prevent infinite recursion
+      if (depth > this._maxDepth || visited.has(currentNode.id)) {
+        return;
+      }
+
+      visited.add(currentNode.id);
+
+      if (currentNode.type !== 'primitive') {
+        currentState.set(currentNode.id, expanded);
+      }
+      if (currentNode.children) {
+        currentNode.children.forEach((child) =>
+          updateNodeRecursive(child, depth + 1)
+        );
+      }
+    };
+
+    updateNodeRecursive(node);
+    this.expansionState.set(currentState);
+
+    this._isUpdatingExpansion = false;
   }
 
   private expandMatchingNodes(): void {
+    this._isUpdatingExpansion = true;
+
     const nameFilterValue = this.nameFilter();
     const valueFilterValue = this.valueFilter();
     const filters = this.currentFilterSettings();
+    const currentState = new Map(this.expansionState());
+    const visited = new Set<string>();
 
-    const expandMatchingNodesRecursive = (nodes: DataNode[]): DataNode[] => {
-      return nodes.map((node) => {
+    const expandMatchingNodesRecursive = (
+      nodes: DataNode[],
+      depth: number = 0
+    ) => {
+      // Prevent infinite recursion
+      if (depth > this._maxDepth) {
+        return;
+      }
+
+      for (const node of nodes) {
+        if (visited.has(node.id)) {
+          continue;
+        }
+
+        visited.add(node.id);
+
         const hasMatchingDescendant = this.hasMatchingDescendant(
           node,
           nameFilterValue,
           valueFilterValue,
-          filters
+          filters,
+          new Set(),
+          0
         );
         const shouldExpand =
           hasMatchingDescendant ||
           this.matchesFilters(node, nameFilterValue, valueFilterValue);
 
-        return {
-          ...node,
-          expanded: node.type !== 'primitive' && shouldExpand,
-          children: node.children
-            ? expandMatchingNodesRecursive(node.children)
-            : undefined,
-        };
-      });
+        if (node.type !== 'primitive' && shouldExpand) {
+          currentState.set(node.id, true);
+        }
+
+        if (node.children) {
+          expandMatchingNodesRecursive(node.children, depth + 1);
+        }
+      }
     };
 
-    this.dataTree.set(expandMatchingNodesRecursive(this.dataTree()));
+    expandMatchingNodesRecursive(this.dataTree());
+    this.expansionState.set(currentState);
+
+    this._isUpdatingExpansion = false;
   }
 
   private copyValueToClipboard(text: string): Promise<void> {
@@ -523,6 +706,10 @@ export class ObjectViewComponent {
     return `${count} ${itemType}`;
   }
 
+  public isNodeExpanded(node: DataNode): boolean {
+    return this.expansionState().get(node.id) || false;
+  }
+
   public isNameHighlighted(name: string): boolean {
     const filter = this.nameFilter();
     return filter && name.toLowerCase().includes(filter.toLowerCase())
@@ -539,12 +726,17 @@ export class ObjectViewComponent {
 
   //#region Event handlers
   public handleToggleNode(node: DataNode): void {
-    this.updateNodeInTree(node.id, { expanded: !node.expanded });
+    this._isUpdatingExpansion = true;
+    const currentState = new Map(this.expansionState());
+    const currentExpanded = currentState.get(node.id) || false;
+    currentState.set(node.id, !currentExpanded);
+    this.expansionState.set(currentState);
+    this._isUpdatingExpansion = false;
   }
 
   public handleToggleNodeRecursive(node: DataNode, event: Event): void {
     event.stopPropagation();
-    const newExpanded = !node.expanded;
+    const newExpanded = !(this.expansionState().get(node.id) || false);
     this.setNodeExpandedRecursive(node, newExpanded);
   }
 

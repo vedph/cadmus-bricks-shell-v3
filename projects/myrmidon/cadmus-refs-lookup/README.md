@@ -11,6 +11,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Configuring Set](#configuring-set)
   - [LookupDocReferencesComponent](#lookupdocreferencescomponent)
   - [History](#history)
+    - [10.0.5](#1005)
     - [10.0.3](#1003)
     - [10.0.2](#1002)
     - [10.0.1](#1001)
@@ -262,6 +263,7 @@ A set of documental references (with the same model as those in `@myrmidon/cadmu
   - `noLookup` (`boolean`) to disable the lookup set
   - `noCitation` (`boolean`) to disable the citation set
   - `defaultPicker` (`string`): either `citation` or `lookup` to set the default picker
+  - `autoCloseOnPick` (`boolean`): true to auto-close the picker when a lookup item is picked
 - 🔥 output:
   - `referencesChange` (`DocReference[]`)
 
@@ -383,6 +385,13 @@ import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 ```
 
 ## History
+
+### 10.0.5
+
+- 2025-10-01:
+  - lookup doc references:
+    - full reactivity.
+    - added `autoCloseOnPick` to `LookupDocReferencesComponent` and `LookupDocReferenceComponent`.
 
 ### 10.0.3
 

@@ -45,7 +45,15 @@ import { LookupDocReferenceComponent } from '../ref-lookup-doc-reference/ref-loo
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LookupDocReferencesComponent {
+  /**
+   * The reference being edited (if any).
+   */
   public readonly edited = signal<DocReference | undefined>(undefined);
+
+  /**
+   * The index of the reference being edited, or -1 if a new reference is
+   * being added.
+   */
   public readonly editedIndex = signal<number>(-1);
 
   /**
@@ -53,9 +61,14 @@ export class LookupDocReferencesComponent {
    */
   public readonly references = model<DocReference[]>([]);
 
-  // doc-reference-types
+  /*
+   * Thesaurus entries: doc-reference-types
+   */
   public readonly typeEntries = input<ThesaurusEntry[]>();
-  // doc-reference-tags
+
+  /**
+   * Thesaurus entries: doc-reference-tags
+   */
   public readonly tagEntries = input<ThesaurusEntry[]>();
 
   /**
@@ -72,6 +85,11 @@ export class LookupDocReferencesComponent {
    * The default picker to show when the editor opens.
    */
   public readonly defaultPicker = input<'citation' | 'lookup'>('citation');
+
+  /**
+   * True to auto-close the picker when a lookup item is picked.
+   */
+  public readonly autoCloseOnPick = input<boolean>(true);
 
   constructor(private _dialogService: DialogService) {}
 

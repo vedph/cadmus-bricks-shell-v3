@@ -123,7 +123,7 @@
               class="expand-button"
             >
               <mat-icon
-                >{{ node.expanded ? 'expand_less' : 'expand_more' }}</mat-icon
+                >{{ isNodeExpanded(node) ? 'expand_less' : 'expand_more' }}</mat-icon
               >
             </button>
             }
@@ -159,7 +159,7 @@
               (click)="handleToggleNodeRecursive(node, $event)"
               matTooltip="Toggle all descendants"
             >
-              {{ node.expanded ? 'unfold_less' : 'unfold_more' }}
+              {{ isNodeExpanded(node) ? 'unfold_less' : 'unfold_more' }}
             </mat-icon>
           </div>
         </td>

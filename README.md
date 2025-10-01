@@ -146,7 +146,7 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-refs-doc-references` (10.0.2)
 - `@myrmidon/cadmus-refs-external-ids` (10.0.2)
 - `@myrmidon/cadmus-refs-historical-date` (9.0.2)
-- `@myrmidon/cadmus-refs-lookup` (10.0.4)
+- `@myrmidon/cadmus-refs-lookup` (10.0.5)
 - `@myrmidon/cadmus-refs-proper-name` (10.0.2)
 - `@myrmidon/cadmus-text-block-view` (9.0.1)
 - `@myrmidon/cadmus-text-ed` (9.0.1)
@@ -155,7 +155,7 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-ui-custom-action-bar` (9.0.1)
 - `@myrmidon/cadmus-ui-flag-set` (9.0.2)
 - `@myrmidon/cadmus-ui-note-set` (10.0.1)
-- `@myrmidon/cadmus-ui-object-view` (0.0.1)
+- `@myrmidon/cadmus-ui-object-view` (0.0.2)
 
 💡 Prompt for check:
 
@@ -175,6 +175,7 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-10-01: fixes to object view and improvements to doc refs lookup.
 - 2025-09-26:
   - 🆕 added object view library.
   - 🆕 added object view for the item picked by lookup in `@myrmidon/cadmus-refs-lookup` doc-references component. This allows users to pick any specific property from a complex object retrieved via the lookup service.

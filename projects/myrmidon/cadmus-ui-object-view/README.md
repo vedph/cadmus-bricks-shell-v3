@@ -80,3 +80,10 @@ export class MyComponent {
 </code>
 }
 ```
+
+## History
+
+### 0.0.2
+
+- avoid endless loop in expansion.
+- added blacklisted properties to the object viewer.

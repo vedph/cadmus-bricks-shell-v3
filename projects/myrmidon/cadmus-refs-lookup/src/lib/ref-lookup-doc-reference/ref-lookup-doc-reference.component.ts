@@ -108,6 +108,11 @@ export class LookupDocReferenceComponent implements OnDestroy {
   public readonly defaultPicker = input<'citation' | 'lookup'>('citation');
 
   /**
+   * True to auto-close the picker when a lookup item is picked.
+   */
+  public readonly autoCloseOnPick = input<boolean>(true);
+
+  /**
    * Emitted when the user closes the editor.
    */
   public readonly cancel = output<void>();
@@ -271,7 +276,9 @@ export class LookupDocReferenceComponent implements OnDestroy {
       this.citation.markAsDirty();
       this.citation.updateValueAndValidity();
       this.pickedItem.set(item);
-      this.pickerExpanded.set(false);
+      if (this.autoCloseOnPick()) {
+        this.pickerExpanded.set(false);
+      }
     }
   }
 
