@@ -26,3 +26,6 @@ fieldset legend {
 .picker-type {
   width: 8em;
 }
+#object-view {
+  margin-top: 8px;
+}

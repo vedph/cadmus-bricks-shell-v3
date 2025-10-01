@@ -389,9 +389,11 @@ import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 ### 10.0.5
 
 - 2025-10-01:
+  - lookup: added progress bar.
   - lookup doc references:
     - full reactivity.
     - added `autoCloseOnPick` to `LookupDocReferencesComponent` and `LookupDocReferenceComponent`.
+  - added Zotero infrastructure to app.
 
 ### 10.0.3
 

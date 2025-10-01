@@ -34,6 +34,12 @@ import { WHG_USERNAME_TOKEN } from '@myrmidon/cadmus-refs-whg-lookup';
 import { MockItemService } from './services/mock-item.service';
 import { MockThesaurusService } from './services/mock-thesaurus.service';
 import { routes } from './app.routes';
+import {
+  ZOTERO_API_KEY_TOKEN,
+  ZOTERO_LIBRARY_ID_TOKEN,
+  ZOTERO_USER_ID_TOKEN,
+} from '@myrmidon/cadmus-refs-zotero-lookup';
+import { EnvService } from '@myrmidon/ngx-tools';
 
 // for lookup in asserted IDs - note that this would require a backend
 const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
@@ -96,6 +102,22 @@ export const appConfig: ApplicationConfig = {
     {
       provide: WHG_USERNAME_TOKEN,
       useValue: 'myrmex',
+    },
+    // Zotero lookup (see env.js for the keys)
+    {
+      provide: ZOTERO_API_KEY_TOKEN,
+      useFactory: (env: EnvService) => env.get('zoteroApiKey'),
+      deps: [EnvService],
+    },
+    {
+      provide: ZOTERO_USER_ID_TOKEN,
+      useFactory: (env: EnvService) => env.get('zoteroUserId'),
+      deps: [EnvService],
+    },
+    {
+      provide: ZOTERO_LIBRARY_ID_TOKEN,
+      useFactory: (env: EnvService) => env.get('zoteroLibraryId'),
+      deps: [EnvService],
     },
   ],
 };

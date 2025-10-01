@@ -29,6 +29,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 
 import { RefLookupOptionsComponent } from '../ref-lookup-options/ref-lookup-options.component';
@@ -83,6 +84,7 @@ export interface RefLookupService {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -159,6 +161,8 @@ export class RefLookupComponent {
    */
   public readonly moreRequest = output<unknown | undefined>();
 
+  public readonly loading = signal<boolean>(false);
+
   public form: FormGroup;
   public lookup: FormControl;
   public items$: Observable<any[]>;
@@ -175,6 +179,7 @@ export class RefLookupComponent {
       distinctUntilChanged(),
       switchMap((value: any | string) => {
         if (typeof value === 'string' && this.service()) {
+          this.loading.set(true);
           return this.service()!
             .lookup(
               {
@@ -187,9 +192,11 @@ export class RefLookupComponent {
             .pipe(
               tap((v) => {
                 this.invalid$.next(this.required() && !v ? true : false);
+                this.loading.set(false);
               })
             );
         } else {
+          this.loading.set(false);
           this.invalid$.next(value ? false : true);
           return of([value]);
         }

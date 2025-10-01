@@ -175,7 +175,9 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
-- 2025-10-01: fixes to object view and improvements to doc refs lookup.
+- 2025-10-01:
+  - fixes to object view and improvements to doc refs lookup.
+  - updated Angular.
 - 2025-09-26:
   - 🆕 added object view library.
   - 🆕 added object view for the item picked by lookup in `@myrmidon/cadmus-refs-lookup` doc-references component. This allows users to pick any specific property from a complex object retrieved via the lookup service.
