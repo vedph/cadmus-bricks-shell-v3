@@ -69,13 +69,13 @@
       matTooltip="Toggle citation picker"
       (click)="togglePicker()"
     >
-      @if (pickerExpanded) {
+      @if (pickerExpanded()) {
       <mat-icon class="mat-primary">publish</mat-icon>
-      } @if (!pickerExpanded) {
+      } @if (!pickerExpanded()) {
       <mat-icon class="mat-primary">get_app</mat-icon>
       }
     </button>
-    @if (pickerEnabled() && pickerExpanded) {
+    @if (pickerEnabled() && pickerExpanded()) {
     <!-- pickerType -->
     @if (pickers().length) {
     <mat-form-field class="picker-type">
@@ -91,8 +91,8 @@
   <!-- citation picker -->
   <mat-expansion-panel
     id="picker"
-    [expanded]="pickerExpanded"
-    (expandedChange)="pickerExpanded = $event"
+    [expanded]="pickerExpanded()"
+    (expandedChange)="pickerExpanded.set($event)"
   >
     <fieldset>
       <legend>picker</legend>
@@ -100,14 +100,14 @@
       <!-- lookup -->
       @case ("lookup") {
       <cadmus-refs-lookup-set
-        [configs]="lookupConfigs"
+        [configs]="lookupConfigs()"
         (itemChange)="onLookupItemChange($event)"
       />
       }
       <!-- citation -->
       @case ("citation") {
       <cadmus-refs-citation
-        [citation]="parsedCitation"
+        [citation]="parsedCitation()"
         (citationChange)="onCitationChange($event)"
       />
       } } @if (pickedItem()) {

@@ -84,7 +84,7 @@ export class LookupDocReferencesComponent {
 
   public editReference(entry: DocReference, index: number): void {
     this.editedIndex.set(index);
-    this.edited.set(entry);
+    this.edited.set(structuredClone(entry));
   }
 
   public closeReference(): void {

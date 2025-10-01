@@ -21,6 +21,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 
+/**
+ * The filter settings for the object viewer.
+ */
 export interface FilterSettings {
   hideEmptyArrays: boolean;
   hideEmptyObjects: boolean;
@@ -29,12 +32,18 @@ export interface FilterSettings {
   hideFalseBooleans: boolean;
 }
 
+/**
+ * The event fired when a value is picked from the object viewer.
+ */
 export interface ValuePickEvent {
   key: string;
   value: any;
   displayValue: string;
 }
 
+/**
+ * A node in the data tree.
+ */
 interface DataNode {
   key: string;
   value: any;
@@ -47,6 +56,11 @@ interface DataNode {
   id: string;
 }
 
+/**
+ * Object viewer component. This is a generic component to view any
+ * JavaScript object in a tree-like structure. It supports filtering
+ * and hiding empty values.
+ */
 @Component({
   selector: 'cadmus-ui-object-view',
   imports: [
@@ -109,10 +123,29 @@ export class ObjectViewComponent {
    */
   public readonly valuePick = output<ValuePickEvent>();
 
+  /**
+   * The data tree built from the input object.
+   */
   public readonly dataTree = signal<DataNode[]>([]);
+
+  /**
+   * True if the settings panel is expanded.
+   */
   public readonly settingsPanelExpanded = signal(false);
+
+  /**
+   * The name filter for nodes in the tree.
+   */
   public readonly nameFilter = signal('');
+
+  /**
+   * The value filter for nodes in the tree.
+   */
   public readonly valueFilter = signal('');
+
+  /**
+   * The filter settings (hide empty arrays, objects, etc.).
+   */
   public readonly filterSettings = signal<FilterSettings>({
     hideEmptyArrays: false,
     hideEmptyObjects: false,
@@ -121,6 +154,10 @@ export class ObjectViewComponent {
     hideFalseBooleans: false,
   });
 
+  /**
+   * The current filter settings, combining input signals and
+   * the filterSettings signal.
+   */
   public readonly currentFilterSettings = computed(() => ({
     hideEmptyArrays:
       this.filterSettings().hideEmptyArrays || this.hideEmptyArrays(),
@@ -134,8 +171,14 @@ export class ObjectViewComponent {
       this.filterSettings().hideFalseBooleans || this.hideFalseBooleans(),
   }));
 
+  /**
+   * The columns to display in the table.
+   */
   public readonly displayedColumns = computed(() => ['name', 'value']);
 
+  /**
+   * The nodes to display, after filtering and flattening the tree.
+   */
   public readonly displayedNodes = computed(() => {
     const tree = this.dataTree();
     if (!tree.length) return [];

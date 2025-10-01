@@ -9,6 +9,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -42,7 +43,6 @@ import {
   RefLookupConfig,
   RefLookupSetComponent,
 } from '../ref-lookup-set/ref-lookup-set.component';
-import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 
 /**
  * The key to be used to retrieve the external lookup configs from the
@@ -112,14 +112,24 @@ export class LookupDocReferenceComponent implements OnDestroy {
    */
   public readonly cancel = output<void>();
 
+  /**
+   * The last picked item from the lookup set (if any).
+   */
   public readonly pickedItem = signal<any>(undefined);
 
+  /**
+   * True if at least one picker is enabled (lookup or citation).
+   */
   public readonly pickerEnabled = computed<boolean>(
     () =>
       (!this.noLookup() && !!this._lookupConfig) ||
       (!this.noCitation() && !!(this._schemeService?.getSchemes()?.length > 0))
   );
 
+  /**
+   * The available pickers, depending on the noLookup and noCitation
+   * inputs and on the availability of lookup config and citation schemes.
+   */
   public readonly pickers = computed<string[]>(() => {
     // lookup disabled when noLookup or no lookup config
     const noLookup = this.noLookup() || !this._lookupConfig;
@@ -139,9 +149,16 @@ export class LookupDocReferenceComponent implements OnDestroy {
     return ['citation', 'lookup'];
   });
 
+  /**
+   * True if the picker type selector must be disabled (only one picker).
+   */
   public readonly pickerTypeDisabled = computed<boolean>(() => {
     return this.pickers().length <= 1;
   });
+
+  public readonly pickerExpanded = signal<boolean>(false);
+  public readonly lookupConfigs = signal<RefLookupConfig[]>([]);
+  public readonly parsedCitation = signal<Citation | undefined>(undefined);
 
   public type: FormControl<string | null>;
   public tag: FormControl<string | null>;
@@ -149,10 +166,7 @@ export class LookupDocReferenceComponent implements OnDestroy {
   public note: FormControl<string | null>;
   public form: FormGroup;
 
-  public pickerExpanded?: boolean;
   public pickerType: FormControl<string>;
-  public lookupConfigs: RefLookupConfig[] = [];
-  public parsedCitation?: Citation;
 
   constructor(
     private _schemeService: CitSchemeService,
@@ -176,15 +190,18 @@ export class LookupDocReferenceComponent implements OnDestroy {
       nonNullable: true,
     });
 
-    this.lookupConfigs =
-      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || [];
-    this._lookupConfig = this.lookupConfigs.length
-      ? this.lookupConfigs[0]
+    this.lookupConfigs.set(
+      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || []
+    );
+    this._lookupConfig = this.lookupConfigs().length
+      ? this.lookupConfigs()[0]
       : undefined;
 
     // when reference changes, update form
     effect(() => {
-      this.updateForm(this.reference());
+      const reference = this.reference();
+      console.log('Input reference', reference);
+      this.updateForm(reference);
     });
 
     // when picker type changes, parse citation if it's citation
@@ -226,7 +243,7 @@ export class LookupDocReferenceComponent implements OnDestroy {
       true // we want empty slots so we can fill them
     );
     if (citation) {
-      this.parsedCitation = citation;
+      this.parsedCitation.set(citation);
     }
   }
 
@@ -236,11 +253,11 @@ export class LookupDocReferenceComponent implements OnDestroy {
       return;
     }
 
-    this.pickerExpanded = !this.pickerExpanded;
+    this.pickerExpanded.set(!this.pickerExpanded());
 
     // if expanded and picker is citation, parse citation into it
     if (
-      this.pickerExpanded &&
+      this.pickerExpanded() &&
       this.pickerType.value === 'citation' &&
       this.citation.value
     ) {
@@ -254,14 +271,14 @@ export class LookupDocReferenceComponent implements OnDestroy {
       this.citation.markAsDirty();
       this.citation.updateValueAndValidity();
       this.pickedItem.set(item);
-      this.pickerExpanded = false;
+      this.pickerExpanded.set(false);
     }
   }
 
   public onCitationChange(citation?: Citation): void {
     if (
       !citation ||
-      !this.pickerExpanded ||
+      !this.pickerExpanded() ||
       this.pickerType.value !== 'citation'
     ) {
       return;
