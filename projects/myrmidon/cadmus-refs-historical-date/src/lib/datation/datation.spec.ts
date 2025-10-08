@@ -233,5 +233,87 @@ describe('Class: Datation', () => {
     expect(s).toBe('c. IV BC ? {hint}');
   });
 
-  // TODO: more tests
+  // slide tests
+  it('parse "1230:1240" should get year with slide', () => {
+    const d = Datation.parse('1230:1240')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(1230);
+    expect(d.slide).toBe(10);
+    expect(d.isCentury).toBeFalsy();
+    expect(d.isSpan).toBeFalsy();
+  });
+
+  it('parse "45:50 BC" should get negative year with slide', () => {
+    const d = Datation.parse('45:50 BC')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(-45);
+    expect(d.slide).toBe(5);
+    expect(d.isCentury).toBeFalsy();
+  });
+
+  it('parse "III:V AD" should get century with slide', () => {
+    const d = Datation.parse('III:V AD')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(3);
+    expect(d.slide).toBe(2);
+    expect(d.isCentury).toBeTruthy();
+  });
+
+  it('parse "II:IV BC" should get negative century with slide', () => {
+    const d = Datation.parse('II:IV BC')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(-2);
+    expect(d.slide).toBe(2);
+    expect(d.isCentury).toBeTruthy();
+  });
+
+  it('parse "c.1230:1240?" should get approximate dubious year with slide', () => {
+    const d = Datation.parse('c.1230:1240?')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(1230);
+    expect(d.slide).toBe(10);
+    expect(d.isApproximate).toBeTruthy();
+    expect(d.isDubious).toBeTruthy();
+    expect(d.isCentury).toBeFalsy();
+  });
+
+  it('parse "15 may 1230:1235 AD {hint}" should get full date with slide and hint', () => {
+    const d = Datation.parse('15 may 1230:1235 AD {hint}')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(1230);
+    expect(d.slide).toBe(5);
+    expect(d.day).toBe(15);
+    expect(d.month).toBe(5);
+    expect(d.hint).toBe('hint');
+    expect(d.isCentury).toBeFalsy();
+  });
+
+  it('parse "12/13:15" should get span with slide', () => {
+    const d = Datation.parse('12/13:15')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(12);
+    expect(d.slide).toBe(3);
+    expect(d.isSpan).toBeTruthy();
+    expect(d.isCentury).toBeFalsy();
+  });
+
+  it('getSlideEnd() should return correct end value', () => {
+    const d = new Datation();
+    d.value = 1230;
+    d.slide = 10;
+    expect(d.getSlideEnd()).toBe(1240);
+  });
+
+  it('getSlideEnd() should return value when no slide', () => {
+    const d = new Datation();
+    d.value = 1230;
+    expect(d.getSlideEnd()).toBe(1230);
+  });
+
+  it('getSortValue() should use middle of slide range', () => {
+    const d = new Datation();
+    d.value = 1230;
+    d.slide = 10;
+    expect(d.getSortValue()).toBe(1235); // 1230 + 10/2
+  });
 });

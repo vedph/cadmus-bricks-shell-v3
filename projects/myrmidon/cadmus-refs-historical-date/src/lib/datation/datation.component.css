@@ -15,6 +15,9 @@ h4 {
 .md {
   width: 5em;
 }
+.hint {
+  width: 20em;
+}
 .value {
   width: 6em;
 }

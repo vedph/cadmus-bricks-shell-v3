@@ -13,6 +13,7 @@ export interface DatationModel {
   day?: number;
   month?: number;
   hint?: string;
+  slide?: number;
 }
 
 /**
@@ -64,6 +65,7 @@ export class Datation implements DatationModel {
   public day?: number;
   public month?: number;
   public hint?: string;
+  public slide?: number;
 
   /**
    * Create a new datation, optionally setting its data.
@@ -131,21 +133,21 @@ export class Datation implements DatationModel {
         '(?:([0123]?\\d)\\s+)?' +
         // month (3)
         '(?:([a-zA-Z]{3,})\\s+)?' +
-        // year/span (4,5)
+        // year/span/slide (4,5,6) or century/slide (7,8)
         '(?:' +
-        '(?:(\\d+)(?:\\s*/\\s*(\\d+))?)|' +
-        // century (6)
-        '([ivxIVX]+)' +
+        '(?:(\\d+)(?:\\s*/\\s*(\\d+))?(?:\\s*:\\s*(\\d+))?)|' +
+        // century with slide (7,8)
+        '([ivxIVX]+)(?:\\s*:\\s*([ivxIVX]+))?' +
         ')\\s*' +
-        // era (7)
+        // era (9)
         '(' +
         bcad[0] +
         '|' +
         bcad[1] +
         ')?' +
-        // perhaps (8)
+        // perhaps (10)
         '(\\s*\\?)?' +
-        // hint (9)
+        // hint (11)
         '(?:\\s*\\{([^}]+)\\})?',
       'i'
     );
@@ -195,33 +197,42 @@ export class Datation implements DatationModel {
       }
     }
 
-    // year, span
+    // year, span, slide
     if (m[4]) {
       datation.value = parseInt(m[4], 10);
       if (m[5]) {
         datation.isSpan = true;
       }
+      if (m[6]) {
+        const slideTo = parseInt(m[6], 10);
+        datation.slide = slideTo - datation.value;
+      }
     } else {
-      datation.value = RomanNumber.fromRoman(m[6].toUpperCase());
+      // century with slide
+      datation.value = RomanNumber.fromRoman(m[7].toUpperCase());
       datation.isCentury = true;
+      if (m[8]) {
+        const slideToCentury = RomanNumber.fromRoman(m[8].toUpperCase());
+        datation.slide = slideToCentury - datation.value;
+      }
     }
 
     // era
-    if (m[7]) {
-      const era = m[7].replace(' ', '').toLowerCase();
+    if (m[9]) {
+      const era = m[9].replace(' ', '').toLowerCase();
       if (era === options.bcText.toLowerCase()) {
         datation.value = -datation.value;
       }
     }
 
     // dubious
-    if (m[8]) {
+    if (m[10]) {
       datation.isDubious = true;
     }
 
     // hint
-    if (m[9]) {
-      datation.hint = Datation.sanitizeHint(m[9]);
+    if (m[11]) {
+      datation.hint = Datation.sanitizeHint(m[11]);
     }
 
     return datation;
@@ -260,6 +271,7 @@ export class Datation implements DatationModel {
     this.day = 0;
     this.month = 0;
     this.hint = undefined;
+    this.slide = 0;
   }
 
   /**
@@ -275,6 +287,7 @@ export class Datation implements DatationModel {
     this.day = datation.day;
     this.month = datation.month;
     this.hint = datation.hint ? datation.hint : undefined;
+    this.slide = datation.slide;
   }
 
   /**
@@ -284,6 +297,16 @@ export class Datation implements DatationModel {
    */
   public isUndefined(): boolean {
     return !this.value;
+  }
+
+  /**
+   * Gets the end value when a slide is present.
+   * @returns The end value of the datation. If no slide is present,
+   * the value itself is returned.
+   */
+  public getSlideEnd() {
+    if (!this.slide) return this.value;
+    return this.value + this.slide;
   }
 
   /**
@@ -300,6 +323,9 @@ export class Datation implements DatationModel {
     if (this.isSpan) {
       result += 0.5;
     }
+    // use the middle point of the slide range
+    if (this.slide) result += this.slide / 2.0;
+
     if (this.month && this.month > 0 && this.month <= 12) {
       result += this.month / 12;
     }
@@ -501,11 +527,25 @@ export class Datation implements DatationModel {
                 ? RomanNumber.toRoman(Math.abs(this.value)).toLowerCase()
                 : RomanNumber.toRoman(Math.abs(this.value)).toUpperCase()
             );
+            // add slide for century
+            if (this.slide) {
+              const endCentury = Math.abs(this.getSlideEnd());
+              const romanEnd =
+                token === 'v'
+                  ? RomanNumber.toRoman(endCentury).toLowerCase()
+                  : RomanNumber.toRoman(endCentury).toUpperCase();
+              sb.push(`:${romanEnd}`);
+            }
           } else {
             const year = Math.abs(this.value);
             sb.push(year.toString());
             if (this.isSpan) {
               sb.push(`/${year + (this.value < 0 ? -1 : +1)}`);
+            }
+            // add slide for year - fix: don't use Math.abs on slide end
+            if (this.slide) {
+              const endYear = Math.abs(this.value) + Math.abs(this.slide);
+              sb.push(`:${endYear}`);
             }
           }
           break;

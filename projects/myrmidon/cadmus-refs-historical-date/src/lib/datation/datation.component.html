@@ -7,6 +7,13 @@
     <mat-form-field class="value">
       <mat-label>value</mat-label>
       <input matInput [formControl]="value" type="number" />
+      <mat-hint>negative for BC</mat-hint>
+    </mat-form-field>
+    <!-- slide -->
+    <mat-form-field class="value">
+      <mat-label>slide</mat-label>
+      <input matInput [formControl]="slide" type="number" min="0" />
+      <mat-hint>positive delta</mat-hint>
     </mat-form-field>
     <!-- month -->
     <mat-form-field class="md">
@@ -38,7 +45,7 @@
 
   <!-- hint -->
   <div>
-    <mat-form-field>
+    <mat-form-field class="hint">
       <mat-label>hint</mat-label>
       <input matInput [formControl]="hint" />
       @if (hint.hasError('maxLength') && (hint.touched || hint.dirty)) {

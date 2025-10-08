@@ -1,8 +1,7 @@
 <form role="form" [formGroup]="form" (submit)="save()">
   <div>
-    <mat-form-field>
+    <mat-form-field class="date-text" appearance="fill">
       <input
-        appearance="fill"
         matInput
         [formControl]="dateText"
         [placeholder]="label() || 'date'"

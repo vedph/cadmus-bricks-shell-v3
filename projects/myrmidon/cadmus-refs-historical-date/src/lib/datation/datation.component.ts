@@ -62,6 +62,7 @@ export class DatationComponent implements OnInit, OnDestroy {
   public about: FormControl<boolean>;
   public dubious: FormControl<boolean>;
   public hint: FormControl<string | null>;
+  public slide: FormControl<number>;
   public form: FormGroup;
 
   constructor(formBuilder: FormBuilder) {
@@ -80,6 +81,7 @@ export class DatationComponent implements OnInit, OnDestroy {
     this.about = formBuilder.control(false, { nonNullable: true });
     this.dubious = formBuilder.control(false, { nonNullable: true });
     this.hint = formBuilder.control(null, Validators.maxLength(500));
+    this.slide = formBuilder.control(0, { nonNullable: true });
     this.form = formBuilder.group({
       value: this.value,
       century: this.century,
@@ -89,6 +91,7 @@ export class DatationComponent implements OnInit, OnDestroy {
       about: this.about,
       dubious: this.dubious,
       hint: this.hint,
+      slide: this.slide,
     });
 
     // when datation changes, update form
@@ -124,6 +127,7 @@ export class DatationComponent implements OnInit, OnDestroy {
       this.about.setValue(model.isApproximate || false);
       this.dubious.setValue(model.isDubious || false);
       this.hint.setValue(model.hint || null);
+      this.slide.setValue(model.slide || 0);
       this.form.markAsPristine();
     }
     this._changeFrozen = false;
@@ -139,6 +143,7 @@ export class DatationComponent implements OnInit, OnDestroy {
       isApproximate: this.about.value || false,
       isDubious: this.dubious.value || false,
       hint: Datation.sanitizeHint(this.hint.value),
+      slide: this.slide.value ? +this.slide.value : 0,
     };
   }
 

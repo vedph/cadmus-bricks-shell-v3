@@ -145,7 +145,7 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-refs-decorated-ids` (9.0.3)
 - `@myrmidon/cadmus-refs-doc-references` (10.0.2)
 - `@myrmidon/cadmus-refs-external-ids` (10.0.2)
-- `@myrmidon/cadmus-refs-historical-date` (9.0.2)
+- `@myrmidon/cadmus-refs-historical-date` (9.1.0)
 - `@myrmidon/cadmus-refs-lookup` (10.0.5)
 - `@myrmidon/cadmus-refs-proper-name` (10.0.2)
 - `@myrmidon/cadmus-text-block-view` (9.0.1)
@@ -175,6 +175,7 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-10-07: 🆕 added `slide` to the points of a historical date (`@myrmidon/cadmus-refs-historical-date`).
 - 2025-10-01:
   - fixes to object view and improvements to doc refs lookup.
   - updated Angular.

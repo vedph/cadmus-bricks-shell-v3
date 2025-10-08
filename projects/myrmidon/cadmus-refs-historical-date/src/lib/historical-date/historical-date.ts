@@ -75,42 +75,37 @@ export class HistoricalDate implements HistoricalDateModel {
             // dubious (2)
             '(\\s*\\?)?' +
             // hint (3)
-            '(?:\\s*\\{?:([^)]+)\\})?\\s*$',
-          'gi'
+            '(?:\\s*\\{([^}]+)\\})?\\s*$',
+          'i'
         );
         const m1 = tailRegexp.exec(s1);
 
         // if 1st has no era try integration from 2nd
-        if (m1 && m1[1] && s2) {
+        if (m1 && (!m1[1] || m1[1].length === 0) && s2) {
           // get era from 2nd (if 2nd hasn't it too, give up and AD will be assumed)
           const m2 = tailRegexp.exec(s2);
-          if (m2 && m2[1]) {
-            const era = m2[1] || 'p.C.';
+          if (m2 && m2[1] && m2[1].length > 0) {
+            const era = m2[1] || options.adText;
             const sb1: string[] = [];
             if (m1.index > 0) {
-              sb1.push(s1.substr(0, m1.index));
+              sb1.push(s1.substring(0, m1.index));
             }
             sb1.push(' ' + era);
             if (m1[2]) {
               sb1.push('?');
             }
             if (m1[3]) {
-              sb1.push(` (${m1[3]})`);
+              sb1.push(` {${m1[3]}}`);
             }
             s1 = sb1.join('');
           }
         }
       }
-      date.setStartPoint(Datation.parse(s1, options)!);
-      if (s2) {
-        date.setEndPoint(Datation.parse(s2, options)!);
-      }
+      date.setStartPoint(Datation.parse(s1, options) || new Datation());
+      date.setEndPoint(Datation.parse(s2!, options) || new Datation());
     } else {
-      // here we have a s2, even if empty. When empty, it represents
-      // an unknown point in a terminus ante/post, and as such we
-      // must set B=null. When B=undefined, it's not a range but a point.
-      const d = Datation.parse(s1, options);
-      if (d && !d.isUndefined()) {
+      const d = Datation.parse(s1, options) || new Datation();
+      if (!d.isUndefined()) {
         date.setSinglePoint(d);
       }
     }
@@ -277,41 +272,64 @@ export class HistoricalDate implements HistoricalDateModel {
 
     switch (this.getDateType()) {
       case HistoricalDateType.point:
-        year = Math.trunc(
-          this.a.isCentury ? this.centuryToYear(this.a.value) : this.a.value
-        );
+        year = this.a.isCentury
+          ? this.centuryToYear(this.a.value)
+          : this.a.value;
+        if (this.a.slide && this.a.slide > 0) {
+          year += Math.trunc(this.a.slide / 2);
+        }
         break;
 
       case HistoricalDateType.range:
         // min is missing: terminus ante
-        if (this.a.isUndefined() && this.b) {
-          year = Math.trunc(
+        if (this.a.isUndefined()) {
+          if (!this.b || this.b.isUndefined()) {
+            year = 0;
+            break;
+          }
+          year =
             (this.b.isCentury
               ? this.centuryToYear(this.b.value)
-              : this.b.value) - (useTerminusSpan ? APPROX_DELTA : 0)
-          );
+              : this.b.value) - (useTerminusSpan ? APPROX_DELTA : 0);
           break;
         }
         // max is missing: terminus post
         if (!this.b || this.b.isUndefined()) {
-          year = Math.trunc(
+          year =
             (this.a.isCentury
               ? this.centuryToYear(this.a.value)
-              : this.a.value) + (useTerminusSpan ? APPROX_DELTA : 0)
-          );
+              : this.a.value) + (useTerminusSpan ? APPROX_DELTA : 0);
           break;
         }
-        // both min and max
-        const min = this.a.isCentury
+
+        // both min and max - use slide end for range calculations when present
+        let min = this.a.isCentury
           ? this.centuryToYear(this.a.value)
           : this.a.value;
-        const max = this.b.isCentury
+        let max = this.b.isCentury
           ? this.centuryToYear(this.b.value)
           : this.b.value;
-        year = Math.trunc((max - min) / 2 + min);
+
+        // adjust for slides
+        if (this.a.slide && this.a.slide > 0) {
+          min = this.a.isCentury
+            ? this.centuryToYear(this.a.getSlideEnd())
+            : this.a.getSlideEnd();
+        }
+        if (this.b.slide && this.b.slide > 0) {
+          max = this.b.isCentury
+            ? this.centuryToYear(this.b.getSlideEnd())
+            : this.b.getSlideEnd();
+        }
+
+        year = Math.trunc((max - min) / 2) + min;
         if (year === 0) {
           year = 1;
         }
+        break;
+
+      default:
+        year = 0;
         break;
     }
 
