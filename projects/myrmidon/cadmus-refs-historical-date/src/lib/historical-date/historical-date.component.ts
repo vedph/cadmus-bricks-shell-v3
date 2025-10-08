@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, input, effect, model, output, ChangeDetectionStrategy, signal } from '@angular/core';
+import {
+  Component,
+  input,
+  effect,
+  model,
+  ChangeDetectionStrategy,
+  signal,
+} from '@angular/core';
 import {
   FormGroup,
   FormControl,
@@ -8,7 +15,6 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -51,7 +57,7 @@ import { DatationComponent } from '../datation/datation.component';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HistoricalDateComponent implements OnInit {
+export class HistoricalDateComponent {
   private _sub?: Subscription;
 
   /**
@@ -70,9 +76,9 @@ export class HistoricalDateComponent implements OnInit {
   public readonly disabled = input<boolean>();
 
   // set by date text:
-  public readonly invalidDateText = signal<boolean | undefined>(undefined);
+  public readonly invalidDateText = signal<boolean>(false);
   public readonly dateValue = signal<number | undefined>(undefined);
-  public readonly visualExpanded = signal<boolean | undefined>(undefined);
+  public readonly visualExpanded = signal<boolean>(false);
   // set by events:
   public readonly a = signal<DatationModel | undefined>(undefined);
   public readonly b = signal<DatationModel | undefined>(undefined);
@@ -105,27 +111,6 @@ export class HistoricalDateComponent implements OnInit {
     effect(() => {
       this.updateForm(this.date());
     });
-  }
-
-  public ngOnInit(): void {
-    // whenever the date text changes, update datations and fire date change
-    this._sub = this.dateText.valueChanges
-      .pipe(debounceTime(2000), distinctUntilChanged())
-      .subscribe((text) => {
-        const hd = HistoricalDate.parse(text);
-        if (hd) {
-          this.invalidDateText.set(false);
-          this.dateValue.set(hd.getSortValue());
-          this.range.setValue(hd.getDateType() === HistoricalDateType.range);
-          this.a.set(hd.a);
-          this.b.set(hd.b);
-          this.date.set(hd);
-        } else {
-          this.invalidDateText.set(true);
-          this.dateValue.set(0);
-        }
-      });
-    this.updateForm(this.date());
   }
 
   public ngOnDestroy(): void {
@@ -173,6 +158,38 @@ export class HistoricalDateComponent implements OnInit {
     this.dateText.setValue(hd.toString());
     this.visualExpanded.set(false);
     this.updateFromText();
+  }
+
+  public parseDateText(): void {
+    if (!this.dateText.value) {
+      return;
+    }
+    try {
+      const hd = HistoricalDate.parse(this.dateText.value);
+      if (hd) {
+        this.invalidDateText.set(false);
+        this.dateValue.set(hd.getSortValue());
+        this.range.setValue(hd.getDateType() === HistoricalDateType.range);
+        this.a.set(hd.a);
+        this.b.set(hd.b);
+        this.date.set(hd);
+        this.visualExpanded.set(true);
+      } else {
+        this.invalidDateText.set(true);
+        this.dateValue.set(0);
+      }
+    } catch (error) {
+      console.log(error);
+      this.invalidDateText.set(true);
+      this.dateValue.set(0);
+    }
+  }
+
+  public resetDateText(): void {
+    this.dateText.setValue('');
+    this.dateText.updateValueAndValidity();
+    this.dateText.markAsDirty();
+    this.invalidDateText.set(false);
   }
 
   private updateFromText(): void {

@@ -197,6 +197,11 @@ export class Datation implements DatationModel {
       }
     }
 
+    // check if this is BC before processing values
+    const isBC =
+      m[9] &&
+      m[9].replace(' ', '').toLowerCase() === options.bcText.toLowerCase();
+
     // year, span, slide
     if (m[4]) {
       datation.value = parseInt(m[4], 10);
@@ -205,7 +210,15 @@ export class Datation implements DatationModel {
       }
       if (m[6]) {
         const slideTo = parseInt(m[6], 10);
-        datation.slide = slideTo - datation.value;
+        if (isBC) {
+          // For BC dates, format is "start:end" where start > end chronologically
+          // e.g., "810:805 BC" means start=810 BC, slide=5 (chronological progression)
+          datation.slide = datation.value - slideTo;
+          // value remains the starting point (810 in the example)
+        } else {
+          // For AD dates, the format is "lower:higher" (e.g., "1230:1240 AD")
+          datation.slide = slideTo - datation.value;
+        }
       }
     } else {
       // century with slide
@@ -213,16 +226,21 @@ export class Datation implements DatationModel {
       datation.isCentury = true;
       if (m[8]) {
         const slideToCentury = RomanNumber.fromRoman(m[8].toUpperCase());
-        datation.slide = slideToCentury - datation.value;
+        if (isBC) {
+          // For BC centuries, format is "start:end" where start > end chronologically
+          // e.g., "IV:II BC" means start=IV BC, slide=2
+          datation.slide = datation.value - slideToCentury;
+          // value remains the starting point (IV in the example)
+        } else {
+          // For AD centuries, format is "lower:higher" (e.g., "III:V AD")
+          datation.slide = slideToCentury - datation.value;
+        }
       }
     }
 
-    // era
-    if (m[9]) {
-      const era = m[9].replace(' ', '').toLowerCase();
-      if (era === options.bcText.toLowerCase()) {
-        datation.value = -datation.value;
-      }
+    // era - apply sign change after slide processing
+    if (isBC) {
+      datation.value = -datation.value;
     }
 
     // dubious
@@ -542,10 +560,18 @@ export class Datation implements DatationModel {
             if (this.isSpan) {
               sb.push(`/${year + (this.value < 0 ? -1 : +1)}`);
             }
-            // add slide for year - fix: don't use Math.abs on slide end
+            // add slide for year
             if (this.slide) {
-              const endYear = Math.abs(this.value) + Math.abs(this.slide);
-              sb.push(`:${endYear}`);
+              if (this.value < 0) {
+                // for BC dates, format is "start:end" where start > end
+                // e.g., value=-50, slide=10 should display as "50:40 BC"
+                const endYear = Math.abs(this.value) - this.slide;
+                sb.push(`:${endYear}`);
+              } else {
+                // for AD dates, format is "start:end" where start < end
+                const endYear = Math.abs(this.value) + Math.abs(this.slide);
+                sb.push(`:${endYear}`);
+              }
             }
           }
           break;

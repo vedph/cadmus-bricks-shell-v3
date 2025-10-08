@@ -6,7 +6,27 @@
         [formControl]="dateText"
         [placeholder]="label() || 'date'"
       />
-      <mat-hint>A or A--B</mat-hint>
+      <mat-hint>A or A--B, era: BC/AD</mat-hint>
+      <button
+        type="button"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear text"
+        matTooltip="Clear date text"
+        (click)="resetDateText()"
+      >
+        <mat-icon class="mat-warn">close</mat-icon>
+      </button>
+      <button
+        type="button"
+        matSuffix
+        mat-icon-button
+        aria-label="Parse text"
+        matTooltip="Parse date text"
+        (click)="parseDateText()"
+      >
+        <mat-icon class="mat-primary">check_circle</mat-icon>
+      </button>
     </mat-form-field>
     <span>
       @if (dateText.value && invalidDateText()) {

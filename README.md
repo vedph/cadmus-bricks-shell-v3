@@ -25,7 +25,7 @@ To use a brick:
 
 1. `npm run build-lib`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker build . -t vedph2020/cadmus-bricks-v3:10.0.0 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
+3. `docker build . -t vedph2020/cadmus-bricks-v3:10.0.1 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
 
@@ -175,6 +175,11 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+### 10.0.1
+
+- 2025-10-08:
+  - updated Angular and packages.
+  - Docker image.
 - 2025-10-07: 🆕 added `slide` to the points of a historical date (`@myrmidon/cadmus-refs-historical-date`).
 - 2025-10-01:
   - fixes to object view and improvements to doc refs lookup.

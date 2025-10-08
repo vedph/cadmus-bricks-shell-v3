@@ -162,12 +162,12 @@ describe('Class: HistoricalDate', () => {
     expect(a.isCentury).toBeTruthy();
   });
 
-  it('parse "c.1230:1240 BC?" should get approximate dubious point with slide', () => {
-    const d = HistoricalDate.parse('c.1230:1240 BC?')!;
+  it('parse "c.1240:1230 BC?" should get approximate dubious point with slide', () => {
+    const d = HistoricalDate.parse('c.1240:1230 BC?')!;
     expect(d).toBeTruthy();
     expect(d.getDateType()).toBe(HistoricalDateType.point);
     const a = d.a;
-    expect(a.value).toBe(-1230);
+    expect(a.value).toBe(-1240);
     expect(a.slide).toBe(10);
     expect(a.isApproximate).toBeTruthy();
     expect(a.isDubious).toBeTruthy();
@@ -187,12 +187,12 @@ describe('Class: HistoricalDate', () => {
     expect(b.slide).toBe(10);
   });
 
-  it('parse "II:III BC -- IV:V AD" should get century range with slides', () => {
-    const d = HistoricalDate.parse('II:III BC -- IV:V AD')!;
+  it('parse "III:II BC -- IV:V AD" should get century range with slides', () => {
+    const d = HistoricalDate.parse('III:II BC -- IV:V AD')!;
     expect(d).toBeTruthy();
     expect(d.getDateType()).toBe(HistoricalDateType.range);
     const a = d.a;
-    expect(a.value).toBe(-2);
+    expect(a.value).toBe(-3);
     expect(a.slide).toBe(1);
     expect(a.isCentury).toBeTruthy();
     const b = d.b!;
@@ -291,6 +291,6 @@ describe('Class: HistoricalDate', () => {
     expect(d).toBeTruthy();
     expect(d.getDateType()).toBe(HistoricalDateType.point);
     expect(d.a.value).toBe(-810);
-    expect(d.a.slide).toBe(-5); // negative slide since 805 < 810
+    expect(d.a.slide).toBe(5);
   });
 });

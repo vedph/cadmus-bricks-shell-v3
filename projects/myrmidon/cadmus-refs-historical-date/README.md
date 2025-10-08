@@ -57,7 +57,9 @@ Example:
 
 ### 9.1.0
 
-- 2025-10-07: added `slide` to datation, synching the TypeScript code with its backend C# counterpart. The slide defaults to 0; when different from 0, it represents a "slide" delta to be added to `value`. For instance, value=1230 and slide=10 means 1230-40; this is not a range in the sense of `HistoricalDatation` with A and B points; it's just a relatively undeterminated point, allowed to move between 1230 and 1240. This means that we can still have a range, like A=1230-1240 and B=1290. We represent this with `:` in its parsable string. So, we can now have strings like `1230:1240--1290` for range A=1230-1240 and B=1290, or even `1230:1240--1290:1295`; all combinations are possible. With negative (BC) values we have e.g. `810:805 BC` meaning slide=5. Note that slides are possible with centuries too, e.g. `VI:VII`. This change has no impact on existing data and code, it just adds a new feature to the datation model.
+- 2025-10-07:
+  - added explicit parse button for historical datation text.
+  - 🆕 added `slide` to datation, synching the TypeScript code with its backend C# counterpart. The slide defaults to 0; when different from 0, it represents a "slide" delta to be added to `value`. For instance, value=1230 and slide=10 means 1230-1240; this is not a range in the sense of `HistoricalDatation` with A and B points; it's just a relatively undeterminated point, allowed to move between 1230 and 1240. This means that we can still have a range, like A=1230-1240 and B=1290. We represent this with `:` in its parsable string. So, we can now have strings like `1230:1240--1290` for range A=1230-1240 and B=1290, or even `1230:1240--1290:1295`; all combinations are possible. With negative (BC) values we have e.g. `810:805 BC` meaning slide=5. Note that slides are possible with centuries too, e.g. `VI:VII`. This change has no impact on existing data and code, it just adds a new feature to the datation model.
 
 ### 9.0.2
 

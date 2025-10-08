@@ -243,11 +243,11 @@ describe('Class: Datation', () => {
     expect(d.isSpan).toBeFalsy();
   });
 
-  it('parse "45:50 BC" should get negative year with slide', () => {
-    const d = Datation.parse('45:50 BC')!;
+  it('parse "50:45 BC" should get negative year with slide', () => {
+    const d = Datation.parse('50:45 BC')!;
     expect(d).toBeTruthy();
-    expect(d.value).toBe(-45);
-    expect(d.slide).toBe(5);
+    expect(d.value).toBe(-50); // start at 50 BC
+    expect(d.slide).toBe(5); // slide 5 years forward to 45 BC
     expect(d.isCentury).toBeFalsy();
   });
 
@@ -259,11 +259,11 @@ describe('Class: Datation', () => {
     expect(d.isCentury).toBeTruthy();
   });
 
-  it('parse "II:IV BC" should get negative century with slide', () => {
-    const d = Datation.parse('II:IV BC')!;
+  it('parse "IV:II BC" should get negative century with slide', () => {
+    const d = Datation.parse('IV:II BC')!;
     expect(d).toBeTruthy();
-    expect(d.value).toBe(-2);
-    expect(d.slide).toBe(2);
+    expect(d.value).toBe(-4); // start at IV BC (4th century BC)
+    expect(d.slide).toBe(2); // slide 2 centuries forward to II BC
     expect(d.isCentury).toBeTruthy();
   });
 
@@ -295,6 +295,50 @@ describe('Class: Datation', () => {
     expect(d.slide).toBe(3);
     expect(d.isSpan).toBeTruthy();
     expect(d.isCentury).toBeFalsy();
+  });
+
+  it('parse 40:50 AD with roundtrip to text should be OK', () => {
+    const d = Datation.parse('40:50 AD')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(40);
+    expect(d.slide).toBe(10);
+    expect(d.isCentury).toBeFalsy();
+    expect(d.isSpan).toBeFalsy();
+    const s = d.toString();
+    expect(s).toBe('40:50 AD');
+  });
+
+  it('parse 50:40 BC with roundtrip to text should be OK', () => {
+    const d = Datation.parse('50:40 BC')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(-50);
+    expect(d.slide).toBe(10);
+    expect(d.isCentury).toBeFalsy();
+    expect(d.isSpan).toBeFalsy();
+    const s = d.toString();
+    expect(s).toBe('50:40 BC');
+  });
+
+  it('parse X:XI AD with roundtrip to text should be OK', () => {
+    const d = Datation.parse('X:XI AD')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(10);
+    expect(d.slide).toBe(1);
+    expect(d.isCentury).toBeTruthy();
+    expect(d.isSpan).toBeFalsy();
+    const s = d.toString();
+    expect(s).toBe('X:XI AD');
+  });
+
+  it('parse XI:X BC with roundtrip to text should be OK', () => {
+    const d = Datation.parse('XI:X BC')!;
+    expect(d).toBeTruthy();
+    expect(d.value).toBe(-11);
+    expect(d.slide).toBe(1);
+    expect(d.isCentury).toBeTruthy();
+    expect(d.isSpan).toBeFalsy();
+    const s = d.toString();
+    expect(s).toBe('XI:X BC');
   });
 
   it('getSlideEnd() should return correct end value', () => {
