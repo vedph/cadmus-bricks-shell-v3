@@ -136,7 +136,7 @@ These changes will not affect compatibility in any way, so it is safe to progres
 - `@myrmidon/cadmus-mat-physical-grid` (9.0.2)
 - `@myrmidon/cadmus-mat-physical-size` (9.0.9)
 - `@myrmidon/cadmus-mat-physical-state` (9.0.1)
-- `@myrmidon/cadmus-refs-asserted-chronotope` (10.0.3)
+- `@myrmidon/cadmus-refs-asserted-chronotope` (10.0.5)
 - `@myrmidon/cadmus-refs-asserted-ids` (10.0.9)
 - `@myrmidon/cadmus-refs-assertion` (10.0.4)
 - `@myrmidon/cadmus-refs-chronotope` (9.0.1)

@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-asserted-chronotope",
-  "version": "10.0.4",
+  "version": "10.0.5",
   "description": "Cadmus - asserted chronotope component.",
   "keywords": [
     "Cadmus",
@@ -19,8 +19,8 @@
     "@angular/core": "^20.0.0",
     "@angular/material": "^20.0.0",
     "@myrmidon/ngx-mat-tools": "^1.0.0",
-    "@myrmidon/cadmus-refs-assertion": "^10.0.3",
-    "@myrmidon/cadmus-refs-historical-date": "^9.0.1"
+    "@myrmidon/cadmus-refs-assertion": "^10.0.4",
+    "@myrmidon/cadmus-refs-historical-date": "^9.1.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

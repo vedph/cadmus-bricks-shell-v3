@@ -66,10 +66,7 @@
   </table>
   } @if (edited()) {
   <fieldset>
-    <mat-expansion-panel
-      [disabled]="!edited()"
-      [expanded]="edited()"
-    >
+    <mat-expansion-panel [disabled]="!edited()" [expanded]="edited()">
       <mat-expansion-panel-header
         >chronotope #{{ editedIndex() + 1 }}</mat-expansion-panel-header
       >
@@ -82,7 +79,7 @@
         (chronotopeChange)="onChronotopeChange($event)"
       />
       <div class="form-row" style="margin-top: 8px">
-        <button type="button" (click)="editChronotope(null)" mat-icon-button>
+        <button type="button" (click)="closeChronotope()" mat-icon-button>
           <mat-icon class="mat-warn">cancel</mat-icon>
         </button>
         <button

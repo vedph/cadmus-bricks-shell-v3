@@ -24,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
-import { deepCopy, NgxToolsValidators } from '@myrmidon/ngx-tools';
+import { NgxToolsValidators } from '@myrmidon/ngx-tools';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 import { HistoricalDatePipe } from '@myrmidon/cadmus-refs-historical-date';
 
@@ -109,20 +109,18 @@ export class AssertedChronotopeSetComponent implements OnInit {
   }
 
   public addChronotope(): void {
-    this.editChronotope(Object.create(null));
+    this.editedIndex.set(-1);
+    this.edited.set({});
   }
 
-  public editChronotope(
-    chronotope: AssertedChronotope | null,
-    index = -1
-  ): void {
-    if (!chronotope) {
-      this.editedIndex.set(-1);
-      this.edited.set(undefined);
-    } else {
-      this.editedIndex.set(index);
-      this.edited.set(deepCopy(chronotope));
-    }
+  public editChronotope(chronotope: AssertedChronotope, index: number): void {
+    this.editedIndex.set(index);
+    this.edited.set(structuredClone(chronotope));
+  }
+
+  public closeChronotope(): void {
+    this.editedIndex.set(-1);
+    this.edited.set(undefined);
   }
 
   public onChronotopeChange(chronotope?: AssertedChronotope): void {
@@ -149,7 +147,7 @@ export class AssertedChronotopeSetComponent implements OnInit {
     this.entries.setValue(chronotopes);
     this.entries.updateValueAndValidity();
     this.entries.markAsDirty();
-    this.editChronotope(null);
+    this.closeChronotope();
     this.saveChronotopes();
   }
 

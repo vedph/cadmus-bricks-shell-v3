@@ -7,6 +7,7 @@
   - [AssertedChronotopeSet](#assertedchronotopeset)
   - [AssertedChronotopesPipe](#assertedchronotopespipe)
   - [History](#history)
+    - [10.0.5](#1005)
     - [10.0.4](#1004)
     - [10.0.3](#1003)
     - [10.0.2](#1002)
@@ -58,6 +59,10 @@ A pipe to transform a single chronotope or an array of chronotopes into a string
 ```
 
 ## History
+
+### 10.0.5
+
+- 2025-10-10: fix to chronotopes set.
 
 ### 10.0.4
 
