@@ -414,14 +414,14 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
 
   private buildGid(): string | null {
     // the GID is the part ID if any, or the item ID, followed by
-    // the pin's value (=EID)
+    // slash, pin's name, slash, value (=EID)
     const pin = this.lookupData()?.pin;
     if (!pin?.value) {
       return null;
     }
     return pin.partId
-      ? `P${pin.partId}/${pin.value}`
-      : `I${pin.itemId}/${pin.value}`;
+      ? `P${pin.partId}/${pin.name}/${pin.value}`
+      : `I${pin.itemId}/${pin.name}/${pin.value}`;
   }
 
   private buildLabel(): string | null {
