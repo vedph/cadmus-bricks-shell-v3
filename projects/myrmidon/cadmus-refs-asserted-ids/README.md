@@ -318,14 +318,19 @@ When the ID is **external**, the only properties set for the target model are `g
 
 There are different **options** to customize the lookup behavior:
 
-- lookup pin without any filters, except for the always present part type ID and pin name (_by type_); or lookup pin with optional filters for the item and any of its parts (_by item_; this is the default).
-- the part type ID and pin name filter (i.e. the _index lookup definitions_) can be set from many sources:
-  1. directly from the consumer code by setting `lookupDefinitions`;
-  2. from injection, when (1) is not used;
-  3. from thesaurus `model-types`, when (2) is empty.
-- set `pinByTypeMode` to true, to let the editor use by-type mode instead of by-item;
-- set `canSwitchMode` to true, to allow users switch between by-type and by-item modes;
-- set `canEditTarget` to true, to allow users edit the link target GID and label also for internal pins, where they are automatically provided by pin lookup.
+- lookup pins by part type or by item instance:
+  - _by part type_: you directly lookup by pin name, in the context of a specific part type. The part type is selected from a dropdown list, which draws its data from the configured `IndexLookupDefinitions`.
+  - _by item instance_: you lookup pins filtered by a specific item (via its assigned EID in its metadata part), and optionally by any of its parts. This is the default mode, as in most cases users have a top-bottom approach and think first of the item they want to target, and then, possibly, to a specific portion of its data (unless they are just happy to target the item as a whole).
+
+>The part type ID and pin name filter (i.e. the _index lookup definitions_) can be set from many sources:
+
+1. directly from the consumer code by setting `lookupDefinitions`;
+2. from injection, when (1) is not used;
+3. from thesaurus `model-types`, when (2) is empty.
+
+- set `pinByTypeMode` to true to let the editor use by-type mode instead of by-item;
+- set `canSwitchMode` to true to allow users switch between by-type and by-item modes;
+- set `canEditTarget` to true to allow users edit the link target GID and label also for internal pins, where they are automatically provided by pin lookup.
 
 These options can be variously combined to force users to use a specific behavior only; for instance, if you just want by-type lookup and automatic GID/label, set `pinByTypeMode` to true and `canSwitchMode` and `canEditTarget` to false.
 
