@@ -175,6 +175,9 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-11-22:
+  - ⚠️ upgraded to Angular 21.
+  - ⚠️ migrated to `pnpm`.
 - 2025-11-19:
   - updated Angular.
   - changed default GID in `PinTargetLookupComponent` to include pin name before its value.
