@@ -1,5 +1,44 @@
 # Cadmus Bricks Shell V3
 
+- [Cadmus Bricks Shell V3](#cadmus-bricks-shell-v3)
+  - [Monaco Editor Configuration for Angular 21](#monaco-editor-configuration-for-angular-21)
+    - [The Issue](#the-issue)
+    - [Required Configuration Steps](#required-configuration-steps)
+      - [1. Install Compatible Monaco Editor Version](#1-install-compatible-monaco-editor-version)
+      - [2. Add Monaco Types to TypeScript Configuration](#2-add-monaco-types-to-typescript-configuration)
+      - [3. Configure NGE Monaco Module](#3-configure-nge-monaco-module)
+      - [4. Using Monaco in Components](#4-using-monaco-in-components)
+    - [Why These Steps Are Necessary](#why-these-steps-are-necessary)
+    - [Troubleshooting](#troubleshooting)
+    - [Additional Resources](#additional-resources)
+  - [Docker](#docker)
+  - [Codicology](#codicology)
+  - [Imaging](#imaging)
+  - [Physical](#physical)
+  - [References](#references)
+  - [Text](#text)
+  - [UI](#ui)
+  - [V3 Creation](#v3-creation)
+  - [OnPush Progress](#onpush-progress)
+  - [History](#history)
+    - [10.0.1](#1001)
+    - [10.0.0](#1000)
+    - [9.0.7](#907)
+    - [9.0.6](#906)
+    - [9.0.5](#905)
+    - [9.0.4](#904)
+    - [9.0.3](#903)
+    - [9.0.2](#902)
+    - [9.0.1](#901)
+    - [9.0.0](#900)
+    - [8.0.6](#806)
+    - [8.0.5](#805)
+    - [8.0.4](#804)
+    - [8.0.3 - 2025-04-14](#803---2025-04-14)
+    - [8.0.2 - 2025-03-31](#802---2025-03-31)
+    - [8.0.1 - 2025-02-21](#801---2025-02-21)
+    - [8.0.0 - 2025-02-20](#800---2025-02-20)
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 🚀 You can play with the demo at <https://cadmus-bricks-v3.fusi-soft.com> (except for some services I did not put in the demo server).
@@ -18,6 +57,111 @@ To use a brick:
 1. install the package with NPM. If additional third-party dependencies or configuration is required, this is documented in the package README (see the list below).
 2. import the component(s) you want to use.
 3. use the brick via its selector in your component template, binding it to your code as required by its API.
+
+## Monaco Editor Configuration for Angular 21
+
+⚠️ **Important**: If you're upgrading an existing Angular workspace to Angular 21 and using Monaco Editor via `@cisstech/nge`, you must follow these configuration steps to avoid build errors.
+
+### The Issue
+
+Angular 21 uses a new esbuild-based builder which has stricter requirements for handling Monaco Editor dependencies. You may encounter these errors:
+
+- **TypeScript error**: `Cannot find namespace 'monaco'`
+- **Build error**: `No loader is configured for ".ttf" files: ...monaco-editor/.../codicon.ttf`
+
+### Required Configuration Steps
+
+#### 1. Install Compatible Monaco Editor Version
+
+`@cisstech/nge@18.3.0` requires `monaco-editor@^0.43.0`. **Do not** use `monaco-editor@0.55.x` or newer, as these versions have breaking changes that cause TTF font loading issues with Angular 21's esbuild.
+
+In your `package.json`:
+
+```json
+{
+  "dependencies": {
+    "@cisstech/nge": "^18.3.0",
+    "monaco-editor": "^0.43.0"
+  }
+}
+```
+
+#### 2. Add Monaco Types to TypeScript Configuration
+
+Add `monaco-editor` to the types array in your `tsconfig.app.json` to make the `monaco` namespace globally available:
+
+```json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": [
+      "@angular/localize",
+      "monaco-editor"
+    ]
+  }
+}
+```
+
+#### 3. Configure NGE Monaco Module
+
+In your `app.config.ts` (or equivalent application configuration file):
+
+```typescript
+import { NgeMonacoModule } from '@cisstech/nge/monaco';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // ... other providers
+    importProvidersFrom(NgeMonacoModule.forRoot({})),
+  ],
+};
+```
+
+By default, `@cisstech/nge` loads Monaco Editor from CDN (`https://cdn.jsdelivr.net/npm/monaco-editor@0.20.0`), so you don't need to configure asset paths unless you want to serve Monaco from your own server.
+
+#### 4. Using Monaco in Components
+
+You can now use the `monaco` namespace in your components without importing it:
+
+```typescript
+import { Component } from '@angular/core';
+import { NgeMonacoModule } from '@cisstech/nge/monaco';
+
+@Component({
+  selector: 'app-my-editor',
+  imports: [NgeMonacoModule],
+  template: `<nge-monaco-editor (onInit)="onEditorInit($event)"></nge-monaco-editor>`
+})
+export class MyEditorComponent {
+  private editor?: monaco.editor.IStandaloneCodeEditor;
+
+  onEditorInit(editor: monaco.editor.IEditor) {
+    this.editor = editor as monaco.editor.IStandaloneCodeEditor;
+    // Configure editor...
+  }
+}
+```
+
+### Why These Steps Are Necessary
+
+- **Version compatibility**: `@cisstech/nge@18.3.0` was built and tested with `monaco-editor@^0.43.0`. Newer versions (0.50+) introduce breaking changes in how fonts are loaded.
+- **Type definitions**: The `monaco` namespace is provided by monaco-editor's type definitions. Adding it to the TypeScript configuration makes these types globally available without explicit imports.
+- **Angular 21 esbuild**: The new Angular builder has different handling of CSS imports and font files compared to webpack, making newer Monaco versions incompatible without additional configuration.
+
+### Troubleshooting
+
+If you still encounter issues:
+
+1. **Clear build cache**: Delete `node_modules`, `package-lock.json` (or `pnpm-lock.yaml`), and `.angular` folder, then reinstall.
+2. **Verify versions**: Run `npm list monaco-editor` or `pnpm list monaco-editor` to ensure the correct version is installed.
+3. **Check for conflicting configs**: Ensure no other TypeScript config files are overriding the types configuration.
+
+### Additional Resources
+
+- [Monaco Editor - Loading TTF in Angular 17+ - Stack Overflow](https://stackoverflow.com/questions/78293918/loading-ttf-of-monaco-editor-in-angular-17)
+- [Angular CLI TTF loader issue - GitHub](https://github.com/angular/angular-cli/issues/25235)
+- [@cisstech/nge Documentation](https://github.com/cisstech/nge)
 
 ## Docker
 

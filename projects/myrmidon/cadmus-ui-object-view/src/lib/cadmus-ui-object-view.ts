@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
   effect,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -63,7 +63,6 @@ interface DataNode {
 @Component({
   selector: 'cadmus-ui-object-view',
   imports: [
-    CommonModule,
     MatTableModule,
     MatIconModule,
     MatButtonModule,
@@ -74,8 +73,8 @@ interface DataNode {
     MatSnackBarModule,
     MatExpansionModule,
     MatTooltipModule,
-    FormsModule,
-  ],
+    FormsModule
+],
   templateUrl: './cadmus-ui-object-view.html',
   styleUrls: ['./cadmus-ui-object-view.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -39,14 +39,12 @@ export interface BarCustomActionRequest {
   templateUrl: './custom-action-bar.component.html',
   styleUrls: ['./custom-action-bar.component.css'],
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    // material
     MatButtonModule,
     MatIconModule,
-    MatTooltipModule,
-  ],
+    MatTooltipModule
+],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomActionBarComponent {

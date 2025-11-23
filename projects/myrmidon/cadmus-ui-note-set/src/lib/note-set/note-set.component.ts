@@ -1,4 +1,4 @@
-import { CommonModule, KeyValue } from '@angular/common';
+import { KeyValue } from '@angular/common';
 import {
   Component,
   OnInit,
@@ -72,20 +72,17 @@ export interface NoteSet {
   templateUrl: './note-set.component.html',
   styleUrls: ['./note-set.component.css'],
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    // vendor
     NgeMarkdownModule,
-    // material
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatSelectModule,
-    MatTooltipModule,
-  ],
+    MatTooltipModule
+],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NoteSetComponent implements OnInit {

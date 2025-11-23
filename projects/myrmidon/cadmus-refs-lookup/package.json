@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-lookup",
-  "version": "10.0.5",
+  "version": "10.0.6",
   "description": "Cadmus - reference lookup component.",
   "keywords": [
     "Cadmus",
@@ -15,12 +15,12 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^20.0.0",
-    "@angular/core": "^20.0.0",
-    "@angular/material": "^20.0.0",
+    "@angular/common": "^20.0.0 || ^21.0.0",
+    "@angular/core": "^20.0.0 || ^21.0.0",
+    "@angular/material": "^20.0.0 || ^21.0.0",
     "@myrmidon/cadmus-refs-doc-references": "^10.0.2",
     "@myrmidon/cadmus-refs-citation": "^1.0.2",
-    "@myrmidon/cadmus-ui-object-view": "^0.0.1"
+    "@myrmidon/cadmus-ui-object-view": "^0.0.2"
   },
   "dependencies": {
     "tslib": "^2.3.0"

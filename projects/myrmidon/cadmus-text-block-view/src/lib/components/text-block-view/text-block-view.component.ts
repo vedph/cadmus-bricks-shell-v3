@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -30,12 +30,11 @@ export interface TextBlockEventArgs {
   templateUrl: './text-block-view.component.html',
   styleUrls: ['./text-block-view.component.css'],
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     ArrayIntersectPipe,
-    SafeHtmlPipe,
-  ],
+    SafeHtmlPipe
+],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TextBlockViewComponent {

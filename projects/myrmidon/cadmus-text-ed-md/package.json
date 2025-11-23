@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-text-ed-md",
-  "version": "10.0.3",
+  "version": "10.0.4",
   "description": "Cadmus - text editing helpers.",
   "keywords": [
     "Cadmus",
@@ -15,12 +15,12 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^20.0.0",
-    "@angular/core": "^20.0.0",
-    "@angular/material": "^20.0.0",
-    "@myrmidon/cadmus-api": "^14.0.1",
+    "@angular/common": "^20.0.0 || ^21.0.0",
+    "@angular/core": "^20.0.0 || ^21.0.0",
+    "@angular/material": "^20.0.0 || ^21.0.0",
+    "@myrmidon/cadmus-api": "^14.0.3",
     "@myrmidon/cadmus-text-ed": "^9.0.1",
-    "@myrmidon/cadmus-refs-asserted-ids": "^10.0.8"
+    "@myrmidon/cadmus-refs-asserted-ids": "^10.0.11"
   },
   "dependencies": {
     "tslib": "^2.3.0"

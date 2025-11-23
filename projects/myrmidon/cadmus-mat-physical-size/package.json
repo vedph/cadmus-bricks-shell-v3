@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-mat-physical-size",
-  "version": "9.0.10",
+  "version": "9.0.11",
   "description": "Cadmus - material description: physical size.",
   "keywords": [
     "Cadmus",
@@ -15,10 +15,10 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^20.0.0",
-    "@angular/core": "^20.0.0",
-    "@angular/material": "^20.0.0",
-    "@myrmidon/ngx-tools": "^2.0.0"
+    "@angular/common": "^20.0.0 || ^21.0.0",
+    "@angular/core": "^20.0.0 || ^21.0.0",
+    "@angular/material": "^20.0.0 || ^21.0.0",
+    "@myrmidon/ngx-tools": "^2.0.2"
   },
   "dependencies": {
     "tslib": "^2.3.0"

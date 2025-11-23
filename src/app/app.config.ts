@@ -58,7 +58,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withViewTransitions()),
-    // provideAnimationsAsync(),
     provideHttpClient(withFetch()),
     provideNativeDateAdapter(),
     importProvidersFrom(NgeMonacoModule.forRoot({})),
