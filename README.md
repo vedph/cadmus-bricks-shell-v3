@@ -209,6 +209,7 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 - [@myrmidon/cadmus-refs-lookup](projects/myrmidon/cadmus-refs-lookup/README.md)
 - [@myrmidon/cadmus-refs-dbpedia-lookup](projects/myrmidon/cadmus-refs-dbpedia-lookup/README.md)
 - [@myrmidon/cadmus-refs-geonames-lookup](projects/myrmidon/cadmus-refs-geonames-lookup/README.md)
+- [@myrmidon/cadmus-refs-mol-lookup](projects/myrmidon/cadmus-refs-mol-lookup/README.md)
 - [@myrmidon/cadmus-refs-mufi-lookup](projects/myrmidon/cadmus-refs-mufi-lookup/README.md)
 - [@myrmidon/cadmus-refs-viaf-lookup](projects/myrmidon/cadmus-refs-viaf-lookup/README.md)
 - [@myrmidon/cadmus-refs-whg-lookup](projects/myrmidon/cadmus-refs-whg-lookup/README.md)
@@ -255,6 +256,7 @@ ng g library @myrmidon/cadmus-refs-external-ids --prefix cadmus
 ng g library @myrmidon/cadmus-refs-geonames-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-historical-date --prefix cadmus
 ng g library @myrmidon/cadmus-refs-lookup --prefix cadmus
+ng g library @myrmidon/cadmus-refs-mol-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-mufi-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-proper-name --prefix cadmus
 ng g library @myrmidon/cadmus-refs-viaf-lookup --prefix cadmus
@@ -319,6 +321,7 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-11-26: 🆕 added MOL lookup library.
 - 2025-11-22:
   - ⚠️ upgraded to Angular 21.
   - ⚠️ migrated to `pnpm`.

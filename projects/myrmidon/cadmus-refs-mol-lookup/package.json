@@ -1,0 +1,29 @@
+{
+  "name": "@myrmidon/cadmus-refs-mol-lookup",
+  "version": "0.0.1",
+  "description": "Cadmus - MOL (Medioevo Online) lookup.",
+  "keywords": [
+    "Cadmus",
+    "bricks",
+    "MOL",
+    "Medioevo Online"
+  ],
+  "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vedph/cadmus-bricks-shell-v3"
+  },
+  "author": {
+    "name": "Daniele Fusi"
+  },
+  "peerDependencies": {
+    "@angular/common": "^20.0.0 || ^21.0.0",
+    "@angular/core": "^20.0.0 || ^21.0.0",
+    "@myrmidon/ngx-tools": "^2.0.2",
+    "@myrmidon/cadmus-refs-lookup": "^10.0.5"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

@@ -236,6 +236,14 @@ export const routes: Routes = [
         './components/refs/ref-lookup-doc-references-pg/ref-lookup-doc-references-pg.component'
       ).then((m) => m.RefLookupDocReferencesPgComponent),
   },
+  // refs/mol-ref-lookup
+  {
+    path: 'refs/mol-ref-lookup',
+    loadComponent: () =>
+      import('./components/refs/mol-ref-lookup-pg/mol-ref-lookup-pg').then(
+        (m) => m.MolRefLookupPg
+      ),
+  },
   // refs/mufi-ref-lookup
   {
     path: 'refs/mufi-ref-lookup',

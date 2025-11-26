@@ -2,6 +2,8 @@
 (function (window) {
   window.__env = window.__env || {};
   window.__env.version = "10.0.1";
+  // this is for local development with MOL
+  window.__env.molUrl = "http://localhost:5230/api/";
   // this is for local development with MUFI
   window.__env.mufiUrl = "http://localhost:5113/api/";
   // Zotero

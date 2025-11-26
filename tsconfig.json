@@ -56,6 +56,9 @@
       "@myrmidon/cadmus-refs-lookup": [
         "./dist/myrmidon/cadmus-refs-lookup"
       ],
+      "@myrmidon/cadmus-refs-mol-lookup": [
+        "./dist/myrmidon/cadmus-refs-mol-lookup"
+      ],
       "@myrmidon/cadmus-refs-mufi-lookup": [
         "./dist/myrmidon/cadmus-refs-mufi-lookup"
       ],
@@ -303,6 +306,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-ui-object-view/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-mol-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-mol-lookup/tsconfig.spec.json"
     }
   ]
 }

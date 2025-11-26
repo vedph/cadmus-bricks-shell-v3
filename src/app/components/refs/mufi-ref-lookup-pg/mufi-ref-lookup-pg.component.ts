@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -31,12 +31,12 @@ import {
   styleUrl: './mufi-ref-lookup-pg.component.scss',
 })
 export class MufiRefLookupPgComponent {
-  public item?: MufiChar;
+  public readonly item = signal<MufiChar | undefined>(undefined);
 
   constructor(public service: MufiRefLookupService) {}
 
   public onItemChange(item: any | undefined): void {
-    this.item = item;
+    this.item.set(item);
   }
 
   public onMoreRequest(): void {
