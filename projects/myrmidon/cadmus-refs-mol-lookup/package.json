@@ -1,12 +1,12 @@
 {
   "name": "@myrmidon/cadmus-refs-mol-lookup",
   "version": "0.0.1",
-  "description": "Cadmus - MOL (Medioevo Online) lookup.",
+  "description": "Cadmus - MOL (Manus Online) lookup.",
   "keywords": [
     "Cadmus",
     "bricks",
     "MOL",
-    "Medioevo Online"
+    "Manus Online"
   ],
   "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
   "repository": {

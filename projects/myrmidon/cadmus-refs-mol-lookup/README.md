@@ -18,10 +18,10 @@ In this workspace, the demo page for this service assumes that the endpoints for
 2. if you want to use the MOL icon in a set of lookup providers, add to your `public/img` folder the corresponding image you can find here in the demo app at the same location.
 3. add to your `env.js` the root URL for the MUFI service, e.g. (change the URL to reflect your configuration):
 
-    ```js
-    // MOL
-    window.__env.molUrl = 'http://localhost:5230/';
-    ```
+   ```js
+   // MOL
+   window.__env.molUrl = "http://localhost:5230/";
+   ```
 
 4. inject `MolRefLookupService` in your controller and bind it to the lookup component used in your component.
 
