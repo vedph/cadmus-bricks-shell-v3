@@ -322,6 +322,8 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+- 2025-12-04: updated Angular.
+
 ### 10.0.2
 
 - 2025-12-01: updated Angular and packages.
