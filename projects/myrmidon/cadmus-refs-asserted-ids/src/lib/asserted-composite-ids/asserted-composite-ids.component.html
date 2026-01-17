@@ -5,92 +5,107 @@
   </button>
   <!-- list -->
   @if (ids().length) {
-  <table>
-    <thead>
-      <tr>
-        <th></th>
-        <th>scope</th>
-        <th>type</th>
-        <th>label</th>
-        <th>gid</th>
-        <th>ass.</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for ( id of ids(); track id; let i = $index; let first = $first; let last
-      = $last) {
-      <tr [class.selected]="i === editedIndex()">
-        <td class="fit-width">
-          <button
-            type="button"
-            mat-icon-button
-            matTooltip="Edit this ID"
-            (click)="editId(id, i)"
-          >
-            <mat-icon class="mat-primary">edit</mat-icon>
-          </button>
-          <button
-            type="button"
-            mat-icon-button
-            matTooltip="Move this ID up"
-            [disabled]="first"
-            (click)="moveIdUp(i)"
-          >
-            <mat-icon>arrow_upward</mat-icon>
-          </button>
-          <button
-            type="button"
-            mat-icon-button
-            matTooltip="Move this ID down"
-            [disabled]="last"
-            (click)="moveIdDown(i)"
-          >
-            <mat-icon>arrow_downward</mat-icon>
-          </button>
-          <button
-            type="button"
-            mat-icon-button
-            matTooltip="Delete this ID"
-            (click)="deleteId(i)"
-          >
-            <mat-icon class="mat-warn">remove_circle</mat-icon>
-          </button>
-        </td>
-        <td>{{ id.scope }}</td>
-        <td>
-          <mat-icon>{{ id?.target?.name ? "login" : "logout" }}</mat-icon>
-        </td>
-        <td>{{ id?.target?.label }}</td>
-        <td>{{ id?.target?.gid }}</td>
-        <td>{{ id?.assertion ? "Y" : "N" }}</td>
-      </tr>
-      }
-    </tbody>
-  </table>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>scope</th>
+          <th>type</th>
+          <th>label</th>
+          <th>gid</th>
+          <th>features</th>
+          <th>ass.</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (
+          id of ids();
+          track id;
+          let i = $index;
+          let first = $first;
+          let last = $last
+        ) {
+          <tr [class.selected]="i === editedIndex()">
+            <td class="fit-width">
+              <button
+                type="button"
+                mat-icon-button
+                matTooltip="Edit this ID"
+                (click)="editId(id, i)"
+              >
+                <mat-icon class="mat-primary">edit</mat-icon>
+              </button>
+              <button
+                type="button"
+                mat-icon-button
+                matTooltip="Move this ID up"
+                [disabled]="first"
+                (click)="moveIdUp(i)"
+              >
+                <mat-icon>arrow_upward</mat-icon>
+              </button>
+              <button
+                type="button"
+                mat-icon-button
+                matTooltip="Move this ID down"
+                [disabled]="last"
+                (click)="moveIdDown(i)"
+              >
+                <mat-icon>arrow_downward</mat-icon>
+              </button>
+              <button
+                type="button"
+                mat-icon-button
+                matTooltip="Delete this ID"
+                (click)="deleteId(i)"
+              >
+                <mat-icon class="mat-warn">remove_circle</mat-icon>
+              </button>
+            </td>
+            <td>{{ id.scope }}</td>
+            <td>
+              <mat-icon>{{ id?.target?.name ? "login" : "logout" }}</mat-icon>
+            </td>
+            <td>{{ id?.target?.label }}</td>
+            <td>{{ id?.target?.gid }}</td>
+            <td>
+              @for (f of id?.features; let last = $last; track f) {
+                {{ f | flatLookup: featureEntries() : "id" : "value" }}
+                @if (!last) {
+                  ,
+                }
+              }
+            </td>
+            <td>{{ id?.assertion ? "Y" : "N" }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   }
   <!-- editor -->
   @if (edited()) {
-  <mat-expansion-panel [expanded]="edited()" [disabled]="!edited()">
-    <mat-expansion-panel-header
-      ><mat-icon>{{ edited()?.target?.name ? "login" : "logout" }}</mat-icon> ID
-      {{ edited()?.target?.label }}</mat-expansion-panel-header
-    >
-    <cadmus-refs-asserted-composite-id
-      [idScopeEntries]="idScopeEntries()"
-      [idTagEntries]="idTagEntries()"
-      [assTagEntries]="assTagEntries()"
-      [refTypeEntries]="refTypeEntries()"
-      [refTagEntries]="refTagEntries()"
-      [hasSubmit]="true"
-      [pinByTypeMode]="pinByTypeMode()"
-      [canSwitchMode]="canSwitchMode()"
-      [canEditTarget]="canEditTarget()"
-      [lookupDefinitions]="lookupDefinitions()"
-      [defaultPartTypeKey]="defaultPartTypeKey()"
-      [id]="edited()"
-      (idChange)="onIdChange($event)"
-      (editorClose)="closeId()"
-    />
-  </mat-expansion-panel>
+    <mat-expansion-panel [expanded]="edited()" [disabled]="!edited()">
+      <mat-expansion-panel-header
+        ><mat-icon>{{ edited()?.target?.name ? "login" : "logout" }}</mat-icon>
+        ID {{ edited()?.target?.label }}</mat-expansion-panel-header
+      >
+      <cadmus-refs-asserted-composite-id
+        [idScopeEntries]="idScopeEntries()"
+        [idTagEntries]="idTagEntries()"
+        [assTagEntries]="assTagEntries()"
+        [refTypeEntries]="refTypeEntries()"
+        [refTagEntries]="refTagEntries()"
+        [featureEntries]="featureEntries()"
+        [hasSubmit]="true"
+        [pinByTypeMode]="pinByTypeMode()"
+        [canSwitchMode]="canSwitchMode()"
+        [canEditTarget]="canEditTarget()"
+        [lookupDefinitions]="lookupDefinitions()"
+        [defaultPartTypeKey]="defaultPartTypeKey()"
+        [id]="edited()"
+        (idChange)="onIdChange($event)"
+        (editorClose)="closeId()"
+      />
+    </mat-expansion-panel>
   }
 </div>

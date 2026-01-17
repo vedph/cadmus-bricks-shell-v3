@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, effect, Inject, input, model, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  Inject,
+  input,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -31,6 +41,7 @@ import {
   RefLookupConfig,
   RefLookupSetEvent,
 } from '@myrmidon/cadmus-refs-lookup';
+import { ThesaurusEntriesPickerComponent } from '@myrmidon/cadmus-thesaurus-store';
 
 // local
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
@@ -47,6 +58,8 @@ import {
 export interface AssertedCompositeId {
   target: PinTarget;
   tag?: string;
+  features?: string[];
+  note?: string;
   scope?: string;
   assertion?: Assertion;
 }
@@ -71,6 +84,8 @@ export interface AssertedCompositeId {
     MatTooltipModule,
     // bricks
     AssertionComponent,
+    // cadmus
+    ThesaurusEntriesPickerComponent,
     // local
     PinTargetLookupComponent,
   ],
@@ -86,6 +101,8 @@ export class AssertedCompositeIdComponent {
   public target: FormControl<PinTarget | null>;
   public scope: FormControl<string | null>;
   public tag: FormControl<string | null>;
+  public features: FormControl<string[]>;
+  public note: FormControl<string | null>;
   public assertion: FormControl<Assertion | null>;
   public form: FormGroup;
 
@@ -99,6 +116,8 @@ export class AssertedCompositeIdComponent {
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
+  // asserted-id-features
+  public readonly featureEntries = input<ThesaurusEntry[]>();
 
   /**
    * The ID being edited.
@@ -152,28 +171,45 @@ export class AssertedCompositeIdComponent {
    */
   public readonly extMoreRequest = output<RefLookupSetEvent>();
 
+  /**
+   * The thesaurus entries from featureEntries whose id matches
+   * any of the current features.
+   */
+  public readonly idFeatures = computed<ThesaurusEntry[]>(() => {
+    const features = this.features.value;
+    const entries = this.featureEntries();
+    if (!features || features.length === 0 || !entries) {
+      return [];
+    }
+    return entries.filter((e) => features.includes(e.id));
+  });
+
   constructor(
     formBuilder: FormBuilder,
     public lookupService: PinRefLookupService,
     @Inject('indexLookupDefinitions')
     public lookupDefs: IndexLookupDefinitions,
-    settings: RamStorageService
+    settings: RamStorageService,
   ) {
     // form
     this.target = formBuilder.control(null, Validators.required);
     this.scope = formBuilder.control(null, Validators.maxLength(500));
     this.tag = formBuilder.control(null, Validators.maxLength(50));
+    this.features = formBuilder.control([], { nonNullable: true });
+    this.note = formBuilder.control(null, Validators.maxLength(1000));
     this.assertion = formBuilder.control(null);
     this.form = formBuilder.group({
       target: this.target,
       scope: this.scope,
       tag: this.tag,
+      features: this.features,
+      note: this.note,
       assertion: this.assertion,
     });
 
     // external lookup configs
     this.extLookupConfigs.set(
-      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || []
+      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || [],
     );
 
     // when id changes, update form
@@ -188,11 +224,18 @@ export class AssertedCompositeIdComponent {
         // react only on user changes, when form is valid
         filter(() => !this._updatingForm && this.form.valid),
         debounceTime(300),
-        takeUntilDestroyed()
+        takeUntilDestroyed(),
       )
       .subscribe((_) => {
         this.emitIdChange();
       });
+  }
+
+  public onEntriesChange(entries: ThesaurusEntry[]): void {
+    const ids = entries.map((e) => e.id);
+    this.features.setValue(ids);
+    this.features.markAsDirty();
+    this.features.updateValueAndValidity();
   }
 
   public onAssertionChange(assertion: Assertion | undefined): void {
@@ -216,6 +259,8 @@ export class AssertedCompositeIdComponent {
       this.target.setValue(id.target, { emitEvent: false });
       this.scope.setValue(id.scope || null, { emitEvent: false });
       this.tag.setValue(id.tag || null, { emitEvent: false });
+      this.features.setValue(id.features || [], { emitEvent: false });
+      this.note.setValue(id.note || null, { emitEvent: false });
       this.assertion.setValue(id.assertion || null, { emitEvent: false });
       this.form.markAsPristine();
     }
@@ -234,6 +279,8 @@ export class AssertedCompositeIdComponent {
         : target!,
       scope: this.scope.value?.trim() || '',
       tag: this.tag.value?.trim(),
+      features: this.features.value?.length ? this.features.value : undefined,
+      note: this.note.value?.trim() || undefined,
       assertion: this.assertion.value || undefined,
     };
   }

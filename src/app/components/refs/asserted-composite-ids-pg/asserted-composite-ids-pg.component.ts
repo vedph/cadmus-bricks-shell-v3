@@ -17,6 +17,7 @@ import {
   AssertedCompositeId,
   AssertedCompositeIdsComponent,
 } from '@myrmidon/cadmus-refs-asserted-ids';
+import { ANIMAL_ENTRIES } from '../asserted-composite-id-pg/asserted-composite-id-pg.component';
 
 @Component({
   selector: 'app-asserted-composite-ids-pg',
@@ -44,6 +45,7 @@ export class AssertedCompositeIdsPgComponent implements OnInit {
   public assTagEntries: ThesaurusEntry[];
   public refTypeEntries: ThesaurusEntry[];
   public refTagEntries: ThesaurusEntry[];
+  public featureEntries: ThesaurusEntry[] = ANIMAL_ENTRIES;
 
   constructor(formBuilder: FormBuilder) {
     // form
@@ -130,6 +132,8 @@ export class AssertedCompositeIdsPgComponent implements OnInit {
           gid: 'http://some-resources/stuff/alpha',
           label: 'alpha',
         },
+        features: ['animal.mammal.dog'],
+        note: 'Dogs are loyal animals.',
         scope: '-',
       },
       {

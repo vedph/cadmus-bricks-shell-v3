@@ -16,6 +16,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
   - [History](#history)
+    - [10.0.13](#10013)
     - [10.0.10](#10010)
     - [10.0.9](#1009)
     - [10.0.8](#1008)
@@ -93,6 +94,7 @@ Various components from this library provide a different level of complexity, so
   - `assertion-tags` (for `assTagEntries`).
   - `doc-reference-types` (for `refTypeEntries`).
   - `doc-reference-tags` (for `refTagEntries`).
+  - `asserted-id-features` (for `featureEntries`).
 - 🔥 output:
   - `idChange` (`AssertedId`)
   - `editorClose`
@@ -103,6 +105,8 @@ The asserted ID component allows editing a simple model representing a generic I
 - **value**: the ID itself.
 - **scope**: the context the ID originates from (e.g. an ontology, a repository, a website, etc.).
 - an optional **tag**, used to group or classify the ID.
+- an optional set of **features**, from a hierarchical thesaurus. For instance, these could be the role(s) of a person linked to an object, like customer, seller, creator, etc.
+- an optional **note**.
 - an optional **assertion**, used to define the uncertainty level of the assignment of this ID to the context it applies to.
 
 The asserted ID component provides an internal lookup mechanism based on data pins and metadata conventions. When users want to add an ID referring to some internal entity, either found in a part or corresponding to an item, he just has to pick the type of desired lookup (when more than a single lookup search definition is present), and type some characters to get the first N pins starting with these characters; he can then pick one from the list. Once a pin value is picked, the lookup control shows all the relevant data which can be used as components for the ID to build:
@@ -184,6 +188,7 @@ An editable list of asserted IDs.
   - `assertion-tags` (for `assTagEntries`)
   - `doc-reference-types` (for `refTypeEntries`)
   - `doc-reference-tags` (for `refTagEntries`)
+  - `asserted-id-features` (for `featureEntries`).
 - 🔥 output:
   - `idsChange` (`AssertedId[]`)
 
@@ -377,6 +382,10 @@ A collection of asserted composite IDs.
   - `idsChange` (`AssertedCompositeId[]`)
 
 ## History
+
+### 10.0.13
+
+- 2026-01-17: added `features` (from thesaurus `asserted-id-features`) and `note` to asserted IDs.
 
 ### 10.0.10
 

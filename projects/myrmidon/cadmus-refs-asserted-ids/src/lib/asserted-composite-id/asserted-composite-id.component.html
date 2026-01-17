@@ -3,58 +3,60 @@
     <div class="form-row">
       <!-- tag (bound) -->
       @if (idTagEntries()?.length) {
-      <mat-form-field class="short-text">
-        <mat-label>tag</mat-label>
-        <mat-select [formControl]="tag">
-          @for (e of idTagEntries(); track e) {
-          <mat-option [value]="e.id">{{ e.value }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+        <mat-form-field class="short-text">
+          <mat-label>tag</mat-label>
+          <mat-select [formControl]="tag">
+            @for (e of idTagEntries(); track e) {
+              <mat-option [value]="e.id">{{ e.value }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
       }
       <!-- tag (free) -->
       @else {
-      <mat-form-field class="short-text">
-        <mat-label>tag</mat-label>
-        <input matInput [formControl]="tag" />
-        @if ($any(tag.errors)?.maxLength && (tag.dirty || tag.touched)) {
-        <mat-error>tag too long</mat-error>
-        }
-      </mat-form-field>
+        <mat-form-field class="short-text">
+          <mat-label>tag</mat-label>
+          <input matInput [formControl]="tag" />
+          @if ($any(tag.errors)?.maxLength && (tag.dirty || tag.touched)) {
+            <mat-error>tag too long</mat-error>
+          }
+        </mat-form-field>
       }
 
       <!-- scope (bound) -->
       @if (idScopeEntries()?.length) {
-      <mat-form-field class="short-text">
-        <mat-label>scope</mat-label>
-        <mat-select [formControl]="scope">
-          @for (e of idScopeEntries(); track e) {
-          <mat-option [value]="e.id">{{ e.value }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+        <mat-form-field class="short-text">
+          <mat-label>scope</mat-label>
+          <mat-select [formControl]="scope">
+            @for (e of idScopeEntries(); track e) {
+              <mat-option [value]="e.id">{{ e.value }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
       }
       <!-- scope (free) -->
       @else {
-      <mat-form-field class="short-text">
-        <mat-label>scope</mat-label>
-        <input matInput [formControl]="scope" />
-        @if ( $any(scope.errors)?.maxLength && (scope.dirty || scope.touched) )
-        {
-        <mat-error>scope too long</mat-error>
-        }
-      </mat-form-field>
+        <mat-form-field class="short-text">
+          <mat-label>scope</mat-label>
+          <input matInput [formControl]="scope" />
+          @if (
+            $any(scope.errors)?.maxLength && (scope.dirty || scope.touched)
+          ) {
+            <mat-error>scope too long</mat-error>
+          }
+        </mat-form-field>
       }
 
       <!-- label and GID -->
       @if (target.value?.label) {
-      <div class="info">
-        <span class="label">label</span>{{ target.value?.label }}
-      </div>
-      } @if (target.value?.gid) {
-      <div class="info">
-        <span class="label">GID</span>{{ target.value?.gid }}
-      </div>
+        <div class="info">
+          <span class="label">label</span>{{ target.value?.label }}
+        </div>
+      }
+      @if (target.value?.gid) {
+        <div class="info">
+          <span class="label">GID</span>{{ target.value?.gid }}
+        </div>
       }
     </div>
 
@@ -81,9 +83,32 @@
       </mat-expansion-panel>
     </div>
 
+    <!-- features -->
+    @if (featureEntries()?.length) {
+      <div>
+        <cadmus-thesaurus-entries-picker
+          [availableEntries]="featureEntries()!"
+          [hierarchicLabels]="true"
+          [entries]="idFeatures()"
+          (entriesChange)="onEntriesChange($event)"
+          emptyMessage="(no features)"
+        />
+      </div>
+    }
+
+    <!-- note -->
+    <div class="margin-top">
+      <mat-form-field class="long-text">
+        <mat-label>note</mat-label>
+        <input matInput [formControl]="note" />
+        @if ($any(note).errors?.maxLength && (note.dirty || note.touched)) {
+          <mat-error>note too long</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
     <!-- assertion -->
-    <br />
-    <div class="boxed">
+    <div class="boxed margin-top">
       <mat-expansion-panel>
         <mat-expansion-panel-header>assertion</mat-expansion-panel-header>
         <cadmus-refs-assertion
@@ -99,13 +124,13 @@
 
   <!-- buttons -->
   @if (hasSubmit()) {
-  <div>
-    <button mat-icon-button type="button" (click)="cancel()">
-      <mat-icon class="mat-warn">close</mat-icon>
-    </button>
-    <button mat-icon-button type="submit" [disabled]="form.invalid">
-      <mat-icon class="mat-primary">check_circle</mat-icon>
-    </button>
-  </div>
+    <div>
+      <button mat-icon-button type="button" (click)="cancel()">
+        <mat-icon class="mat-warn">close</mat-icon>
+      </button>
+      <button mat-icon-button type="submit" [disabled]="form.invalid">
+        <mat-icon class="mat-primary">check_circle</mat-icon>
+      </button>
+    </div>
   }
 </form>

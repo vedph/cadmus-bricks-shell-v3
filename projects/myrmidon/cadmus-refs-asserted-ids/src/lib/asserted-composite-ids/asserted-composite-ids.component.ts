@@ -17,7 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
-import { deepCopy } from '@myrmidon/ngx-tools';
+import { deepCopy, FlatLookupPipe } from '@myrmidon/ngx-tools';
 
 import {
   AssertedCompositeId,
@@ -41,6 +41,7 @@ import {
     MatIconModule,
     MatInputModule,
     AssertedCompositeIdComponent,
+    FlatLookupPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -63,6 +64,8 @@ export class AssertedCompositeIdsComponent {
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
+  // asserted-id-features
+  public readonly featureEntries = input<ThesaurusEntry[]>();
 
   /**
    * True when the internal UI preselected mode should be by type rather than
@@ -103,7 +106,7 @@ export class AssertedCompositeIdsComponent {
       {
         target: { gid: '', label: '' },
       },
-      -1
+      -1,
     );
   }
 
