@@ -21,6 +21,7 @@
   - [V3 Creation](#v3-creation)
   - [OnPush Progress](#onpush-progress)
   - [History](#history)
+    - [10.0.3](#1003)
     - [10.0.2](#1002)
     - [10.0.1](#1001)
     - [10.0.0](#1000)
@@ -170,7 +171,7 @@ If you still encounter issues:
 
 1. `npm run build-lib`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker build . -t vedph2020/cadmus-bricks-v3:10.0.2 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
+3. `docker build . -t vedph2020/cadmus-bricks-v3:10.0.3 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
 
@@ -322,6 +323,9 @@ Check that this Angular component has been properly refactored to use Signals an
 
 >👉 For the libraries history, see the README of each library in this workspace.
 
+### 10.0.3
+
+- 2026-01-29: updated Angular and packages.
 - 2026-01-17: added `features` (from thesaurus `asserted-id-features`) and `note` to asserted IDs.
 - 2025-12-04: updated Angular.
 
