@@ -50,6 +50,9 @@ importers:
       '@myrmidon/cadmus-thesaurus-store':
         specifier: ^0.0.1
         version: 0.0.1(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))
+      '@myrmidon/cadmus-ui-object-view':
+        specifier: ^0.0.3
+        version: 0.0.3(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/material@21.1.2(3ed68a50ee3e980cf68e55ef6d8ae9d9))
       '@myrmidon/ngx-mat-tools':
         specifier: ^1.0.1
         version: 1.0.1(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))
@@ -904,6 +907,13 @@ packages:
     peerDependencies:
       '@angular/common': ^21.0.0
       '@angular/core': ^21.0.0
+
+  '@myrmidon/cadmus-ui-object-view@0.0.3':
+    resolution: {integrity: sha512-6NN1qsHd0RFZeLk3HQ/0SfkeTQKCr1vxduGzgWF7PW9UudkqbsyxV2XC9Pd9aJkCfbMoKLElwV9gsMdQwBuVcA==}
+    peerDependencies:
+      '@angular/common': ^20.0.0 || ^21.0.0
+      '@angular/core': ^20.0.0 || ^21.0.0
+      '@angular/material': ^20.0.0 || ^21.0.0
 
   '@myrmidon/ngx-mat-tools@1.0.1':
     resolution: {integrity: sha512-On1HAVCWrP+AzN4Pp0m6OWoH+RNIAtYZP9uPsGXgxjxJIDSDgk190+xK/CZYzrRg5/ro9BHY49y4Y4eD25NCLA==}
@@ -3838,6 +3848,13 @@ snapshots:
     dependencies:
       '@angular/common': 21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)
       '@angular/core': 21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)
+      tslib: 2.8.1
+
+  '@myrmidon/cadmus-ui-object-view@0.0.3(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/material@21.1.2(3ed68a50ee3e980cf68e55ef6d8ae9d9))':
+    dependencies:
+      '@angular/common': 21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)
+      '@angular/core': 21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)
+      '@angular/material': 21.1.2(3ed68a50ee3e980cf68e55ef6d8ae9d9)
       tslib: 2.8.1
 
   '@myrmidon/ngx-mat-tools@1.0.1(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))':

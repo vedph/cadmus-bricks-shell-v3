@@ -56,6 +56,7 @@
     "@myrmidon/cadmus-api": "^14.0.5",
     "@myrmidon/cadmus-core": "^12.0.3",
     "@myrmidon/cadmus-thesaurus-store": "^0.0.1",
+    "@myrmidon/cadmus-ui-object-view": "^0.0.3",
     "@myrmidon/ngx-mat-tools": "^1.0.1",
     "@myrmidon/ngx-tools": "^2.0.2",
     "@myrmidon/paged-data-browsers": "^5.1.3",
