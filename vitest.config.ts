@@ -1,14 +1,25 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
 import { resolve } from 'path';
+import angular from '@analogjs/vite-plugin-angular';
 
 export default defineConfig({
+  plugins: [
+    angular({
+      tsconfig: 'tsconfig.spec.json',
+      inlineStylesExtension: 'scss',
+    }),
+  ],
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./setup-test.ts'],
     include: ['src/**/*.spec.ts', 'projects/**/*.spec.ts'],
     exclude: ['node_modules/**'],
+    deps: {
+      inline: [/@angular/, /@myrmidon/],
+    },
+    isolate: false,
   },
   resolve: {
     alias: {
@@ -40,6 +51,14 @@ export default defineConfig({
       '@myrmidon/cadmus-refs-dbpedia-lookup': resolve(
         __dirname,
         'projects/myrmidon/cadmus-refs-dbpedia-lookup/src/public-api.ts',
+      ),
+      '@myrmidon/cadmus-refs-asserted-ids': resolve(
+        __dirname,
+        'projects/myrmidon/cadmus-refs-asserted-ids/src/public-api.ts',
+      ),
+      '@myrmidon/cadmus-refs-assertion': resolve(
+        __dirname,
+        'projects/myrmidon/cadmus-refs-assertion/src/public-api.ts',
       ),
       '@myrmidon/cadmus-refs-decorated-counts': resolve(
         __dirname,

@@ -41,7 +41,7 @@ export class PinRefLookupService implements RefLookupService {
 
   private buildQuery(
     def: IndexLookupDefinition,
-    filter: PinRefLookupFilter
+    filter: PinRefLookupFilter,
   ): string {
     const sb: string[] = [];
     const AND = ' AND ';
@@ -103,7 +103,7 @@ export class PinRefLookupService implements RefLookupService {
         } else {
           return w.value?.items || [];
         }
-      })
+      }),
     );
   }
 }

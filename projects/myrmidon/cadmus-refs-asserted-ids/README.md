@@ -16,6 +16,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
   - [History](#history)
+    - [10.0.14](#10014)
     - [10.0.13](#10013)
     - [10.0.10](#10010)
     - [10.0.9](#1009)
@@ -382,6 +383,10 @@ A collection of asserted composite IDs.
   - `idsChange` (`AssertedCompositeId[]`)
 
 ## History
+
+### 10.0.14
+
+- 2026-02-01: minor fix to pin target lookup component template.
 
 ### 10.0.13
 

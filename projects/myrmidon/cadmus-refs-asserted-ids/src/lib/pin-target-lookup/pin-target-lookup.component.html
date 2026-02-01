@@ -79,7 +79,7 @@
           (itemChange)="onItemLookupChange($event)"
         />
         <!-- part filter -->
-        @if (itemParts.length) {
+        @if (itemParts().length) {
         <mat-form-field>
           <mat-label>part</mat-label>
           <mat-select [formControl]="itemPart">
