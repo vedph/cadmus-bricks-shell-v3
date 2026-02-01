@@ -85,19 +85,22 @@
 
     <!-- features -->
     @if (featureEntries()?.length) {
-      <div>
-        <cadmus-thesaurus-entries-picker
-          [availableEntries]="featureEntries()!"
-          [hierarchicLabels]="true"
-          [entries]="idFeatures()"
-          (entriesChange)="onEntriesChange($event)"
-          emptyMessage="(no features)"
-        />
+      <div class="margin-top-sm">
+        <fieldset>
+          <legend>features</legend>
+          <cadmus-thesaurus-entries-picker
+            [availableEntries]="featureEntries()!"
+            [hierarchicLabels]="true"
+            [entries]="idFeatures()"
+            (entriesChange)="onEntriesChange($event)"
+            emptyMessage=""
+          />
+        </fieldset>
       </div>
     }
 
     <!-- note -->
-    <div class="margin-top">
+    <div class="margin-top-sm">
       <mat-form-field class="long-text">
         <mat-label>note</mat-label>
         <input matInput [formControl]="note" />

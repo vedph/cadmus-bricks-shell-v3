@@ -27,9 +27,12 @@
       (idsChange)="onIdsChange($event)"
     />
     @if (ids) {
-    <div>
-      <pre>{{ ids | json }}</pre>
-    </div>
+      <hr>
+      <div>
+        <code>
+          <pre>{{ ids | json }}</pre>
+        </code>
+      </div>
     }
   </mat-card-content>
 </mat-card>

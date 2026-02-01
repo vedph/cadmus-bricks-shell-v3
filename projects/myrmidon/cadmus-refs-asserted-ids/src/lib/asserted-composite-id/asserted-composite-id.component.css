@@ -28,6 +28,15 @@ fieldset {
   border-radius: 6px;
   padding: 6px;
 }
+legend {
+  color: silver;
+}
+.margin-top-sm {
+  margin-top: 6px;
+}
+.margin-top {
+  margin-top: 12px;
+}
 .info {
   border: 1px solid silver;
   border-radius: 6px;
@@ -39,9 +48,6 @@ fieldset {
   background-color: white;
   color: silver;
   margin: 0 6px;
-}
-.margin-top {
-  margin-top: 12px;
 }
 /* lt-md */
 @media only screen and (max-width: 959px) {

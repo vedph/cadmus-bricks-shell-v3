@@ -13,10 +13,13 @@
       [refTypeEntries]="refTypeEntries"
       [id]="id"
       (idChange)="onIdChange($event)"
-    ></cadmus-refs-asserted-id>
+    />
     @if (id) {
+      <hr>
       <div>
-        <pre>{{ id | json }}</pre>
+        <code>
+          <pre>{{ id | json }}</pre>
+        </code>
       </div>
     }
   </mat-card-content>
