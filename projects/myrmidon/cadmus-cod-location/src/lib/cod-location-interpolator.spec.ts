@@ -9,7 +9,7 @@ describe('CodLocationInterpolator', () => {
     const results = CodLocationInterpolator.interpolate(
       CodLocationInterpSystem.Arabic,
       '3',
-      '12'
+      '12',
     );
     expect(results.length).toBe(10);
     for (let n = 3; n <= 12; n++) {
@@ -21,7 +21,7 @@ describe('CodLocationInterpolator', () => {
     const results = CodLocationInterpolator.interpolate(
       CodLocationInterpSystem.RomanUpper,
       'III',
-      'XII'
+      'XII',
     );
     expect(results.length).toBe(10);
     const expected = [
@@ -45,7 +45,7 @@ describe('CodLocationInterpolator', () => {
     const results = CodLocationInterpolator.interpolate(
       CodLocationInterpSystem.RomanLower,
       'iii',
-      'xii'
+      'xii',
     );
     expect(results.length).toBe(10);
     const expected = [
@@ -69,21 +69,10 @@ describe('CodLocationInterpolator', () => {
     const results = CodLocationInterpolator.interpolate(
       CodLocationInterpSystem.AlphaLtUpper,
       'C',
-      'N'
+      'N',
     );
     expect(results.length).toBe(10);
-    const expected = [
-      'C',
-      'D',
-      'E',
-      'F',
-      'G',
-      'H',
-      'I',
-      'L',
-      'M',
-      'N',
-    ];
+    const expected = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'L', 'M', 'N'];
     for (let i = 0; i < 10; i++) {
       expect(results[i]).toBe(expected[i]);
     }
@@ -93,21 +82,10 @@ describe('CodLocationInterpolator', () => {
     const results = CodLocationInterpolator.interpolate(
       CodLocationInterpSystem.AlphaLtLower,
       'c',
-      'n'
+      'n',
     );
     expect(results.length).toBe(10);
-    const expected = [
-      'c',
-      'd',
-      'e',
-      'f',
-      'g',
-      'h',
-      'i',
-      'l',
-      'm',
-      'n',
-    ];
+    const expected = ['c', 'd', 'e', 'f', 'g', 'h', 'i', 'l', 'm', 'n'];
     for (let i = 0; i < 10; i++) {
       expect(results[i]).toBe(expected[i]);
     }

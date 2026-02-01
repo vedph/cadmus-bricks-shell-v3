@@ -55,7 +55,7 @@
     "@cisstech/nge": "^18.3.0",
     "@myrmidon/cadmus-api": "^14.0.5",
     "@myrmidon/cadmus-core": "^12.0.3",
-    "@myrmidon/cadmus-thesaurus-store": "^0.0.1",
+    "@myrmidon/cadmus-thesaurus-store": "^0.0.6",
     "@myrmidon/cadmus-ui-object-view": "^0.0.3",
     "@myrmidon/ngx-mat-tools": "^1.0.1",
     "@myrmidon/ngx-tools": "^2.0.2",
@@ -65,26 +65,23 @@
     "rxjs": "~7.8.0",
     "ts-md5": "^2.0.1",
     "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.16.0"
   },
   "devDependencies": {
     "@angular/build": "^21.1.2",
     "@angular/cli": "^21.1.2",
     "@angular/compiler-cli": "^21.1.2",
     "@angular/localize": "^21.1.2",
-    "@types/jasmine": "~6.0.0",
+    "@testing-library/angular": "^19.0.0",
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/node": "^25.1.0",
-    "jasmine-core": "~6.0.1",
-    "karma": "~6.4.4",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.1",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.2.0",
+    "jsdom": "^27.4.0",
     "ng-packagr": "^21.1.0",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.18"
   },
   "optionalDependencies": {
-    "@rollup/rollup-win32-arm64-msvc": "^4.57.0"
+    "@rollup/rollup-win32-arm64-msvc": "^4.57.1"
   },
   "pnpm": {
     "overrides": {

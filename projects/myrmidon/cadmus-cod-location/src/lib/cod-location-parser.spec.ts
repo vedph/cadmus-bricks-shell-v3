@@ -255,17 +255,17 @@ describe('CodLocationParser', () => {
   });
   it('locationToString should ret "12r.3" from 12r.3', () => {
     expect(CodLocationParser.locationToString({ n: 12, v: false, l: 3 })).toBe(
-      '12r.3'
+      '12r.3',
     );
   });
   it('locationToString should ret "12ra.3" from 12ra.3', () => {
     expect(
-      CodLocationParser.locationToString({ n: 12, v: false, c: 'a', l: 3 })
+      CodLocationParser.locationToString({ n: 12, v: false, c: 'a', l: 3 }),
     ).toBe('12ra.3');
   });
   it('locationToString should ret "x:12ra.3" from x:12ra.3', () => {
     expect(
-      CodLocationParser.locationToString({ s: 'x', n: 12, v: false, l: 3 })
+      CodLocationParser.locationToString({ s: 'x', n: 12, v: false, l: 3 }),
     ).toBe('x:12r.3');
   });
   it('locationToString should ret "(x:^12)" from (x:^12)', () => {
@@ -275,7 +275,7 @@ describe('CodLocationParser', () => {
         s: 'x',
         n: 12,
         rmn: true,
-      })
+      }),
     ).toBe('(x:^12)');
   });
   it('locationToString should ret "(/x:^12)" from (/x:^12)', () => {
@@ -285,7 +285,7 @@ describe('CodLocationParser', () => {
         s: 'x',
         n: 12,
         rmn: true,
-      })
+      }),
     ).toBe('(/x:^12)');
   });
   // #endregion
@@ -370,7 +370,7 @@ describe('CodLocationParser', () => {
             n: 1,
           },
         },
-      ])
+      ]),
     ).toBe('1');
   });
   it('rangesToString should ret 1r from 1r', () => {
@@ -386,7 +386,7 @@ describe('CodLocationParser', () => {
             v: false,
           },
         },
-      ])
+      ]),
     ).toBe('1r');
   });
   it('rangesToString should ret 1v from 1v', () => {
@@ -402,7 +402,7 @@ describe('CodLocationParser', () => {
             v: true,
           },
         },
-      ])
+      ]),
     ).toBe('1v');
   });
   it('rangesToString should ret 12va from 12va', () => {
@@ -420,7 +420,7 @@ describe('CodLocationParser', () => {
             c: 'a',
           },
         },
-      ])
+      ]),
     ).toBe('12va');
   });
   it('rangesToString should ret 12va.3 from 12va.3', () => {
@@ -440,7 +440,7 @@ describe('CodLocationParser', () => {
             l: 3,
           },
         },
-      ])
+      ]),
     ).toBe('12va.3');
   });
   it('rangesToString should ret x:12va.3 from x:12va.3', () => {
@@ -462,7 +462,7 @@ describe('CodLocationParser', () => {
             l: 3,
           },
         },
-      ])
+      ]),
     ).toBe('x:12va.3');
   });
   it('rangesToString should ret x:12va.3@exemplum from x:12va.3@exemplum', () => {
@@ -486,7 +486,7 @@ describe('CodLocationParser', () => {
             word: 'exemplum',
           },
         },
-      ])
+      ]),
     ).toBe('x:12va.3@exemplum');
   });
   it('rangesToString should ret x:12va.3-x:13r.2 from x:12va.3-x:13r.2', () => {
@@ -507,7 +507,7 @@ describe('CodLocationParser', () => {
             l: 2,
           },
         },
-      ])
+      ]),
     ).toBe('x:12va.3-x:13r.2');
   });
   // #endregion
@@ -527,7 +527,7 @@ describe('CodLocationParser', () => {
   });
   it('compareLocations 1 vs null should ret >0', () => {
     expect(CodLocationParser.compareLocations({ n: 1 }, null)).toBeGreaterThan(
-      0
+      0,
     );
   });
   it('compareLocations 1 vs 1 should ret 0', () => {
@@ -537,48 +537,48 @@ describe('CodLocationParser', () => {
     expect(
       CodLocationParser.compareLocations(
         { s: 'x', n: 12, v: false, c: 'a', l: 3 },
-        { s: 'x', n: 12, v: false, c: 'a', l: 3 }
-      )
+        { s: 'x', n: 12, v: false, c: 'a', l: 3 },
+      ),
     ).toBe(0);
   });
   it('compareLocations x:12ra.3 vs y:12ra.3 should ret <0', () => {
     expect(
       CodLocationParser.compareLocations(
         { s: 'x', n: 12, v: false, c: 'a', l: 3 },
-        { s: 'y', n: 12, v: false, c: 'a', l: 3 }
-      )
+        { s: 'y', n: 12, v: false, c: 'a', l: 3 },
+      ),
     ).toBeLessThan(0);
   });
   it('compareLocations x:11ra.3 vs x:12ra.3 should ret <0', () => {
     expect(
       CodLocationParser.compareLocations(
         { s: 'x', n: 11, v: false, c: 'a', l: 3 },
-        { s: 'x', n: 12, v: false, c: 'a', l: 3 }
-      )
+        { s: 'x', n: 12, v: false, c: 'a', l: 3 },
+      ),
     ).toBeLessThan(0);
   });
   it('compareLocations x:12ra.3 vs x:12va.3 should ret <0', () => {
     expect(
       CodLocationParser.compareLocations(
         { s: 'x', n: 12, v: false, c: 'a', l: 3 },
-        { s: 'x', n: 12, v: true, c: 'a', l: 3 }
-      )
+        { s: 'x', n: 12, v: true, c: 'a', l: 3 },
+      ),
     ).toBeLessThan(0);
   });
   it('compareLocations x:12ra.3 vs x:12rb.3 should ret <0', () => {
     expect(
       CodLocationParser.compareLocations(
         { s: 'x', n: 12, v: false, c: 'a', l: 3 },
-        { s: 'x', n: 12, v: false, c: 'b', l: 3 }
-      )
+        { s: 'x', n: 12, v: false, c: 'b', l: 3 },
+      ),
     ).toBeLessThan(0);
   });
   it('compareLocations x:12ra.3 vs x:12ra.5 should ret <0', () => {
     expect(
       CodLocationParser.compareLocations(
         { s: 'x', n: 12, v: false, c: 'a', l: 3 },
-        { s: 'x', n: 12, v: false, c: 'a', l: 5 }
-      )
+        { s: 'x', n: 12, v: false, c: 'a', l: 5 },
+      ),
     ).toBeLessThan(0);
   });
   // #endregion
@@ -613,7 +613,7 @@ describe('CodLocationParser', () => {
   it('parseLocationRanges should ignore malformed "1r-invalid 4r" with nullOnError=false', () => {
     const ranges = CodLocationParser.parseLocationRanges(
       '1r-invalid 4r',
-      false
+      false,
     );
     expect(ranges?.length).toBe(1);
     expect(ranges![0].start.n).toBe(4);
@@ -681,7 +681,7 @@ describe('CodLocationParser', () => {
   it('parseLocationRanges should parse valid "1r-3v 4r 7r-11v" with nullOnError=true', () => {
     const ranges = CodLocationParser.parseLocationRanges(
       '1r-3v 4r 7r-11v',
-      true
+      true,
     );
     expect(ranges?.length).toBe(3);
     expect(ranges![0].start.n).toBe(1);

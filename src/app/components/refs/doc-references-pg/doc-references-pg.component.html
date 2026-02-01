@@ -9,11 +9,14 @@
       [typeEntries]="typeEntries"
       [references]="references"
       (referencesChange)="onReferencesChange($event)"
-    ></cadmus-refs-doc-references>
+    />
     @if (references) {
-    <div>
-      <pre>{{ references | json }}</pre>
-    </div>
+      <hr />
+      <div>
+        <code>
+          <pre>{{ references | json }}</pre>
+        </code>
+      </div>
     }
   </mat-card-content>
 </mat-card>

@@ -19,7 +19,7 @@ describe('PhysicalGridCoordsPipe', () => {
     pipe = TestBed.inject(PhysicalGridCoordsPipe);
   });
 
-  it('create an instance', () => {
+  it('should create an instance', () => {
     expect(pipe).toBeTruthy();
   });
 

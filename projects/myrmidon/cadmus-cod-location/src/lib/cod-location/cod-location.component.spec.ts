@@ -1,35 +1,10 @@
-import { CommonModule } from '@angular/common';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { render } from '@testing-library/angular';
 
 import { CodLocationComponent } from './cod-location.component';
 
 describe('CodLocationComponent', () => {
-  let component: CodLocationComponent;
-  let fixture: ComponentFixture<CodLocationComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        CommonModule,
-        BrowserAnimationsModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatInputModule,
-        CodLocationComponent
-      ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CodLocationComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(CodLocationComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });
