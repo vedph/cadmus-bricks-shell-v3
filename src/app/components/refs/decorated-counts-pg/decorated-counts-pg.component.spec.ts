@@ -1,24 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { DecoratedCountsPgComponent } from './decorated-counts-pg.component';
 
 describe('DecoratedCountsPgComponent', () => {
-  let component: DecoratedCountsPgComponent;
-  let fixture: ComponentFixture<DecoratedCountsPgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [DecoratedCountsPgComponent],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DecoratedCountsPgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(DecoratedCountsPgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

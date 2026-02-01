@@ -1,23 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { LinkEditorComponent } from './link-editor.component';
 
 describe('LinkEditorComponent', () => {
-  let component: LinkEditorComponent;
-  let fixture: ComponentFixture<LinkEditorComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [LinkEditorComponent]
-    })
-    .compileComponents();
-    
-    fixture = TestBed.createComponent(LinkEditorComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(LinkEditorComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

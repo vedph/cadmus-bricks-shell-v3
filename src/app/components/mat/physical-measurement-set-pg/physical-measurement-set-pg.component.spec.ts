@@ -1,23 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { PhysicalMeasurementSetPgComponent } from './physical-measurement-set-pg.component';
 
-describe('PhysicalSizeSetPgComponent', () => {
-  let component: PhysicalMeasurementSetPgComponent;
-  let fixture: ComponentFixture<PhysicalMeasurementSetPgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [PhysicalMeasurementSetPgComponent]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(PhysicalMeasurementSetPgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+describe('PhysicalMeasurementSetPgComponent', () => {
+  it('should render', async () => {
+    const { fixture } = await render(PhysicalMeasurementSetPgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

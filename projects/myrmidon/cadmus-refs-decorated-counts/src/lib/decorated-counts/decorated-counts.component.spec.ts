@@ -1,31 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-import { ReactiveFormsModule } from '@angular/forms';
 import { DecoratedCountsComponent } from './decorated-counts.component';
 
 describe('DecoratedCountsComponent', () => {
-  let component: DecoratedCountsComponent;
-  let fixture: ComponentFixture<DecoratedCountsComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, DecoratedCountsComponent],
+  it('should render', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
       providers: [provideNoopAnimations()],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DecoratedCountsComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
+    });
+    const component = fixture.componentInstance;
     expect(component).toBeTruthy();
   });
 
-  it('should initialize form controls', () => {
+  it('should initialize form controls', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
+      providers: [provideNoopAnimations()],
+    });
+    const component = fixture.componentInstance;
     expect(component.id).toBeDefined();
     expect(component.hasCustom).toBeDefined();
     expect(component.custom).toBeDefined();
@@ -37,29 +28,49 @@ describe('DecoratedCountsComponent', () => {
     expect(component.editedForm).toBeDefined();
   });
 
-  it('should disable id control when hasCustom is true', () => {
+  it('should disable id control when hasCustom is true', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
+      providers: [provideNoopAnimations()],
+    });
+    const component = fixture.componentInstance;
     component.hasCustom.setValue(true);
     expect(component.id.disabled).toBeTruthy();
   });
 
-  it('should enable id control when hasCustom is false', () => {
+  it('should enable id control when hasCustom is false', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
+      providers: [provideNoopAnimations()],
+    });
+    const component = fixture.componentInstance;
     component.hasCustom.setValue(false);
     expect(component.id.enabled).toBeTruthy();
   });
 
-  it('should add a custom count', () => {
+  it('should add a custom count', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
+      providers: [provideNoopAnimations()],
+    });
+    const component = fixture.componentInstance;
     component.custom.setValue('custom-id');
     component.addCustomCount();
     expect(component.edited).toEqual({ id: 'custom-id', value: 0 });
   });
 
-  it('should add a count', () => {
+  it('should add a count', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
+      providers: [provideNoopAnimations()],
+    });
+    const component = fixture.componentInstance;
     component.id.setValue('test-id');
     component.addCount();
     expect(component.edited).toEqual({ id: 'test-id', value: 0 });
   });
 
-  it('should save a count', () => {
+  it('should save a count', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
+      providers: [provideNoopAnimations()],
+    });
+    const component = fixture.componentInstance;
     component.edited = { id: 'test-id', value: 0 };
     component.value.setValue(10);
     component.tag.setValue('test-tag');
@@ -73,13 +84,21 @@ describe('DecoratedCountsComponent', () => {
     });
   });
 
-  it('should delete a count', () => {
+  it('should delete a count', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
+      providers: [provideNoopAnimations()],
+    });
+    const component = fixture.componentInstance;
     component.counts.set([{ id: 'test-id', value: 10 }]);
     component.deleteCount(0);
     expect(component.counts()).toEqual([]);
   });
 
-  it('should move a count up', () => {
+  it('should move a count up', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
+      providers: [provideNoopAnimations()],
+    });
+    const component = fixture.componentInstance;
     component.counts.set([
       { id: 'id1', value: 10 },
       { id: 'id2', value: 20 },
@@ -91,7 +110,11 @@ describe('DecoratedCountsComponent', () => {
     ]);
   });
 
-  it('should move a count down', () => {
+  it('should move a count down', async () => {
+    const { fixture } = await render(DecoratedCountsComponent, {
+      providers: [provideNoopAnimations()],
+    });
+    const component = fixture.componentInstance;
     component.counts.set([
       { id: 'id1', value: 10 },
       { id: 'id2', value: 20 },

@@ -1,24 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { RefLookupPgComponent } from './ref-lookup-pg.component';
 
 describe('RefLookupPgComponent', () => {
-  let component: RefLookupPgComponent;
-  let fixture: ComponentFixture<RefLookupPgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [RefLookupPgComponent],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(RefLookupPgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(RefLookupPgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

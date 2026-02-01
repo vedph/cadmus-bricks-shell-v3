@@ -1,25 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { AssertedChronotopeComponent } from './asserted-chronotope.component';
 
 describe('AssertedChronotopeComponent', () => {
-  let component: AssertedChronotopeComponent;
-  let fixture: ComponentFixture<AssertedChronotopeComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ AssertedChronotopeComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(AssertedChronotopeComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(AssertedChronotopeComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

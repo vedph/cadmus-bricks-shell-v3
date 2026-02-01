@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { CitationComponent } from './citation.component';
@@ -131,12 +131,8 @@ const DC_SCHEME: CitScheme = {
 //#endregion
 
 describe('CitationComponent', () => {
-  let component: CitationComponent;
-  let fixture: ComponentFixture<CitationComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [CitationComponent],
+  it('should render', async () => {
+    const { fixture } = await render(CitationComponent, {
       providers: [
         provideNoopAnimations(),
         {
@@ -167,14 +163,7 @@ describe('CitationComponent', () => {
           },
         },
       ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(CitationComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    });
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

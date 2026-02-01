@@ -1,5 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { render } from '@testing-library/angular';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { RamStorageService } from '@myrmidon/ngx-tools';
@@ -14,12 +13,8 @@ import { DC_SCHEME, OD_SCHEME } from '../../../cit-schemes';
 import { CitationPgComponent } from './citation-pg.component';
 
 describe('CitationPgComponent', () => {
-  let component: CitationPgComponent;
-  let fixture: ComponentFixture<CitationPgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [CitationPgComponent],
+  it('should render', async () => {
+    const { fixture } = await render(CitationPgComponent, {
       providers: [
         provideNoopAnimations(),
         {
@@ -50,14 +45,7 @@ describe('CitationPgComponent', () => {
           },
         },
       ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(CitationPgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    });
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

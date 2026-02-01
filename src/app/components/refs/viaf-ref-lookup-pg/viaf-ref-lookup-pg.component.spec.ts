@@ -1,24 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { ViafRefLookupPgComponent } from './viaf-ref-lookup-pg.component';
 
 describe('ViafRefLookupPgComponent', () => {
-  let component: ViafRefLookupPgComponent;
-  let fixture: ComponentFixture<ViafRefLookupPgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ViafRefLookupPgComponent],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ViafRefLookupPgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(ViafRefLookupPgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

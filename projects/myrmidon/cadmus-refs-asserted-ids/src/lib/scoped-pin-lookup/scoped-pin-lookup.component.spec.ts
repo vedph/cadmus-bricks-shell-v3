@@ -1,23 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { ScopedPinLookupComponent } from './scoped-pin-lookup.component';
 
 describe('ScopedPinLookupComponent', () => {
-  let component: ScopedPinLookupComponent;
-  let fixture: ComponentFixture<ScopedPinLookupComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ ScopedPinLookupComponent ]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(ScopedPinLookupComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(ScopedPinLookupComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

@@ -1,25 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { RefLookupComponent } from './ref-lookup.component';
 
 describe('RefLookupComponent', () => {
-  let component: RefLookupComponent;
-  let fixture: ComponentFixture<RefLookupComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ RefLookupComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(RefLookupComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(RefLookupComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

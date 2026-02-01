@@ -1,25 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { TextBlockViewComponent } from './text-block-view.component';
 
 describe('TextBlockViewComponent', () => {
-  let component: TextBlockViewComponent;
-  let fixture: ComponentFixture<TextBlockViewComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ TextBlockViewComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TextBlockViewComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(TextBlockViewComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

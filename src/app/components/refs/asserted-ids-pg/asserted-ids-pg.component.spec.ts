@@ -1,22 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { AssertedIdsPgComponent } from './asserted-ids-pg.component';
 
 describe('AssertedIdsPgComponent', () => {
-  let component: AssertedIdsPgComponent;
-  let fixture: ComponentFixture<AssertedIdsPgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [AssertedIdsPgComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(AssertedIdsPgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(AssertedIdsPgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

@@ -1,25 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { NoteSetComponent } from './note-set.component';
 
 describe('NoteSetComponent', () => {
-  let component: NoteSetComponent;
-  let fixture: ComponentFixture<NoteSetComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ NoteSetComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(NoteSetComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(NoteSetComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

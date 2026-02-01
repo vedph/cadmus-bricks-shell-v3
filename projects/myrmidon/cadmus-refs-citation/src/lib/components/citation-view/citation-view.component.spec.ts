@@ -1,23 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { CitationViewComponent } from './citation-view.component';
 
 describe('CitationViewComponent', () => {
-  let component: CitationViewComponent;
-  let fixture: ComponentFixture<CitationViewComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [CitationViewComponent]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(CitationViewComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(CitationViewComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

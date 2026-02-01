@@ -1,24 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { DocReferencesComponent } from './doc-references.component';
 
 describe('DocReferencesComponent', () => {
-  let component: DocReferencesComponent;
-  let fixture: ComponentFixture<DocReferencesComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [DocReferencesComponent],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DocReferencesComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(DocReferencesComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

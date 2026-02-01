@@ -1,24 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { RefLookupDummyOptComponent } from './ref-lookup-dummy-opt.component';
 
 describe('RefLookupDummyOptComponent', () => {
-  let component: RefLookupDummyOptComponent;
-  let fixture: ComponentFixture<RefLookupDummyOptComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [RefLookupDummyOptComponent],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(RefLookupDummyOptComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(RefLookupDummyOptComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

@@ -1,25 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { ProperNamePgComponent } from './proper-name-pg.component';
 
 describe('ProperNamePgComponent', () => {
-  let component: ProperNamePgComponent;
-  let fixture: ComponentFixture<ProperNamePgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ ProperNamePgComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ProperNamePgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(ProperNamePgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

@@ -1,23 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { CustomActionBarPgComponent } from './custom-action-bar-pg.component';
 
 describe('CustomActionBarPgComponent', () => {
-  let component: CustomActionBarPgComponent;
-  let fixture: ComponentFixture<CustomActionBarPgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ CustomActionBarPgComponent ]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(CustomActionBarPgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(CustomActionBarPgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

@@ -1,25 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { AssertedChronotopePgComponent } from './asserted-chronotope-pg.component';
 
 describe('AssertedChronotopePgComponent', () => {
-  let component: AssertedChronotopePgComponent;
-  let fixture: ComponentFixture<AssertedChronotopePgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ AssertedChronotopePgComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(AssertedChronotopePgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(AssertedChronotopePgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

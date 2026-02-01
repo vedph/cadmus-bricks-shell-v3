@@ -1,25 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { PhysicalSizePgComponent } from './physical-size-pg.component';
 
 describe('PhysicalSizePgComponent', () => {
-  let component: PhysicalSizePgComponent;
-  let fixture: ComponentFixture<PhysicalSizePgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ PhysicalSizePgComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(PhysicalSizePgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(PhysicalSizePgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

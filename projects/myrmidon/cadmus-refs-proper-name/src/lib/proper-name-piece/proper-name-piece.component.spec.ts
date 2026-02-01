@@ -1,23 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { ProperNamePieceComponent } from './proper-name-piece.component';
 
 describe('ProperNamePieceComponent', () => {
-  let component: ProperNamePieceComponent;
-  let fixture: ComponentFixture<ProperNamePieceComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ ProperNamePieceComponent ]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(ProperNamePieceComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(ProperNamePieceComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

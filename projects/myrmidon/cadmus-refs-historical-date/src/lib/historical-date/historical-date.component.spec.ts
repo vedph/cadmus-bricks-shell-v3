@@ -1,25 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { HistoricalDateComponent } from './historical-date.component';
 
 describe('HistoricalDateComponent', () => {
-  let component: HistoricalDateComponent;
-  let fixture: ComponentFixture<HistoricalDateComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ HistoricalDateComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(HistoricalDateComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(HistoricalDateComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

@@ -1,23 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { FlagSetComponent } from './flag-set.component';
 
 describe('FlagSetComponent', () => {
-  let component: FlagSetComponent;
-  let fixture: ComponentFixture<FlagSetComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [FlagSetComponent]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(FlagSetComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(FlagSetComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

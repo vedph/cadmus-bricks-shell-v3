@@ -1,23 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { render } from '@testing-library/angular';
 
 import { NoteSetPgComponent } from './note-set-pg.component';
 
 describe('NoteSetPgComponent', () => {
-  let component: NoteSetPgComponent;
-  let fixture: ComponentFixture<NoteSetPgComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ NoteSetPgComponent ]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(NoteSetPgComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render', async () => {
+    const { fixture } = await render(NoteSetPgComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

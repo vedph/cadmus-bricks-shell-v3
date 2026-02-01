@@ -112,7 +112,9 @@ describe('PhysicalGridCoordsPipe', () => {
 
   it('should handle service errors gracefully', () => {
     // Mock the service to throw an error
-    spyOn(service, 'physicalGridCoordsToString').and.throwError('Test error');
+    vi.spyOn(service, 'physicalGridCoordsToString').mockImplementation(() => {
+      throw new Error('Test error');
+    });
 
     const coords: PhysicalGridCoords[] = [{ row: 1, column: 1 }];
     const result = pipe.transform(coords);
