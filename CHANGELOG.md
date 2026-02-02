@@ -2,6 +2,10 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-02-02: ⚠️ migrated demo app to zoneless by:
+  - replacing `provideZoneChangeDetection` with `provideZonelessChangeDetection` in `app.config.ts`.
+  - removing `zone.js` from `angular.json` polyfills.
+  - uninstalling `zone.js`.
 - 2026-02-01: ⚠️ migrated tests from Karma to Vitest. This affects tests only, which will be progressively rewritten and enriched. To debug a single test, tempoarily use `it.only` or `describe.only`. Note that this workspace has proper configuration for debugging tests and running them via `ng test`; the Vitest VSCode extension (`vitest.explorer`) runs `vitest` directly, which does _not_ work with Angular projects. Angular requires `ng test` to compile templates before running tests. Running vitest directly causes "Component is not resolved" errors.
 
 ## 10.0.3
