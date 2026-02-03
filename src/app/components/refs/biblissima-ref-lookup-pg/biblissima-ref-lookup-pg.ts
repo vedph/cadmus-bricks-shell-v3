@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -63,24 +63,24 @@ export class BiblissimaRefLookupPg {
   public reconcileLimit: FormControl<number>;
   public reconcileLanguage: FormControl<BiblissimaLanguage>;
   public reconcileProperties: FormArray;
-  public reconcileResult: BiblissimaCandidate[] | undefined;
-  public reconciling = false;
+  public readonly reconcileResult = signal<BiblissimaCandidate[] | undefined>(undefined);
+  public readonly reconciling = signal(false);
 
   // Suggest form
   public suggestForm: FormGroup;
   public suggestPrefix: FormControl<string | null>;
   public suggestLanguage: FormControl<BiblissimaLanguage>;
   public suggestEndpoint: FormControl<string>;
-  public suggestResult: BiblissimaSuggestItem[] | undefined;
-  public suggesting = false;
+  public readonly suggestResult = signal<BiblissimaSuggestItem[] | undefined>(undefined);
+  public readonly suggesting = signal(false);
 
   // Extend form
   public extendForm: FormGroup;
   public extendIds: FormControl<string | null>;
   public extendProperties: FormControl<string | null>;
   public extendLanguage: FormControl<BiblissimaLanguage>;
-  public extendResult: BiblissimaExtendResponse | undefined;
-  public extending = false;
+  public readonly extendResult = signal<BiblissimaExtendResponse | undefined>(undefined);
+  public readonly extending = signal(false);
 
   constructor(
     private _formBuilder: FormBuilder,
@@ -154,12 +154,12 @@ export class BiblissimaRefLookupPg {
 
   // Reconciliation
   public reconcile(): void {
-    if (this.reconcileForm.invalid || this.reconciling) {
+    if (this.reconcileForm.invalid || this.reconciling()) {
       return;
     }
 
-    this.reconciling = true;
-    this.reconcileResult = undefined;
+    this.reconciling.set(true);
+    this.reconcileResult.set(undefined);
 
     const properties = this.reconcileProperties.controls.map((ctrl) => ({
       pid: ctrl.get('pid')?.value || '',
@@ -178,24 +178,24 @@ export class BiblissimaRefLookupPg {
       )
       .subscribe({
         next: (result) => {
-          this.reconcileResult = result;
-          this.reconciling = false;
+          this.reconcileResult.set(result);
+          this.reconciling.set(false);
         },
         error: (error) => {
           console.error('Reconciliation error:', error);
-          this.reconciling = false;
+          this.reconciling.set(false);
         },
       });
   }
 
   // Suggest
   public suggest(): void {
-    if (this.suggestForm.invalid || this.suggesting) {
+    if (this.suggestForm.invalid || this.suggesting()) {
       return;
     }
 
-    this.suggesting = true;
-    this.suggestResult = undefined;
+    this.suggesting.set(true);
+    this.suggestResult.set(undefined);
 
     const options = { language: this.suggestLanguage.value };
     const prefix = this.suggestPrefix.value!;
@@ -214,24 +214,24 @@ export class BiblissimaRefLookupPg {
 
     observable.subscribe({
       next: (result) => {
-        this.suggestResult = result;
-        this.suggesting = false;
+        this.suggestResult.set(result);
+        this.suggesting.set(false);
       },
       error: (error) => {
         console.error('Suggest error:', error);
-        this.suggesting = false;
+        this.suggesting.set(false);
       },
     });
   }
 
   // Extend
   public extend(): void {
-    if (this.extendForm.invalid || this.extending) {
+    if (this.extendForm.invalid || this.extending()) {
       return;
     }
 
-    this.extending = true;
-    this.extendResult = undefined;
+    this.extending.set(true);
+    this.extendResult.set(undefined);
 
     const ids = this.extendIds
       .value!.split(',')
@@ -248,12 +248,12 @@ export class BiblissimaRefLookupPg {
       .extend({ ids, properties }, { language: this.extendLanguage.value })
       .subscribe({
         next: (result) => {
-          this.extendResult = result;
-          this.extending = false;
+          this.extendResult.set(result);
+          this.extending.set(false);
         },
         error: (error) => {
           console.error('Extend error:', error);
-          this.extending = false;
+          this.extending.set(false);
         },
       });
   }

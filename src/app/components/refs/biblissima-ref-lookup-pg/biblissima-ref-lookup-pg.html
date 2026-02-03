@@ -120,22 +120,20 @@
               type="submit"
               mat-flat-button
               color="primary"
-              [disabled]="reconcileForm.invalid || reconciling"
+              [disabled]="reconcileForm.invalid || reconciling()"
             >
               Search
             </button>
           </form>
 
-          @if (reconciling) {
+          @if (reconciling()) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-          } @if (reconcileResult) {
+          } @if (reconcileResult(); as result) {
           <mat-expansion-panel [expanded]="true">
             <mat-expansion-panel-header>
-              <mat-panel-title
-                >Results ({{ reconcileResult.length }})</mat-panel-title
-              >
+              <mat-panel-title>Results ({{ result.length }})</mat-panel-title>
             </mat-expansion-panel-header>
-            <pre>{{ reconcileResult | json }}</pre>
+            <pre>{{ result | json }}</pre>
           </mat-expansion-panel>
           }
         </div>
@@ -178,22 +176,20 @@
               type="submit"
               mat-flat-button
               color="primary"
-              [disabled]="suggestForm.invalid || suggesting"
+              [disabled]="suggestForm.invalid || suggesting()"
             >
               Suggest
             </button>
           </form>
 
-          @if (suggesting) {
+          @if (suggesting()) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-          } @if (suggestResult) {
+          } @if (suggestResult(); as result) {
           <mat-expansion-panel [expanded]="true">
             <mat-expansion-panel-header>
-              <mat-panel-title
-                >Results ({{ suggestResult.length }})</mat-panel-title
-              >
+              <mat-panel-title>Results ({{ result.length }})</mat-panel-title>
             </mat-expansion-panel-header>
-            <pre>{{ suggestResult | json }}</pre>
+            <pre>{{ result | json }}</pre>
           </mat-expansion-panel>
           }
         </div>
@@ -233,20 +229,20 @@
               type="submit"
               mat-flat-button
               color="primary"
-              [disabled]="extendForm.invalid || extending"
+              [disabled]="extendForm.invalid || extending()"
             >
               Extend
             </button>
           </form>
 
-          @if (extending) {
+          @if (extending()) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-          } @if (extendResult) {
+          } @if (extendResult(); as result) {
           <mat-expansion-panel [expanded]="true">
             <mat-expansion-panel-header>
               <mat-panel-title>Results</mat-panel-title>
             </mat-expansion-panel-header>
-            <pre>{{ extendResult | json }}</pre>
+            <pre>{{ result | json }}</pre>
           </mat-expansion-panel>
           }
         </div>
