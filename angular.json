@@ -913,6 +913,32 @@
           }
         }
       }
+    },
+    "@myrmidon/cadmus-refs-biblissima-lookup": {
+      "projectType": "library",
+      "root": "projects/myrmidon/cadmus-refs-biblissima-lookup",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-biblissima-lookup/src",
+      "prefix": "cadmus",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/myrmidon/cadmus-refs-biblissima-lookup/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/myrmidon/cadmus-refs-biblissima-lookup/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-biblissima-lookup/tsconfig.spec.json"
+          }
+        }
+      }
     }
   },
   "cli": {

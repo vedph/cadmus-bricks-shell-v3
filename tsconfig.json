@@ -26,6 +26,9 @@
       "@myrmidon/cadmus-refs-assertion": [
         "./dist/myrmidon/cadmus-refs-assertion"
       ],
+      "@myrmidon/cadmus-refs-biblissima-lookup": [
+        "./dist/myrmidon/cadmus-refs-biblissima-lookup"
+      ],
       "@myrmidon/cadmus-refs-chronotope": [
         "./dist/myrmidon/cadmus-refs-chronotope"
       ],
@@ -312,6 +315,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-refs-mol-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-biblissima-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-biblissima-lookup/tsconfig.spec.json"
     }
   ]
 }

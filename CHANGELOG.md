@@ -2,6 +2,7 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-02-03: 🆕 added Biblissima+ lookup.
 - 2026-02-02: ⚠️ migrated demo app to zoneless by:
   - replacing `provideZoneChangeDetection` with `provideZonelessChangeDetection` in `app.config.ts`.
   - removing `zone.js` from `angular.json` polyfills.

@@ -1,0 +1,256 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Biblissima+ Reference Lookup</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <!-- Lookup Component -->
+    <h3>Lookup Component</h3>
+    <p>
+      This uses the <code>BiblissimaRefLookupService</code> with the standard
+      lookup component.
+    </p>
+    <cadmus-refs-lookup
+      [service]="lookupService"
+      [item]="item"
+      [options]="lookupOptions"
+      [required]="true"
+      [hasMore]="true"
+      linkTemplate="https://data.biblissima.fr/entity/{id}"
+      label="Biblissima"
+      (itemChange)="onItemChange($event)"
+      (moreRequest)="onMoreRequest()"
+    />
+    @if (item) {
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>Selected Item</mat-panel-title>
+      </mat-expansion-panel-header>
+      <pre>{{ item | json }}</pre>
+    </mat-expansion-panel>
+    }
+
+    <hr />
+
+    <!-- Direct Service Access -->
+    <h3>Direct Biblissima+ Service Access</h3>
+    <p>
+      These sections demonstrate direct access to the
+      <code>BiblissimaService</code> methods.
+    </p>
+
+    <mat-tab-group>
+      <!-- Reconciliation Tab -->
+      <mat-tab label="Reconcile">
+        <div class="tab-content">
+          <p>
+            Search for entities matching a query. Optionally filter by type and
+            properties.
+          </p>
+          <form [formGroup]="reconcileForm" (ngSubmit)="reconcile()">
+            <div class="form-row">
+              <mat-form-field>
+                <mat-label>Query</mat-label>
+                <input matInput [formControl]="reconcileQuery" />
+                <mat-hint>Query (e.g. "Isidorus")</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Type (optional)</mat-label>
+                <input matInput [formControl]="reconcileType" />
+                <mat-hint>Type ID (e.g. Q168 for human)</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field class="narrow">
+                <mat-label>Limit</mat-label>
+                <input matInput type="number" [formControl]="reconcileLimit" />
+              </mat-form-field>
+
+              <mat-form-field class="narrow">
+                <mat-label>Language</mat-label>
+                <mat-select [formControl]="reconcileLanguage">
+                  <mat-option value="en">English</mat-option>
+                  <mat-option value="fr">French</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- Property Constraints -->
+            <div class="properties-section">
+              <div class="properties-header">
+                <span>Property Constraints</span>
+                <button
+                  type="button"
+                  mat-icon-button
+                  color="primary"
+                  matTooltip="Add property constraint"
+                  (click)="addProperty()"
+                >
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              </div>
+              @for ( prop of reconcileProperties.controls; track prop; let i =
+              $index ) {
+              <div class="property-row" [formGroup]="$any(prop)">
+                <mat-form-field>
+                  <mat-label>Property ID</mat-label>
+                  <input matInput formControlName="pid" />
+                  <mat-hint>Property ID (e.g. P57 for director)</mat-hint>
+                </mat-form-field>
+                <mat-form-field>
+                  <mat-label>Value</mat-label>
+                  <input matInput formControlName="v" />
+                  <mat-hint>Value (e.g. Q560 for "Rome")</mat-hint>
+                </mat-form-field>
+                <button
+                  type="button"
+                  mat-icon-button
+                  color="warn"
+                  matTooltip="Remove property"
+                  (click)="removeProperty(i)"
+                >
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
+              </div>
+              }
+            </div>
+
+            <button
+              type="submit"
+              mat-flat-button
+              color="primary"
+              [disabled]="reconcileForm.invalid || reconciling"
+            >
+              Search
+            </button>
+          </form>
+
+          @if (reconciling) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          } @if (reconcileResult) {
+          <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title
+                >Results ({{ reconcileResult.length }})</mat-panel-title
+              >
+            </mat-expansion-panel-header>
+            <pre>{{ reconcileResult | json }}</pre>
+          </mat-expansion-panel>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Suggest Tab -->
+      <mat-tab label="Suggest">
+        <div class="tab-content">
+          <p>
+            Auto-complete suggestions for entities, properties, or types based
+            on a prefix.
+          </p>
+          <form [formGroup]="suggestForm" (ngSubmit)="suggest()">
+            <div class="form-row">
+              <mat-form-field>
+                <mat-label>Prefix</mat-label>
+                <input matInput [formControl]="suggestPrefix" />
+                <mat-hint>e.g. date</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Endpoint</mat-label>
+                <mat-select [formControl]="suggestEndpoint">
+                  <mat-option value="entity">Entities</mat-option>
+                  <mat-option value="property">Properties</mat-option>
+                  <mat-option value="type">Types</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field class="narrow">
+                <mat-label>Language</mat-label>
+                <mat-select [formControl]="suggestLanguage">
+                  <mat-option value="en">English</mat-option>
+                  <mat-option value="fr">French</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <button
+              type="submit"
+              mat-flat-button
+              color="primary"
+              [disabled]="suggestForm.invalid || suggesting"
+            >
+              Suggest
+            </button>
+          </form>
+
+          @if (suggesting) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          } @if (suggestResult) {
+          <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title
+                >Results ({{ suggestResult.length }})</mat-panel-title
+              >
+            </mat-expansion-panel-header>
+            <pre>{{ suggestResult | json }}</pre>
+          </mat-expansion-panel>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Extend Tab -->
+      <mat-tab label="Extend">
+        <div class="tab-content">
+          <p>
+            Fetch property values for one or more entities. Enter
+            comma-separated IDs and property IDs.
+          </p>
+          <form [formGroup]="extendForm" (ngSubmit)="extend()">
+            <div class="form-row">
+              <mat-form-field>
+                <mat-label>Entity IDs</mat-label>
+                <input matInput [formControl]="extendIds" />
+                <mat-hint>CSV entity IDs (e.g. Q27392)</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Property IDs</mat-label>
+                <input matInput [formControl]="extendProperties" />
+                <mat-hint>CSV property IDs (e.g. P109)</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field class="narrow">
+                <mat-label>Language</mat-label>
+                <mat-select [formControl]="extendLanguage">
+                  <mat-option value="en">English</mat-option>
+                  <mat-option value="fr">French</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <button
+              type="submit"
+              mat-flat-button
+              color="primary"
+              [disabled]="extendForm.invalid || extending"
+            >
+              Extend
+            </button>
+          </form>
+
+          @if (extending) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          } @if (extendResult) {
+          <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Results</mat-panel-title>
+            </mat-expansion-panel-header>
+            <pre>{{ extendResult | json }}</pre>
+          </mat-expansion-panel>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

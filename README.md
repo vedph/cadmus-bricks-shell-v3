@@ -183,6 +183,7 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 - [@myrmidon/cadmus-refs-proper-name](projects/myrmidon/cadmus-refs-proper-name/README.md)
 
 - [@myrmidon/cadmus-refs-lookup](projects/myrmidon/cadmus-refs-lookup/README.md)
+- [@myrmidon/cadmus-refs-biblissima-lookup](projects/myrmidon/cadmus-refs-biblissima-lookup/README.md)
 - [@myrmidon/cadmus-refs-dbpedia-lookup](projects/myrmidon/cadmus-refs-dbpedia-lookup/README.md)
 - [@myrmidon/cadmus-refs-geonames-lookup](projects/myrmidon/cadmus-refs-geonames-lookup/README.md)
 - [@myrmidon/cadmus-refs-mol-lookup](projects/myrmidon/cadmus-refs-mol-lookup/README.md)

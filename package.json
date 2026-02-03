@@ -15,6 +15,7 @@
     "build-chr": "ng build @myrmidon/cadmus-refs-chronotope",
     "build-cit": "ng build @myrmidon/cadmus-refs-citation",
     "build-col": "ng build @myrmidon/cadmus-cod-location",
+    "build-bib": "ng build @myrmidon/cadmus-refs-biblissima-lookup",
     "build-dbp": "ng build @myrmidon/cadmus-refs-dbpedia-lookup",
     "build-decc": "ng build @myrmidon/cadmus-refs-decorated-counts",
     "build-deci": "ng build @myrmidon/cadmus-refs-decorated-ids",
@@ -38,7 +39,7 @@
     "build-whg": "ng build @myrmidon/cadmus-refs-whg-lookup",
     "build-zot": "ng build @myrmidon/cadmus-refs-zotero-lookup",
     "build-obj": "ng build @myrmidon/cadmus-ui-object-view",
-    "build-lib": "pnpm run build-flg && pnpm run build-cit && pnpm run build-doc && pnpm run build-lok && pnpm run build-ass && pnpm run build-his && pnpm run build-cab && pnpm run build-col && pnpm run build-phg && pnpm run build-phs && pnpm run build-aid && pnpm run build-chr && pnpm run build-decc && pnpm run build-deci && pnpm run build-ext && pnpm run build-achr && pnpm run build-prp && pnpm run build-viaf && pnpm run build-dbp && pnpm run build-blk && pnpm run build-nts && pnpm run build-ted && pnpm run build-tmd && pnpm run build-ttx && pnpm run build-geo && pnpm run build-whg && pnpm run build-pht && pnpm run build-muf && pnpm run build-zot && pnpm run build-obj && pnpm run build-mol"
+    "build-lib": "pnpm run build-flg && pnpm run build-cit && pnpm run build-doc && pnpm run build-lok && pnpm run build-ass && pnpm run build-his && pnpm run build-cab && pnpm run build-col && pnpm run build-phg && pnpm run build-phs && pnpm run build-aid && pnpm run build-chr && pnpm run build-decc && pnpm run build-deci && pnpm run build-ext && pnpm run build-achr && pnpm run build-prp && pnpm run build-viaf && pnpm run build-dbp && pnpm run build-blk && pnpm run build-nts && pnpm run build-ted && pnpm run build-tmd && pnpm run build-ttx && pnpm run build-geo && pnpm run build-whg && pnpm run build-pht && pnpm run build-muf && pnpm run build-zot && pnpm run build-obj && pnpm run build-mol && pnpm run build-bib"
   },
   "private": true,
   "packageManager": "pnpm@10.28.2",
