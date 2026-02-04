@@ -1,4 +1,4 @@
-import { Component, Inject, output, signal } from '@angular/core';
+import { Component, Inject, input, output, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -18,7 +18,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 // bricks
-import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
+import {
+  LookupProviderOptions,
+  RefLookupComponent,
+} from '@myrmidon/cadmus-refs-lookup';
 
 // cadmus
 import { ItemService } from '@myrmidon/cadmus-api';
@@ -89,6 +92,12 @@ export class ScopedPinLookupComponent {
    * Emitted whenever the user picks an ID.
    */
   public readonly idPick = output<string>();
+
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   constructor(
     formBuilder: FormBuilder,

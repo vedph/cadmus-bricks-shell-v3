@@ -27,6 +27,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
+import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 import {
   HistoricalDateComponent,
   HistoricalDateModel,
@@ -94,6 +95,12 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
    */
   public readonly chronotope = model<AssertedChronotope>();
 
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
+
   // chronotope-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
   // assertion-tags
@@ -157,7 +164,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
         .pipe(
           filter(() => !this._updatingForm),
           distinctUntilChanged(),
-          debounceTime(300)
+          debounceTime(300),
         )
         .subscribe((checked) => {
           if (this._hasPlaceChangeFrozen) {
@@ -175,7 +182,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
             const chronotope = this.getChronotope();
             this.chronotope.set(chronotope);
           }
-        })
+        }),
     );
 
     // automatically open date editor when checkbox is checked for new entries
@@ -184,7 +191,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
         .pipe(
           filter(() => !this._updatingForm),
           distinctUntilChanged(),
-          debounceTime(300)
+          debounceTime(300),
         )
         .subscribe((checked) => {
           if (this._hasDateChangeFrozen) {
@@ -202,7 +209,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
             const chronotope = this.getChronotope();
             this.chronotope.set(chronotope);
           }
-        })
+        }),
     );
   }
 

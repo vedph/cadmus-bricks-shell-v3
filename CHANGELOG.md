@@ -2,7 +2,7 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
-- 2026-02-04: 🆕 added presets to lookup. This implied updating versions in `*lookup` libraries and in `@myrmidon/cadmus-refs-asserted-ids`.
+- 2026-02-04: 🆕 added presets to lookup. This implied updating versions in `*lookup` libraries and in `@myrmidon/cadmus-refs-asserted-ids` and passing this property down to components hierarchies wherever they used lookup.
 - 2026-02-03: 🆕 added Biblissima+ lookup.
 - 2026-02-02: ⚠️ migrated demo app to zoneless by:
   - replacing `provideZoneChangeDetection` with `provideZonelessChangeDetection` in `app.config.ts`.

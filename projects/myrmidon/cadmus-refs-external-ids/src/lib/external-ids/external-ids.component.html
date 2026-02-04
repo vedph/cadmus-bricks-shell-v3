@@ -10,145 +10,160 @@
         <mat-icon>add_circle</mat-icon> add ID
       </button>
     </div>
-    @for ( item of idsArr.controls; track item; let i = $index; let first =
-    $first; let last = $last) {
-    <div>
-      <!-- child form -->
-      <div [formGroupName]="i" class="form-row">
-        <!-- child actions -->
-        <div>{{ i + 1 }}.</div>
-        <div>
+    @for (
+      item of idsArr.controls;
+      track item;
+      let i = $index;
+      let first = $first;
+      let last = $last
+    ) {
+      <div>
+        <!-- child form -->
+        <div [formGroupName]="i" class="form-row">
+          <!-- child actions -->
+          <div>{{ i + 1 }}.</div>
+          <div>
+            <button
+              mat-icon-button
+              type="button"
+              matTooltip="Remove this ID"
+              (click)="removeId(i)"
+            >
+              <mat-icon class="mat-warn">remove_circle</mat-icon>
+            </button>
+            <button
+              [disabled]="first"
+              mat-icon-button
+              type="button"
+              matTooltip="Move ID up"
+              (click)="moveIdUp(i)"
+            >
+              <mat-icon>arrow_upward</mat-icon>
+            </button>
+            <button
+              [disabled]="last"
+              mat-icon-button
+              type="button"
+              matTooltip="Move ID down"
+              (click)="moveIdDown(i)"
+            >
+              <mat-icon>arrow_downward</mat-icon>
+            </button>
+          </div>
+          <!-- child controls -->
+          <!-- value -->
+          <mat-form-field>
+            <mat-label>external ID</mat-label>
+            <input #id autofocus matInput formControlName="value" />
+            @if (
+              $any(item)["controls"].value?.hasError("required") &&
+              ($any(item)["controls"].value.dirty ||
+                $any(item)["controls"].value.touched)
+            ) {
+              <mat-error>ID required </mat-error>
+            }
+            @if (
+              $any(item)["controls"].value?.hasError("max-length") &&
+              ($any(item)["controls"].value.dirty ||
+                $any(item)["controls"].value.touched)
+            ) {
+              <mat-error>ID too long </mat-error>
+            }
+          </mat-form-field>
+          <!-- scope (bound) -->
+          @if (scopeEntries()?.length) {
+            <mat-form-field>
+              <mat-label>scope</mat-label>
+              <mat-select formControlName="scope">
+                @for (e of scopeEntries(); track e) {
+                  <mat-option [value]="e.id">
+                    {{ e.value }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+          <!-- scope (free) -->
+          @else {
+            <mat-form-field>
+              <mat-label>scope</mat-label>
+              <input matInput formControlName="scope" />
+              @if (
+                $any(item)["controls"].scope?.hasError("max-length") &&
+                ($any(item)["controls"].scope.dirty ||
+                  $any(item)["controls"].scope.touched)
+              ) {
+                <mat-error>scope too long </mat-error>
+              }
+            </mat-form-field>
+          }
+          <!-- tag (bound) -->
+          @if (tagEntries()?.length) {
+            <mat-form-field>
+              <mat-label>tag</mat-label>
+              <mat-select formControlName="tag">
+                @for (e of tagEntries(); track e) {
+                  <mat-option [value]="e.id">
+                    {{ e.value }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+          <!-- tag (free) -->
+          @else {
+            <mat-form-field>
+              <mat-label>tag</mat-label>
+              <input matInput formControlName="tag" />
+              @if (
+                $any(item)["controls"].tag?.hasError("max-length") &&
+                ($any(item)["controls"].tag.dirty ||
+                  $any(item)["controls"].tag.touched)
+              ) {
+                <mat-error>tag too long </mat-error>
+              }
+            </mat-form-field>
+          }
+          <!-- button -->
           <button
-            mat-icon-button
             type="button"
-            matTooltip="Remove this ID"
-            (click)="removeId(i)"
-          >
-            <mat-icon class="mat-warn">remove_circle</mat-icon>
-          </button>
-          <button
-            [disabled]="first"
             mat-icon-button
-            type="button"
-            matTooltip="Move ID up"
-            (click)="moveIdUp(i)"
+            matTooltip="Edit assertion"
+            (click)="editAssertion(i)"
           >
-            <mat-icon>arrow_upward</mat-icon>
-          </button>
-          <button
-            [disabled]="last"
-            mat-icon-button
-            type="button"
-            matTooltip="Move ID down"
-            (click)="moveIdDown(i)"
-          >
-            <mat-icon>arrow_downward</mat-icon>
+            <mat-icon class="mat-primary">feedback</mat-icon>
           </button>
         </div>
-        <!-- child controls -->
-        <!-- value -->
-        <mat-form-field>
-          <mat-label>external ID</mat-label>
-          <input #id autofocus matInput formControlName="value" />
-          @if ( $any(item)['controls'].value?.hasError('required') &&
-          ($any(item)['controls'].value.dirty ||
-          $any(item)['controls'].value.touched) ) {
-          <mat-error>ID required </mat-error>
-          } @if ( $any(item)['controls'].value?.hasError('max-length') &&
-          ($any(item)['controls'].value.dirty ||
-          $any(item)['controls'].value.touched) ) {
-          <mat-error>ID too long </mat-error>
-          }
-        </mat-form-field>
-        <!-- scope (bound) -->
-        @if (scopeEntries()?.length) {
-        <mat-form-field>
-          <mat-label>scope</mat-label>
-          <mat-select formControlName="scope">
-            @for (e of scopeEntries(); track e) {
-            <mat-option [value]="e.id">
-              {{ e.value }}
-            </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        }
-        <!-- scope (free) -->
-        @else {
-        <mat-form-field>
-          <mat-label>scope</mat-label>
-          <input matInput formControlName="scope" />
-          @if ( $any(item)['controls'].scope?.hasError('max-length') &&
-          ($any(item)['controls'].scope.dirty ||
-          $any(item)['controls'].scope.touched) ) {
-          <mat-error>scope too long </mat-error>
-          }
-        </mat-form-field>
-        }
-        <!-- tag (bound) -->
-        @if (tagEntries()?.length) {
-        <mat-form-field>
-          <mat-label>tag</mat-label>
-          <mat-select formControlName="tag">
-            @for (e of tagEntries(); track e) {
-            <mat-option [value]="e.id">
-              {{ e.value }}
-            </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        }
-        <!-- tag (free) -->
-        @else {
-        <mat-form-field>
-          <mat-label>tag</mat-label>
-          <input matInput formControlName="tag" />
-          @if ( $any(item)['controls'].tag?.hasError('max-length') &&
-          ($any(item)['controls'].tag.dirty ||
-          $any(item)['controls'].tag.touched) ) {
-          <mat-error>tag too long </mat-error>
-          }
-        </mat-form-field>
-        }
-        <!-- button -->
-        <button
-          type="button"
-          mat-icon-button
-          matTooltip="Edit assertion"
-          (click)="editAssertion(i)"
-        >
-          <mat-icon class="mat-primary">feedback</mat-icon>
-        </button>
       </div>
-    </div>
     }
     <!-- assertion -->
     @if (idsArr.length) {
-    <mat-expansion-panel
-      [disabled]="!assertionNr()"
-      [expanded]="assEdOpen()"
-      (expandedChange)="assEdOpen.set($event)"
-    >
-      <mat-expansion-panel-header
-        >#{{ assertionNr() }} assertion</mat-expansion-panel-header
+      <mat-expansion-panel
+        [disabled]="!assertionNr()"
+        [expanded]="assEdOpen()"
+        (expandedChange)="assEdOpen.set($event)"
       >
-      <cadmus-refs-assertion
-        [assertion]="assertion()"
-        [assTagEntries]="assTagEntries()"
-        [refTagEntries]="refTagEntries()"
-        [refTypeEntries]="refTypeEntries()"
-        (assertionChange)="onAssertionChange($event)"
-      />
-      <button
-        class="mat-primary"
-        type="button"
-        mat-flat-button
-        style="margin-top: 6px"
-        (click)="saveAssertion()"
-      >
-        <mat-icon class="mat-primary">check_circle</mat-icon> assertion
-      </button>
-    </mat-expansion-panel>
+        <mat-expansion-panel-header
+          >#{{ assertionNr() }} assertion</mat-expansion-panel-header
+        >
+        <cadmus-refs-assertion
+          [assertion]="assertion()"
+          [assTagEntries]="assTagEntries()"
+          [refTagEntries]="refTagEntries()"
+          [refTypeEntries]="refTypeEntries()"
+          [lookupProviderOptions]="lookupProviderOptions()"
+          (assertionChange)="onAssertionChange($event)"
+        />
+        <button
+          class="mat-primary"
+          type="button"
+          mat-flat-button
+          style="margin-top: 6px"
+          (click)="saveAssertion()"
+        >
+          <mat-icon class="mat-primary">check_circle</mat-icon> assertion
+        </button>
+      </mat-expansion-panel>
     }
   </div>
 </form>

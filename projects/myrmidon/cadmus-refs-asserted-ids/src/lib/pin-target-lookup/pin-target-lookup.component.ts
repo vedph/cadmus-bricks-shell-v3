@@ -43,6 +43,7 @@ import { FlatLookupPipe } from '@myrmidon/ngx-tools';
 
 // bricks
 import {
+  LookupProviderOptions,
   RefLookupSetEvent,
   RefLookupComponent,
   RefLookupConfig,
@@ -168,6 +169,12 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
    * The optional configurations for using external lookup services.
    */
   public readonly extLookupConfigs = input<RefLookupConfig[]>([]);
+
+  /**
+   * Optional preset options for external lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   /**
    * The target to be edited.

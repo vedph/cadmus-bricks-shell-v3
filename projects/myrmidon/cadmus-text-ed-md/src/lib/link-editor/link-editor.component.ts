@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   Inject,
+  input,
   model,
   OnInit,
   Optional,
@@ -24,6 +25,7 @@ import {
   AssertedCompositeId,
   AssertedCompositeIdComponent,
 } from '@myrmidon/cadmus-refs-asserted-ids';
+import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { ThesaurusService } from '@myrmidon/cadmus-api';
 
@@ -64,6 +66,12 @@ export class LinkEditorComponent implements OnInit {
   public lookupDefinitions?: IndexLookupDefinitions;
   public internalDefault?: boolean;
 
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
+
   // asserted-id-scopes
   public readonly idScopeEntries = model<ThesaurusEntry[]>();
 
@@ -97,7 +105,7 @@ export class LinkEditorComponent implements OnInit {
     public dialogRef?: MatDialogRef<LinkEditorComponent>,
     @Optional()
     @Inject(MAT_DIALOG_DATA)
-    public data?: LinkEditorComponentData
+    public data?: LinkEditorComponentData,
   ) {
     this.inDialog = !!dialogRef;
   }

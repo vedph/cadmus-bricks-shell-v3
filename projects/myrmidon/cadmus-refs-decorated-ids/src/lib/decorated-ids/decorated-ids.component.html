@@ -6,64 +6,69 @@
     </button>
   </div>
   @if (editedIds.value.length) {
-  <table>
-    <thead>
-      <tr>
-        <th></th>
-        <th>ID</th>
-        <th>rank</th>
-        <th>tag</th>
-        <th>refs</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (id of editedIds.value; track id.id; let i = $index; let first =
-      $first; let last = $last) {
-      <tr [class.selected]="i === editedIndex()">
-        <td class="fit-width">
-          <button
-            type="button"
-            mat-icon-button
-            matTooltip="Edit this ID"
-            (click)="editId(i)"
-          >
-            <mat-icon class="mat-primary">edit</mat-icon>
-          </button>
-          <button
-            type="button"
-            mat-icon-button
-            matTooltip="Move this ID up"
-            [disabled]="first"
-            (click)="moveIdUp(i)"
-          >
-            <mat-icon>arrow_upward</mat-icon>
-          </button>
-          <button
-            type="button"
-            mat-icon-button
-            matTooltip="Move this ID down"
-            [disabled]="last"
-            (click)="moveIdDown(i)"
-          >
-            <mat-icon>arrow_downward</mat-icon>
-          </button>
-          <button
-            type="button"
-            mat-icon-button
-            matTooltip="Delete this ID"
-            (click)="deleteId(i)"
-          >
-            <mat-icon class="mat-warn">remove_circle</mat-icon>
-          </button>
-        </td>
-        <td>{{ id.id }}</td>
-        <td>{{ id.rank }}</td>
-        <td>{{ id.tag | flatLookup : tagEntries() : "id" : "value" }}</td>
-        <td>{{ id.sources?.length || 0 }}</td>
-      </tr>
-      }
-    </tbody>
-  </table>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>ID</th>
+          <th>rank</th>
+          <th>tag</th>
+          <th>refs</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (
+          id of editedIds.value;
+          track id.id;
+          let i = $index;
+          let first = $first;
+          let last = $last
+        ) {
+          <tr [class.selected]="i === editedIndex()">
+            <td class="fit-width">
+              <button
+                type="button"
+                mat-icon-button
+                matTooltip="Edit this ID"
+                (click)="editId(i)"
+              >
+                <mat-icon class="mat-primary">edit</mat-icon>
+              </button>
+              <button
+                type="button"
+                mat-icon-button
+                matTooltip="Move this ID up"
+                [disabled]="first"
+                (click)="moveIdUp(i)"
+              >
+                <mat-icon>arrow_upward</mat-icon>
+              </button>
+              <button
+                type="button"
+                mat-icon-button
+                matTooltip="Move this ID down"
+                [disabled]="last"
+                (click)="moveIdDown(i)"
+              >
+                <mat-icon>arrow_downward</mat-icon>
+              </button>
+              <button
+                type="button"
+                mat-icon-button
+                matTooltip="Delete this ID"
+                (click)="deleteId(i)"
+              >
+                <mat-icon class="mat-warn">remove_circle</mat-icon>
+              </button>
+            </td>
+            <td>{{ id.id }}</td>
+            <td>{{ id.rank }}</td>
+            <td>{{ id.tag | flatLookup: tagEntries() : "id" : "value" }}</td>
+            <td>{{ id.sources?.length || 0 }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   }
 
   <!-- editor -->
@@ -84,10 +89,11 @@
         <mat-form-field>
           <mat-label>ID</mat-label>
           <input matInput [formControl]="id" />
-          @if (id.hasError('required') && (id.dirty || id.touched)) {
-          <mat-error>enter ID</mat-error>
-          } @if (id.hasError('max-length') && (id.dirty || id.touched)) {
-          <mat-error>ID too long</mat-error>
+          @if (id.hasError("required") && (id.dirty || id.touched)) {
+            <mat-error>enter ID</mat-error>
+          }
+          @if (id.hasError("max-length") && (id.dirty || id.touched)) {
+            <mat-error>ID too long</mat-error>
           }
         </mat-form-field>
         <!-- rank -->
@@ -97,24 +103,24 @@
         </mat-form-field>
         <!-- tag (bound) -->
         @if (tagEntries()) {
-        <mat-form-field>
-          <mat-label>tag</mat-label>
-          <mat-select [formControl]="tag">
-            @for (e of tagEntries(); track e) {
-            <mat-option [value]="e.id">{{ e.value }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+          <mat-form-field>
+            <mat-label>tag</mat-label>
+            <mat-select [formControl]="tag">
+              @for (e of tagEntries(); track e) {
+                <mat-option [value]="e.id">{{ e.value }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         }
         <!-- tag (free) -->
         @else {
-        <mat-form-field>
-          <mat-label>tag</mat-label>
-          <input matInput [formControl]="tag" />
-          @if (tag.hasError('max-length') && (tag.dirty || tag.touched)) {
-          <mat-error>tag too long</mat-error>
-          }
-        </mat-form-field>
+          <mat-form-field>
+            <mat-label>tag</mat-label>
+            <input matInput [formControl]="tag" />
+            @if (tag.hasError("max-length") && (tag.dirty || tag.touched)) {
+              <mat-error>tag too long</mat-error>
+            }
+          </mat-form-field>
         }
       </div>
       <!-- sources -->
@@ -125,6 +131,7 @@
           [noLookup]="noLookup()"
           [noCitation]="noCitation()"
           [defaultPicker]="defaultPicker()"
+          [lookupProviderOptions]="lookupProviderOptions()"
           [references]="sources.value"
           (referencesChange)="onSourcesChange($event)"
         />

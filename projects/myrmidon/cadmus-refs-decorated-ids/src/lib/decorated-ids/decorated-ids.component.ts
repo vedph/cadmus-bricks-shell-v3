@@ -28,7 +28,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FlatLookupPipe, NgxToolsValidators } from '@myrmidon/ngx-tools';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
-import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
+import {
+  LookupDocReferencesComponent,
+  LookupProviderOptions,
+} from '@myrmidon/cadmus-refs-lookup';
 
 /**
  * An ID optionally decorated with rank, tag, and sources.
@@ -103,6 +106,12 @@ export class DecoratedIdsComponent {
    * The default picker to show when the editor opens.
    */
   public readonly defaultPicker = input<'citation' | 'lookup'>('citation');
+
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   constructor(formBuilder: FormBuilder) {
     this.id = formBuilder.control(null, [

@@ -74,7 +74,10 @@
           (expandedChange)="lookupExpanded.set($event)"
         >
           <mat-expansion-panel-header>lookup</mat-expansion-panel-header>
-          <cadmus-scoped-pin-lookup (idPick)="onIdPick($event)" />
+          <cadmus-scoped-pin-lookup
+            [lookupProviderOptions]="lookupProviderOptions()"
+            (idPick)="onIdPick($event)"
+          />
         </mat-expansion-panel>
       </div>
       }

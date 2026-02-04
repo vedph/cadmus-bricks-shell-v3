@@ -20,6 +20,7 @@
         [service]="lookupService"
         label="pin"
         [options]="key.value ? lookupDefs[key.value] : undefined"
+        [lookupProviderOptions]="lookupProviderOptions()"
         (itemChange)="onItemChange($event)"
       />
     </form>

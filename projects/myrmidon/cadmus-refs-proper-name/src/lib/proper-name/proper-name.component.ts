@@ -30,6 +30,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FlatLookupPipe, NgxToolsValidators } from '@myrmidon/ngx-tools';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
+import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 
 import { ProperName, ProperNamePiece, TypeThesaurusEntry } from '../models';
 import { ProperNameService } from '../services/proper-name.service';
@@ -87,13 +88,19 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   public readonly editedPieceIndex = signal<number>(-1);
   public readonly editedPiece = signal<ProperNamePiece | undefined>(undefined);
   public readonly purgedTypeEntries = signal<ThesaurusEntry[] | undefined>(
-    undefined
+    undefined,
   );
 
   /**
    * The proper name.
    */
   public readonly name = model<AssertedProperName>();
+
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   /**
    * The optional thesaurus name piece's type entries (name-piece-types).
@@ -131,15 +138,15 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   // edited assertion
   public readonly assEdOpen = signal<boolean>(false);
   public readonly ordered = computed(() =>
-    this.pieceTypes().some((t) => t.ordinal)
+    this.pieceTypes().some((t) => t.ordinal),
   );
   public readonly valueEntries = computed(() =>
-    this._nameService.getValueEntries(this.pieceTypes())
+    this._nameService.getValueEntries(this.pieceTypes()),
   );
 
   constructor(
     formBuilder: FormBuilder,
-    private _nameService: ProperNameService
+    private _nameService: ProperNameService,
   ) {
     this.assEdOpen.set(false);
 
@@ -163,10 +170,10 @@ export class ProperNameComponent implements OnInit, OnDestroy {
 
     // streams
     this._typeEntries$ = new BehaviorSubject<ThesaurusEntry[] | undefined>(
-      undefined
+      undefined,
     );
     this._name$ = new BehaviorSubject<AssertedProperName | undefined>(
-      undefined
+      undefined,
     );
     // combine types and name together in updating form
     combineLatest({
@@ -195,14 +202,14 @@ export class ProperNameComponent implements OnInit, OnDestroy {
         .pipe(debounceTime(300), distinctUntilChanged())
         .subscribe((_) => {
           this.name.set(this.getName());
-        })
+        }),
     );
     this._subs.push(
       this.tag.valueChanges
         .pipe(debounceTime(300), distinctUntilChanged())
         .subscribe((_) => {
           this.name.set(this.getName());
-        })
+        }),
     );
   }
 
@@ -218,7 +225,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
           return e.id[e.id.length - 1] === '*'
             ? { ...e, id: e.id.substring(0, e.id.length - 1) }
             : e;
-        })
+        }),
       );
     } else {
       this.purgedTypeEntries.set(undefined);
@@ -237,7 +244,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
         type: this.pieceTypes.length ? this.pieceTypes()[0].id : '',
         value: '',
       },
-      -1
+      -1,
     );
   }
 
@@ -348,7 +355,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
 
   private updateForm(
     name?: AssertedProperName,
-    typeEntries?: ThesaurusEntry[]
+    typeEntries?: ThesaurusEntry[],
   ): void {
     this.closePiece();
     this.assEdOpen.set(false);

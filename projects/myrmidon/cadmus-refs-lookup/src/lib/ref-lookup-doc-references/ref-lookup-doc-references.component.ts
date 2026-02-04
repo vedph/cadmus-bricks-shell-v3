@@ -21,6 +21,7 @@ import { FlatLookupPipe } from '@myrmidon/ngx-tools';
 import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
 
 import { LookupDocReferenceComponent } from '../ref-lookup-doc-reference/ref-lookup-doc-reference.component';
+import { LookupProviderOptions } from '../ref-lookup/ref-lookup.component';
 
 /**
  * Document references editor component.
@@ -90,6 +91,12 @@ export class LookupDocReferencesComponent {
    * True to auto-close the picker when a lookup item is picked.
    */
   public readonly autoCloseOnPick = input<boolean>(true);
+
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   constructor(private _dialogService: DialogService) {}
 

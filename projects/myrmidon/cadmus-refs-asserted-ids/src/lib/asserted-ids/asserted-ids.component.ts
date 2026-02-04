@@ -20,6 +20,7 @@ import { deepCopy } from '@myrmidon/ngx-tools';
 
 // cadmus
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 
 // local
 import {
@@ -66,6 +67,12 @@ export class AssertedIdsComponent {
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
+
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   constructor(private _dialogService: DialogService) {}
 

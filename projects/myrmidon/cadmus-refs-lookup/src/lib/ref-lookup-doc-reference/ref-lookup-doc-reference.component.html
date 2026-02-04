@@ -101,6 +101,7 @@
       @case ("lookup") {
       <cadmus-refs-lookup-set
         [configs]="lookupConfigs()"
+        [lookupProviderOptions]="lookupProviderOptions()"
         (itemChange)="onLookupItemChange($event)"
       />
       }

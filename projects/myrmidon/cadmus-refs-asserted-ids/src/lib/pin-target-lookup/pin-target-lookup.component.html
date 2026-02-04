@@ -57,6 +57,7 @@
     <legend>external lookup</legend>
     <cadmus-refs-lookup-set
       [configs]="extLookupConfigs()"
+      [lookupProviderOptions]="lookupProviderOptions()"
       (itemChange)="onExtItemChange($event)"
       (moreRequest)="onExtMoreRequest($event)"
       (configChange)="onExtConfigChange($any($event))"

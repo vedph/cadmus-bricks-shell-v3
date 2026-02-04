@@ -34,6 +34,7 @@ import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
 
 // cadmus
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
+import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 
 // local
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
@@ -106,6 +107,12 @@ export class AssertedIdComponent implements OnInit, OnDestroy {
    * True to hide the pin-based EID lookup UI.
    */
   public readonly noEidLookup = input<boolean>();
+
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   /**
    * True to show the submit button.

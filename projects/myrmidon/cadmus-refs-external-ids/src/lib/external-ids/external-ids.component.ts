@@ -28,6 +28,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
 
@@ -77,6 +78,12 @@ export class ExternalIdsComponent implements OnDestroy {
    * The external IDs.
    */
   public readonly ids = model<RankedExternalId[]>([]);
+
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   /**
    * The ID scopes thesaurus entries.
@@ -157,7 +164,7 @@ export class ExternalIdsComponent implements OnDestroy {
     this._idsSubs.push(
       g.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
         this.emitIdsChange();
-      })
+      }),
     );
     this.idsArr.push(g);
     if (!this._updatingForm) {
@@ -224,9 +231,9 @@ export class ExternalIdsComponent implements OnDestroy {
     // save the currently edited assertion if any
     this.saveAssertion();
     // edit the new assertion
-    this.assertion.set((this.idsArr.at(index) as FormGroup).controls[
-      'assertion'
-    ].value);
+    this.assertion.set(
+      (this.idsArr.at(index) as FormGroup).controls['assertion'].value,
+    );
     this.assertionNr.set(index + 1);
     this.assEdOpen.set(true);
   }

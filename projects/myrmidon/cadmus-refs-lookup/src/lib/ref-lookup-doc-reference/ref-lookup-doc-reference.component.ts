@@ -43,6 +43,7 @@ import {
   RefLookupConfig,
   RefLookupSetComponent,
 } from '../ref-lookup-set/ref-lookup-set.component';
+import { LookupProviderOptions } from '../ref-lookup/ref-lookup.component';
 
 /**
  * The key to be used to retrieve the external lookup configs from the
@@ -111,6 +112,12 @@ export class LookupDocReferenceComponent implements OnDestroy {
    * True to auto-close the picker when a lookup item is picked.
    */
   public readonly autoCloseOnPick = input<boolean>(true);
+
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   /**
    * Emitted when the user closes the editor.

@@ -37,35 +37,38 @@
         <div class="form-row">
           <!-- tag (bound) -->
           @if (tagEntries()) {
-          <mat-form-field>
-            <mat-label>tag</mat-label>
-            <mat-select [formControl]="plTag">
-              @for (e of tagEntries(); track e) {
-              <mat-option [value]="e.id">{{ e.value }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+            <mat-form-field>
+              <mat-label>tag</mat-label>
+              <mat-select [formControl]="plTag">
+                @for (e of tagEntries(); track e) {
+                  <mat-option [value]="e.id">{{ e.value }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           }
           <!-- tag (free) -->
           @else {
-          <mat-form-field>
-            <mat-label>tag</mat-label>
-            <input matInput [formControl]="plTag" />
-            @if ( plTag.hasError('max-length') && (plTag.dirty || plTag.touched)
-            ) {
-            <mat-error>tag too long</mat-error>
-            }
-          </mat-form-field>
+            <mat-form-field>
+              <mat-label>tag</mat-label>
+              <input matInput [formControl]="plTag" />
+              @if (
+                plTag.hasError("max-length") && (plTag.dirty || plTag.touched)
+              ) {
+                <mat-error>tag too long</mat-error>
+              }
+            </mat-form-field>
           }
           <!-- place -->
           <mat-form-field>
             <mat-label>place</mat-label>
             <input matInput [formControl]="place" />
-            @if (place.hasError('required') && (place.dirty || place.touched)) {
-            <mat-error>place required</mat-error>
-            } @if (place.hasError('max-length') && (place.dirty ||
-            place.touched)) {
-            <mat-error>place too long</mat-error>
+            @if (place.hasError("required") && (place.dirty || place.touched)) {
+              <mat-error>place required</mat-error>
+            }
+            @if (
+              place.hasError("max-length") && (place.dirty || place.touched)
+            ) {
+              <mat-error>place too long</mat-error>
             }
           </mat-form-field>
         </div>
@@ -79,6 +82,7 @@
             [assTagEntries]="assTagEntries()"
             [refTypeEntries]="refTypeEntries()"
             [refTagEntries]="refTagEntries()"
+            [lookupProviderOptions]="lookupProviderOptions()"
             [assertion]="plAssertion.value || undefined"
             (assertionChange)="onPlAssertionChange($event)"
           />
@@ -86,11 +90,7 @@
       </fieldset>
       <!-- buttons -->
       <div class="form-row">
-        <button
-          type="button"
-          mat-icon-button
-          (click)="closePlace()"
-        >
+        <button type="button" mat-icon-button (click)="closePlace()">
           <mat-icon class="mat-warn">cancel</mat-icon>
         </button>
         <button type="submit" mat-icon-button [disabled]="plForm.invalid">
@@ -112,24 +112,26 @@
         <legend>date</legend>
         <!-- tag (bound) -->
         @if (tagEntries()?.length) {
-        <mat-form-field>
-          <mat-label>tag</mat-label>
-          <mat-select [formControl]="dtTag">
-            @for (e of tagEntries(); track e) {
-            <mat-option [value]="e.id">{{ e.value }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+          <mat-form-field>
+            <mat-label>tag</mat-label>
+            <mat-select [formControl]="dtTag">
+              @for (e of tagEntries(); track e) {
+                <mat-option [value]="e.id">{{ e.value }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         }
         <!-- tag (free) -->
         @else {
-        <mat-form-field>
-          <mat-label>tag</mat-label>
-          <input matInput [formControl]="dtTag" />
-          @if (dtTag.hasError('max-length') && (dtTag.dirty || dtTag.touched)) {
-          <mat-error>tag too long</mat-error>
-          }
-        </mat-form-field>
+          <mat-form-field>
+            <mat-label>tag</mat-label>
+            <input matInput [formControl]="dtTag" />
+            @if (
+              dtTag.hasError("max-length") && (dtTag.dirty || dtTag.touched)
+            ) {
+              <mat-error>tag too long</mat-error>
+            }
+          </mat-form-field>
         }
         <div>
           <!-- date -->
@@ -147,6 +149,7 @@
               [assTagEntries]="assTagEntries()"
               [refTypeEntries]="refTypeEntries()"
               [refTagEntries]="refTagEntries()"
+              [lookupProviderOptions]="lookupProviderOptions()"
               [assertion]="dtAssertion.value || undefined"
               (assertionChange)="onDtAssertionChange($event)"
             />

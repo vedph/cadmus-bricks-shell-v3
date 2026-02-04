@@ -38,6 +38,7 @@ import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
 import {
   LOOKUP_CONFIGS_KEY,
+  LookupProviderOptions,
   RefLookupConfig,
   RefLookupSetEvent,
 } from '@myrmidon/cadmus-refs-lookup';
@@ -155,6 +156,12 @@ export class AssertedCompositeIdComponent {
    * disabled.
    */
   public readonly lookupDefinitions = input<IndexLookupDefinitions>();
+
+  /**
+   * Optional preset options for external lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   /**
    * The default part type key to be used.

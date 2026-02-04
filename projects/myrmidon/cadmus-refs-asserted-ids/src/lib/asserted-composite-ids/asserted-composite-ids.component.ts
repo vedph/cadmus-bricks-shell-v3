@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
+import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 import { deepCopy, FlatLookupPipe } from '@myrmidon/ngx-tools';
 
@@ -98,6 +99,12 @@ export class AssertedCompositeIdsComponent {
    * The default part type key.
    */
   public readonly defaultPartTypeKey = input<string>();
+
+  /**
+   * Optional preset options for external lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   constructor(private _dialogService: DialogService) {}
 

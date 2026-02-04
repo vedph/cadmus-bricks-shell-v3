@@ -30,7 +30,10 @@ import { MatSelectModule } from '@angular/material/select';
 
 // bricks
 import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
-import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
+import {
+  LookupDocReferencesComponent,
+  LookupProviderOptions,
+} from '@myrmidon/cadmus-refs-lookup';
 
 // cadmus
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
@@ -105,6 +108,12 @@ export class AssertionComponent implements OnInit, OnDestroy {
    * The default picker to show when the editor opens.
    */
   public readonly defaultPicker = input<'citation' | 'lookup'>('citation');
+
+  /**
+   * Optional preset options for lookup providers.
+   * Maps provider IDs to their available scopes.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   public readonly visualExpanded = signal<boolean>(false);
 
