@@ -27,6 +27,7 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { NgxToolsValidators } from '@myrmidon/ngx-tools';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 import { HistoricalDatePipe } from '@myrmidon/cadmus-refs-historical-date';
+import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 
 import {
   AssertedChronotope,
@@ -72,10 +73,17 @@ export class AssertedChronotopeSetComponent implements OnInit {
   // chronotope-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
+  public readonly lookupProviderOptions = input<
+    LookupProviderOptions | undefined
+  >();
+
   public entries: FormControl<AssertedChronotope[]>;
   public form: FormGroup;
 
-  constructor(formBuilder: FormBuilder, private _dialogService: DialogService) {
+  constructor(
+    formBuilder: FormBuilder,
+    private _dialogService: DialogService,
+  ) {
     // form
     this.entries = formBuilder.control([], {
       validators: NgxToolsValidators.strictMinLengthValidator(1),
