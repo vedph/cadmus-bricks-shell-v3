@@ -25,6 +25,8 @@ export interface ZoteroLookupOptions extends ZoteroSearchParams {
   providedIn: 'root',
 })
 export class ZoteroRefLookupService implements RefLookupService {
+  public readonly id = 'zotero';
+
   constructor(private _zotero: ZoteroService) {}
 
   /**

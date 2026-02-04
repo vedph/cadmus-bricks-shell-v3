@@ -12,6 +12,8 @@ import { ViafService } from './viaf.service';
   providedIn: 'root',
 })
 export class ViafRefLookupService implements RefLookupService {
+  public readonly id = 'viaf';
+
   constructor(private _viaf: ViafService) {}
 
   public lookup(filter: RefLookupFilter, options?: any): Observable<any[]> {

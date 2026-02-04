@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-whg-lookup",
-  "version": "10.0.1",
+  "version": "10.0.2",
   "description": "Cadmus - WHG lookup.",
   "keywords": [
     "Cadmus",
@@ -18,7 +18,7 @@
   "peerDependencies": {
     "@angular/common": "^20.0.0 || ^21.0.0",
     "@angular/core": "^20.0.0 || ^21.0.0",
-    "@myrmidon/cadmus-refs-lookup": "^10.0.5"
+    "@myrmidon/cadmus-refs-lookup": "^10.0.6"
   },
   "dependencies": {
     "tslib": "^2.3.0"

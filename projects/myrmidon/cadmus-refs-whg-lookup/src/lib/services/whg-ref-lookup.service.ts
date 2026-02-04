@@ -31,6 +31,8 @@ export const WHG_USERNAME_TOKEN = new InjectionToken('WHG_USERNAME');
   providedIn: 'root',
 })
 export class WhgRefLookupService implements RefLookupService {
+  public readonly id = 'whg';
+
   constructor(
     @Inject(WHG_USERNAME_TOKEN) private _userName: string,
     private _whg: WhgService

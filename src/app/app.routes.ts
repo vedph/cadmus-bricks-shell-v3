@@ -236,6 +236,14 @@ export const routes: Routes = [
         (m) => m.BiblissimaRefLookupPg,
       ),
   },
+  // refs/preset-ref-lookup
+  {
+    path: 'refs/preset-ref-lookup',
+    loadComponent: () =>
+      import('./components/refs/preset-ref-lookup-pg/preset-ref-lookup-pg.component').then(
+        (m) => m.PresetRefLookupPgComponent,
+      ),
+  },
   // refs/ref-lookup-docs
   {
     path: 'refs/ref-lookup-docs',

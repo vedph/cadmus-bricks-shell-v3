@@ -4,7 +4,7 @@
   <mat-form-field>
     <mat-label>provider</mat-label>
     <mat-select [formControl]="config">
-      @for (c of configs(); track c) {
+      @for (c of configs(); track c.name) {
       <mat-option [value]="c">
         <div class="form-row">
           @if (c.iconUrl) {
@@ -38,6 +38,7 @@
     [options]="config.value.options"
     [linkTemplate]="config.value.linkTemplate"
     [label]="config.value.label"
+    [lookupProviderOptions]="lookupProviderOptions()"
     (itemChange)="onItemChange($event)"
     (moreRequest)="onMoreRequest($event)"
   />

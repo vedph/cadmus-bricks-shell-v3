@@ -33,6 +33,8 @@ export interface PinRefLookupFilter extends RefLookupFilter {
   providedIn: 'root',
 })
 export class PinRefLookupService implements RefLookupService {
+  public readonly id = 'pin';
+
   constructor(private _itemService: ItemService) {}
 
   public getName(item: any | undefined): string {

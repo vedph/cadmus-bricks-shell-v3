@@ -17,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 
 import {
+  LookupProviderOptions,
   RefLookupComponent,
   RefLookupService,
 } from '../ref-lookup/ref-lookup.component';
@@ -169,6 +170,13 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
    * The icon size used for lookup items.
    */
   public readonly iconSize = input<IconSize>({ width: 24, height: 24 });
+
+  /**
+   * Optional configuration for automatic lookup provider options.
+   * When defined, this is passed to the child RefLookupComponent to enable
+   * automatic options selection via a scope selector UI.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   /**
    * Emitted when the currently selected lookup configuration changes.

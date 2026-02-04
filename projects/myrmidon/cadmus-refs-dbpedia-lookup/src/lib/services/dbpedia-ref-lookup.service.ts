@@ -13,6 +13,7 @@ import { DbpediaDoc, DbpediaOptions, DbpediaService } from './dbpedia.service';
   providedIn: 'root',
 })
 export class DbpediaRefLookupService implements RefLookupService {
+  public readonly id = 'dbpedia';
   private readonly _tagRegex = /<[^>]+>/g;
 
   constructor(private _dbpedia: DbpediaService) {}

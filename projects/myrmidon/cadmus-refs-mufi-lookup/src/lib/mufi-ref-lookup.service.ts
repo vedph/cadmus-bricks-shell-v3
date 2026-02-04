@@ -15,6 +15,8 @@ import { MufiChar, MufiCharFilter, MufiService } from './mufi.service';
   providedIn: 'root',
 })
 export class MufiRefLookupService implements RefLookupService {
+  public readonly id = 'mufi';
+
   constructor(private _mufi: MufiService) {}
 
   /**

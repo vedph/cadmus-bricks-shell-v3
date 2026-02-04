@@ -18,6 +18,8 @@ import { Item } from '@myrmidon/cadmus-core';
   providedIn: 'root',
 })
 export class ItemRefLookupService implements RefLookupService {
+  public readonly id = 'item';
+
   constructor(private _itemService: ItemService) {}
 
   public lookup(filter: RefLookupFilter, options?: any): Observable<Item[]> {

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   input,
   model,
@@ -50,6 +51,11 @@ export interface RefLookupFilter {
  */
 export interface RefLookupService {
   /**
+   * A unique identifier for this lookup service, used to match
+   * against lookupProviderOptions. Examples: 'viaf', 'whg', 'biblissima'.
+   */
+  readonly id: string;
+  /**
    * Lookup the items matching filter.
    * @param filter The filter.
    * @param options Additional options.
@@ -60,6 +66,67 @@ export interface RefLookupService {
    * @param item The item.
    */
   getName(item: any | undefined): string;
+}
+
+/**
+ * Represents a single scope option for a lookup provider.
+ * Each scope has a label for UI display and the options to apply.
+ */
+export interface LookupProviderOptionScope {
+  /**
+   * The human-friendly label to display in the scope selector.
+   */
+  label: string;
+  /**
+   * The options to apply when this scope is selected.
+   * The structure depends on the specific lookup provider.
+   */
+  options: any;
+}
+
+/**
+ * A map of scope keys to their definitions for a single provider.
+ * The special key 'default' with value null indicates unlimited search is allowed.
+ * If 'default' is missing, users must select a specific scope.
+ */
+export type LookupProviderScopesMap = {
+  [scopeKey: string]: LookupProviderOptionScope | null;
+};
+
+/**
+ * Configuration map for automatic lookup provider options.
+ * Each key is a provider ID (matching RefLookupService.id),
+ * and the value is a map of available scopes for that provider.
+ *
+ * @example
+ * {
+ *   "biblissima": {
+ *     "default": null,
+ *     "q168": { "label": "people", "options": { "type": "Q168" } },
+ *     "q282950": { "label": "works", "options": { "type": "Q282950" } }
+ *   }
+ * }
+ */
+export type LookupProviderOptions = {
+  [providerId: string]: LookupProviderScopesMap;
+};
+
+/**
+ * Represents a scope entry for display in the scope selector.
+ */
+export interface LookupScopeEntry {
+  /**
+   * The scope key from the LookupProviderScopesMap.
+   */
+  key: string;
+  /**
+   * The label to display, or 'default' for null scopes.
+   */
+  label: string;
+  /**
+   * The options to apply, or undefined for default/unlimited.
+   */
+  options: any | undefined;
 }
 
 /**
@@ -156,12 +223,49 @@ export class RefLookupComponent {
   public readonly options = model<unknown>();
 
   /**
+   * Optional configuration for automatic lookup provider options.
+   * When defined with scopes for the current service, enables automatic
+   * options selection via a scope selector UI.
+   */
+  public readonly lookupProviderOptions = input<LookupProviderOptions>();
+
+  /**
    * The request for a more complex lookup, getting the
    * current item if any.
    */
   public readonly moreRequest = output<unknown | undefined>();
 
   public readonly loading = signal<boolean>(false);
+
+  /**
+   * The currently selected scope key, if scopes are available.
+   */
+  public readonly selectedScopeKey = signal<string | undefined>(undefined);
+
+  /**
+   * Available scopes for the current service, derived from lookupProviderOptions.
+   */
+  public readonly availableScopes = computed<LookupScopeEntry[]>(() => {
+    const providerOptions = this.lookupProviderOptions();
+    const service = this.service();
+    if (!providerOptions || !service?.id) {
+      return [];
+    }
+    const scopesMap = providerOptions[service.id];
+    if (!scopesMap) {
+      return [];
+    }
+    const entries: LookupScopeEntry[] = [];
+    for (const key of Object.keys(scopesMap)) {
+      const scope = scopesMap[key];
+      entries.push({
+        key,
+        label: scope?.label || 'default',
+        options: scope?.options,
+      });
+    }
+    return entries;
+  });
 
   public form: FormGroup;
   public lookup: FormControl;
@@ -203,10 +307,11 @@ export class RefLookupComponent {
       })
     );
 
-    // when service changes, clear
+    // when service changes, clear and reset scopes
     effect(() => {
       console.log('service changed', this.service());
       this.clear();
+      this.applyInitialScope();
     });
 
     // when item changes, update validity
@@ -327,5 +432,45 @@ export class RefLookupComponent {
         // has modified the options object in place
         this.options.set(result ? { ...result } : result);
       });
+  }
+
+  /**
+   * Apply the initial scope when service or lookupProviderOptions change.
+   * If there's only one scope, apply it automatically.
+   * If there are multiple scopes, select the first one.
+   * If there are no scopes, reset the selected scope.
+   */
+  private applyInitialScope(): void {
+    const scopes = this.availableScopes();
+    if (scopes.length === 0) {
+      // No scopes defined for this provider, reset
+      this.selectedScopeKey.set(undefined);
+      return;
+    }
+
+    if (scopes.length === 1) {
+      // Single scope: apply it automatically
+      const scope = scopes[0];
+      this.selectedScopeKey.set(scope.key);
+      this.options.set(scope.options ? { ...scope.options } : undefined);
+    } else {
+      // Multiple scopes: select the first one
+      const scope = scopes[0];
+      this.selectedScopeKey.set(scope.key);
+      this.options.set(scope.options ? { ...scope.options } : undefined);
+    }
+  }
+
+  /**
+   * Handle scope selection change from the UI.
+   * @param scopeKey The selected scope key.
+   */
+  public onScopeChange(scopeKey: string): void {
+    this.selectedScopeKey.set(scopeKey);
+    const scopes = this.availableScopes();
+    const scope = scopes.find((s) => s.key === scopeKey);
+    if (scope) {
+      this.options.set(scope.options ? { ...scope.options } : undefined);
+    }
   }
 }

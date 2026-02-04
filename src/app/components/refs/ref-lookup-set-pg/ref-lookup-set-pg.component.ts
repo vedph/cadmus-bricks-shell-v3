@@ -11,6 +11,7 @@ import {
   RefLookupSetComponent,
 } from '@myrmidon/cadmus-refs-lookup';
 import { ViafRefLookupService } from '@myrmidon/cadmus-refs-viaf-lookup';
+import { BiblissimaRefLookupService } from '@myrmidon/cadmus-refs-biblissima-lookup';
 
 @Component({
   selector: 'app-ref-lookup-set-pg',
@@ -29,7 +30,10 @@ export class RefLookupSetPgComponent implements OnDestroy {
   public readonly item = signal<any>(undefined);
   public readonly configs: RefLookupConfig[];
 
-  constructor(viafService: ViafRefLookupService) {
+  constructor(
+    viafService: ViafRefLookupService,
+    biblissimaService: BiblissimaRefLookupService,
+  ) {
     this.configs = [
       {
         name: 'colors',
@@ -48,6 +52,15 @@ export class RefLookupSetPgComponent implements OnDestroy {
         service: viafService,
         itemIdGetter: (item: any) => item?.viafid,
         itemLabelGetter: (item: any) => item?.term,
+      },
+      {
+        name: 'Biblissima+',
+        iconUrl: '/img/biblissima128.png',
+        description: 'Biblissima+ knowledge base',
+        label: 'ID',
+        service: biblissimaService,
+        itemIdGetter: (item: any) => item?.id,
+        itemLabelGetter: (item: any) => item?.name,
       },
     ];
   }

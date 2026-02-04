@@ -170,6 +170,8 @@ const COLORS: WebColor[] = [
 ];
 
 export class WebColorLookup implements RefLookupService {
+  public readonly id = 'webcolor';
+
   public lookup(filter: RefLookupFilter, options?: any): Observable<any[]> {
     if (!filter.text) {
       return of([]);

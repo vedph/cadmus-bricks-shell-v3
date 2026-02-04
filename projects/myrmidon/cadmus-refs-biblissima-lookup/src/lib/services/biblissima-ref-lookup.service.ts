@@ -65,6 +65,8 @@ export interface BiblissimaRefLookupOptions {
   providedIn: 'root',
 })
 export class BiblissimaRefLookupService implements RefLookupService {
+  public readonly id = 'biblissima';
+
   constructor(private _biblissima: BiblissimaService) {}
 
   /**

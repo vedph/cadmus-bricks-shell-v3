@@ -30,3 +30,7 @@ div.label {
 .form-row * {
   flex: 0 0 auto;
 }
+.scope-selector {
+  margin-left: 16px;
+  max-width: 200px;
+}

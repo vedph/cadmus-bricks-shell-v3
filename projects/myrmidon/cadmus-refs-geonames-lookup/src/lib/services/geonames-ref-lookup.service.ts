@@ -37,6 +37,8 @@ const BASE_OPTIONS: GeoNamesSearchRequest = {
   providedIn: 'root',
 })
 export class GeoNamesRefLookupService implements RefLookupService {
+  public readonly id = 'geonames';
+
   constructor(
     @Inject(GEONAMES_USERNAME_TOKEN) private _userName: string,
     private _geonames: GeoNamesService

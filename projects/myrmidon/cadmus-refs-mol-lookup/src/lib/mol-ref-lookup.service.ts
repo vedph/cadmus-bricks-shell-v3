@@ -19,6 +19,8 @@ import {
   providedIn: 'root',
 })
 export class MolRefLookupService implements RefLookupService {
+  public readonly id = 'mol';
+
   constructor(private _mol: MolService) {}
 
   /**

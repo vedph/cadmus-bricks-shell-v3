@@ -1,0 +1,160 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Preset Ref Lookup Demo</mat-card-title>
+    <mat-card-subtitle>
+      Demonstrates the new <code>lookupProviderOptions</code> feature
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p>
+      This demo shows how to use the <code>lookupProviderOptions</code> input to
+      automatically configure lookup options when a provider is selected. The
+      feature supports:
+    </p>
+    <ul>
+      <li>
+        <strong>Multiple scopes with default:</strong> Shows a scope selector,
+        allows unlimited search
+      </li>
+      <li>
+        <strong>Forced scopes:</strong> Shows a scope selector, no unlimited
+        search
+      </li>
+      <li>
+        <strong>Single scope:</strong> Automatically applies the scope, no
+        selector shown
+      </li>
+      <li>
+        <strong>No options:</strong> Original behavior, no scope management
+      </li>
+    </ul>
+
+    <div class="mode-buttons">
+      <button
+        type="button"
+        mat-stroked-button
+        [color]="demoMode === 'default' ? 'primary' : undefined"
+        (click)="setDemoMode('default')"
+      >
+        With Default
+      </button>
+      <button
+        type="button"
+        mat-stroked-button
+        [color]="demoMode === 'forced' ? 'primary' : undefined"
+        (click)="setDemoMode('forced')"
+      >
+        Forced Scopes
+      </button>
+      <button
+        type="button"
+        mat-stroked-button
+        [color]="demoMode === 'single' ? 'primary' : undefined"
+        (click)="setDemoMode('single')"
+      >
+        Single Scope
+      </button>
+      <button
+        type="button"
+        mat-stroked-button
+        [color]="demoMode === 'none' ? 'primary' : undefined"
+        (click)="setDemoMode('none')"
+      >
+        No Options
+      </button>
+    </div>
+
+    <div class="mode-description">
+      @switch (demoMode) {
+        @case ("default") {
+          <p>
+            <strong>With Default:</strong> The scope selector shows 5 options:
+            default (unlimited), people, works, organisations, and places. You
+            can search across all entity types or narrow to a specific type.
+          </p>
+        }
+        @case ("forced") {
+          <p>
+            <strong>Forced Scopes:</strong> The scope selector shows only 2
+            options: people and works. There is no "default" option, so you must
+            choose a specific scope.
+          </p>
+        }
+        @case ("single") {
+          <p>
+            <strong>Single Scope:</strong> Only the "people" scope is
+            configured. Since there's only one option, it's automatically
+            applied and no selector is shown. All searches are limited to people
+            (Q168).
+          </p>
+        }
+        @case ("none") {
+          <p>
+            <strong>No Options:</strong> The
+            <code>lookupProviderOptions</code> is undefined, so the component
+            behaves as before - no scope selector, unlimited search by default.
+          </p>
+        }
+      }
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Lookup Set</mat-card-title>
+    <mat-card-subtitle>Mode: {{ demoMode }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <cadmus-refs-lookup-set
+      [configs]="configs"
+      [lookupProviderOptions]="getCurrentOptions()"
+      (itemChange)="onItemChange($event)"
+      (moreRequest)="onMoreRequest($event)"
+    />
+  </mat-card-content>
+</mat-card>
+
+@if (selectedItem) {
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Selected Item</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="item-table">
+        <tr>
+          <th>ID</th>
+          <td>{{ selectedItem.id }}</td>
+        </tr>
+        <tr>
+          <th>Name</th>
+          <td>{{ selectedItem.name }}</td>
+        </tr>
+        @if (selectedItem.description) {
+          <tr>
+            <th>Description</th>
+            <td>{{ selectedItem.description }}</td>
+          </tr>
+        }
+        @if (selectedItem.type?.length) {
+          <tr>
+            <th>Types</th>
+            <td>
+              @for (t of selectedItem.type; track t.id) {
+                <span class="type-badge">{{ t.name }} ({{ t.id }})</span>
+              }
+            </td>
+          </tr>
+        }
+        <tr>
+          <th>Score</th>
+          <td>{{ selectedItem.score }}</td>
+        </tr>
+        <tr>
+          <th>Match</th>
+          <td>{{ selectedItem.match ? "Yes" : "No" }}</td>
+        </tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+}
