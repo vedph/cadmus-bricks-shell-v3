@@ -12,6 +12,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Configuring Lookup Scopes](#configuring-lookup-scopes)
   - [LookupDocReferencesComponent](#lookupdocreferencescomponent)
   - [History](#history)
+    - [10.0.7](#1007)
     - [10.0.5](#1005)
     - [10.0.3](#1003)
     - [10.0.2](#1002)
@@ -36,6 +37,7 @@ Generic reference lookup component. This can be used to provide quick lookup int
   - `linkTemplate` (`string?`): the optional template to be used when building the URI pointing to the external resource and linked by the _Link_ button. The ID placeholder is represented by a property path included in `{}`, e.g. `{id}` or `{some.id}`. If undefined, no link button will be displayed.
   - `optDialog` (`unknown`): when using quick options, this is a component used to customize the lookup `options`.
   - `options` (`unknown`): options for lookup.
+  - `lookupProviderOptions` (`LookupProviderOptions?`): preset scopes for automatic options configuration. See [Configuring Lookup Scopes](#configuring-lookup-scopes).
 - 🔥 output:
   - `moreRequest` (`unknown?`): request for a more complex lookup. This receives the current item, if any.
 
@@ -53,8 +55,9 @@ To use the lookup, you must set the `service` property to the lookup service, im
 
 (1) create a **service** acting as an adapter for the quick search by implementing interface `RefLookupService`. This interface has:
 
-- a `getName` function used to retrieve a user-friendly name from the item model;
-- a `lookup` function getting a filter implementing `RefLookupFilter`, and returning an observable with a list of matching items. The filter is the minimum required for the lookup, i.e. has a text and a limit (=maximum count of items to return).
+- `id`: a unique string identifier for the service (e.g. `'viaf'`, `'biblissima'`). Used to match against `lookupProviderOptions`.
+- `getName`: function to retrieve a user-friendly name from the item model.
+- `lookup`: function getting a filter implementing `RefLookupFilter`, returning an observable with matching items.
 
 For an example, serverless implementation see [WebColorLookup](../../../src/app/refs/ref-lookup-pg/ref-lookup-pg.component.ts) in the demo app.
 
@@ -103,6 +106,7 @@ A set of lookup items. Each has its own configuration and uses a specific servic
 - ▶️ input:
   - `configs`\* (`RefLookupConfig[]`)
   - `iconSize` (`IconSize`, default=24x24)
+  - `lookupProviderOptions` (`LookupProviderOptions?`): preset scopes for automatic options configuration. See [Configuring Lookup Scopes](#configuring-lookup-scopes).
 - 🔥 output:
   - `configChange` (`RefLookupConfig`): emitted when the currently selected lookup configuration changes.
   - `itemChange` (`RefLookupSetEvent`)
@@ -253,78 +257,67 @@ export class AppComponent {
 
 ### Configuring Lookup Scopes
 
-The `RefLookupComponent` allows data lookup from a backend repository, using a modular approach. The component is generic, while the lookup service (and its eventual options) can be changed at will. Each lookup service is implemented in its own library in this workspace: so you will find libraries named `cadmus-refs-...-lookup` which implement lookup providers for API services like VIAF, WHG, Zotero, Biblissima, MOL, MUFI, DBpedia, etc.
+Use `lookupProviderOptions` to provide preset option scopes for lookup services. This allows consumer code to automatically configure lookup options based on context (e.g., limiting Biblissima searches to people only).
 
-In turn, a `RefLookupSetComponent` is just a collection of lookup providers where users pick a provider and then use a `RefLookupComponent` fed by it.
+**Type Definition:**
 
-While lookup usually just relies on an input string typed by users, sometimes backend data is so huge that further options can be configured for each lookup provider in order to narrow the scope of the search. The original design for lookup providers relies on custom dialogs to let users set these options at will when needed. This is fine, but there also is an alternative mechanism to provide options. Some client code requires to change the options of their lookup sets or lookup components according to their context. For instance, a consumer component using a lookup set might want to change the options of a Biblissima lookup provider so that when it is looking for people it adds an option to limit results to a specific class of entities (`Q168`=human). This way, users will not get noise within results, which will be focused only on people and not other types of entities.
-
-In these cases, you might want to provide a set of options presets for one or more lookup services. This is accomplished via the `lookupProviderOptions` property of both `RefLookupSetComponent` and `RefLookupComponent` (according to what you are using). This property is of type `LookupProviderOptions`; this can be undefined, and in this case everything will work just as it normally does. When defined, this property is essentially a map of maps, where:
-
-- each provider to be configured is a property named after that provider ID (a string), whose value is an object; e.g. if the provider for VIAF has ID `viaf`, then the property name is `viaf`;
-- this object is another map where each scope to be configured is a property with an arbitrary name (e.g. `q168` for the people scope in Biblissima+), whose value is an object.
-- the object value has a `label` property (of type `string`, used to display the scope in the UI with a human-friendly name) and an `options` property (of `any` type, this will depend on the lookup provider and represents its options).
-
-For instance this property value might look like this:
-
-```json
-{
-  "biblissima": {
-    "default": null,
-    "q168": {
-      "label": "people",
-      "options": {
-        "type": "Q168"
-      }
-    },
-    "q282950": {
-      "label": "works",
-      "options": {
-        "type": "Q282950"
-      }
-    }
-  }
+```ts
+interface LookupProviderOptionScope {
+  label: string; // Display label for scope selector
+  options: any; // Options to pass to the lookup service
 }
+
+type LookupProviderOptions = {
+  [providerId: string]: {
+    [scopeKey: string]: LookupProviderOptionScope | null;
+  };
+};
 ```
 
-This means that when we select the lookup provider for Biblissima, there are 3 possible sets of options to be automatically defined:
+**Example - Multiple scopes with default:**
 
-- `q168` to search for people only.
-- `q282950` to search for works only.
-- there is also a `default` scope with null meaning that users can still search without any options, so in the full unlimited scope. If this is missing instead, users will be forced to pick a specific set, unless there is a single set; in this case, this single set will be automatically picked. So, if the consumer code just passed this value for `lookupProviderOptions`:
-
-```json
-{
-  "biblissima": {
-    "q168": {
-      "label": "people",
-      "options": {
-        "type": "Q168"
-      }
-    }
+```ts
+public lookupProviderOptions: LookupProviderOptions = {
+  biblissima: {
+    default: null,  // Allow unlimited search
+    q168: { label: 'people', options: { type: 'Q168' } },
+    q282950: { label: 'works', options: { type: 'Q282950' } },
   }
-}
+};
 ```
 
-this means that the lookup will be forced to always look only into people scope.
+```html
+<cadmus-refs-lookup-set [configs]="configs" [lookupProviderOptions]="lookupProviderOptions" (itemChange)="onItemChange($event)" />
+```
 
-Both the `RefLookupSetComponent` and `RefLookupComponent` will have this additional property; the set component will pass it down to its child `RefLookupComponent`.
+**Behavior:**
 
->Note that each service has a readonly string property implemented from the `RefLookupService` interface, which returns a unique ID for the service, named after it: so, for instance the VIAF lookup service will return `viaf` as its ID; the WHG lookup service will return `whg` as its ID; and so forth. These are just conventional constants. This is required in this scenario, because it allows us to uniquely identify each service from its key, and we need this ability to determine whether there is an automatic set of options for any given lookup service. Both the `RefLookupSetComponent` and `RefLookupComponent` receive as input lookup services, so both will have this ID at hand.
+| Configuration            | Result                                           |
+| ------------------------ | ------------------------------------------------ |
+| Multiple scopes          | Shows scope selector, first option auto-selected |
+| Single scope             | Auto-applied, no selector shown                  |
+| `default: null` included | Allows unlimited search alongside scoped options |
+| No `default` key         | Forces user to select a specific scope           |
+| Empty or undefined       | Original behavior, no scope management           |
 
-The behavior logic is as follows:
+**Service IDs:**
 
-- whenever a lookup provider is selected in the component:
-  - if `lookupProviderOptions` is defined, AND it has a property whose value is equal to the ID of the selected lookup provider:
-    - if the object under that key has a single property, directly apply its `options` to the provider, i.e. cache these options as the current ones. Then, whenever `RefLookupService.lookup` is called, these options will be passed along and the provider will use them according to its own logic.
-    - else if the object under that key is empty, just reset the cached options.
-    - else if the object under that key has multiple properties, show an additional select control in the UI (using Angular Material, so `MatSelect`, just like for any other components in this workspace), populated with objects from `lookupProviderOptions`: each has a label to be displayed as the option text. Once populated, automatically pick the first option as the current one (this might also be `default`, with value=null, in case we allow non-scoped searches).
-  - else, just reset the cached options.
+Each `RefLookupService` has a readonly `id` property used for matching:
 
-This ensures that:
+| Service                    | ID           |
+| -------------------------- | ------------ |
+| BiblissimaRefLookupService | `biblissima` |
+| ViafRefLookupService       | `viaf`       |
+| WhgRefLookupService        | `whg`        |
+| DbpediaRefLookupService    | `dbpedia`    |
+| GeoNamesRefLookupService   | `geonames`   |
+| ZoteroRefLookupService     | `zotero`     |
+| MufiRefLookupService       | `mufi`       |
+| MolRefLookupService        | `mol`        |
+| PinRefLookupService        | `pin`        |
+| ItemRefLookupService       | `item`       |
 
-- the whole existing lookup logic is not affected by this addition. Existing code will continue to work without issues or regressions.
-- for those consumers which opt into this new feature, they will just provide `lookupProviderOptions` to their lookup components, whether they are sets or single lookup components. This will automatically enable the whole logic for pre-configuring options and/or letting users pick one of the options presets from a list.
+> This feature is opt-in and backward compatible. Existing code without `lookupProviderOptions` continues to work unchanged.
 
 ## LookupDocReferencesComponent
 
@@ -356,12 +349,7 @@ import { GeoNamesRefLookupService } from "@myrmidon/cadmus-refs-geonames-lookup"
 import { GeoJsonFeature, WhgRefLookupService } from "@myrmidon/cadmus-refs-whg-lookup";
 
 // citation
-import {
-  CIT_SCHEME_SERVICE_SETTINGS_KEY,
-  CitMappedValues,
-  CitSchemeSettings,
-  MapFormatter,
-} from '@myrmidon/cadmus-refs-citation';
+import { CIT_SCHEME_SERVICE_SETTINGS_KEY, CitMappedValues, CitSchemeSettings, MapFormatter } from "@myrmidon/cadmus-refs-citation";
 
 // ...
 export class App {
@@ -376,37 +364,37 @@ export class App {
   private configureLookup(storage: RamStorageService): void {
     storage.store(LOOKUP_CONFIGS_KEY, [
       {
-        name: 'colors',
-        iconUrl: '/img/colors128.png',
-        description: 'Colors',
-        label: 'color',
+        name: "colors",
+        iconUrl: "/img/colors128.png",
+        description: "Colors",
+        label: "color",
         service: new WebColorLookup(),
         itemIdGetter: (item: any) => item?.value,
         itemLabelGetter: (item: any) => item?.name,
       },
       {
-        name: 'VIAF',
-        iconUrl: '/img/viaf128.png',
-        description: 'Virtual International Authority File',
-        label: 'ID',
+        name: "VIAF",
+        iconUrl: "/img/viaf128.png",
+        description: "Virtual International Authority File",
+        label: "ID",
         service: inject(ViafRefLookupService),
         itemIdGetter: (item: any) => item?.viafid,
         itemLabelGetter: (item: any) => item?.term,
       },
       {
-        name: 'geonames',
-        iconUrl: '/img/geonames128.png',
-        description: 'GeoNames',
-        label: 'ID',
+        name: "geonames",
+        iconUrl: "/img/geonames128.png",
+        description: "GeoNames",
+        label: "ID",
         service: inject(GeoNamesRefLookupService),
         itemIdGetter: (item: any) => item?.geonameId,
         itemLabelGetter: (item: any) => item?.name,
       },
       {
-        name: 'whg',
-        iconUrl: '/img/whg128.png',
-        description: 'World Historical Gazetteer',
-        label: 'ID',
+        name: "whg",
+        iconUrl: "/img/whg128.png",
+        description: "World Historical Gazetteer",
+        label: "ID",
         service: inject(WhgRefLookupService),
         itemIdGetter: (item: GeoJsonFeature) => item?.properties.place_id,
         itemLabelGetter: (item: GeoJsonFeature) => item?.properties.title,
@@ -444,7 +432,7 @@ export class App {
 2. in your consumer component, import the component:
 
 ```ts
-import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
+import { LookupDocReferencesComponent } from "@myrmidon/cadmus-refs-lookup";
 
 // in imports, add:
 // LookupDocReferencesComponent
@@ -453,14 +441,14 @@ import { LookupDocReferencesComponent } from '@myrmidon/cadmus-refs-lookup';
 3. in your consumer component template, use the component like this:
 
 ```html
-    <cadmus-refs-lookup-doc-references
-      [typeEntries]="typeEntries"
-      [references]="references"
-      (referencesChange)="onReferencesChange($event)"
-    />
+<cadmus-refs-lookup-doc-references [typeEntries]="typeEntries" [references]="references" (referencesChange)="onReferencesChange($event)" />
 ```
 
 ## History
+
+### 10.0.7
+
+- 2026-02-04: added lookup scopes.
 
 ### 10.0.5
 
