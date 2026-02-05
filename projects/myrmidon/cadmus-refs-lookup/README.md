@@ -257,9 +257,42 @@ export class AppComponent {
 
 ### Configuring Lookup Scopes
 
+The `RefLookupComponent` allows data lookup from a backend repository, using a modular approach. The component is generic, while the lookup service (and its eventual options) can be changed at will. Each lookup service is implemented in its own library in this workspace: so you will find libraries named `cadmus-refs-...-lookup` which implement lookup providers for API services like VIAF, WHG, Zotero, Biblissima, MOL, MUFI, DBpedia, etc.
+
+In turn, a `RefLookupSetComponent` is just a collection of lookup providers where users pick a provider and then use a `RefLookupComponent` fed by it.
+
 Use `lookupProviderOptions` to provide preset option scopes for lookup services. This allows consumer code to automatically configure lookup options based on context (e.g., limiting Biblissima searches to people only).
 
-**Type Definition:**
+While lookup usually just relies on an input string typed by users, sometimes backend data is so huge that further options can be configured for each lookup provider in order to narrow the scope of the search. The original design for lookup providers relies on custom dialogs to let users set these options at will when needed. This is fine, but there also is an alternative mechanism to provide options. Some client code requires to change the options of their lookup sets or lookup components according to their context. For instance, a consumer component using a lookup set might want to change the options of a Biblissima lookup provider so that when it is looking for people it adds an option to limit results to a specific class of entities (`Q168`=human). This way, users will not get noise within results, which will be focused only on people and not other types of entities.
+
+In these cases, you might want to provide a set of options presets for one or more lookup services. This is accomplished via the `lookupProviderOptions` property of both `RefLookupSetComponent` and `RefLookupComponent` (according to what you are using). This property is of type `LookupProviderOptions`; this can be undefined, and in this case everything will work just as it normally does. When defined, this property is essentially a map of maps, where:
+
+- each provider to be configured is a property named after that provider ID (a string), whose value is an object; e.g. if the provider for VIAF has ID `viaf`, then the property name is `viaf`;
+- this object is another map where each scope to be configured is a property with an arbitrary name (e.g. `q168` for the people scope in Biblissima+), whose value is an object.
+- the object value has a `label` property (of type `string`, used to display the scope in the UI with a human-friendly name) and an `options` property (of `any` type, this will depend on the lookup provider and represents its options).
+
+For instance this property value might look like this:
+
+```json
+{
+  "biblissima": {
+    "default": null,
+    "q168": {
+      "label": "people",
+      "options": {
+        "type": "Q168"
+      }
+    },
+    "q282950": {
+      "label": "works",
+      "options": {
+        "type": "Q282950"
+      }
+    }
+  }
+```
+
+The corresponding type definition is:
 
 ```ts
 interface LookupProviderOptionScope {
@@ -274,7 +307,7 @@ type LookupProviderOptions = {
 };
 ```
 
-**Example - Multiple scopes with default:**
+This means that when we select the lookup provider for Biblissima, there are 3 possible sets of options to be automatically defined:
 
 ```ts
 public lookupProviderOptions: LookupProviderOptions = {
@@ -286,11 +319,17 @@ public lookupProviderOptions: LookupProviderOptions = {
 };
 ```
 
+- `q168` to search for people only.
+- `q282950` to search for works only.
+- there is also a `default` scope with null meaning that users can still search without any options, so in the full unlimited scope. If this is missing instead, users will be forced to pick a specific set, unless there is a single set; in this case, this single set will be automatically picked. So, if the consumer code just passed this value for `lookupProviderOptions`:
+
+Both the `RefLookupSetComponent` and `RefLookupComponent` will have this additional property; the set component will pass it down to its child `RefLookupComponent`, e.g.:
+
 ```html
 <cadmus-refs-lookup-set [configs]="configs" [lookupProviderOptions]="lookupProviderOptions" (itemChange)="onItemChange($event)" />
 ```
 
-**Behavior:**
+>Note that each service has a readonly string property implemented from the `RefLookupService` interface, which returns a unique ID for the service, named after it: so, for instance the VIAF lookup service will return `viaf` as its ID; the WHG lookup service will return `whg` as its ID; and so forth. These are just conventional constants. This is required in this scenario, because it allows us to uniquely identify each service from its key, and we need this ability to determine whether there is an automatic set of options for any given lookup service. Both the `RefLookupSetComponent` and `RefLookupComponent` receive as input lookup services, so both will have this ID at hand.
 
 | Configuration            | Result                                           |
 | ------------------------ | ------------------------------------------------ |
@@ -300,7 +339,12 @@ public lookupProviderOptions: LookupProviderOptions = {
 | No `default` key         | Forces user to select a specific scope           |
 | Empty or undefined       | Original behavior, no scope management           |
 
-**Service IDs:**
+- whenever a lookup provider is selected in the component:
+  - if `lookupProviderOptions` is defined, AND it has a property whose value is equal to the ID of the selected lookup provider:
+    - if the object under that key has a single property, directly apply its `options` to the provider, i.e. cache these options as the current ones. Then, whenever `RefLookupService.lookup` is called, these options will be passed along and the provider will use them according to its own logic.
+    - else if the object under that key is empty, just reset the cached options.
+    - else if the object under that key has multiple properties, show an additional select control in the UI (using Angular Material, so `MatSelect`, just like for any other components in this workspace), populated with objects from `lookupProviderOptions`: each has a label to be displayed as the option text. Once populated, automatically pick the first option as the current one (this might also be `default`, with value=null, in case we allow non-scoped searches).
+  - else, just reset the cached options.
 
 Each `RefLookupService` has a readonly `id` property used for matching:
 
@@ -317,7 +361,8 @@ Each `RefLookupService` has a readonly `id` property used for matching:
 | PinRefLookupService        | `pin`        |
 | ItemRefLookupService       | `item`       |
 
-> This feature is opt-in and backward compatible. Existing code without `lookupProviderOptions` continues to work unchanged.
+The whole existing lookup logic is not affected by this addition. Existing code will continue to work without issues or regressions.
+For those consumers which opt into this new feature, they will just provide `lookupProviderOptions` to their lookup components, whether they are sets or single lookup components. This will automatically enable the whole logic for pre-configuring options and/or letting users pick one of the options presets from a list.
 
 ## LookupDocReferencesComponent
 
