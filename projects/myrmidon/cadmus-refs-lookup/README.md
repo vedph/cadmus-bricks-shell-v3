@@ -39,6 +39,7 @@ Generic reference lookup component. This can be used to provide quick lookup int
   - `options` (`unknown`): options for lookup.
   - `lookupProviderOptions` (`LookupProviderOptions?`): preset scopes for automatic options configuration. See [Configuring Lookup Scopes](#configuring-lookup-scopes).
 - 🔥 output:
+  - `itemChange` (`unknown`): fired when an item is picked.
   - `moreRequest` (`unknown?`): request for a more complex lookup. This receives the current item, if any.
 
 The lookup component is a general purpose lookup where:
