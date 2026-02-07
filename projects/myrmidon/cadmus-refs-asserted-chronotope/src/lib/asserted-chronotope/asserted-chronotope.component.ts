@@ -27,7 +27,11 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
-import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
+import {
+  LookupProviderOptions,
+  RefLookupComponent,
+  RefLookupConfig,
+} from '@myrmidon/cadmus-refs-lookup';
 import {
   HistoricalDateComponent,
   HistoricalDateModel,
@@ -81,6 +85,7 @@ export interface AssertedChronotope {
     AssertionComponent,
     HistoricalDateComponent,
     HistoricalDatePipe,
+    RefLookupComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -101,6 +106,13 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
    */
   public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
+  /**
+   * The configuration of the lookup service for places.
+   * When set, the place will be fetched from a service rather
+   * than manually entered.
+   */
+  public readonly placeLookupConfig = input<RefLookupConfig>();
+
   // chronotope-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
   // assertion-tags
@@ -112,6 +124,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
 
   // place
   public placeExpanded = signal(false);
+  public placeItemId = signal<string | undefined>(undefined);
   public hasPlace: FormControl<boolean>;
   public plTag: FormControl<string | null>;
   public plAssertion: FormControl<Assertion | null>;
@@ -227,6 +240,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
       this.hasDate.reset();
       this.plForm.reset();
       this.dtForm.reset();
+      this.placeItemId.set(undefined);
     } else {
       this.hasPlace.setValue(chronotope.place ? true : false, {
         emitEvent: false,
@@ -238,6 +252,14 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
       this.place.setValue(chronotope.place?.value || null, {
         emitEvent: false,
       });
+      // if in lookup mode, resolve place ID for the lookup component
+      const cfg = this.placeLookupConfig();
+      if (cfg) {
+        const raw = chronotope.place?.value;
+        this.placeItemId.set(
+          raw ? (cfg.itemIdParser ? cfg.itemIdParser(raw) : raw) : undefined,
+        );
+      }
       this.plForm.markAsPristine();
 
       this.hasDate.setValue(chronotope.date ? true : false, {
@@ -262,6 +284,17 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
       emitEvent: false,
     });
     this.placeExpanded.set(true);
+  }
+
+  public onPlaceLookupChange(item: any): void {
+    const cfg = this.placeLookupConfig();
+    if (!item || !cfg?.itemIdGetter) {
+      this.place.setValue(null);
+    } else {
+      this.place.setValue(cfg.itemIdGetter(item));
+    }
+    this.place.markAsDirty();
+    this.place.updateValueAndValidity();
   }
 
   public onPlAssertionChange(assertion: Assertion | undefined): void {

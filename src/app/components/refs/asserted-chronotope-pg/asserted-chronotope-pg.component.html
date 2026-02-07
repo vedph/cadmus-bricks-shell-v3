@@ -5,19 +5,29 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    <div>
+      <mat-checkbox
+        [formControl]="placeLookup"
+        (change)="togglePlaceLookup($event.checked)"
+      >
+        place lookup
+      </mat-checkbox>
+    </div>
+    <hr />
     <cadmus-refs-asserted-chronotope
       [refTypeEntries]="refTypeEntries"
+      [placeLookupConfig]="placeLookupConfig()"
       [chronotope]="chronotope"
       (chronotopeChange)="onChronotopeChange($event!)"
     />
     @if (chronotope) {
-    <hr />
-    <div>
-      <code>
-        <pre>{{ chronotope | json }}</pre>
-      </code>
-    </div>
-    <div>{{ chronotope | assertedChronotopes }}</div>
+      <hr />
+      <div>
+        <code>
+          <pre>{{ chronotope | json }}</pre>
+        </code>
+      </div>
+      <div>{{ chronotope | assertedChronotopes }}</div>
     }
   </mat-card-content>
   <mat-card-actions>

@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 
+import { RefLookupConfig } from '@myrmidon/cadmus-refs-lookup';
+import { BiblissimaRefLookupService } from '@myrmidon/cadmus-refs-biblissima-lookup';
+
 import {
   AssertedChronotope,
   AssertedChronotopeSetComponent,
@@ -25,12 +28,25 @@ import {
 })
 export class AssertedChronotopeSetPgComponent {
   public chronotopes: AssertedChronotope[];
+  public placeLookupConfig: RefLookupConfig;
 
-  constructor() {
+  constructor(biblissimaService: BiblissimaRefLookupService) {
+    this.placeLookupConfig = {
+      name: 'Biblissima+',
+      iconUrl: '/img/biblissima128.png',
+      description: 'Biblissima+ geographical locations',
+      label: 'place',
+      service: biblissimaService,
+      itemIdGetter: (item: any) => item?.id,
+      itemLabelGetter: (item: any) => item?.name,
+      // Q26719 = "geographical location" in Biblissima
+      options: { type: 'Q26719' },
+    };
     this.chronotopes = [
       {
         place: {
-          value: 'Rome',
+          // Q27247 = "Rome" in Biblissima
+          value: 'Q27247',
         },
       },
     ];

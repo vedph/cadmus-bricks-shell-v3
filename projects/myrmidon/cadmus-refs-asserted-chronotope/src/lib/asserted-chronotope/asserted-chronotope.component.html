@@ -59,18 +59,34 @@
             </mat-form-field>
           }
           <!-- place -->
-          <mat-form-field>
-            <mat-label>place</mat-label>
-            <input matInput [formControl]="place" />
-            @if (place.hasError("required") && (place.dirty || place.touched)) {
-              <mat-error>place required</mat-error>
-            }
-            @if (
-              place.hasError("max-length") && (place.dirty || place.touched)
-            ) {
-              <mat-error>place too long</mat-error>
-            }
-          </mat-form-field>
+          @if (placeLookupConfig(); as cfg) {
+            <cadmus-refs-lookup
+              [service]="cfg.service!"
+              [itemId]="placeItemId()"
+              [label]="cfg.label || 'place'"
+              [options]="cfg.options"
+              [linkTemplate]="cfg.linkTemplate"
+              [hasMore]="cfg.hasMore"
+              [optDialog]="cfg.optDialog"
+              [lookupProviderOptions]="lookupProviderOptions()"
+              (itemChange)="onPlaceLookupChange($event)"
+            />
+          } @else {
+            <mat-form-field>
+              <mat-label>place</mat-label>
+              <input matInput [formControl]="place" />
+              @if (
+                place.hasError("required") && (place.dirty || place.touched)
+              ) {
+                <mat-error>place required</mat-error>
+              }
+              @if (
+                place.hasError("max-length") && (place.dirty || place.touched)
+              ) {
+                <mat-error>place too long</mat-error>
+              }
+            </mat-form-field>
+          }
         </div>
         <!-- assertion -->
         <mat-expansion-panel>

@@ -27,7 +27,10 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { NgxToolsValidators } from '@myrmidon/ngx-tools';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 import { HistoricalDatePipe } from '@myrmidon/cadmus-refs-historical-date';
-import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
+import {
+  LookupProviderOptions,
+  RefLookupConfig,
+} from '@myrmidon/cadmus-refs-lookup';
 
 import {
   AssertedChronotope,
@@ -76,6 +79,14 @@ export class AssertedChronotopeSetComponent implements OnInit {
   public readonly lookupProviderOptions = input<
     LookupProviderOptions | undefined
   >();
+
+  /**
+   * The configuration of the lookup service for places.
+   * When set, the place will be fetched from a service rather
+   * than manually entered. Passed through to the child
+   * AssertedChronotopeComponent.
+   */
+  public readonly placeLookupConfig = input<RefLookupConfig>();
 
   public entries: FormControl<AssertedChronotope[]>;
   public form: FormGroup;
