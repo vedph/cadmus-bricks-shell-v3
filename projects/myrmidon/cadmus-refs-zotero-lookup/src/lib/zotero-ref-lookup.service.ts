@@ -61,6 +61,23 @@ export class ZoteroRefLookupService implements RefLookupService {
    * @param item The item to get the name from.
    * @returns The item's name.
    */
+  public getById(id: string): Observable<ZoteroItem | undefined> {
+    if (!id) {
+      return of(undefined);
+    }
+    // ID is composite: libraryId/key
+    const sep = id.indexOf('/');
+    if (sep < 0) {
+      return of(undefined);
+    }
+    const libraryId = id.substring(0, sep);
+    const key = id.substring(sep + 1);
+    if (!libraryId || !key) {
+      return of(undefined);
+    }
+    return this._zotero.getItem(libraryId, key);
+  }
+
   public getName(item: any | undefined): string {
     if (!item) {
       return '';

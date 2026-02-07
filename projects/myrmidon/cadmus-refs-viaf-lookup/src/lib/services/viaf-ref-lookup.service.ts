@@ -27,6 +27,13 @@ export class ViafRefLookupService implements RefLookupService {
     );
   }
 
+  public getById(id: string): Observable<any | undefined> {
+    if (!id) {
+      return of(undefined);
+    }
+    return this._viaf.getRecord(id);
+  }
+
   public getName(item: any): string {
     // ID = item?.viafid
     return item?.displayForm;

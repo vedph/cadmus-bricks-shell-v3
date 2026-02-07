@@ -96,6 +96,28 @@ export class WhgRefLookupService implements RefLookupService {
     );
   }
 
+  public getById(id: string): Observable<GeoJsonFeature | undefined> {
+    const whgid = parseInt(id, 10);
+    if (isNaN(whgid)) {
+      return of(undefined);
+    }
+    return this._whg
+      .search({
+        url: WHG_URL,
+        userName: this._userName,
+        whgid,
+      } as WhgIndexRequest)
+      .pipe(
+        map((result: GeoJson) => {
+          if (result.type === 'FeatureCollection') {
+            const features = (result as GeoJsonFeatureCollection).features;
+            return features.length > 0 ? features[0] : undefined;
+          }
+          return result as GeoJsonFeature;
+        })
+      );
+  }
+
   /**
    * Get the name to display for the specified toponym.
    * @param item The toponym.

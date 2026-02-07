@@ -2,6 +2,12 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- added `getById` reverse lookup to lookup services and components. Consumers of lookup components typically just store the item ID (often decorated, e.g. `viaf:` before a VIAF ID if we want to store a provider identifier); this makes it difficult to use the lookup components without additional logic which would be required to fetch the item from its ID and bind it to the lookup. Thus, reverse lookup logic has been added to all lookup services, so that now the lookup component can be bound to either a full item object or just to a string representing its ID -- in the latter case, the lookup component will internally fetch the item and use it as its value.
+- added `itemId` and `itemIdParser` properties to `RefLookupConfig`. The parser function is used to get the raw ID from decorated IDs when consumers decorate them.
+- implemented `getById` in all lookup services:
+  - full implementation: MOL, MUFI, Zotero, ITEM, GeoNames (added `GeoNamesService.get()`), WHG, VIAF (added `ViafService.getRecord()`), DBPedia, Biblissima;
+  - stubs: PIN (which is used for internal links only).
+
 ## 10.0.4
 
 - 2026-02-06: updated Angular and packages.

@@ -281,6 +281,45 @@ export class ViafService {
   }
 
   /**
+   * Get a VIAF record by its ID, returning a ViafSuggestEntry-compatible
+   * object suitable for use with getName/displayForm.
+   * Uses the direct JSON endpoint: {apiBase}/{viafId}/viaf.json.
+   * @param viafId The VIAF identifier.
+   * @returns Observable of a ViafSuggestEntry, or undefined if not found.
+   */
+  public getRecord(viafId: string): Observable<ViafSuggestEntry | undefined> {
+    if (!viafId) {
+      return of(undefined);
+    }
+    const url = `${this.apiBase}/${viafId}/viaf.json`;
+    return this._http
+      .get<any>(url, {
+        headers: { Accept: 'application/json' },
+      })
+      .pipe(
+        map((data: any) => {
+          if (!data || !data.viafID) {
+            return undefined;
+          }
+          // extract the main heading text for displayForm/term
+          const heading =
+            data.mainHeadings?.data?.[0]?.text ||
+            data.mainHeadings?.data?.text ||
+            '';
+          return {
+            term: heading,
+            displayForm: heading,
+            nametype: data.nameType || '',
+            recordID: data.viafID,
+            viafid: data.viafID,
+            score: 0,
+          } as ViafSuggestEntry;
+        }),
+        catchError(() => of(undefined))
+      );
+  }
+
+  /**
    * Get detailed cluster information for a VIAF ID.
    * Note: The direct cluster endpoint appears to be deprecated.
    * This method now uses the search endpoint to get cluster information.

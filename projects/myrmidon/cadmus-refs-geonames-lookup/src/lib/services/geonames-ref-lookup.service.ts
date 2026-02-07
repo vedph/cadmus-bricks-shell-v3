@@ -87,6 +87,14 @@ export class GeoNamesRefLookupService implements RefLookupService {
    * @param item The toponym.
    * @returns The name to display for the specified toponym.
    */
+  public getById(id: string): Observable<GeoNamesToponym | undefined> {
+    const geonameId = parseInt(id, 10);
+    if (isNaN(geonameId)) {
+      return of(undefined);
+    }
+    return this._geonames.get(geonameId, this._userName);
+  }
+
   public getName(item: GeoNamesToponym): string {
     if (!item) {
       return '';

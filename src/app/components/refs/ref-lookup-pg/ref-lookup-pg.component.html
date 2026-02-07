@@ -9,6 +9,7 @@
       [baseFilter]="baseFilter"
       [service]="service"
       [item]="item"
+      [itemId]="itemId"
       [required]="true"
       [hasMore]="true"
       [optDialog]="optDialog"
@@ -20,15 +21,18 @@
     />
     <hr />
     @if (item) {
-    <div>
-      <code>
-        <pre>{{ item | json }}</pre>
-      </code>
-    </div>
+      <div>
+        <code>
+          <pre>{{ item | json }}</pre>
+        </code>
+      </div>
     }
     <div style="margin-top: 8px">
       <button type="button" mat-flat-button (click)="onSetValue()">
         set random value
+      </button>
+      <button type="button" mat-flat-button (click)="onSetById()">
+        set by ID
       </button>
     </div>
   </mat-card-content>

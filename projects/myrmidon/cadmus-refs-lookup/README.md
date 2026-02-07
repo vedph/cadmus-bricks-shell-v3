@@ -32,6 +32,7 @@ Generic reference lookup component. This can be used to provide quick lookup int
   - `baseFilter` (`unknown`): the base filter object to supply when filtering data in this lookup. If you have more filtering criteria set by your client code, set this property to an object representing the filter criteria. This object will be used as the base object when invoking the lookup service.
   - `service`\* (`RefLookupService`)
   - `item` (`unknown?`): current lookup item.
+  - `itemId` (`string?`): optional item ID to resolve via `service.getById()`. When set, the component calls `getById()` to resolve the full item. This should be the raw service-native ID; use `itemIdParser` on `RefLookupConfig` to strip consumer-level decoration before passing to this input.
   - `required` (`boolean?`)
   - `hasMore` (`boolean?`)
   - `linkTemplate` (`string?`): the optional template to be used when building the URI pointing to the external resource and linked by the _Link_ button. The ID placeholder is represented by a property path included in `{}`, e.g. `{id}` or `{some.id}`. If undefined, no link button will be displayed.
@@ -59,6 +60,7 @@ To use the lookup, you must set the `service` property to the lookup service, im
 - `id`: a unique string identifier for the service (e.g. `'viaf'`, `'biblissima'`). Used to match against `lookupProviderOptions`.
 - `getName`: function to retrieve a user-friendly name from the item model.
 - `lookup`: function getting a filter implementing `RefLookupFilter`, returning an observable with matching items.
+- `getById`: function getting a native item ID string, returning an observable with the matching item or undefined. The returned item must have the same shape as items returned by `lookup()`. Services that cannot support ID-based retrieval should return `of(undefined)`.
 
 For an example, serverless implementation see [WebColorLookup](../../../src/app/refs/ref-lookup-pg/ref-lookup-pg.component.ts) in the demo app.
 
@@ -125,8 +127,10 @@ Each lookup is **configured** via an instance of `RefLookupConfig`, having these
 - `baseFilter`: the base filter object to supply when filtering data in this lookup. If you have more filtering criteria set by your client code, set this property to an object representing the filter criteria. This object will be used as the base object when invoking the lookup service.
 - `service`: the lookup service to use.
 - `item`: the current lookup item, or undefined to start the lookup blank.
+- `itemId`: the optional item ID to resolve via `service.getById()`. When set, the lookup component will call `getById()` to resolve the full item object. This should be a raw service-native ID; use `itemIdParser` to strip any consumer-level decoration.
 - `itemIdGetter`: the optional function to get a string ID from an item. If undefined, the `item` object will be used.
-- `itemLabelGetter`: the optional function to get a string label from an item.If undefined, the item object will be used.
+- `itemIdParser`: optional function to parse a decorated/stored ID into the raw service-native ID. This is the inverse of `itemIdGetter` when it applies decoration (e.g. prefixing). If not set, `itemId` is used as-is.
+- `itemLabelGetter`: the optional function to get a string label from an item. If undefined, the item object will be used.
 - `required`: true if a value is required.
 - `hasMore`: true to add a "More" button for more complex lookup. When the user clicks it, the corresponding `moreRequest` event will be emitted.
 - `linkTemplate`: the optional template to be used when building the URI pointing to the external resource and linked by the Link button. The ID placeholder is represented by a property path included in `{}`, e.g. `{id}` or `{some.id}`. If undefined, no link button will be displayed.
@@ -491,6 +495,14 @@ import { LookupDocReferencesComponent } from "@myrmidon/cadmus-refs-lookup";
 ```
 
 ## History
+
+### 10.0.8
+
+- 2026-02-06:
+  - added `getById(id)` to `RefLookupService` interface for reverse-lookup by ID.
+  - added `itemId` input to `RefLookupComponent` for resolving an item from its ID via `getById`.
+  - added `itemId`, `itemIdParser` to `RefLookupConfig` for set component support.
+  - implemented `getById` in all lookup service adapters (VIAF, WHG, GeoNames, Zotero, MUFI, MOL, ITEM; stubs for DBpedia, Biblissima, PIN).
 
 ### 10.0.7
 

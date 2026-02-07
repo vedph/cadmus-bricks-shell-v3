@@ -35,6 +35,13 @@ export class DbpediaRefLookupService implements RefLookupService {
     );
   }
 
+  public getById(id: string): Observable<DbpediaDoc | undefined> {
+    if (!id) {
+      return of(undefined);
+    }
+    return this._dbpedia.getResource(id);
+  }
+
   public getName(item: DbpediaDoc): string {
     // remove any tags from item?.label[0] and return it
     return item?.label[0]?.replace(this._tagRegex, '');

@@ -28,7 +28,8 @@ import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
  */
 export interface RefLookupConfig {
   /**
-   * The lookup human-friendly name.
+   * The lookup service human-friendly name. If you need a unique
+   * identifier for the service lookup, use service.id.
    */
   name: string;
 
@@ -73,12 +74,31 @@ export interface RefLookupConfig {
   item?: any;
 
   /**
+   * The optional item ID to resolve via service.getById().
+   * When set, the lookup component will call getById() to
+   * resolve the full item object. This should be a raw
+   * service-native ID; use itemIdParser to strip any
+   * consumer-level decoration before resolution.
+   */
+  itemId?: string;
+
+  /**
    * The optional function to get a string ID from an item.
    * If undefined, the item object will be used.
-   * @param item The item to get the label for.
-   * @returns The label.
+   * @param item The item to get the ID for.
+   * @returns The ID.
    */
   itemIdGetter?: (item: any) => string;
+
+  /**
+   * Optional function to parse a decorated/stored ID into the
+   * raw service-native ID. This is the inverse of itemIdGetter
+   * when it applies decoration (e.g. prefixing). If not set,
+   * itemId is used as-is.
+   * @param id The decorated ID.
+   * @returns The raw service-native ID.
+   */
+  itemIdParser?: (id: string) => string;
 
   /**
    * The optional function to get a string label from an item.
@@ -236,6 +256,17 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
     }
     const event = this.itemToEvent(item);
     this.itemChange.emit(event);
+  }
+
+  public getResolvedItemId(
+    config: RefLookupConfig
+  ): string | undefined {
+    if (!config.itemId) {
+      return undefined;
+    }
+    return config.itemIdParser
+      ? config.itemIdParser(config.itemId)
+      : config.itemId;
   }
 
   public onMoreRequest(item: any): void {

@@ -4,7 +4,7 @@ import {
   RefLookupFilter,
   RefLookupService,
 } from '@myrmidon/cadmus-refs-lookup';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 
 import { MufiChar, MufiCharFilter, MufiService } from './mufi.service';
 
@@ -42,6 +42,14 @@ export class MufiRefLookupService implements RefLookupService {
    * @param item The item to get the name from.
    * @returns The item's name.
    */
+  public getById(id: string): Observable<MufiChar | undefined> {
+    const code = parseInt(id, 10);
+    if (isNaN(code)) {
+      return of(undefined);
+    }
+    return this._mufi.get(code);
+  }
+
   public getName(item: any | undefined): string {
     return (item as MufiChar)?.mufiName;
   }

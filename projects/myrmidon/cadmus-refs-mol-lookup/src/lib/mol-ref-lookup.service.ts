@@ -4,7 +4,7 @@ import {
   RefLookupFilter,
   RefLookupService,
 } from '@myrmidon/cadmus-refs-lookup';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 
 import {
   MolAuthorityEntry,
@@ -46,6 +46,13 @@ export class MolRefLookupService implements RefLookupService {
    * @param item The item to get the name from.
    * @returns The item's name, built from name, roles, and date.
    */
+  public getById(id: string): Observable<MolAuthorityEntry | undefined> {
+    if (!id) {
+      return of(undefined);
+    }
+    return this._mol.get(id);
+  }
+
   public getName(item: any | undefined): string {
     if (!item) {
       return '';

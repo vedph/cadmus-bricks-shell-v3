@@ -188,6 +188,11 @@ export class WebColorLookup implements RefLookupService {
     return of(matches);
   }
 
+  public getById(id: string): Observable<WebColor | undefined> {
+    const color = COLORS.find((c) => c.value === id);
+    return of(color);
+  }
+
   public getName(item: any): string {
     return item?.name || '';
   }
@@ -208,6 +213,7 @@ export class WebColorLookup implements RefLookupService {
 })
 export class RefLookupPgComponent {
   public item?: WebColor;
+  public itemId?: string;
   public service: WebColorLookup;
   public optDialog: Type<any> = RefLookupDummyOptComponent;
   public options: any;
@@ -238,5 +244,11 @@ export class RefLookupPgComponent {
 
   public onSetValue(): void {
     this.item = COLORS[this.getRandomInt(0, COLORS.length)];
+  }
+
+  public onSetById(): void {
+    // pick a random color's ID and set it via itemId
+    const color = COLORS[this.getRandomInt(0, COLORS.length)];
+    this.itemId = color.value;
   }
 }

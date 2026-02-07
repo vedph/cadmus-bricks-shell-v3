@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 
 // myrmidon
 import { DataPage } from '@myrmidon/ngx-tools';
@@ -32,6 +32,15 @@ export class ItemRefLookupService implements RefLookupService {
         filter.limit || 10
       )
       .pipe(map((page: DataPage<Item>) => page.items));
+  }
+
+  public getById(id: string): Observable<Item | undefined> {
+    if (!id) {
+      return of(undefined);
+    }
+    return this._itemService
+      .getItem(id, false, true)
+      .pipe(map((item) => item ?? undefined));
   }
 
   getName(item: Item): string {

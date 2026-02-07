@@ -238,6 +238,27 @@ export class GeoNamesService {
   constructor(private _http: HttpClient, private _error: ErrorService) {}
 
   /**
+   * Get a single toponym by its GeoNames ID.
+   * @param geonameId The GeoNames ID.
+   * @param userName The GeoNames user name.
+   * @returns The toponym, or undefined if not found.
+   */
+  public get(
+    geonameId: number,
+    userName: string
+  ): Observable<GeoNamesToponym> {
+    return this._http
+      .get<GeoNamesToponym>(GEONAMES_URL + 'getJSON', {
+        params: {
+          geonameId: geonameId.toString(),
+          username: userName,
+          type: 'json',
+        },
+      })
+      .pipe(retry(3), catchError(this._error.handleError));
+  }
+
+  /**
    * Search GeoNames for toponyms.
    * @param request The search request.
    * @returns The search result.

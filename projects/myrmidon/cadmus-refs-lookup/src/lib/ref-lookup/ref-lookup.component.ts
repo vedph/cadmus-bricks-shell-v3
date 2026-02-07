@@ -21,6 +21,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   switchMap,
+  take,
   tap,
 } from 'rxjs/operators';
 
@@ -66,6 +67,13 @@ export interface RefLookupService {
    * @param item The item.
    */
   getName(item: any | undefined): string;
+  /**
+   * Get a single item by its native ID.
+   * @param id The item's native ID as used by this service.
+   * @returns Observable of the item, or undefined if not found.
+   * The returned item must have the same shape as items from lookup().
+   */
+  getById(id: string): Observable<any | undefined>;
 }
 
 /**
@@ -189,6 +197,15 @@ export class RefLookupComponent {
    * The current lookup item or undefined.
    */
   public readonly item = model<unknown>();
+
+  /**
+   * The optional item ID to resolve via service.getById().
+   * When set (and item is not), the component calls getById()
+   * to resolve the full item object. This is the raw service-native
+   * ID (not decorated). Use itemIdParser on RefLookupConfig to
+   * strip consumer-level decoration before passing to this input.
+   */
+  public readonly itemId = input<string | undefined>();
 
   /**
    * True if a value is required.
@@ -324,6 +341,22 @@ export class RefLookupComponent {
     // when required changes, update validity
     effect(() => {
       this.updateValidity();
+    });
+
+    // when itemId changes, resolve the item via getById
+    effect(() => {
+      const id = this.itemId();
+      const svc = this.service();
+      if (id && svc) {
+        svc
+          .getById(id)
+          .pipe(take(1))
+          .subscribe((resolved) => {
+            if (resolved) {
+              this.item.set(resolved);
+            }
+          });
+      }
     });
   }
 

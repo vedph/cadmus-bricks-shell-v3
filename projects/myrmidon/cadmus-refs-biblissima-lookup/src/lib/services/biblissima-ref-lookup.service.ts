@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import {
   RefLookupFilter,
@@ -99,6 +100,28 @@ export class BiblissimaRefLookupService implements RefLookupService {
    * @param item The candidate item.
    * @returns The name to display for the candidate.
    */
+  public getById(id: string): Observable<BiblissimaCandidate | undefined> {
+    if (!id) {
+      return of(undefined);
+    }
+    return this._biblissima.getEntity(id).pipe(
+      map((entity) => {
+        if (!entity) {
+          return undefined;
+        }
+        const label = entity.labels?.['en']?.value || entity.id;
+        const description = entity.descriptions?.['en']?.value || null;
+        return {
+          id: entity.id,
+          name: label,
+          description,
+          score: 100,
+          match: true,
+        };
+      })
+    );
+  }
+
   public getName(item?: BiblissimaCandidate): string {
     if (!item) {
       return '';

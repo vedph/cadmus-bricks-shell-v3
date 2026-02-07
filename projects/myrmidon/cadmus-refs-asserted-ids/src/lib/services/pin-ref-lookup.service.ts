@@ -37,6 +37,11 @@ export class PinRefLookupService implements RefLookupService {
 
   constructor(private _itemService: ItemService) {}
 
+  public getById(_id: string): Observable<any | undefined> {
+    // Pins are index search results, not individually addressable entities
+    return of(undefined);
+  }
+
   public getName(item: any | undefined): string {
     return item?.value || '';
   }

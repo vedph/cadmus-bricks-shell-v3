@@ -256,6 +256,33 @@ export interface BiblissimaOptions {
    */
   language?: BiblissimaLanguage;
 }
+
+/**
+ * A language-tagged value from the Wikibase API.
+ */
+export interface WbLanguageValue {
+  language: string;
+  value: string;
+}
+
+/**
+ * A Wikibase entity as returned by the wbgetentities API.
+ */
+export interface WbEntity {
+  type: string;
+  id: string;
+  labels?: { [language: string]: WbLanguageValue };
+  descriptions?: { [language: string]: WbLanguageValue };
+  aliases?: { [language: string]: WbLanguageValue[] };
+}
+
+/**
+ * Response from the Wikibase wbgetentities API.
+ */
+export interface WbGetEntitiesResponse {
+  entities: { [id: string]: WbEntity };
+  success: number;
+}
 //#endregion
 
 /**
@@ -448,6 +475,49 @@ export class BiblissimaService {
       })
       .pipe(
         retry(3),
+        catchError((error) => this._error.handleError(error)),
+      );
+  }
+
+  /**
+   * Get a single entity by its Wikibase ID using the wbgetentities API.
+   * The Wikibase API URL is derived from the reconciliation API base
+   * by replacing the /reconcile path segment with /w/api.php.
+   * @param id The entity ID (e.g., "Q199").
+   * @param options Optional settings (language).
+   * @returns Observable of the entity, or undefined if not found.
+   */
+  public getEntity(
+    id: string,
+    options?: BiblissimaOptions,
+  ): Observable<WbEntity | undefined> {
+    if (!id?.trim()) {
+      return of(undefined);
+    }
+
+    const language = options?.language || 'en';
+    const wbUrl =
+      this._apiBase.replace(/\/reconcile\/?$/, '') + '/w/api.php';
+
+    return this._http
+      .get<WbGetEntitiesResponse>(wbUrl, {
+        params: {
+          action: 'wbgetentities',
+          ids: id.trim(),
+          format: 'json',
+          languages: language,
+          origin: '*',
+        },
+      })
+      .pipe(
+        retry(3),
+        map((response) => {
+          const entity = response.entities?.[id.trim()];
+          if (!entity || (entity as any).missing !== undefined) {
+            return undefined;
+          }
+          return entity;
+        }),
         catchError((error) => this._error.handleError(error)),
       );
   }
