@@ -125,6 +125,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
   // place
   public placeExpanded = signal(false);
   public placeItemId = signal<string | undefined>(undefined);
+  public placeDisplayLabel = signal<string | undefined>(undefined);
   public hasPlace: FormControl<boolean>;
   public plTag: FormControl<string | null>;
   public plAssertion: FormControl<Assertion | null>;
@@ -241,6 +242,7 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
       this.plForm.reset();
       this.dtForm.reset();
       this.placeItemId.set(undefined);
+      this.placeDisplayLabel.set(undefined);
     } else {
       this.hasPlace.setValue(chronotope.place ? true : false, {
         emitEvent: false,
@@ -259,6 +261,8 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
         this.placeItemId.set(
           raw ? (cfg.itemIdParser ? cfg.itemIdParser(raw) : raw) : undefined,
         );
+        // label will be set asynchronously when the lookup resolves
+        this.placeDisplayLabel.set(undefined);
       }
       this.plForm.markAsPristine();
 
@@ -290,8 +294,17 @@ export class AssertedChronotopeComponent implements OnInit, OnDestroy {
     const cfg = this.placeLookupConfig();
     if (!item || !cfg?.itemIdGetter) {
       this.place.setValue(null);
+      this.placeDisplayLabel.set(undefined);
     } else {
-      this.place.setValue(cfg.itemIdGetter(item));
+      const id = cfg.itemIdGetter(item);
+      this.place.setValue(id);
+      // build display label: "label (id)" or just the id
+      const label = cfg.itemLabelGetter
+        ? cfg.itemLabelGetter(item)
+        : cfg.service?.getName(item);
+      this.placeDisplayLabel.set(
+        label && label !== id ? `${label} (${id})` : id,
+      );
     }
     this.place.markAsDirty();
     this.place.updateValueAndValidity();

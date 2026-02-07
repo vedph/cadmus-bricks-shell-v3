@@ -63,7 +63,10 @@
                 <mat-icon class="mat-warn">remove_circle</mat-icon>
               </button>
             </td>
-            <td>{{ entry.place?.value }}</td>
+            <td>{{
+              (entry.place?.value && placeLabels()[entry.place!.value]) ||
+                entry.place?.value
+            }}</td>
             <td>{{ entry.date | historicalDate }}</td>
           </tr>
         }

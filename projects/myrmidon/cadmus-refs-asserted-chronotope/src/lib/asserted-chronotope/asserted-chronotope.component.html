@@ -4,7 +4,7 @@
     <!-- place -->
     <mat-icon style="color: green">map</mat-icon>
     <mat-checkbox [formControl]="hasPlace">{{
-      chronotope()?.place?.value || "place"
+      placeDisplayLabel() || chronotope()?.place?.value || "place"
     }}</mat-checkbox>
     <button
       type="button"

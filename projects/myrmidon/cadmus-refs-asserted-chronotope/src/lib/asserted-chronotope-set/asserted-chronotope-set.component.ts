@@ -6,6 +6,7 @@ import {
   model,
   OnInit,
   signal,
+  untracked,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -61,6 +62,7 @@ import {
 export class AssertedChronotopeSetComponent implements OnInit {
   public readonly editedIndex = signal<number>(-1);
   public readonly edited = signal<AssertedChronotope | undefined>(undefined);
+  public readonly placeLabels = signal<Record<string, string>>({});
 
   /**
    * The edited chronotopes.
@@ -109,6 +111,46 @@ export class AssertedChronotopeSetComponent implements OnInit {
       const chronotopes = this.chronotopes();
       console.log('chronotopes', chronotopes);
       this.updateForm(chronotopes);
+    });
+
+    // resolve place labels when chronotopes or lookup config change
+    effect(() => {
+      const chronotopes = this.chronotopes();
+      const cfg = this.placeLookupConfig();
+
+      if (!cfg?.service || !cfg?.itemIdGetter || !chronotopes?.length) {
+        this.placeLabels.set({});
+        return;
+      }
+
+      const currentLabels = untracked(() => this.placeLabels());
+
+      for (const entry of chronotopes) {
+        const rawValue = entry.place?.value;
+        if (!rawValue || currentLabels[rawValue]) {
+          continue;
+        }
+        const serviceId = cfg.itemIdParser
+          ? cfg.itemIdParser(rawValue)
+          : rawValue;
+        cfg.service
+          .getById(serviceId)
+          .pipe(take(1))
+          .subscribe((item) => {
+            if (item) {
+              const label = cfg.itemLabelGetter
+                ? cfg.itemLabelGetter(item)
+                : cfg.service?.getName(item);
+              this.placeLabels.update((labels) => ({
+                ...labels,
+                [rawValue]:
+                  label && label !== rawValue
+                    ? `${label} (${rawValue})`
+                    : rawValue,
+              }));
+            }
+          });
+      }
     });
   }
 
