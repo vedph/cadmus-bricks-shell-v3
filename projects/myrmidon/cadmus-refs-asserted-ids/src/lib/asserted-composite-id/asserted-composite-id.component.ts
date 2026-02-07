@@ -321,7 +321,7 @@ export class AssertedCompositeIdComponent {
       !this.scope.value ||
       this.extLookupConfigs().some((c) => c.name === this.scope.value)
     ) {
-      this.scope.setValue(config.name || null);
+      this.scope.setValue(config.service!.id || null);
       this.scope.markAsDirty();
       this.scope.updateValueAndValidity();
     }

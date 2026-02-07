@@ -8,6 +8,7 @@
   - full implementation: MOL, MUFI, Zotero, ITEM, GeoNames (added `GeoNamesService.get()`), WHG, VIAF (added `ViafService.getRecord()`), DBPedia, Biblissima;
   - stubs: PIN (which is used for internal links only).
 - asserted chronotope: added opt-in feature for looking up places instead of typing their names according to some conventions. To this end, the component gets a new input property `placeLookupConfig` (with value of type `RefLookupConfig`) which when set switches from typing to lookup for places.
+- automatically set asserted composite ID scope to selected lookup service ID rather than name.
 
 ## 10.0.4
 
