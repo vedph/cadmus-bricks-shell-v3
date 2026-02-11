@@ -18,7 +18,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Subscription, debounceTime, filter } from 'rxjs';
+import { Subscription, debounceTime, filter, take } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -52,6 +52,7 @@ import {
   createRectanglePolygon,
   haversineDistance,
 } from '../../services/geo-helper';
+import { DialogService } from '@myrmidon/ngx-mat-tools';
 
 const EMPTY_FC: GeoJSON.FeatureCollection = {
   type: 'FeatureCollection',
@@ -188,7 +189,10 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
   private _drawnGeometry: GeoJSON.Geometry | null = null;
   // #endregion
 
-  constructor(formBuilder: FormBuilder) {
+  constructor(
+    private _dialogService: DialogService,
+    formBuilder: FormBuilder,
+  ) {
     this.eid = formBuilder.control(null, Validators.maxLength(100));
     this.label = formBuilder.control(null, [
       Validators.required,
@@ -553,20 +557,27 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
   }
 
   public clearDrawing(): void {
-    this.resetDrawingState();
+    this._dialogService
+      .confirm('Confirmation', 'Clear location?')
+      .pipe(take(1))
+      .subscribe((yes) => {
+        if (yes) {
+          this.resetDrawingState();
 
-    // Also clear existing point, geometry, and radius so users start fresh
-    this.latitude.setValue(null);
-    this.longitude.setValue(null);
-    this.geometry.setValue(null);
-    this.radius.setValue(null);
-    this.latitude.markAsDirty();
-    this.longitude.markAsDirty();
-    this.geometry.markAsDirty();
-    this._latSignal.set(null);
-    this._lngSignal.set(null);
-    this.geometryGeoJSON.set({ ...EMPTY_FC });
-    this.radiusGeoJSON.set({ ...EMPTY_FC });
+          // Also clear existing point, geometry, and radius so users start fresh
+          this.latitude.setValue(null);
+          this.longitude.setValue(null);
+          this.geometry.setValue(null);
+          this.radius.setValue(null);
+          this.latitude.markAsDirty();
+          this.longitude.markAsDirty();
+          this.geometry.markAsDirty();
+          this._latSignal.set(null);
+          this._lngSignal.set(null);
+          this.geometryGeoJSON.set({ ...EMPTY_FC });
+          this.radiusGeoJSON.set({ ...EMPTY_FC });
+        }
+      });
   }
   // #endregion
 
