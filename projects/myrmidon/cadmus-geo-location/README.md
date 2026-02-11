@@ -1,10 +1,70 @@
 # CadmusGeoLocation
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.0.
+Cadmus geographical location editor brick, built with Angular and [MapLibre GL JS](https://maplibre.org/) via [ngx-maplibre-gl](https://github.com/maplibre/ngx-maplibre-gl).
 
-> ⚠️ This library requires [ngx-maplibre-gl](https://github.com/maplibre/ngx-maplibre-gl) and you can install it with `npm install @maplibre/ngx-maplibre-gl maplibre-gl` (the library already provides its type definitions). Its API is documented at <https://maplibre.org/ngx-maplibre-gl/API/>.
+## Setup
 
-A `GeoLocation` is an essential model for a simple geographic location. It always has a single point with a display label, latitude, longitude, and optionally altitude, representing the location itself or just its canonical or approximated position. Optionally it adds a free text note, and an uncertainty radius whose center is the point, and a geometry representing its area in a more complex way. The geometry is just a string, usually with WKT format.
+### 1. Install Peer Dependencies
+
+The library requires MapLibre GL and its Angular wrapper, plus a WKT parser and GeoJSON types:
+
+```bash
+npm install @maplibre/ngx-maplibre-gl maplibre-gl @terraformer/wkt @types/geojson
+```
+
+> The library also uses `@myrmidon/ngx-mat-tools` for its `DialogService` (confirmation dialogs). If you don't already have it:
+
+```bash
+npm install @myrmidon/ngx-mat-tools
+```
+
+### 2. Import MapLibre CSS
+
+The MapLibre GL stylesheet **must** be imported globally. Without it, the map will render with broken layout and missing controls.
+
+**Option A** (suggested) -- in your global `styles.scss` (or `styles.css`):
+
+```scss
+@import "maplibre-gl/dist/maplibre-gl.css";
+```
+
+**Option B** -- in `angular.json`, under `projects > your-app > architect > build > options > styles`:
+
+```json
+"styles": [
+  "node_modules/maplibre-gl/dist/maplibre-gl.css",
+  "src/styles.scss"
+]
+```
+
+### 3. CommonJS Warning (Optional)
+
+MapLibre GL is distributed as CommonJS. Angular CLI will emit a warning during build:
+
+> Module 'maplibre-gl' is not ESM
+
+This is harmless. To silence it, add to `angular.json` under `build > options`:
+
+```json
+"allowedCommonJsDependencies": ["maplibre-gl"]
+```
+
+## Model
+
+A `GeoLocation` represents a simple geographic location:
+
+```ts
+interface GeoLocation {
+  eid?: string; // optional entity ID
+  label: string; // display label (required)
+  latitude: number; // decimal degrees, -90 to 90 (required)
+  longitude: number; // decimal degrees, -180 to 180 (required)
+  altitude?: number; // meters
+  radius?: number; // uncertainty radius in meters
+  geometry?: string; // area geometry (WKT or GeoJSON string)
+  note?: string; // free text note
+}
+```
 
 Example:
 
@@ -21,16 +81,105 @@ Example:
 
 ## GeoLocationEditor
 
-Editor for a single geographic location. It features an interactive map for visualizing and drawing
- geometries.
+Interactive editor for a single `GeoLocation`. It shows a form for all properties side by side with a MapLibre map. The map displays the marker, geometry overlay, radius circle, and label. Users can draw geometries (point, circle, rectangle, polygon) directly on the map.
 
-- 🔑 `GeoLocationEditor`
-- 🚩 `cadmus-geo-location-editor`
+### Component Reference
+
 - ▶️ input:
-  - `location` (`GeoLocation`?)
-  - `geometryFormat` (`GeoLocationGeometryFormat`): the format to use for the `geometry` field. Default is WKT (Well-Known Text), because it is an OGC standard, simple, compact and human-readable, and also fits in data mostly serialized into JSON because it's an implementation-neutral string. Alternatively you can use GeoJSON.
-  - `noLocateButton` (`boolean`): true to hide the locate button.
-  - `mapStyle` (`string`): the map style URL, defaulting to <https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json>.
-- 🔥 output:
-  - `locationChange`: emitted when location is saved.
-  - `cancelEdit`: emitted when user cancels the edit.
+- 🔑 **class**: `GeoLocationEditor`
+- 🚩 **selector**: `cadmus-geo-location-editor`
+- ▶️ **inputs**:
+  - `location` (`GeoLocation?`): the location to edit (two-way bindable via `model`).
+  - `geometryFormat` (`GeoLocationGeometryFormat`): format for the `geometry` field. Default is WKT (Well-Known Text), because it is an OGC standard, simple, compact and human-readable, and also fits in data mostly serialized into JSON because it's an implementation-neutral string. Alternatively you can use GeoJSON. Alternatively use `GeoJSON`.
+  - `noLocateButton` (`boolean`): set to `true` to hide the browser geolocation button.
+  - `mapStyle` (`string`): map tile style URL. Defaults to `https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json`.
+- 🔥 **outputs**:
+  - `locationChange`: emitted when the user saves the location.
+  - `cancelEdit`: emitted when the user cancels.
+
+### Usage Example
+
+```ts
+import { Component } from "@angular/core";
+import { GeoLocation, GeoLocationEditor } from "@myrmidon/cadmus-geo-location";
+
+@Component({
+  selector: "app-my-page",
+  imports: [GeoLocationEditor],
+  template: ` <cadmus-geo-location-editor [location]="location" (locationChange)="onLocationChange($event)" (cancelEdit)="onCancel()" /> `,
+})
+export class MyPageComponent {
+  public location: GeoLocation = {
+    label: "Rome",
+    latitude: 41.9028,
+    longitude: 12.4964,
+  };
+
+  public onLocationChange(location: GeoLocation): void {
+    this.location = location;
+  }
+
+  public onCancel(): void {
+    // handle cancel
+  }
+}
+```
+
+### Map Toolbar
+
+The map toolbar (above the map) provides:
+
+| Button         | Icon                  | Description                                                                                   |
+| -------------- | --------------------- | --------------------------------------------------------------------------------------------- |
+| Recenter       | `center_focus_strong` | Re-centers the map on the current point.                                                      |
+| Centroid       | `filter_center_focus` | Sets lat/lng from the centroid of the current geometry (enabled only when a geometry exists). |
+| Draw toggle    | `edit` / `edit_off`   | Enters or exits drawing mode. When exiting, any drawn geometry is committed to the form.      |
+| Point tool     | `place`               | (drawing mode) Click the map to place/move the point.                                         |
+| Circle tool    | `circle`              | (drawing mode) Click center, then click to set radius.                                        |
+| Rectangle tool | `crop_square`         | (drawing mode) Click two opposite corners.                                                    |
+| Polygon tool   | `pentagon`            | (drawing mode) Click vertices, double-click to finish.                                        |
+| Clear          | `delete_outline`      | (drawing mode) Clears the point, geometry, radius, and all overlays so you can start fresh.   |
+
+### Browser Geolocation
+
+The locate button (`my_location`) uses the browser Geolocation API with high-accuracy mode. After a successful fix, an accuracy indicator icon appears next to the button with a color-coded tooltip:
+
+| Accuracy   | Icon                        | Color       | Likely Source |
+| ---------- | --------------------------- | ----------- | ------------- |
+| < 20 m     | `gps_fixed`                 | green       | GPS           |
+| 20-100 m   | `signal_cellular_alt_1_bar` | light green | Wi-Fi         |
+| 100-1000 m | `signal_cellular_alt_2_bar` | orange      | Cell tower    |
+| > 1000 m   | `signal_cellular_alt`       | red         | IP-based      |
+
+### Two-Way Map Sync
+
+The form and map stay in sync in both directions:
+
+- **Form to map**: editing latitude, longitude, or geometry in the form updates the map (marker position, geometry overlay, radius circle, label) in real-time after a 400 ms debounce.
+- **Map to form**: drawing on the map or dragging the marker updates the form controls. Drawn geometries are committed to the form when exiting drawing mode.
+
+## Exported Utilities
+
+The library also exports standalone helper functions and services:
+
+### WktService
+
+Injectable service for converting between geometry strings and GeoJSON:
+
+- `toGeoJSON(geometry, format)`: parses a WKT or GeoJSON string into a `GeoJSON.Geometry` object.
+- `fromGeoJSON(geojson, format)`: serializes a `GeoJSON.Geometry` to WKT or GeoJSON string.
+
+### geo-helper Functions
+
+Pure functions for geometric calculations:
+
+- `createCirclePolygon(center, radiusMeters, steps?)`: generates a GeoJSON Polygon approximating a circle.
+- `createRectanglePolygon(corner1, corner2)`: generates a GeoJSON Polygon for a rectangle.
+- `haversineDistance(p1, p2)`: calculates the distance in meters between two `[lng, lat]` points.
+- `computeCentroid(geometry)`: computes the `[lng, lat]` centroid of any GeoJSON Geometry.
+
+## History
+
+### 0.0.1
+
+- 2025-02-11: initial release.

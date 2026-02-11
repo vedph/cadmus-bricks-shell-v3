@@ -20,7 +20,8 @@
     "@angular/forms": "^21.1.0",
     "@angular/material": "^21.1.0",
     "@maplibre/ngx-maplibre-gl": "^21.0.0",
-    "maplibre-gl": "^5.15.0"
+    "maplibre-gl": "^5.15.0",
+    "@myrmidon/ngx-mat-tools": "^1.0.1"
   },
   "dependencies": {
     "tslib": "^2.3.0",
