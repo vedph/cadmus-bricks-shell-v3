@@ -8,11 +8,12 @@
     <cadmus-geo-location-editor
       [location]="location"
       (locationChange)="onLocationChange($event)"
-    ></cadmus-geo-location-editor>
+    />
     @if (location) {
-    <div>
-      <pre>{{ location | json }}</pre>
-    </div>
+      <hr />
+      <div>
+        <pre>{{ location | json }}</pre>
+      </div>
     }
   </mat-card-content>
 </mat-card>

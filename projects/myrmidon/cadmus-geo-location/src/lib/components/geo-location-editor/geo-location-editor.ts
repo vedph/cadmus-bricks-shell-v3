@@ -149,6 +149,7 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
   // #endregion
 
   // #region Map state signals
+  public readonly mapReady = signal(false);
   public readonly mapCenter = signal<LngLatLike>([12.4922, 41.8902]);
   public readonly mapZoom = signal<[number]>([4]);
 
@@ -385,6 +386,7 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
   // #region Map events
   public onMapLoad(map: MaplibreMap): void {
     setTimeout(() => map.resize(), 0);
+    this.mapReady.set(true);
   }
 
   public onMapClick(event: MapMouseEvent): void {

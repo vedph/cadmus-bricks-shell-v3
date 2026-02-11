@@ -224,7 +224,7 @@
         </mgl-marker>
 
         <!-- Popup attached to marker (shows label + note) -->
-        @if (label.value || note.value) {
+        @if (mapReady() && (label.value || note.value)) {
         <mgl-popup
           [marker]="locationMarker"
           [closeButton]="true"
