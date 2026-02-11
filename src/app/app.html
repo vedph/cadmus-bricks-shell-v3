@@ -82,6 +82,16 @@
         <a mat-menu-item routerLink="/refs/zotero-ref-lookup">Zotero lookup</a>
       </mat-menu>
 
+      <!-- geo -->
+      <button type="button" mat-button [matMenuTriggerFor]="geoMenu">
+        Geography
+      </button>
+      <mat-menu #geoMenu>
+        <a mat-menu-item routerLink="/geo/geo-location-editor"
+          >Location editor</a
+        >
+      </mat-menu>
+
       <!-- text -->
       <button type="button" mat-button [matMenuTriggerFor]="textMenu">
         Text

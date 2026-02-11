@@ -292,6 +292,14 @@ export const routes: Routes = [
         (m) => m.ZoteroRefLookupPgComponent,
       ),
   },
+  // geo/geo-location-editor
+  {
+    path: 'geo/geo-location-editor',
+    loadComponent: () =>
+      import('./components/geo/geo-location-editor-pg/geo-location-editor-pg.component').then(
+        (m) => m.GeoLocationEditorPgComponent,
+      ),
+  },
   // text/emoji-ime
   {
     path: 'text/emoji-ime',

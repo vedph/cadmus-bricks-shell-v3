@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt';
 
-import { GeoLocationGeometryFormat } from '../components/geo-location-editor/geo-location-editor';
+import { GeoLocationGeometryFormat } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class WktService {
@@ -14,7 +14,7 @@ export class WktService {
    */
   public toGeoJSON(
     geometry: string | undefined | null,
-    format: GeoLocationGeometryFormat
+    format: GeoLocationGeometryFormat,
   ): GeoJSON.Geometry | null {
     if (!geometry?.trim()) {
       return null;
@@ -37,7 +37,7 @@ export class WktService {
    */
   public fromGeoJSON(
     geojson: GeoJSON.Geometry,
-    format: GeoLocationGeometryFormat
+    format: GeoLocationGeometryFormat,
   ): string {
     if (format === GeoLocationGeometryFormat.GeoJSON) {
       return JSON.stringify(geojson, null, 2);

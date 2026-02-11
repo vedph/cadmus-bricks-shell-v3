@@ -25,6 +25,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
@@ -84,6 +85,7 @@ export enum GeoLocationDrawingTool {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatTooltipModule,
     MapComponent,
     MarkerComponent,
@@ -168,6 +170,9 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
   });
   // #endregion
 
+  // Geolocation API in progress
+  public readonly locating = signal(false);
+
   // #region Drawing state
   public readonly drawingMode = signal(false);
   public readonly activeTool = signal<GeoLocationDrawingTool | null>(null);
@@ -226,6 +231,7 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
         this.syncLatLngSignals();
         this.updateGeometryOverlays();
         this.updateRadiusOverlay();
+        this.syncMapCenter();
       });
   }
 
@@ -311,6 +317,19 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
       });
     } else {
       this.radiusGeoJSON.set({ ...EMPTY_FC });
+    }
+  }
+
+  private syncMapCenter(): void {
+    const lat = this.latitude.value;
+    const lng = this.longitude.value;
+    if (
+      lat != null &&
+      lng != null &&
+      !this.latitude.errors &&
+      !this.longitude.errors
+    ) {
+      this.mapCenter.set([lng, lat]);
     }
   }
   // #endregion
@@ -490,7 +509,7 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
         this._drawnGeometry = null;
         this.updateGeometryOverlays();
       }
-      this.clearDrawing();
+      this.resetDrawingState();
       this.activeTool.set(null);
     }
   }
@@ -501,11 +520,28 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
     this._drawingAnchor = null;
   }
 
-  public clearDrawing(): void {
+  private resetDrawingState(): void {
     this._drawnGeometry = null;
     this._polygonVertices = [];
     this._drawingAnchor = null;
     this.drawingPreviewGeoJSON.set({ ...EMPTY_FC });
+  }
+
+  public clearDrawing(): void {
+    this.resetDrawingState();
+
+    // Also clear existing point, geometry, and radius so users start fresh
+    this.latitude.setValue(null);
+    this.longitude.setValue(null);
+    this.geometry.setValue(null);
+    this.radius.setValue(null);
+    this.latitude.markAsDirty();
+    this.longitude.markAsDirty();
+    this.geometry.markAsDirty();
+    this._latSignal.set(null);
+    this._lngSignal.set(null);
+    this.geometryGeoJSON.set({ ...EMPTY_FC });
+    this.radiusGeoJSON.set({ ...EMPTY_FC });
   }
   // #endregion
 
@@ -525,8 +561,16 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
     if (!navigator.geolocation) {
       return;
     }
+    this.locating.set(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        this.locating.set(false);
+        // Clear previous geometry and radius so we start fresh
+        this.geometry.setValue(null);
+        this.radius.setValue(null);
+        this.geometryGeoJSON.set({ ...EMPTY_FC });
+        this.radiusGeoJSON.set({ ...EMPTY_FC });
+
         this.latitude.setValue(parseFloat(pos.coords.latitude.toFixed(6)));
         this.longitude.setValue(parseFloat(pos.coords.longitude.toFixed(6)));
         this.latitude.markAsDirty();
@@ -536,6 +580,7 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
         this.mapZoom.set([14]);
       },
       (err) => {
+        this.locating.set(false);
         console.warn('Geolocation failed:', err.message);
       },
     );

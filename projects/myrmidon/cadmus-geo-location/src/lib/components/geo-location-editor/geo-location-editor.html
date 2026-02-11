@@ -68,9 +68,14 @@
           type="button"
           mat-icon-button
           matTooltip="Use browser location"
+          [disabled]="locating()"
           (click)="locateUser()"
         >
+          @if (locating()) {
+          <mat-spinner diameter="24"></mat-spinner>
+          } @else {
           <mat-icon>my_location</mat-icon>
+          }
         </button>
         }
       </div>
