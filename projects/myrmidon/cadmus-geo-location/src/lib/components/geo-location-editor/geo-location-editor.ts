@@ -661,7 +661,7 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
         this.locating.set(false);
         console.warn('Geolocation failed:', err.message);
       },
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
+      { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 },
     );
   }
   // #endregion
