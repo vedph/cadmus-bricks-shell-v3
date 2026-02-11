@@ -81,3 +81,47 @@ export function haversineDistance(
       Math.sin(dLng / 2) ** 2;
   return EARTH_RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
+
+/**
+ * Collect all coordinate pairs from a GeoJSON geometry.
+ */
+function collectCoords(geometry: GeoJSON.Geometry): [number, number][] {
+  switch (geometry.type) {
+    case 'Point':
+      return [geometry.coordinates as [number, number]];
+    case 'MultiPoint':
+    case 'LineString':
+      return geometry.coordinates as [number, number][];
+    case 'MultiLineString':
+    case 'Polygon':
+      return (geometry.coordinates as [number, number][][]).flat();
+    case 'MultiPolygon':
+      return (geometry.coordinates as [number, number][][][]).flat(2);
+    case 'GeometryCollection':
+      return geometry.geometries.flatMap(collectCoords);
+    default:
+      return [];
+  }
+}
+
+/**
+ * Compute the centroid of a GeoJSON geometry as the arithmetic mean
+ * of all its coordinate pairs.
+ * @param geometry A GeoJSON Geometry object.
+ * @returns [lng, lat] centroid, or null if the geometry has no coordinates.
+ */
+export function computeCentroid(
+  geometry: GeoJSON.Geometry,
+): [number, number] | null {
+  const coords = collectCoords(geometry);
+  if (!coords.length) {
+    return null;
+  }
+  let sumLng = 0;
+  let sumLat = 0;
+  for (const [lng, lat] of coords) {
+    sumLng += lng;
+    sumLat += lat;
+  }
+  return [sumLng / coords.length, sumLat / coords.length];
+}

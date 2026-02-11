@@ -48,6 +48,7 @@ import {
 import { GeoLocation, GeoLocationGeometryFormat } from '../../models';
 import { WktService } from '../../services/wkt.service';
 import {
+  computeCentroid,
   createCirclePolygon,
   createRectanglePolygon,
   haversineDistance,
@@ -174,8 +175,26 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
   });
   // #endregion
 
-  // Geolocation API in progress
+  // Geolocation API state
   public readonly locating = signal(false);
+  public readonly locationAccuracy = signal<number | null>(null);
+
+  public readonly accuracyInfo = computed(() => {
+    const acc = this.locationAccuracy();
+    if (acc == null) {
+      return null;
+    }
+    if (acc < 20) {
+      return { icon: 'gps_fixed', tip: `GPS fix (~${Math.round(acc)} m)`, color: '#4caf50' };
+    }
+    if (acc <= 100) {
+      return { icon: 'signal_cellular_alt_1_bar', tip: `Wi-Fi (~${Math.round(acc)} m)`, color: '#8bc34a' };
+    }
+    if (acc <= 1000) {
+      return { icon: 'signal_cellular_alt_2_bar', tip: `Cell tower (~${Math.round(acc)} m)`, color: '#ff9800' };
+    }
+    return { icon: 'signal_cellular_alt', tip: `IP-based (~${Math.round(acc)} m)`, color: '#f44336' };
+  });
 
   // #region Drawing state
   public readonly drawingMode = signal(false);
@@ -582,6 +601,26 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
   // #endregion
 
   // #region Map actions
+  public setPointFromGeometry(): void {
+    const geom = this._wktService.toGeoJSON(
+      this.geometry.value,
+      this.geometryFormat(),
+    );
+    if (!geom) {
+      return;
+    }
+    const center = computeCentroid(geom);
+    if (!center) {
+      return;
+    }
+    this.latitude.setValue(parseFloat(center[1].toFixed(6)));
+    this.longitude.setValue(parseFloat(center[0].toFixed(6)));
+    this.latitude.markAsDirty();
+    this.longitude.markAsDirty();
+    this.syncLatLngSignals();
+    this.mapCenter.set(center);
+  }
+
   public recenterMap(): void {
     const lat = this.latitude.value;
     const lng = this.longitude.value;
@@ -598,9 +637,12 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
       return;
     }
     this.locating.set(true);
+    this.locationAccuracy.set(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         this.locating.set(false);
+        this.locationAccuracy.set(pos.coords.accuracy);
+
         // Clear previous geometry and radius so we start fresh
         this.geometry.setValue(null);
         this.radius.setValue(null);
@@ -619,6 +661,7 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
         this.locating.set(false);
         console.warn('Geolocation failed:', err.message);
       },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
     );
   }
   // #endregion

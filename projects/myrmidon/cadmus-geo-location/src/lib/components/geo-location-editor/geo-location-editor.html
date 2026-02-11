@@ -77,6 +77,14 @@
           <mat-icon>my_location</mat-icon>
           }
         </button>
+        @if (accuracyInfo(); as ai) {
+        <mat-icon
+          class="accuracy-indicator"
+          [matTooltip]="ai.tip"
+          [style.color]="ai.color"
+          >{{ ai.icon }}</mat-icon
+        >
+        }
         }
       </div>
 
@@ -131,6 +139,16 @@
           (click)="recenterMap()"
         >
           <mat-icon>center_focus_strong</mat-icon>
+        </button>
+
+        <button
+          type="button"
+          mat-icon-button
+          matTooltip="Set point from geometry centroid"
+          [disabled]="!geometry.value"
+          (click)="setPointFromGeometry()"
+        >
+          <mat-icon>filter_center_focus</mat-icon>
         </button>
 
         <button

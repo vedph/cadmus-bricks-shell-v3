@@ -81,6 +81,14 @@ mgl-map {
   color: #666;
 }
 
+/* Accuracy indicator (non-interactive) */
+.accuracy-indicator {
+  cursor: default;
+  opacity: 0.85;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
 /* Responsive: single column on narrow screens */
 @media only screen and (max-width: 768px) {
   .editor-grid {
