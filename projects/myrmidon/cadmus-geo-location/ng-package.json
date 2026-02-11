@@ -1,0 +1,8 @@
+{
+  "$schema": "../../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../../dist/myrmidon/cadmus-geo-location",
+  "allowedNonPeerDependencies": ["@terraformer/wkt", "@types/geojson"],
+  "lib": {
+    "entryFile": "src/public-api.ts"
+  }
+}

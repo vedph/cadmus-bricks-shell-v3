@@ -1,0 +1,293 @@
+<form [formGroup]="form" (submit)="save()">
+  <div class="editor-grid">
+    <!-- LEFT COLUMN: Form controls -->
+    <div class="form-column">
+      <!-- eid + label -->
+      <div class="form-row">
+        <mat-form-field>
+          <mat-label>eid</mat-label>
+          <input matInput [formControl]="eid" />
+          @if ($any(eid.errors)?.maxlength && (eid.dirty || eid.touched)) {
+          <mat-error>eid too long</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="flex-grow">
+          <mat-label>label</mat-label>
+          <input matInput [formControl]="label" />
+          @if ($any(label.errors)?.required && (label.dirty || label.touched)) {
+          <mat-error>label required</mat-error>
+          } @if ($any(label.errors)?.maxlength && (label.dirty ||
+          label.touched)) {
+          <mat-error>label too long</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- lat, lng, altitude, radius, locate -->
+      <div class="form-row">
+        <mat-form-field class="number-field">
+          <mat-label>latitude</mat-label>
+          <input matInput type="number" step="any" [formControl]="latitude" />
+          @if ($any(latitude.errors)?.required && (latitude.dirty ||
+          latitude.touched)) {
+          <mat-error>required</mat-error>
+          } @if (($any(latitude.errors)?.min || $any(latitude.errors)?.max) &&
+          (latitude.dirty || latitude.touched)) {
+          <mat-error>-90 to 90</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="number-field">
+          <mat-label>longitude</mat-label>
+          <input matInput type="number" step="any" [formControl]="longitude" />
+          @if ($any(longitude.errors)?.required && (longitude.dirty ||
+          longitude.touched)) {
+          <mat-error>required</mat-error>
+          } @if (($any(longitude.errors)?.min || $any(longitude.errors)?.max) &&
+          (longitude.dirty || longitude.touched)) {
+          <mat-error>-180 to 180</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="number-field">
+          <mat-label>altitude (m)</mat-label>
+          <input matInput type="number" step="any" [formControl]="altitude" />
+        </mat-form-field>
+
+        <mat-form-field class="number-field">
+          <mat-label>radius (m)</mat-label>
+          <input matInput type="number" step="any" [formControl]="radius" />
+          @if ($any(radius.errors)?.min && (radius.dirty || radius.touched)) {
+          <mat-error>must be &gt;= 0</mat-error>
+          }
+        </mat-form-field>
+
+        @if (!noLocateButton()) {
+        <button
+          type="button"
+          mat-icon-button
+          matTooltip="Use browser location"
+          (click)="locateUser()"
+        >
+          <mat-icon>my_location</mat-icon>
+        </button>
+        }
+      </div>
+
+      <!-- geometry -->
+      <mat-form-field class="full-width">
+        <mat-label>geometry ({{ geometryFormat() }})</mat-label>
+        <textarea matInput [formControl]="geometry" rows="3"></textarea>
+        @if ($any(geometry.errors)?.maxlength && (geometry.dirty ||
+        geometry.touched)) {
+        <mat-error>geometry too long</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- note -->
+      <mat-form-field class="full-width">
+        <mat-label>note</mat-label>
+        <textarea matInput [formControl]="note" rows="2"></textarea>
+        @if ($any(note.errors)?.maxlength && (note.dirty || note.touched)) {
+        <mat-error>note too long</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- save / cancel -->
+      <div class="form-row">
+        <button
+          type="button"
+          mat-icon-button
+          matTooltip="Discard changes"
+          (click)="cancel()"
+        >
+          <mat-icon class="mat-warn">clear</mat-icon>
+        </button>
+        <button
+          type="submit"
+          mat-icon-button
+          matTooltip="Accept changes"
+          [disabled]="form.invalid || form.pristine"
+        >
+          <mat-icon class="mat-primary">check_circle</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Map -->
+    <div class="map-column">
+      <!-- Map Toolbar -->
+      <div class="map-toolbar">
+        <button
+          type="button"
+          mat-icon-button
+          matTooltip="Recenter on point"
+          (click)="recenterMap()"
+        >
+          <mat-icon>center_focus_strong</mat-icon>
+        </button>
+
+        <button
+          type="button"
+          mat-icon-button
+          [matTooltip]="drawingMode() ? 'Exit drawing mode' : 'Enter drawing mode'"
+          [class.active-toggle]="drawingMode()"
+          (click)="toggleDrawingMode()"
+        >
+          <mat-icon>{{ drawingMode() ? 'edit_off' : 'edit' }}</mat-icon>
+        </button>
+
+        @if (drawingMode()) {
+        <mat-button-toggle-group
+          [value]="activeTool()"
+          (change)="selectTool($event.value)"
+        >
+          <mat-button-toggle [value]="'point'" matTooltip="Place point">
+            <mat-icon>place</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle [value]="'circle'" matTooltip="Draw circle">
+            <mat-icon>circle</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle [value]="'rectangle'" matTooltip="Draw rectangle">
+            <mat-icon>crop_square</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle [value]="'polygon'" matTooltip="Draw polygon">
+            <mat-icon>pentagon</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+
+        <button
+          type="button"
+          mat-icon-button
+          matTooltip="Clear drawing"
+          (click)="clearDrawing()"
+        >
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+        }
+      </div>
+
+      <!-- MapLibre Map -->
+      <mgl-map
+        [mapStyle]="mapStyle()"
+        [center]="mapCenter()"
+        [zoom]="mapZoom()"
+        [doubleClickZoom]="!drawingMode()"
+        [cursorStyle]="drawingMode() ? 'crosshair' : ''"
+        (mapLoad)="onMapLoad($event)"
+        (mapClick)="onMapClick($event)"
+        (mapMouseMove)="onMapMouseMove($event)"
+        (mapDblClick)="onMapDblClick($event)"
+      >
+        <!-- Navigation controls -->
+        <mgl-control position="top-right" mglNavigation></mgl-control>
+        <!-- Scale bar in metric -->
+        <mgl-control
+          position="bottom-left"
+          mglScale
+          unit="metric"
+        ></mgl-control>
+
+        <!-- Main marker -->
+        @if (markerLngLat(); as pos) {
+        <mgl-marker
+          #locationMarker
+          [lngLat]="pos"
+          [draggable]="!drawingMode()"
+          color="#3f51b5"
+          (markerDragEnd)="onMarkerDragEnd($event)"
+        >
+        </mgl-marker>
+
+        <!-- Popup attached to marker (shows label + note) -->
+        @if (label.value || note.value) {
+        <mgl-popup
+          [marker]="locationMarker"
+          [closeButton]="true"
+          [closeOnClick]="false"
+        >
+          <div class="popup-content">
+            @if (label.value) {
+            <strong>{{ label.value }}</strong>
+            } @if (note.value) {
+            <p>{{ note.value }}</p>
+            }
+          </div>
+        </mgl-popup>
+        } }
+
+        <!-- Geometry overlay (from geometry field) -->
+        <mgl-geojson-source id="geometry-source" [data]="geometryGeoJSON()">
+        </mgl-geojson-source>
+        <mgl-layer
+          id="geometry-fill"
+          type="fill"
+          source="geometry-source"
+          [paint]="{
+            'fill-color': '#3f51b5',
+            'fill-opacity': 0.15
+          }"
+        ></mgl-layer>
+        <mgl-layer
+          id="geometry-line"
+          type="line"
+          source="geometry-source"
+          [paint]="{
+            'line-color': '#3f51b5',
+            'line-width': 2
+          }"
+        ></mgl-layer>
+
+        <!-- Radius circle overlay -->
+        <mgl-geojson-source id="radius-source" [data]="radiusGeoJSON()">
+        </mgl-geojson-source>
+        <mgl-layer
+          id="radius-fill"
+          type="fill"
+          source="radius-source"
+          [paint]="{
+            'fill-color': '#ff9800',
+            'fill-opacity': 0.1
+          }"
+        ></mgl-layer>
+        <mgl-layer
+          id="radius-line"
+          type="line"
+          source="radius-source"
+          [paint]="{
+            'line-color': '#ff9800',
+            'line-width': 1,
+            'line-dasharray': [4, 2]
+          }"
+        ></mgl-layer>
+
+        <!-- Drawing preview overlay -->
+        <mgl-geojson-source
+          id="drawing-source"
+          [data]="drawingPreviewGeoJSON()"
+        >
+        </mgl-geojson-source>
+        <mgl-layer
+          id="drawing-fill"
+          type="fill"
+          source="drawing-source"
+          [paint]="{
+            'fill-color': '#e91e63',
+            'fill-opacity': 0.2
+          }"
+        ></mgl-layer>
+        <mgl-layer
+          id="drawing-line"
+          type="line"
+          source="drawing-source"
+          [paint]="{
+            'line-color': '#e91e63',
+            'line-width': 2,
+            'line-dasharray': [3, 2]
+          }"
+        ></mgl-layer>
+      </mgl-map>
+    </div>
+  </div>
+</form>

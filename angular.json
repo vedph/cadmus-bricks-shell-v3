@@ -939,6 +939,32 @@
           }
         }
       }
+    },
+    "@myrmidon/cadmus-geo-location": {
+      "projectType": "library",
+      "root": "projects/myrmidon/cadmus-geo-location",
+      "sourceRoot": "projects/myrmidon/cadmus-geo-location/src",
+      "prefix": "cadmus",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/myrmidon/cadmus-geo-location/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/myrmidon/cadmus-geo-location/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-geo-location/tsconfig.spec.json"
+          }
+        }
+      }
     }
   },
   "cli": {

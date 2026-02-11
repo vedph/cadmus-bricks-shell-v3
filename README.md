@@ -10,6 +10,7 @@
       - [3. Configure NGE Monaco Module](#3-configure-nge-monaco-module)
       - [4. Using Monaco in Components](#4-using-monaco-in-components)
   - [Codicology](#codicology)
+  - [Geography](#geography)
   - [Imaging](#imaging)
   - [Physical](#physical)
   - [References](#references)
@@ -153,6 +154,10 @@ Additional Resources:
 
 - [@myrmidon/cadmus-cod-location](projects/myrmidon/cadmus-cod-location/README.md)
 
+## Geography
+
+- [@myrmidon/cadmus-geo-location](projects/myrmidon/cadmus-geo-location/README.md)
+
 ## Imaging
 
 All imaging libraries have been moved into a separate repository: [@myrmidon/ngx-annotorious](https://github.com/vedph/ngx-annotorious).
@@ -217,6 +222,7 @@ ng add @angular/material
 ng add @angular/localize
 
 ng g library @myrmidon/cadmus-cod-location --prefix cadmus
+ng g library @myrmidon/cadmus-geo-location --prefix cadmus
 ng g library @myrmidon/cadmus-mat-physical-grid --prefix cadmus
 ng g library @myrmidon/cadmus-mat-physical-size --prefix cadmus
 ng g library @myrmidon/cadmus-mat-physical-state --prefix cadmus

@@ -1,0 +1,95 @@
+/* 2-column grid layout: controls (auto) | map (remaining space) */
+.editor-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+}
+
+/* Form column */
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 280px;
+}
+
+/* Standard form row (workspace convention) */
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
+}
+
+.flex-grow {
+  flex: 1 1 auto !important;
+  min-width: 120px;
+}
+
+.number-field {
+  width: 9em;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Map column */
+.map-column {
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+/* Map toolbar above the map */
+.map-toolbar {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 4px;
+  border: 1px solid #e0e0e0;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  background-color: #fafafa;
+}
+
+/* Active drawing mode toggle indicator */
+.active-toggle {
+  color: #e91e63;
+}
+
+/* Map container */
+mgl-map {
+  flex: 1;
+  min-height: 350px;
+  border: 1px solid #e0e0e0;
+  border-radius: 0 0 4px 4px;
+}
+
+/* Popup styling */
+.popup-content {
+  padding: 4px 8px;
+  max-width: 200px;
+}
+.popup-content p {
+  margin: 4px 0 0;
+  font-size: 0.9em;
+  color: #666;
+}
+
+/* Responsive: single column on narrow screens */
+@media only screen and (max-width: 768px) {
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-column {
+    min-width: unset;
+  }
+  .map-column {
+    min-height: 300px;
+  }
+}

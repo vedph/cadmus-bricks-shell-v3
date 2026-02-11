@@ -8,6 +8,9 @@
       "@myrmidon/cadmus-cod-location": [
         "./dist/myrmidon/cadmus-cod-location"
       ],
+      "@myrmidon/cadmus-geo-location": [
+        "./dist/myrmidon/cadmus-geo-location"
+      ],
       "@myrmidon/cadmus-mat-physical-grid": [
         "./dist/myrmidon/cadmus-mat-physical-grid"
       ],
@@ -321,6 +324,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-refs-biblissima-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-geo-location/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-geo-location/tsconfig.spec.json"
     }
   ]
 }

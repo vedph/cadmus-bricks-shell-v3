@@ -1,0 +1,31 @@
+{
+  "name": "@myrmidon/cadmus-geo-location",
+  "version": "0.0.1",
+  "description": "Cadmus - geographical location component.",
+  "keywords": [
+    "Cadmus",
+    "bricks"
+  ],
+  "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vedph/cadmus-bricks-shell-v3"
+  },
+  "author": {
+    "name": "Daniele Fusi"
+  },
+  "peerDependencies": {
+    "@angular/common": "^21.1.0",
+    "@angular/core": "^21.1.0",
+    "@angular/forms": "^21.1.0",
+    "@angular/material": "^21.1.0",
+    "@maplibre/ngx-maplibre-gl": "^21.0.0",
+    "maplibre-gl": "^5.15.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "@terraformer/wkt": "^2.2.1",
+    "@types/geojson": "^7946.0.0"
+  },
+  "sideEffects": false
+}
