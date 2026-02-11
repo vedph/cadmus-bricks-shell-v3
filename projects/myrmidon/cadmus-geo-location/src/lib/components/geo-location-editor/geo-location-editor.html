@@ -222,6 +222,26 @@
         </mgl-popup>
         } }
 
+        <!-- Label overlay -->
+        <mgl-geojson-source id="label-source" [data]="labelPointGeoJSON()">
+        </mgl-geojson-source>
+        <mgl-layer
+          id="label-text"
+          type="symbol"
+          source="label-source"
+          [layout]="{
+            'text-field': ['get', 'label'],
+            'text-offset': [0, 1.5],
+            'text-anchor': 'top',
+            'text-size': 13
+          }"
+          [paint]="{
+            'text-color': '#3f51b5',
+            'text-halo-color': '#ffffff',
+            'text-halo-width': 1.5
+          }"
+        ></mgl-layer>
+
         <!-- Geometry overlay (from geometry field) -->
         <mgl-geojson-source id="geometry-source" [data]="geometryGeoJSON()">
         </mgl-geojson-source>

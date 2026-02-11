@@ -168,6 +168,9 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
   public readonly radiusGeoJSON = signal<GeoJSON.FeatureCollection>({
     ...EMPTY_FC,
   });
+  public readonly labelPointGeoJSON = signal<GeoJSON.FeatureCollection>({
+    ...EMPTY_FC,
+  });
   // #endregion
 
   // Geolocation API in progress
@@ -231,6 +234,7 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
         this.syncLatLngSignals();
         this.updateGeometryOverlays();
         this.updateRadiusOverlay();
+        this.updateLabelOverlay();
         this.syncMapCenter();
       });
   }
@@ -266,6 +270,7 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
 
       this.updateGeometryOverlays();
       this.updateRadiusOverlay();
+      this.updateLabelOverlay();
     }
     this._updatingForm = false;
   }
@@ -317,6 +322,26 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
       });
     } else {
       this.radiusGeoJSON.set({ ...EMPTY_FC });
+    }
+  }
+
+  private updateLabelOverlay(): void {
+    const lat = this.latitude.value;
+    const lng = this.longitude.value;
+    const lbl = this.label.value?.trim();
+    if (lat != null && lng != null && lbl) {
+      this.labelPointGeoJSON.set({
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [lng, lat] },
+            properties: { label: lbl },
+          },
+        ],
+      });
+    } else {
+      this.labelPointGeoJSON.set({ ...EMPTY_FC });
     }
   }
 
