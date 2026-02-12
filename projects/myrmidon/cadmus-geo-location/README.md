@@ -180,6 +180,10 @@ Pure functions for geometric calculations:
 
 ## History
 
+### 0.0.2
+
+- 2025-02-12: changed DEFAULT_MAP_STYLE from CARTO Voyager to OpenFreeMap Liberty. OpenFreeMap returns 200 OK with CORS headers even for empty tiles (instead of CARTO's 404 without CORS headers), and requires no API key. In template, added 'text-font': ['Noto Sans Regular'] to the label-text layer layout. Without this, MapLibre defaults to "Open Sans Regular,Arial Unicode MS Regular" which only CARTO's font server has. Noto Sans Regular is what the OpenFreeMap Liberty style uses and serves.
+
 ### 0.0.1
 
 - 2025-02-11: initial release.

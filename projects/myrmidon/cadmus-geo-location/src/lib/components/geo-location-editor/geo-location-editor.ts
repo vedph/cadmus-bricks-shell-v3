@@ -60,8 +60,7 @@ const EMPTY_FC: GeoJSON.FeatureCollection = {
   features: [],
 };
 
-const DEFAULT_MAP_STYLE =
-  'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json';
+const DEFAULT_MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
 /**
  * Drawing tool types for the map editor.
@@ -186,15 +185,31 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
       return null;
     }
     if (acc < 20) {
-      return { icon: 'gps_fixed', tip: `GPS fix (~${Math.round(acc)} m)`, color: '#4caf50' };
+      return {
+        icon: 'gps_fixed',
+        tip: `GPS fix (~${Math.round(acc)} m)`,
+        color: '#4caf50',
+      };
     }
     if (acc <= 100) {
-      return { icon: 'signal_cellular_alt_1_bar', tip: `Wi-Fi (~${Math.round(acc)} m)`, color: '#8bc34a' };
+      return {
+        icon: 'signal_cellular_alt_1_bar',
+        tip: `Wi-Fi (~${Math.round(acc)} m)`,
+        color: '#8bc34a',
+      };
     }
     if (acc <= 1000) {
-      return { icon: 'signal_cellular_alt_2_bar', tip: `Cell tower (~${Math.round(acc)} m)`, color: '#ff9800' };
+      return {
+        icon: 'signal_cellular_alt_2_bar',
+        tip: `Cell tower (~${Math.round(acc)} m)`,
+        color: '#ff9800',
+      };
     }
-    return { icon: 'signal_cellular_alt', tip: `IP-based (~${Math.round(acc)} m)`, color: '#f44336' };
+    return {
+      icon: 'signal_cellular_alt',
+      tip: `IP-based (~${Math.round(acc)} m)`,
+      color: '#f44336',
+    };
   });
 
   // #region Drawing state
