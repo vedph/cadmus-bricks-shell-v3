@@ -27,6 +27,8 @@ Note that all the values may include `<B></B>` for bold, and presumably also `<I
 
 ## SPARQL
 
+DBpedia returns results in the standard W3C SPARQL 1.1 JSON format. This is not DBpedia‑specific — it’s the same structure you get from any SPARQL endpoint.
+
 SPARQL query result skeleton:
 
 ```json
@@ -55,6 +57,14 @@ SPARQL query result skeleton:
   }
 }
 ```
+
+Every binding has:
+
+- `type`: `uri | literal | bnode`
+- `value`: the actual string value
+- optional:
+  - `datatype` (for typed literals)
+  - `xml:lang` (for language‑tagged strings)
 
 In this schema:
 
