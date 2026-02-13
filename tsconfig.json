@@ -71,6 +71,9 @@
       "@myrmidon/cadmus-refs-proper-name": [
         "./dist/myrmidon/cadmus-refs-proper-name"
       ],
+      "@myrmidon/cadmus-refs-sparql": [
+        "./dist/myrmidon/cadmus-refs-sparql"
+      ],
       "@myrmidon/cadmus-refs-viaf-lookup": [
         "./dist/myrmidon/cadmus-refs-viaf-lookup"
       ],
@@ -330,6 +333,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-geo-location/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-sparql/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-sparql/tsconfig.spec.json"
     }
   ]
 }

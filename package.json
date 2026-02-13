@@ -17,6 +17,7 @@
     "build-col": "ng build @myrmidon/cadmus-cod-location",
     "build-bib": "ng build @myrmidon/cadmus-refs-biblissima-lookup",
     "build-dbp": "ng build @myrmidon/cadmus-refs-dbpedia-lookup",
+    "build-sparql": "ng build @myrmidon/cadmus-refs-sparql",
     "build-decc": "ng build @myrmidon/cadmus-refs-decorated-counts",
     "build-deci": "ng build @myrmidon/cadmus-refs-decorated-ids",
     "build-doc": "ng build @myrmidon/cadmus-refs-doc-references",
@@ -40,7 +41,7 @@
     "build-whg": "ng build @myrmidon/cadmus-refs-whg-lookup",
     "build-zot": "ng build @myrmidon/cadmus-refs-zotero-lookup",
     "build-obj": "ng build @myrmidon/cadmus-ui-object-view",
-    "build-lib": "pnpm run build-flg && pnpm run build-cit && pnpm run build-doc && pnpm run build-lok && pnpm run build-ass && pnpm run build-his && pnpm run build-cab && pnpm run build-col && pnpm run build-phg && pnpm run build-phs && pnpm run build-aid && pnpm run build-chr && pnpm run build-decc && pnpm run build-deci && pnpm run build-ext && pnpm run build-achr && pnpm run build-prp && pnpm run build-viaf && pnpm run build-dbp && pnpm run build-blk && pnpm run build-nts && pnpm run build-ted && pnpm run build-tmd && pnpm run build-ttx && pnpm run build-geon && pnpm run build-whg && pnpm run build-pht && pnpm run build-muf && pnpm run build-zot && pnpm run build-obj && pnpm run build-mol && pnpm run build-bib && pnpm run build-geol"
+    "build-lib": "pnpm run build-flg && pnpm run build-cit && pnpm run build-doc && pnpm run build-lok && pnpm run build-ass && pnpm run build-his && pnpm run build-cab && pnpm run build-col && pnpm run build-phg && pnpm run build-phs && pnpm run build-aid && pnpm run build-chr && pnpm run build-decc && pnpm run build-deci && pnpm run build-ext && pnpm run build-achr && pnpm run build-prp && pnpm run build-viaf && pnpm run build-sparql && pnpm run build-dbp && pnpm run build-blk && pnpm run build-nts && pnpm run build-ted && pnpm run build-tmd && pnpm run build-ttx && pnpm run build-geon && pnpm run build-whg && pnpm run build-pht && pnpm run build-muf && pnpm run build-zot && pnpm run build-obj && pnpm run build-mol && pnpm run build-bib && pnpm run build-geol"
   },
   "private": true,
   "packageManager": "pnpm@10.29.3",
@@ -78,12 +79,12 @@
     "@angular/cli": "^21.1.4",
     "@angular/compiler-cli": "^21.1.4",
     "@angular/localize": "^21.1.4",
-    "@testing-library/angular": "^19.0.0",
+    "@testing-library/angular": "^19.1.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^25.2.3",
     "@types/terraformer__wkt": "^2.0.3",
-    "jsdom": "^27.4.0",
+    "jsdom": "^28.0.0",
     "ng-packagr": "^21.1.0",
     "typescript": "~5.9.3",
     "vitest": "^4.0.18"

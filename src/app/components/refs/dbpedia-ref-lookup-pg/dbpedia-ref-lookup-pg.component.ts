@@ -20,10 +20,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   DbpediaDoc,
   DbpediaOptions,
-  DbpediaResult,
   DbpediaService,
+  DbpediaRefLookupService,
 } from '@myrmidon/cadmus-refs-dbpedia-lookup';
-import { DbpediaRefLookupService } from '@myrmidon/cadmus-refs-dbpedia-lookup';
 import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
 
 @Component({
@@ -54,12 +53,12 @@ export class DbpediaRefLookupPgComponent {
   public form: FormGroup;
 
   public busy?: boolean;
-  public results: DbpediaResult[] = [];
+  public results: DbpediaDoc[] = [];
 
   constructor(
     public service: DbpediaRefLookupService,
     private _dbpService: DbpediaService,
-    formBuilder: FormBuilder
+    formBuilder: FormBuilder,
   ) {
     this.limit = formBuilder.control(3, {
       nonNullable: true,
@@ -91,13 +90,13 @@ export class DbpediaRefLookupPgComponent {
     }
     const options: DbpediaOptions = {
       limit: this.limit.value,
-      prefix: this.prefix.value,
+      prefixMatch: this.prefix.value,
       types: this.types.value ? this.types.value.split('\n') : undefined,
     };
     this.busy = true;
     this._dbpService.lookup(this.query.value!, options).subscribe({
-      next: (result: DbpediaResult) => {
-        this.results.push(result);
+      next: (docs: DbpediaDoc[]) => {
+        this.results = docs;
       },
       error: (error) => {
         console.error(error);

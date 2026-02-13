@@ -5,7 +5,6 @@ import {
 } from '@myrmidon/cadmus-refs-lookup';
 
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { DbpediaDoc, DbpediaOptions, DbpediaService } from './dbpedia.service';
 
@@ -20,19 +19,15 @@ export class DbpediaRefLookupService implements RefLookupService {
 
   public lookup(
     filter: RefLookupFilter,
-    options?: DbpediaOptions
+    options?: DbpediaOptions,
   ): Observable<DbpediaDoc[]> {
     if (!filter.text) {
       return of([]);
     }
-    if (options) {
-      options.limit = filter.limit;
-    }
-    return this._dbpedia.lookup(filter.text, options).pipe(
-      map((r) => {
-        return r.docs;
-      })
-    );
+    return this._dbpedia.lookup(filter.text, {
+      ...options,
+      limit: filter.limit,
+    });
   }
 
   public getById(id: string): Observable<DbpediaDoc | undefined> {
@@ -43,7 +38,6 @@ export class DbpediaRefLookupService implements RefLookupService {
   }
 
   public getName(item: DbpediaDoc): string {
-    // remove any tags from item?.label[0] and return it
-    return item?.label[0]?.replace(this._tagRegex, '');
+    return item?.label?.replace(this._tagRegex, '') || '';
   }
 }

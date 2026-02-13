@@ -1,11 +1,11 @@
 {
-  "name": "@myrmidon/cadmus-refs-dbpedia-lookup",
+  "name": "@myrmidon/cadmus-refs-sparql",
   "version": "11.0.0",
-  "description": "Cadmus - DBPedia lookup.",
+  "description": "Cadmus - Generic SPARQL endpoint client with W3C SPARQL 1.1 JSON result types.",
   "keywords": [
     "Cadmus",
     "bricks",
-    "DBPedia"
+    "SPARQL"
   ],
   "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
   "repository": {
@@ -18,9 +18,7 @@
   "peerDependencies": {
     "@angular/common": "^20.0.0 || ^21.0.0",
     "@angular/core": "^20.0.0 || ^21.0.0",
-    "@myrmidon/ngx-tools": "^2.0.2",
-    "@myrmidon/cadmus-refs-sparql": "^11.0.0",
-    "@myrmidon/cadmus-refs-lookup": "^10.0.8"
+    "@myrmidon/ngx-tools": "^2.0.2"
   },
   "dependencies": {
     "tslib": "^2.3.0"
