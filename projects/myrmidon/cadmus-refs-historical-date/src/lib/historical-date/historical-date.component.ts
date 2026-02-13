@@ -15,8 +15,6 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Subscription } from 'rxjs';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -58,8 +56,6 @@ import { DatationComponent } from '../datation/datation.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HistoricalDateComponent {
-  private _sub?: Subscription;
-
   /**
    * The historical date model to edit.
    */
@@ -113,16 +109,19 @@ export class HistoricalDateComponent {
     });
   }
 
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
-  }
-
   private updateForm(date?: HistoricalDateModel): void {
     if (!date) {
       this.form.reset();
+      this.a.set(undefined);
+      this.b.set(undefined);
+      this.dateValue.set(undefined);
     } else {
       const hd = new HistoricalDate(date);
       this.dateText.setValue(hd.toString());
+      this.range.setValue(hd.getDateType() === HistoricalDateType.range);
+      this.a.set(hd.a);
+      this.b.set(hd.b);
+      this.dateValue.set(hd.getSortValue());
       this.form.markAsPristine();
     }
   }

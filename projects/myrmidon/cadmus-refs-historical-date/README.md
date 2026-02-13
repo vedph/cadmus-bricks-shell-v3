@@ -13,6 +13,21 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
 
+## AssertedHistoricalDateComponent
+
+- 🔑 `AssertedHistoricalDateComponent`
+- 🚩 `cadmus-refs-asserted-historical-date`
+- ▶️ input:
+  - `date` (`HistoricalDateModel`)
+  - `label` (`string?`)
+  - `disabled` (`boolean?`)
+  - `tagEntries` (`ThesaurusEntry[]?`) for `asserted-historical-dates-tags`
+  - `assertionTagEntries` (`ThesaurusEntry[]?`) for `assertion-tags`
+  - `docReferenceTypeEntries` (`ThesaurusEntry[]?`) for `doc-reference-types`
+  - `docReferenceTagEntries` (`ThesaurusEntry[]?`) for `doc-reference-tags`
+- 🔥 output:
+  - `dateChange` (`HistoricalDateModel`)
+
 ## HistoricalDateComponent
 
 Historical date editor.
@@ -54,6 +69,11 @@ Example:
 ```
 
 ## History
+
+### 9.1.2
+
+- 🆕 added `AssertedHistoricalDateComponent`.
+- fixes to historical date editors.
 
 ### 9.1.0
 

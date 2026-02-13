@@ -2,6 +2,10 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-02-13: minor refactoring in `@myrmidon/cadmus-refs-asserted-chronotope` and `@myrmidon/cadmus-refs-historical-date`:
+  - ⚠️ renamed `AssertedDate` to `AssertedHistoricalDate` for uniformity and moved it from `@myrmidon/cadmus-refs-asserted-chronotope` to `@myrmidon/cadmus-refs-historical-date`.
+  - added `AssertedHistoricalDate` component.
+  - fixes to `HistoricalDateComponent` and `DatationComponent`.
 - 2026-02-11:
   - 🆕 added new library with a geographic location editor (`@myrmidon/cadmus-geo-location`).
 - 2026-02-09:

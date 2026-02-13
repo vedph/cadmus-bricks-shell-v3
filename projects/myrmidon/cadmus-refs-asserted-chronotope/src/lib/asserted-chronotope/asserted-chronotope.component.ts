@@ -33,6 +33,7 @@ import {
   RefLookupConfig,
 } from '@myrmidon/cadmus-refs-lookup';
 import {
+  AssertedHistoricalDate,
   HistoricalDateComponent,
   HistoricalDateModel,
   HistoricalDatePipe,
@@ -49,20 +50,12 @@ export interface AssertedPlace {
 }
 
 /**
- * A date with an optional assertion.
- */
-export interface AssertedDate extends HistoricalDateModel {
-  tag?: string;
-  assertion?: Assertion;
-}
-
-/**
  * Asserted chronotope: a place with an optional assertion, and/or a date with an
  * optional assertion.
  */
 export interface AssertedChronotope {
   place?: AssertedPlace;
-  date?: AssertedDate;
+  date?: AssertedHistoricalDate;
 }
 
 /**

@@ -188,6 +188,14 @@ export const routes: Routes = [
         (m) => m.GeonamesRefLookupPgComponent,
       ),
   },
+  // refs/asserted-historical-date
+  {
+    path: 'refs/asserted-historical-date',
+    loadComponent: () =>
+      import('./components/refs/asserted-historical-date-pg/asserted-historical-date-pg.component').then(
+        (m) => m.AssertedHistoricalDatePgComponent,
+      ),
+  },
   // refs/historical-date
   {
     path: 'refs/historical-date',

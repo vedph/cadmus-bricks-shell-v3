@@ -4,8 +4,6 @@ import {
   effect,
   input,
   model,
-  OnDestroy,
-  OnInit,
 } from '@angular/core';
 import {
   FormControl,
@@ -15,8 +13,8 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -40,9 +38,8 @@ import { Datation, DatationModel } from './datation';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DatationComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
-  private _changeFrozen?: boolean;
+export class DatationComponent {
+  private _updatingForm = false;
 
   /**
    * The datation to edit.
@@ -98,39 +95,37 @@ export class DatationComponent implements OnInit, OnDestroy {
     effect(() => {
       this.updateForm(this.datation());
     });
-  }
 
-  public ngOnInit(): void {
-    this._sub = this.form.valueChanges
-      .pipe(debounceTime(300))
-      .subscribe((_) => {
-        if (!this._changeFrozen) {
+    // when form changes (user edits), emit
+    this.form.valueChanges
+      .pipe(
+        debounceTime(300),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => {
+        if (!this._updatingForm) {
           this.emitChange();
         }
       });
   }
 
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
-  }
-
   private updateForm(model: DatationModel | undefined): void {
-    this._changeFrozen = true;
+    this._updatingForm = true;
     if (!model) {
-      this.form.reset();
+      this.form.reset(undefined, { emitEvent: false });
     } else {
-      this.value.setValue(model.value);
-      this.century.setValue(model.isCentury || false);
-      this.span.setValue(model.isSpan || false);
-      this.month.setValue(model.month || 0);
-      this.day.setValue(model.day || 0);
-      this.about.setValue(model.isApproximate || false);
-      this.dubious.setValue(model.isDubious || false);
-      this.hint.setValue(model.hint || null);
-      this.slide.setValue(model.slide || 0);
+      this.value.setValue(model.value, { emitEvent: false });
+      this.century.setValue(model.isCentury || false, { emitEvent: false });
+      this.span.setValue(model.isSpan || false, { emitEvent: false });
+      this.month.setValue(model.month || 0, { emitEvent: false });
+      this.day.setValue(model.day || 0, { emitEvent: false });
+      this.about.setValue(model.isApproximate || false, { emitEvent: false });
+      this.dubious.setValue(model.isDubious || false, { emitEvent: false });
+      this.hint.setValue(model.hint || null, { emitEvent: false });
+      this.slide.setValue(model.slide || 0, { emitEvent: false });
       this.form.markAsPristine();
     }
-    this._changeFrozen = false;
+    this._updatingForm = false;
   }
 
   private getDatation(): DatationModel {
