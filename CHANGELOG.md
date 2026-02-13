@@ -2,6 +2,8 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-02-13: ⚠️ refactored DBPedia services in `@myrmidon/cadmus-refs-dbpedia-lookup` and `@myrmidon/cadmus-refs-sparql`.
+
 ## 10.0.5
 
 - 2026-02-13: minor refactoring in `@myrmidon/cadmus-refs-asserted-chronotope` and `@myrmidon/cadmus-refs-historical-date`:
