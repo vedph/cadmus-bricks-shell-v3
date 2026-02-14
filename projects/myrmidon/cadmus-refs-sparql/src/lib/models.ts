@@ -90,4 +90,13 @@ export interface SparqlQueryOptions {
    * Initial retry delay in ms, doubled on each retry (default: 1000).
    */
   retryDelay?: number;
+  /**
+   * Proxy URL for CORS bypass. When set, the full target URL (endpoint
+   * + query params) is URL-encoded and sent as:
+   * GET proxyUrl?uri=<encoded-target-url>
+   *
+   * The proxy server should read the `uri` query parameter and forward
+   * the GET request to that URL, returning the response.
+   */
+  proxyUrl?: string;
 }

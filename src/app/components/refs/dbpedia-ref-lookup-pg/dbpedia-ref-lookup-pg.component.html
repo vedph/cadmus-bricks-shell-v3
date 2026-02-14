@@ -14,33 +14,36 @@
         (itemChange)="onItemChange($event)"
       />
       @if (docs) {
-      <div>
-        <pre>{{ docs | json }}</pre>
-      </div>
+        <div>
+          <pre>{{ docs | json }}</pre>
+        </div>
       }
     </article>
 
     <article>
       <h2>Service</h2>
-      <form [formGroup]="form" (submit)="search()">
+      <form [formGroup]="form">
         <div class="form-row">
           <!-- query -->
           <mat-form-field>
             <mat-label>query</mat-label>
             <input matInput [formControl]="query" />
-            @if ( $any(query).errors?.required && (query.dirty || query.touched)
+            @if (
+              $any(query).errors?.required && (query.dirty || query.touched)
             ) {
-            <mat-error>query required</mat-error>
-            } @if ( $any(query).errors?.maxLength && (query.dirty ||
-            query.touched) ) {
-            <mat-error>query too long</mat-error>
+              <mat-error>query required</mat-error>
+            }
+            @if (
+              $any(query).errors?.maxLength && (query.dirty || query.touched)
+            ) {
+              <mat-error>query too long</mat-error>
             }
           </mat-form-field>
 
           <!-- prefix -->
           <mat-checkbox
             [formControl]="prefix"
-            matTooltip="Prefix lookup rather than complete word search"
+            matTooltip="Prefix lookup rather than complete word search (Lookup API only)"
             >prefix</mat-checkbox
           >
 
@@ -54,11 +57,27 @@
               max="20"
               [formControl]="limit"
             />
-            @if ( $any(limit).errors?.required && (limit.dirty || limit.touched)
+            @if (
+              $any(limit).errors?.required && (limit.dirty || limit.touched)
             ) {
-            <mat-error>limit required</mat-error>
+              <mat-error>limit required</mat-error>
             }
           </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- directUri -->
+          <mat-checkbox
+            [formControl]="directUri"
+            matTooltip="Construct resource URI directly from keyword (fastest, exact match only; SPARQL only)"
+            >direct URI</mat-checkbox
+          >
+          <!-- includeCoordinates -->
+          <mat-checkbox
+            [formControl]="includeCoordinates"
+            matTooltip="Include latitude/longitude in SPARQL results"
+            >coordinates</mat-checkbox
+          >
         </div>
 
         <div>
@@ -81,31 +100,102 @@
           </p>
         </div>
 
-        <div>
+        <div class="form-row">
           <button
-            type="submit"
+            type="button"
             class="mat-primary"
             mat-flat-button
-            [disabled]="form.invalid || busy"
+            [disabled]="form.invalid || busy()"
+            matTooltip="Search using DBPedia Lookup API (fast, scored results)"
+            (click)="search()"
           >
-            search
+            lookup API
+          </button>
+          <button
+            type="button"
+            mat-flat-button
+            [disabled]="form.invalid || busy()"
+            matTooltip="Search using SPARQL with URI-based filtering (flexible, type-filtered)"
+            (click)="searchSparql()"
+          >
+            SPARQL search
+          </button>
+          <button
+            type="button"
+            mat-stroked-button
+            [disabled]="form.invalid || busy()"
+            matTooltip="Show the generated SPARQL query without executing it"
+            (click)="showQuery()"
+          >
+            show query
           </button>
         </div>
         <div>
-          @if (busy) {
-          <mat-progress-bar mode="indeterminate" />
+          @if (busy()) {
+            <mat-progress-bar mode="indeterminate" />
           }
         </div>
       </form>
 
-      @if (results.length) {
-      <div>
-        <h3>Results</h3>
-        <code>
-          <pre>{{ results | json }}</pre>
-        </code>
-      </div>
+      @if (elapsed() !== undefined) {
+        <p class="elapsed">Completed in {{ elapsed() }} ms</p>
       }
+
+      @if (sparqlQuery()) {
+        <div>
+          <h3>SPARQL Query</h3>
+          <pre class="sparql-query">{{ sparqlQuery() }}</pre>
+        </div>
+      }
+
+      @if (results().length) {
+        <div>
+          <h3>
+            Results
+            @if (lastSearchMode()) {
+              ({{ lastSearchMode() }})
+            }
+          </h3>
+          <code>
+            <pre>{{ results() | json }}</pre>
+          </code>
+        </div>
+      }
+
+      @if (rawResults()) {
+        <div>
+          <h3>
+            Raw Results ({{ rawResults()!.results.bindings.length }} rows)
+          </h3>
+          <code>
+            <pre>{{ rawResults() | json }}</pre>
+          </code>
+        </div>
+      }
+    </article>
+
+    <article>
+      <h2>Raw SPARQL</h2>
+      <p class="info">
+        Enter a SPARQL SELECT query to execute directly against the DBPedia
+        SPARQL endpoint.
+      </p>
+      <mat-form-field class="long-text">
+        <mat-label>SPARQL query</mat-label>
+        <textarea matInput rows="10" [formControl]="rawSparql"></textarea>
+      </mat-form-field>
+      <div class="form-row">
+        <button
+          type="button"
+          mat-flat-button
+          class="mat-primary"
+          [disabled]="busy() || !rawSparql!.value.trim()"
+          matTooltip="Execute the SPARQL query"
+          (click)="executeRawSparql()"
+        >
+          execute
+        </button>
+      </div>
     </article>
   </mat-card-content>
 </mat-card>

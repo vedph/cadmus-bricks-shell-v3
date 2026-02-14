@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { Observable, catchError, delay, map, of, retry, timer } from 'rxjs';
+import { Observable, catchError, map, retry, timer } from 'rxjs';
 
 import { ErrorService } from '@myrmidon/ngx-tools';
 
@@ -14,6 +14,10 @@ import {
 /**
  * Generic, reusable service for querying any SPARQL endpoint.
  * Returns typed W3C SPARQL 1.1 JSON results.
+ *
+ * Supports an optional proxy URL for CORS bypass: when
+ * `options.proxyUrl` is set, the full target URL is encoded and
+ * sent as `GET proxyUrl?uri=<encoded-target-url>`.
  */
 @Injectable({
   providedIn: 'root',
@@ -24,18 +28,18 @@ export class SparqlService {
     private _error: ErrorService
   ) {}
 
-  private _buildParams(
+  private _buildTargetUrl(
+    endpoint: string,
     query: string,
     options?: SparqlQueryOptions
-  ): Record<string, string> {
-    const params: Record<string, string> = {
-      query,
-      format: 'application/sparql-results+json',
-    };
+  ): string {
+    const params = new URLSearchParams();
+    params.set('query', query);
+    params.set('format', 'application/sparql-results+json');
     if (options?.defaultGraphUri) {
-      params['default-graph-uri'] = options.defaultGraphUri;
+      params.set('default-graph-uri', options.defaultGraphUri);
     }
-    return params;
+    return `${endpoint}?${params.toString()}`;
   }
 
   private _getRetryConfig(options?: SparqlQueryOptions): {
@@ -55,9 +59,6 @@ export class SparqlService {
   }
 
   private _checkPartialResults(response: HttpResponse<any>): void {
-    // Virtuoso may truncate results silently.
-    // X-SPARQL-MaxRows indicates row-limit truncation.
-    // X-SQL-State: S1TAT indicates a query timeout with partial results.
     const maxRows = response.headers.get('X-SPARQL-MaxRows');
     const sqlState = response.headers.get('X-SQL-State');
     if (maxRows) {
@@ -70,6 +71,40 @@ export class SparqlService {
         'SPARQL query timed out — results may be partial'
       );
     }
+  }
+
+  private _doGet<T>(
+    endpoint: string,
+    query: string,
+    options?: SparqlQueryOptions
+  ): Observable<HttpResponse<T>> {
+    if (options?.proxyUrl) {
+      // Proxy mode: build full target URL, encode it, send via proxy
+      const targetUrl = this._buildTargetUrl(endpoint, query, options);
+      return this._http.get<T>(options.proxyUrl, {
+        params: { uri: targetUrl },
+        headers: new HttpHeaders({
+          Accept: 'application/sparql-results+json',
+        }),
+        observe: 'response',
+      });
+    }
+
+    // Direct mode: send params to the endpoint directly
+    const params: Record<string, string> = {
+      query,
+      format: 'application/sparql-results+json',
+    };
+    if (options?.defaultGraphUri) {
+      params['default-graph-uri'] = options.defaultGraphUri;
+    }
+    return this._http.get<T>(endpoint, {
+      params,
+      headers: new HttpHeaders({
+        Accept: 'application/sparql-results+json',
+      }),
+      observe: 'response',
+    });
   }
 
   /**
@@ -85,22 +120,14 @@ export class SparqlService {
     query: string,
     options?: SparqlQueryOptions
   ): Observable<SparqlSelectResponse> {
-    return this._http
-      .get<SparqlSelectResponse>(endpoint, {
-        params: this._buildParams(query, options),
-        headers: new HttpHeaders({
-          Accept: 'application/sparql-results+json',
-        }),
-        observe: 'response',
-      })
-      .pipe(
-        retry(this._getRetryConfig(options)),
-        map((response: HttpResponse<SparqlSelectResponse>) => {
-          this._checkPartialResults(response);
-          return response.body!;
-        }),
-        catchError(this._error.handleError)
-      );
+    return this._doGet<SparqlSelectResponse>(endpoint, query, options).pipe(
+      retry(this._getRetryConfig(options)),
+      map((response: HttpResponse<SparqlSelectResponse>) => {
+        this._checkPartialResults(response);
+        return response.body!;
+      }),
+      catchError(this._error.handleError)
+    );
   }
 
   /**
@@ -116,20 +143,12 @@ export class SparqlService {
     query: string,
     options?: SparqlQueryOptions
   ): Observable<boolean> {
-    return this._http
-      .get<SparqlAskResponse>(endpoint, {
-        params: this._buildParams(query, options),
-        headers: new HttpHeaders({
-          Accept: 'application/sparql-results+json',
-        }),
-        observe: 'response',
-      })
-      .pipe(
-        retry(this._getRetryConfig(options)),
-        map((response: HttpResponse<SparqlAskResponse>) => {
-          return response.body!.boolean;
-        }),
-        catchError(this._error.handleError)
-      );
+    return this._doGet<SparqlAskResponse>(endpoint, query, options).pipe(
+      retry(this._getRetryConfig(options)),
+      map((response: HttpResponse<SparqlAskResponse>) => {
+        return response.body!.boolean;
+      }),
+      catchError(this._error.handleError)
+    );
   }
 }

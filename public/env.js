@@ -6,6 +6,8 @@
   window.__env.molUrl = "http://localhost:5230/api/";
   // this is for local development with MUFI
   window.__env.mufiUrl = "http://localhost:5113/api/";
+  // proxy for external APIs (CORS bypass for local development)
+  window.__env.proxyUrl = "http://localhost:5275/proxy";
   // Zotero
   window.__env.zoteroApiKey = "TODO:YOUR_ZOTERO_KEY";
   window.__env.zoteroUserId = "TODO:YOUR_ZOTERO_USER_ID";
