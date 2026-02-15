@@ -180,6 +180,17 @@ Pure functions for geometric calculations:
 
 ## History
 
+### 0.0.4
+
+- 2026-02-15: fix to locate user in zone-enabled apps: here's what happened in zone-enabled workspaces: when clicking the locate button which uses the browser geolocation service to set a new position in the map, the position is set correctly, with its pin and note. Yet, while in the original workspace the map "flies" to the new location without issues, up to the expected zoom level, in a zone-enabled app it starts zooming but it then stops abruptly. Here is what probably happened:
+
+1. locateUser() sets form values (latitude.setValue, longitude.setValue, etc.) and then calls mapCenter.set() + mapZoom.set([14])
+2. The mgl-map component detects center/zoom changes via ngOnChanges → calls flyTo → animation starts
+3. 400ms later, the form.valueChanges debounce fires (line 270) → calls syncMapCenter() which sets mapCenter to the same coordinates but a new array reference
+4. Angular sees this as a changed input → ngOnChanges fires again → flyTo is called again, interrupting the in-progress animation
+
+In a zoneless app, the debounced setTimeout doesn't trigger change detection, so the second flyTo never happens. With Zone.js, setTimeout (used internally by debounceTime) triggers CD, which propagates the signal change. The fix: guard `locateUser()` with `_updatingForm = true` (same pattern used by `updateForm`) to prevent the `form.valueChanges` subscriber from firing redundantly.
+
 ### 0.0.3
 
 - 2026-02-15: fix to race condition. In @maplibre/ngx-maplibre-gl v21, both MarkerComponent and PopupComponent use afterNextRender() to initialize. When both are created in the same render cycle and the popup tries to attach to the marker via [marker], it reads marker.markerInstance() which can still be null if the marker's afterNextRender hasn't set it yet. This timing is environment-dependent, which explains why it works here, but fails in other workspaces (where the component nesting is deeper).

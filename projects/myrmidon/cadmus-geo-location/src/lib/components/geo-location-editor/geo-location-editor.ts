@@ -636,10 +636,14 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
     if (!center) {
       return;
     }
+    // Suppress debounced syncMapCenter to avoid duplicate flyTo.
+    this._updatingForm = true;
     this.latitude.setValue(parseFloat(center[1].toFixed(6)));
     this.longitude.setValue(parseFloat(center[0].toFixed(6)));
     this.latitude.markAsDirty();
     this.longitude.markAsDirty();
+    this._updatingForm = false;
+
     this.syncLatLngSignals();
     this.mapCenter.set(center);
   }
@@ -666,6 +670,10 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
         this.locating.set(false);
         this.locationAccuracy.set(pos.coords.accuracy);
 
+        // Suppress form.valueChanges so the debounced syncMapCenter()
+        // doesn't fire a duplicate flyTo that interrupts the animation.
+        this._updatingForm = true;
+
         // Clear previous geometry and radius so we start fresh
         this.geometry.setValue(null);
         this.radius.setValue(null);
@@ -676,7 +684,11 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
         this.longitude.setValue(parseFloat(pos.coords.longitude.toFixed(6)));
         this.latitude.markAsDirty();
         this.longitude.markAsDirty();
+
+        this._updatingForm = false;
+
         this.syncLatLngSignals();
+        this.updateLabelOverlay();
         this.mapCenter.set([pos.coords.longitude, pos.coords.latitude]);
         this.mapZoom.set([14]);
       },
