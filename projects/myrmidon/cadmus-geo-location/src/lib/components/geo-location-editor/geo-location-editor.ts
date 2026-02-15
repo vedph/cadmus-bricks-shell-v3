@@ -400,8 +400,14 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
 
   // #region Map events
   public onMapLoad(map: MaplibreMap): void {
-    setTimeout(() => map.resize(), 0);
-    this.mapReady.set(true);
+    // Defer both resize and mapReady so that any marker created in the
+    // same render cycle has time to initialize via afterNextRender before
+    // the popup @if condition becomes true (prevents "mgl-popup need
+    // either lngLat/marker/feature" race condition).
+    setTimeout(() => {
+      map.resize();
+      this.mapReady.set(true);
+    }, 0);
   }
 
   public onMapClick(event: MapMouseEvent): void {

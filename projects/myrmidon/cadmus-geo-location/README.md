@@ -180,10 +180,14 @@ Pure functions for geometric calculations:
 
 ## History
 
+### 0.0.3
+
+- 2026-02-15: fix to race condition. In @maplibre/ngx-maplibre-gl v21, both MarkerComponent and PopupComponent use afterNextRender() to initialize. When both are created in the same render cycle and the popup tries to attach to the marker via [marker], it reads marker.markerInstance() which can still be null if the marker's afterNextRender hasn't set it yet. This timing is environment-dependent, which explains why it works here, but fails in other workspaces (where the component nesting is deeper).
+
 ### 0.0.2
 
-- 2025-02-12: changed DEFAULT_MAP_STYLE from CARTO Voyager to OpenFreeMap Liberty. OpenFreeMap returns 200 OK with CORS headers even for empty tiles (instead of CARTO's 404 without CORS headers), and requires no API key. In template, added 'text-font': ['Noto Sans Regular'] to the label-text layer layout. Without this, MapLibre defaults to "Open Sans Regular,Arial Unicode MS Regular" which only CARTO's font server has. Noto Sans Regular is what the OpenFreeMap Liberty style uses and serves.
+- 2026-02-12: changed DEFAULT_MAP_STYLE from CARTO Voyager to OpenFreeMap Liberty. OpenFreeMap returns 200 OK with CORS headers even for empty tiles (instead of CARTO's 404 without CORS headers), and requires no API key. In template, added 'text-font': ['Noto Sans Regular'] to the label-text layer layout. Without this, MapLibre defaults to "Open Sans Regular,Arial Unicode MS Regular" which only CARTO's font server has. Noto Sans Regular is what the OpenFreeMap Liberty style uses and serves.
 
 ### 0.0.1
 
-- 2025-02-11: initial release.
+- 2026-02-11: initial release.

@@ -222,13 +222,9 @@
         >
         </mgl-marker>
 
-        <!-- Popup attached to marker (shows label + note) -->
+        <!-- Popup at marker position (shows label + note) -->
         @if (mapReady() && (label.value || note.value)) {
-        <mgl-popup
-          [marker]="locationMarker"
-          [closeButton]="true"
-          [closeOnClick]="false"
-        >
+        <mgl-popup [lngLat]="pos" [closeButton]="true" [closeOnClick]="false">
           <div class="popup-content">
             @if (label.value) {
             <strong>{{ label.value }}</strong>
