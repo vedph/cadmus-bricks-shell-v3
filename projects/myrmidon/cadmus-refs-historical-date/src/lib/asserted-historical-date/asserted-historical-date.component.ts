@@ -32,7 +32,7 @@ import { debounceTime, filter } from 'rxjs';
  * doc-reference-types, doc-reference-tags.
  */
 @Component({
-  selector: 'cadmus-asserted-historical-date',
+  selector: 'cadmus-refs-asserted-historical-date',
   imports: [
     ReactiveFormsModule,
     MatButtonModule,

@@ -2,13 +2,6 @@
 
 - [Cadmus Bricks Shell V3](#cadmus-bricks-shell-v3)
   - [Docker](#docker)
-  - [Monaco Editor Configuration for Angular 21](#monaco-editor-configuration-for-angular-21)
-    - [The Issue](#the-issue)
-    - [Required Configuration Steps](#required-configuration-steps)
-      - [1. Install Compatible Monaco Editor Version](#1-install-compatible-monaco-editor-version)
-      - [2. Add Monaco Types to TypeScript Configuration](#2-add-monaco-types-to-typescript-configuration)
-      - [3. Configure NGE Monaco Module](#3-configure-nge-monaco-module)
-      - [4. Using Monaco in Components](#4-using-monaco-in-components)
   - [Codicology](#codicology)
   - [Geography](#geography)
   - [Imaging](#imaging)
@@ -16,6 +9,13 @@
   - [References](#references)
   - [Text](#text)
   - [UI](#ui)
+  - [Monaco Editor Configuration for Angular 21](#monaco-editor-configuration-for-angular-21)
+    - [The Issue](#the-issue)
+    - [Required Configuration Steps](#required-configuration-steps)
+      - [1. Install Compatible Monaco Editor Version](#1-install-compatible-monaco-editor-version)
+      - [2. Add Monaco Types to TypeScript Configuration](#2-add-monaco-types-to-typescript-configuration)
+      - [3. Configure NGE Monaco Module](#3-configure-nge-monaco-module)
+      - [4. Using Monaco in Components](#4-using-monaco-in-components)
   - [V3 Creation](#v3-creation)
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
@@ -43,9 +43,70 @@ To use a brick:
 
 1. `pnpm run build-lib`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker build . -t vedph2020/cadmus-bricks-v3:10.0.5 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
+3. `docker build . -t vedph2020/cadmus-bricks-v3:10.0.6 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
+
+## Codicology
+
+- [@myrmidon/cadmus-cod-location](projects/myrmidon/cadmus-cod-location/README.md)
+
+## Geography
+
+- [@myrmidon/cadmus-geo-location](projects/myrmidon/cadmus-geo-location/README.md)
+
+## Imaging
+
+All imaging libraries have been moved into a separate repository: [@myrmidon/ngx-annotorious](https://github.com/vedph/ngx-annotorious).
+
+## Physical
+
+- [@myrmidon/cadmus-mat-physical-grid](projects/myrmidon/cadmus-mat-physical-grid/README.md)
+- [@myrmidon/cadmus-mat-physical-size](projects/myrmidon/cadmus-mat-physical-size/README.md)
+- [@myrmidon/cadmus-mat-physical-state](projects/myrmidon/cadmus-mat-physical-state/README.md)
+
+## References
+
+- [@myrmidon/cadmus-refs-doc-references](projects/myrmidon/cadmus-refs-doc-references/README.md)
+
+- [@myrmidon/cadmus-refs-assertion](projects/myrmidon/cadmus-refs-assertion/README.md)
+
+- [@myrmidon/cadmus-refs-asserted-ids](projects/myrmidon/cadmus-refs-asserted-ids/README.md)
+- [@myrmidon/cadmus-refs-decorated-ids](projects/myrmidon/cadmus-refs-decorated-ids/README.md)
+- [@myrmidon/cadmus-refs-external-ids](projects/myrmidon/cadmus-refs-external-ids/README.md)
+
+- [@myrmidon/cadmus-refs-decorated-counts](projects/myrmidon/cadmus-refs-decorated-counts/README.md)
+
+- [@myrmidon/cadmus-refs-chronotope](projects/myrmidon/cadmus-refs-chronotope/README.md)
+- [@myrmidon/cadmus-refs-asserted-chronotope](projects/myrmidon/cadmus-refs-asserted-chronotope/README.md)
+- [@myrmidon/cadmus-refs-citation](projects/myrmidon/cadmus-refs-citation/README.md)
+- [@myrmidon/cadmus-refs-historical-date](projects/myrmidon/cadmus-refs-historical-date/README.md)
+
+- [@myrmidon/cadmus-refs-proper-name](projects/myrmidon/cadmus-refs-proper-name/README.md)
+
+- [@myrmidon/cadmus-refs-lookup](projects/myrmidon/cadmus-refs-lookup/README.md)
+- [@myrmidon/cadmus-refs-biblissima-lookup](projects/myrmidon/cadmus-refs-biblissima-lookup/README.md)
+- [@myrmidon/cadmus-refs-dbpedia-lookup](projects/myrmidon/cadmus-refs-dbpedia-lookup/README.md)
+- [@myrmidon/cadmus-refs-geonames-lookup](projects/myrmidon/cadmus-refs-geonames-lookup/README.md)
+- [@myrmidon/cadmus-refs-mol-lookup](projects/myrmidon/cadmus-refs-mol-lookup/README.md)
+- [@myrmidon/cadmus-refs-mufi-lookup](projects/myrmidon/cadmus-refs-mufi-lookup/README.md)
+- [@myrmidon/cadmus-refs-viaf-lookup](projects/myrmidon/cadmus-refs-viaf-lookup/README.md)
+- [@myrmidon/cadmus-refs-whg-lookup](projects/myrmidon/cadmus-refs-whg-lookup/README.md)
+- [@myrmidon/cadmus-refs-zotero-lookup](projects/myrmidon/cadmus-refs-zotero-lookup/README.md)
+
+## Text
+
+- [@myrmidon/cadmus-text-block-view](projects/myrmidon/cadmus-text-block-view/README.md)
+- [@myrmidon/cadmus-text-ed](projects/myrmidon/cadmus-text-ed/README.md)
+- [@myrmidon/cadmus-text-ed-md](projects/myrmidon/cadmus-text-ed-md/README.md)
+- [@myrmidon/cadmus-text-ed-txt](projects/myrmidon/cadmus-text-ed-txt/README.md)
+
+## UI
+
+- [@myrmidon/cadmus-ui-custom-action-bar](projects/myrmidon/cadmus-ui-custom-action-bar/README.md)
+- [@myrmidon/cadmus-ui-flag-set](projects/myrmidon/cadmus-ui-flag-set/README.md)
+- [@myrmidon/cadmus-ui-note-set](projects/myrmidon/cadmus-ui-note-set/README.md)
+- [@myrmidon/cadmus-ui-object-view](projects/myrmidon/cadmus-ui-object-view/README.md)
 
 ## Monaco Editor Configuration for Angular 21
 
@@ -149,67 +210,6 @@ Additional Resources:
 - [Monaco Editor - Loading TTF in Angular 17+ - Stack Overflow](https://stackoverflow.com/questions/78293918/loading-ttf-of-monaco-editor-in-angular-17)
 - [Angular CLI TTF loader issue - GitHub](https://github.com/angular/angular-cli/issues/25235)
 - [@cisstech/nge Documentation](https://github.com/cisstech/nge)
-
-## Codicology
-
-- [@myrmidon/cadmus-cod-location](projects/myrmidon/cadmus-cod-location/README.md)
-
-## Geography
-
-- [@myrmidon/cadmus-geo-location](projects/myrmidon/cadmus-geo-location/README.md)
-
-## Imaging
-
-All imaging libraries have been moved into a separate repository: [@myrmidon/ngx-annotorious](https://github.com/vedph/ngx-annotorious).
-
-## Physical
-
-- [@myrmidon/cadmus-mat-physical-grid](projects/myrmidon/cadmus-mat-physical-grid/README.md)
-- [@myrmidon/cadmus-mat-physical-size](projects/myrmidon/cadmus-mat-physical-size/README.md)
-- [@myrmidon/cadmus-mat-physical-state](projects/myrmidon/cadmus-mat-physical-state/README.md)
-
-## References
-
-- [@myrmidon/cadmus-refs-doc-references](projects/myrmidon/cadmus-refs-doc-references/README.md)
-
-- [@myrmidon/cadmus-refs-assertion](projects/myrmidon/cadmus-refs-assertion/README.md)
-
-- [@myrmidon/cadmus-refs-asserted-ids](projects/myrmidon/cadmus-refs-asserted-ids/README.md)
-- [@myrmidon/cadmus-refs-decorated-ids](projects/myrmidon/cadmus-refs-decorated-ids/README.md)
-- [@myrmidon/cadmus-refs-external-ids](projects/myrmidon/cadmus-refs-external-ids/README.md)
-
-- [@myrmidon/cadmus-refs-decorated-counts](projects/myrmidon/cadmus-refs-decorated-counts/README.md)
-
-- [@myrmidon/cadmus-refs-chronotope](projects/myrmidon/cadmus-refs-chronotope/README.md)
-- [@myrmidon/cadmus-refs-asserted-chronotope](projects/myrmidon/cadmus-refs-asserted-chronotope/README.md)
-- [@myrmidon/cadmus-refs-citation](projects/myrmidon/cadmus-refs-citation/README.md)
-- [@myrmidon/cadmus-refs-historical-date](projects/myrmidon/cadmus-refs-historical-date/README.md)
-
-- [@myrmidon/cadmus-refs-proper-name](projects/myrmidon/cadmus-refs-proper-name/README.md)
-
-- [@myrmidon/cadmus-refs-lookup](projects/myrmidon/cadmus-refs-lookup/README.md)
-- [@myrmidon/cadmus-refs-biblissima-lookup](projects/myrmidon/cadmus-refs-biblissima-lookup/README.md)
-- [@myrmidon/cadmus-refs-dbpedia-lookup](projects/myrmidon/cadmus-refs-dbpedia-lookup/README.md)
-- [@myrmidon/cadmus-refs-geonames-lookup](projects/myrmidon/cadmus-refs-geonames-lookup/README.md)
-- [@myrmidon/cadmus-refs-mol-lookup](projects/myrmidon/cadmus-refs-mol-lookup/README.md)
-- [@myrmidon/cadmus-refs-mufi-lookup](projects/myrmidon/cadmus-refs-mufi-lookup/README.md)
-- [@myrmidon/cadmus-refs-viaf-lookup](projects/myrmidon/cadmus-refs-viaf-lookup/README.md)
-- [@myrmidon/cadmus-refs-whg-lookup](projects/myrmidon/cadmus-refs-whg-lookup/README.md)
-- [@myrmidon/cadmus-refs-zotero-lookup](projects/myrmidon/cadmus-refs-zotero-lookup/README.md)
-
-## Text
-
-- [@myrmidon/cadmus-text-block-view](projects/myrmidon/cadmus-text-block-view/README.md)
-- [@myrmidon/cadmus-text-ed](projects/myrmidon/cadmus-text-ed/README.md)
-- [@myrmidon/cadmus-text-ed-md](projects/myrmidon/cadmus-text-ed-md/README.md)
-- [@myrmidon/cadmus-text-ed-txt](projects/myrmidon/cadmus-text-ed-txt/README.md)
-
-## UI
-
-- [@myrmidon/cadmus-ui-custom-action-bar](projects/myrmidon/cadmus-ui-custom-action-bar/README.md)
-- [@myrmidon/cadmus-ui-flag-set](projects/myrmidon/cadmus-ui-flag-set/README.md)
-- [@myrmidon/cadmus-ui-note-set](projects/myrmidon/cadmus-ui-note-set/README.md)
-- [@myrmidon/cadmus-ui-object-view](projects/myrmidon/cadmus-ui-object-view/README.md)
 
 ## V3 Creation
 

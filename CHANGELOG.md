@@ -2,6 +2,10 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+## 10.0.6
+
+- 2026-02-16: minor renaming in asserted historical date selector.
+- 2026-02-15: fixes to MapLibre usage in geographic location.
 - 2026-02-13: ⚠️ refactored DBPedia services in `@myrmidon/cadmus-refs-dbpedia-lookup` and `@myrmidon/cadmus-refs-sparql`.
 
 ## 10.0.5
