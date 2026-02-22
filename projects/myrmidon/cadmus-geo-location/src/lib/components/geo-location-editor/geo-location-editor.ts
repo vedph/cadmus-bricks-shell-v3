@@ -6,11 +6,10 @@ import {
   inject,
   input,
   model,
-  OnDestroy,
-  OnInit,
   output,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormControl,
@@ -18,7 +17,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Subscription, debounceTime, filter, take } from 'rxjs';
+import { debounceTime, filter, take } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -101,9 +100,8 @@ export enum GeoLocationDrawingTool {
   styleUrl: './geo-location-editor.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GeoLocationEditor implements OnInit, OnDestroy {
+export class GeoLocationEditor {
   private readonly _wktService = inject(WktService);
-  private _sub?: Subscription;
   private _updatingForm = false;
 
   // #region Inputs/Outputs
@@ -261,25 +259,27 @@ export class GeoLocationEditor implements OnInit, OnDestroy {
     effect(() => {
       this.updateForm(this.location());
     });
-  }
 
-  public ngOnInit(): void {
-    this._sub = this.form.valueChanges
-      .pipe(
+    // Convert debounced form valueChanges to a signal for more efficient
+    // change detection with OnPush strategy. Using toSignal() ensures better
+    // performance than subscription-based approach when nested in components.
+    const _formValueChanges = toSignal(
+      this.form.valueChanges.pipe(
         filter(() => !this._updatingForm),
-        debounceTime(400),
-      )
-      .subscribe(() => {
-        this.syncLatLngSignals();
-        this.updateGeometryOverlays();
-        this.updateRadiusOverlay();
-        this.updateLabelOverlay();
-        this.syncMapCenter();
-      });
-  }
+        debounceTime(600),
+      ),
+      { initialValue: undefined },
+    );
 
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
+    effect(() => {
+      // Trigger when form changes (signal notifies of debounced changes)
+      _formValueChanges();
+      this.syncLatLngSignals();
+      this.updateGeometryOverlays();
+      this.updateRadiusOverlay();
+      this.updateLabelOverlay();
+      this.syncMapCenter();
+    });
   }
 
   // #region Form <-> Model

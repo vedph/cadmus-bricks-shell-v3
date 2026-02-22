@@ -2,6 +2,10 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-02-22:
+  - updated Angular and packages.
+  - fixes to geo location editor.
+
 ## 10.0.6
 
 - 2026-02-16: minor renaming in asserted historical date selector.

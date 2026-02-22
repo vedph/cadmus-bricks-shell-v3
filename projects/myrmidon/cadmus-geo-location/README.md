@@ -180,6 +180,10 @@ Pure functions for geometric calculations:
 
 ## History
 
+### 0.0.5
+
+- 2026-02-22: refactor map update trigger on form change to avoid "bump" effect when typing in form controls.
+
 ### 0.0.4
 
 - 2026-02-15: fix to locate user in zone-enabled apps: here's what happened in zone-enabled workspaces: when clicking the locate button which uses the browser geolocation service to set a new position in the map, the position is set correctly, with its pin and note. Yet, while in the original workspace the map "flies" to the new location without issues, up to the expected zoom level, in a zone-enabled app it starts zooming but it then stops abruptly. Here is what probably happened:
