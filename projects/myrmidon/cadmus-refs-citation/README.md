@@ -22,6 +22,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [CitationSetComponent](#citationsetcomponent)
     - [CitationPipe](#citationpipe)
   - [History](#history)
+    - [1.0.4](#104)
     - [1.0.2](#102)
     - [1.0.1](#101)
     - [1.0.0](#100)
@@ -555,10 +556,11 @@ generate_json_from_csv(csv_file, json_file)
 
 A citation by definition is an array of strings, each representing a step in the scheme's path. Anyway, you may want to represent this citation into a compact text form. For instance, we might have `α 12` to represent Odyssey book 1, verse 12.
 
-To this end, the citation scheme service provides among others two methods:
+To this end, the citation scheme service provides among others these methods:
 
-- `toString` to render the citation as text.
+- `toString` to render a citation or citation span as text.
 - `parse` to parse the rendered citation text.
+- `parseSpan` to parse a citation span from text (two citations separated by ` - `).
 
 These functions use one or more instances of `CitParser` services, which can be added to the citation scheme service (via `addParser`). Each parser is added with an arbitrary key, which is then used to select it.
 
@@ -678,7 +680,8 @@ In most cases you won't need to write your own parsers and formatters, even if t
   - 🟢 `getParser(key: string): CitParser | undefined`
   - 🟢 `extractSchemeId(text): { id: string; text: string } | undefined`
   - 🟢 `parse(text: string, defaultSchemeId: string): Citation | undefined`
-  - 🟢 `toString(citation: Citation): string`
+  - 🟢 `parseSpan(text: string, defaultSchemeId: string): CitationSpan | undefined`
+  - 🟢 `toString(citation: Citation | CitationSpan): string`
   - 🟢 `sortCitations(citations: Citation[], defaultSchemeId: string): void`
   - 🟢 `compactCitations(citations: (Citation | CitationSpan)[]): (Citation | CitationSpan)[]`
 
@@ -749,6 +752,10 @@ Use like:
 ```
 
 ## History
+
+### 1.0.4
+
+- 2026-03-02: added `CitationSpan` as an alternate type to `toString`.
 
 ### 1.0.2
 

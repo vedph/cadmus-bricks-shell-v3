@@ -43,7 +43,7 @@ export interface CitNumberFormatter {
    */
   parse(
     text?: string | null,
-    suffixPattern?: string
+    suffixPattern?: string,
   ): SuffixedNumber | undefined;
 }
 
@@ -103,7 +103,7 @@ export class CitSchemeService {
     this.addFormatter(CIT_FORMATTER_ROMAN_UPPER, new RomanNumberFormatter());
     this.addFormatter(
       CIT_FORMATTER_ROMAN_LOWER,
-      new RomanNumberFormatter(true)
+      new RomanNumberFormatter(true),
     );
   }
 
@@ -159,7 +159,7 @@ export class CitSchemeService {
     an: number,
     bn: number,
     as?: string,
-    bs?: string
+    bs?: string,
   ): number {
     if (an !== bn) {
       return an - bn;
@@ -191,7 +191,7 @@ export class CitSchemeService {
             component.n || 0,
             +clause.value,
             component.suffix,
-            clause.suffix
+            clause.suffix,
           ) === 0
         );
       case '<>':
@@ -200,7 +200,7 @@ export class CitSchemeService {
             component.n || 0,
             +clause.value,
             component.suffix,
-            clause.suffix
+            clause.suffix,
           ) !== 0
         );
       case '<':
@@ -209,7 +209,7 @@ export class CitSchemeService {
             component.n || 0,
             +clause.value,
             component.suffix,
-            clause.suffix
+            clause.suffix,
           ) < 0
         );
       case '>':
@@ -218,7 +218,7 @@ export class CitSchemeService {
             component.n || 0,
             +clause.value,
             component.suffix,
-            clause.suffix
+            clause.suffix,
           ) > 0
         );
       case '<=':
@@ -227,7 +227,7 @@ export class CitSchemeService {
             component.n || 0,
             +clause.value,
             component.suffix,
-            clause.suffix
+            clause.suffix,
           ) <= 0
         );
       case '>=':
@@ -236,7 +236,7 @@ export class CitSchemeService {
             component.n || 0,
             +clause.value,
             component.suffix,
-            clause.suffix
+            clause.suffix,
           ) >= 0
         );
     }
@@ -265,7 +265,7 @@ export class CitSchemeService {
   public getStepDomain(
     stepId: string,
     citation?: Citation,
-    defaultSchemeId?: string
+    defaultSchemeId?: string,
   ): CitSchemeStepDomain | undefined {
     // get scheme
     const schemeId = citation?.schemeId || defaultSchemeId;
@@ -412,7 +412,7 @@ export class CitSchemeService {
    * @returns The extracted scheme ID and the text without it, or undefined.
    */
   public extractSchemeId(
-    text: string
+    text: string,
   ): { id: string; text: string } | undefined {
     // if the text starts with a citation ID, extract it
     const match = /^@([^:]+):/.exec(text);
@@ -434,7 +434,7 @@ export class CitSchemeService {
   public parse(
     text: string,
     defaultSchemeId: string,
-    empty = false
+    empty = false,
   ): Citation | undefined {
     const idAndText = this.extractSchemeId(text);
     if (idAndText) {
@@ -469,18 +469,29 @@ export class CitSchemeService {
   }
 
   /**
-   * Render a citation as a string, in the context of the specified scheme.
-   * @param citation The citation to format.
+   * Render a citation or citation span as a string.
+   * When the input is a @see CitationSpan, the two endpoint citations are
+   * each rendered individually and joined with " - ". When only the start
+   * citation (@see CitationSpan.a) is present, the result is the same as
+   * rendering that single citation.
+   * @param citation The citation or citation span to render.
    * @returns The rendered citation.
    */
-  public toString(citation: Citation): string {
-    const scheme = this.getScheme(citation.schemeId);
+  public toString(citation: Citation | CitationSpan): string {
+    if ('a' in citation) {
+      const span = citation as CitationSpan;
+      const a = this.toString(span.a);
+      const b = span.b ? this.toString(span.b) : undefined;
+      return b ? `${a} - ${b}` : a;
+    }
+    const cit = citation as Citation;
+    const scheme = this.getScheme(cit.schemeId);
     if (!scheme) {
-      return citation.steps.join('');
+      return cit.steps.join('');
     }
     this.ensureDefaultParser();
     const parser = this._parsers.get(scheme.textOptions?.parserKey || '');
-    return parser ? parser.toString(citation) : citation.steps.join('');
+    return parser ? parser.toString(cit) : cit.steps.join('');
   }
 
   /**
@@ -494,7 +505,7 @@ export class CitSchemeService {
    */
   public parseSpan(
     text: string,
-    defaultSchemeId: string
+    defaultSchemeId: string,
   ): CitationSpan | undefined {
     if (!text) {
       return undefined;
@@ -603,7 +614,7 @@ export class CitSchemeService {
    * @param citations The citations and/or spans to compact.
    */
   public compactCitations(
-    citations: (Citation | CitationSpan)[]
+    citations: (Citation | CitationSpan)[],
   ): (Citation | CitationSpan)[] {
     return citations.map((c: Citation | CitationSpan) => {
       const span = c as CitationSpan;

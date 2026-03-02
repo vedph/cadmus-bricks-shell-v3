@@ -1,3 +1,4 @@
+import { RamStorageService } from '@myrmidon/ngx-tools';
 import { CitMappedValues, CitScheme, CitSchemeSet } from '../models';
 import {
   CIT_FORMATTER_ROMAN_UPPER,
@@ -99,7 +100,9 @@ const DC_SCHEME: CitScheme = {
 //#endregion
 
 describe('PatternCitParser', () => {
-  const service: CitSchemeService = new CitSchemeService();
+  const service: CitSchemeService = new CitSchemeService(
+    new RamStorageService(),
+  );
   service.configure({
     formats: {},
     schemes: {

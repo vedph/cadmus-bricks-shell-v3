@@ -22,14 +22,6 @@ export class CitationPipe implements PipeTransform {
     if (!citation) {
       return '';
     }
-
-    if ('a' in citation) {
-      const span = citation as CitationSpan;
-      const a = this._schemeService.toString(span.a);
-      const b = span.b ? this._schemeService.toString(span.b) : undefined;
-      return b ? `${a} - ${b}` : a;
-    }
-
-    return this._schemeService.toString(citation as Citation);
+    return this._schemeService.toString(citation);
   }
 }

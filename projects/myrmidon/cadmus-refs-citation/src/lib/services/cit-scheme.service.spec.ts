@@ -1,8 +1,9 @@
+import { RamStorageService } from '@myrmidon/ngx-tools';
 import {
   CIT_FORMATTER_ROMAN_UPPER,
   CitSchemeService,
 } from './cit-scheme.service';
-import { Citation, CitScheme, CitSchemeSet } from '../models';
+import { Citation, CitationSpan, CitScheme, CitSchemeSet } from '../models';
 import { PatternCitParser } from './pattern.cit-parser';
 
 //#region Schemes
@@ -99,7 +100,9 @@ const DC_SCHEME: CitScheme = {
 //#endregion
 
 describe('CitSchemeService', () => {
-  const service: CitSchemeService = new CitSchemeService();
+  const service: CitSchemeService = new CitSchemeService(
+    new RamStorageService(),
+  );
   service.configure({
     formats: {},
     schemes: {
@@ -232,6 +235,37 @@ describe('CitSchemeService', () => {
     };
     const result = service.getStepDomain('verso', citation);
     expect(result).toEqual({ range: { min: 1 } });
+  });
+  // #endregion
+
+  // #region toString
+  it('should render a Citation as text', () => {
+    const parser = new PatternCitParser(service);
+    const citation = parser.parse('If. III 12', 'dc')!;
+    expect(service.toString(citation)).toBe('@dc:If. III 12');
+  });
+
+  it('should render a CitationSpan with both endpoints as text', () => {
+    const parser = new PatternCitParser(service);
+    const a = parser.parse('If. III 12', 'dc')!;
+    const b = parser.parse('If. III 45', 'dc')!;
+    const span: CitationSpan = { a, b };
+    expect(service.toString(span)).toBe('@dc:If. III 12 - @dc:If. III 45');
+  });
+
+  it('should render a CitationSpan with only start endpoint as text', () => {
+    const parser = new PatternCitParser(service);
+    const a = parser.parse('If. III 12', 'dc')!;
+    const span: CitationSpan = { a };
+    expect(service.toString(span)).toBe('@dc:If. III 12');
+  });
+
+  it('should render a cross-canto CitationSpan as text', () => {
+    const parser = new PatternCitParser(service);
+    const a = parser.parse('If. I 1', 'dc')!;
+    const b = parser.parse('If. II 3', 'dc')!;
+    const span: CitationSpan = { a, b };
+    expect(service.toString(span)).toBe('@dc:If. I 1 - @dc:If. II 3');
   });
   // #endregion
 });
