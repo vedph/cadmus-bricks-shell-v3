@@ -163,7 +163,7 @@ export class CitationComponent implements OnInit, OnDestroy {
   constructor(
     formBuilder: FormBuilder,
     private _schemeService: CitSchemeService,
-    private _zone: NgZone
+    private _zone: NgZone,
   ) {
     // focus helper
     this._focusHelper = new DynamicFocus(this._zone);
@@ -248,13 +248,13 @@ export class CitationComponent implements OnInit, OnDestroy {
             this.lastStepIndex.set(targetScheme.path.length - 1);
             this.lastStep.setValue(
               targetScheme.path[targetScheme.path.length - 1] || null,
-              { emitEvent: false }
+              { emitEvent: false },
             );
           }
         } else {
           // create empty citation with current scheme
           this.editedCitation.set(
-            this.createEmptyCitation(this.scheme.value?.id)
+            this.createEmptyCitation(this.scheme.value?.id),
           );
         }
 
@@ -272,7 +272,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     }
     return this._schemeService.createEmptyCitation(
       schemeId || this.scheme.value?.id || '',
-      -1
+      -1,
     );
   }
 
@@ -314,7 +314,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           // update last step
           this.lastStep.setValue(scheme.path[scheme.path.length - 1] || null);
           this.lastStepIndex.set(scheme.path.length - 1);
-        })
+        }),
     );
 
     // when last step changes, update last step index
@@ -346,7 +346,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           }
           this.editedCitation.set(newCit);
           this.validateCitation(newCit);
-        })
+        }),
     );
   }
 
@@ -367,7 +367,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       if (this.text.value) {
         const cit = this._schemeService.parse(
           this.text.value,
-          this.scheme.value.id
+          this.scheme.value.id,
         );
         if (cit?.steps?.length) {
           this.editedCitation.set(cit);
@@ -383,7 +383,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       this.freeMode.set(true);
       if (this.editedCitation()) {
         this.text.setValue(
-          this._schemeService.toString(this.editedCitation()!)
+          this._schemeService.toString(this.editedCitation()!),
         );
         setTimeout(() => {
           this.freeInput?.nativeElement.focus();
@@ -411,7 +411,7 @@ export class CitationComponent implements OnInit, OnDestroy {
     const stepDomain = this._schemeService.getStepDomain(
       step.stepId,
       this.editedCitation(),
-      this.scheme.value.id
+      this.scheme.value.id,
     );
 
     if (!stepDomain) {
@@ -666,7 +666,7 @@ export class CitationComponent implements OnInit, OnDestroy {
       const domain = this._schemeService.getStepDomain(
         step.stepId,
         citation,
-        this.scheme.value.id
+        this.scheme.value.id,
       );
 
       if (!domain) {

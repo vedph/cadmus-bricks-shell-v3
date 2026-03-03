@@ -22,6 +22,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [CitationSetComponent](#citationsetcomponent)
     - [CitationPipe](#citationpipe)
   - [History](#history)
+    - [1.0.5](#105)
     - [1.0.4](#104)
     - [1.0.2](#102)
     - [1.0.1](#101)
@@ -752,6 +753,10 @@ Use like:
 ```
 
 ## History
+
+### 1.0.5
+
+- 2026-03-03: fix to citation component template (submit button without form).
 
 ### 1.0.4
 
