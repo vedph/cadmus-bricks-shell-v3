@@ -9,6 +9,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 
 // myrmidon
 import { EnvService, RamStorageService } from '@myrmidon/ngx-tools';
+import { ThemeToggleComponent } from '@myrmidon/ngx-mat-tools';
 
 // bricks
 import {
@@ -27,11 +28,11 @@ import {
   CitSchemeSettings,
   MapFormatter,
 } from '@myrmidon/cadmus-refs-citation';
+import { ZoteroRefLookupService } from '@myrmidon/cadmus-refs-zotero-lookup';
 
 // local
 import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.component';
 import { DC_SCHEME, OD_SCHEME } from './cit-schemes';
-import { ZoteroRefLookupService } from '@myrmidon/cadmus-refs-zotero-lookup';
 
 @Component({
   selector: 'app-root',
@@ -43,6 +44,7 @@ import { ZoteroRefLookupService } from '@myrmidon/cadmus-refs-zotero-lookup';
     MatMenuModule,
     MatDividerModule,
     MatToolbarModule,
+    ThemeToggleComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',

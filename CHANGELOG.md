@@ -2,7 +2,10 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
-- 2026-03-17: updated Angular and packages.
+- 2026-03-17:
+  - updated Angular and packages.
+  - refactored styles in shell app.
+  - 🆕 added theme toggler to shell app. This allows checking the components rendition under both themes.
 - 2026-03-02: improve `CitSchemeService.toString`.
 - 2026-02-22:
   - updated Angular and packages.

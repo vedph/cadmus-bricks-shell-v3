@@ -44,7 +44,7 @@
     "build-lib": "pnpm run build-flg && pnpm run build-cit && pnpm run build-doc && pnpm run build-lok && pnpm run build-ass && pnpm run build-his && pnpm run build-cab && pnpm run build-col && pnpm run build-phg && pnpm run build-phs && pnpm run build-aid && pnpm run build-chr && pnpm run build-decc && pnpm run build-deci && pnpm run build-ext && pnpm run build-achr && pnpm run build-prp && pnpm run build-viaf && pnpm run build-sparql && pnpm run build-dbp && pnpm run build-blk && pnpm run build-nts && pnpm run build-ted && pnpm run build-tmd && pnpm run build-ttx && pnpm run build-geon && pnpm run build-whg && pnpm run build-pht && pnpm run build-muf && pnpm run build-zot && pnpm run build-obj && pnpm run build-mol && pnpm run build-bib && pnpm run build-geol"
   },
   "private": true,
-  "packageManager": "pnpm@10.30.3",
+  "packageManager": "pnpm@10.32.1",
   "dependencies": {
     "@angular/animations": "^21.2.4",
     "@angular/cdk": "^21.2.2",
@@ -61,7 +61,7 @@
     "@myrmidon/cadmus-core": "^12.0.3",
     "@myrmidon/cadmus-thesaurus-store": "^0.1.0",
     "@myrmidon/cadmus-ui-object-view": "^0.0.3",
-    "@myrmidon/ngx-mat-tools": "^1.0.1",
+    "@myrmidon/ngx-mat-tools": "^1.0.2",
     "@myrmidon/ngx-tools": "^2.0.2",
     "@myrmidon/paged-data-browsers": "^5.2.0",
     "@terraformer/wkt": "^2.2.1",
@@ -85,7 +85,7 @@
     "@types/node": "^25.5.0",
     "@types/terraformer__wkt": "^2.0.3",
     "jsdom": "^29.0.0",
-    "ng-packagr": "^21.1.0",
+    "ng-packagr": "^21.2.0",
     "typescript": "~5.9.3",
     "vitest": "^4.1.0"
   },

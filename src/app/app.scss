@@ -10,6 +10,9 @@ main,
 footer {
   z-index: 0;
 }
+.tb-fill-remaining-space {
+  flex: 1 1 auto;
+}
 
 footer {
   color: #808080;
@@ -22,7 +25,4 @@ footer {
 }
 footer a {
   color: #808080;
-}
-mat-toolbar {
-  background-color: #7CA0FF;
 }
