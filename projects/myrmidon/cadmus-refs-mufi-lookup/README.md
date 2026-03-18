@@ -111,7 +111,7 @@ Styles:
 }
 div#glyph-box {
   margin: 0 8px;
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 4px;
   background-color: white;
@@ -127,7 +127,7 @@ div#comment {
   max-width: 600px;
   font-size: 90%;
   color: #a0a0a0;
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 4px;
 }

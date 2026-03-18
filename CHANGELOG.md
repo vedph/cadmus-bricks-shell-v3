@@ -2,6 +2,44 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-03-18: adjusted components colors to use CSS variables. General guidance:
+
+## 10.0.7
+
+```css
+/* tables (look for #e2e2e2) */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+tbody tr:nth-child(odd) {
+  background-color: var(--mat-sys-surface-container);
+}
+th {
+  text-align: left;
+  font-weight: normal;
+  color: var(--mat-sys-on-surface-variant);
+}
+tbody tr:hover {
+  background-color: var(--mat-sys-surface-container-high);
+}
+td.fit-width {
+  width: 1px;
+  white-space: nowrap;
+}
+tbody tr.selected {
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+/* color silver */
+var(--mat-sys-on-surface-variant);
+/* color red */
+var(--mat-sys-error);
+/* color green */
+var(--mat-sys-success)
+```
+
 - 2026-03-17:
   - updated Angular and packages.
   - refactored styles in shell app.

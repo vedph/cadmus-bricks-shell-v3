@@ -4,7 +4,7 @@ fieldset#place {
   padding: 6px;
 }
 fieldset#place legend {
-  color: green;
+  color: var(--mat-sys-success);
 }
 fieldset#date {
   border: 1px solid #f9e0b3;
@@ -12,7 +12,7 @@ fieldset#date {
   padding: 6px;
 }
 fieldset#date legend {
-  color: orange;
+  color: var(--mat-sys-warning);
 }
 .form-row {
   display: flex;

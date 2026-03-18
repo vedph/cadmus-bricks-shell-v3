@@ -2,29 +2,27 @@
   color: rgb(74, 48, 1);
 }
 .info {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
-  background-color: silver;
-  color: white;
+  color: var(--mat-sys-on-surface-variant);
   padding: 4px;
   margin: 8px 0;
 }
 .info .label {
-  background-color: white;
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
   margin: 0 6px;
 }
 #data {
   margin: 8px 0;
 }
 table {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 4px 4px 4px;
   margin-top: 8px;
 }
 tr:nth-child(odd) {
-  background-color: #f0f0f0;
+  background-color: var(--mat-sys-surface-container);
 }
 td.fit-width {
   width: 1px;
@@ -33,7 +31,7 @@ td.fit-width {
 th {
   font-weight: normal;
   text-align: left;
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 .form-row {
   display: flex;
@@ -58,18 +56,18 @@ th {
   flex-wrap: wrap;
 }
 .label {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 4px;
 }
 fieldset {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 8px;
   margin-bottom: 8px;
 }
 legend {
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 div#toolbar {
   margin-top: 8px;

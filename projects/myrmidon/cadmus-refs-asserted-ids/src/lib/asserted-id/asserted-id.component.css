@@ -9,10 +9,10 @@
 }
 .pin-info {
   font-size: 90%;
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 fieldset {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 6px;
 }

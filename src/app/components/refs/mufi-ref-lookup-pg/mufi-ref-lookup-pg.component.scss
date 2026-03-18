@@ -10,10 +10,10 @@
 
 div#glyph-box {
   margin: 0 8px;
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 4px;
-  background-color: white;
+  background-color: var(--mat-sys-surface-variant);
   display: inline-block;
   width: fit-content;
   height: fit-content;
@@ -28,8 +28,8 @@ div#comment {
   margin: 8px 0;
   max-width: 600px;
   font-size: 90%;
-  color: #a0a0a0;
-  border: 1px solid silver;
+  color: var(--mat-sys-on-surface-variant);
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 4px;
 }

@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-asserted-ids",
-  "version": "10.0.16",
+  "version": "10.0.17",
   "description": "Cadmus - asserted IDs components.",
   "keywords": [
     "Cadmus",
@@ -18,10 +18,10 @@
     "@angular/common": "^20.0.0 || ^21.0.0",
     "@angular/core": "^20.0.0 || ^21.0.0",
     "@angular/material": "^20.0.0 || ^21.0.0",
-    "@myrmidon/ngx-mat-tools": "^1.0.1",
-    "@myrmidon/cadmus-api": "^14.0.6",
+    "@myrmidon/ngx-mat-tools": "^1.0.2",
+    "@myrmidon/cadmus-api": "^14.0.7",
     "@myrmidon/cadmus-refs-assertion": "^10.0.6",
-    "@myrmidon/cadmus-thesaurus-store": "^0.0.6"
+    "@myrmidon/cadmus-thesaurus-store": "^0.1.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

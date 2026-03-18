@@ -10,8 +10,25 @@ mat-form-field {
   width: auto !important;
 }
 .nr {
-  background-color: #f0f0f0;
+  color: var(--mat-sys-on-surface-variant);
   padding: 4px;
   border-radius: 4px;
   margin-right: 4px;
+}
+.button-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.button-row * {
+  flex: 0 0 auto;
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.form-row * {
+  flex: 0 0 auto;
 }

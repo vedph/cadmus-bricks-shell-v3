@@ -3,31 +3,35 @@ table {
   border-collapse: collapse;
 }
 tbody tr:nth-child(odd) {
-  background-color: #e2e2e2;
+  background-color: var(--mat-sys-surface-container);
 }
 th {
   text-align: left;
   font-weight: normal;
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
+}
+tbody tr:hover {
+  background-color: var(--mat-sys-surface-container-high);
 }
 td.fit-width {
   width: 1px;
   white-space: nowrap;
 }
+tbody tr.selected {
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
 td.type {
-  background-color: #e0e0e0;
+  background-color: var(--mat-sys-surface-variant);
   padding: 4px;
 }
 td.value {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   padding: 4px;
   min-width: 150px;
 }
-tr.selected {
-  background-color: #d0d0d0 !important;
-}
 .nr {
-  background-color: #f0f0f0;
+  background-color: var(--mat-sys-surface-variant);
   padding: 4px;
   border-radius: 4px;
   margin-right: 4px;
@@ -50,11 +54,11 @@ mat-expansion-panel {
   margin: 8px 0;
 }
 fieldset {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 6px;
   margin: 8px 0;
 }
 legend {
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }

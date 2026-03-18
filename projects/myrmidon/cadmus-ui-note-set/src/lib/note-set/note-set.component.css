@@ -13,20 +13,20 @@
   border-radius: 6px;
 }
 .count {
-  background-color: #90a0ff;
+  background-color: var(--mat-sys-primary);
   color: white;
   border-radius: 10px;
   padding: 2px;
   margin-left: 4px;
 }
 .ok {
-  color: green;
+  color: var(--mat-sys-success);
 }
 .err {
-  color: red;
+  color: var(--mat-sys-error);
 }
 .preview {
-  background-color: #f0f0f0;
+  background-color: var(--mat-sys-surface-variant);
   padding: 8px;
   border-radius: 6px;
 }

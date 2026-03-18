@@ -17,7 +17,7 @@
 }
 .cadmus-text-block-view-d {
   font-size: 0.9rem;
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
   text-align: center;
   margin: 0 2px;
   z-index: 2;

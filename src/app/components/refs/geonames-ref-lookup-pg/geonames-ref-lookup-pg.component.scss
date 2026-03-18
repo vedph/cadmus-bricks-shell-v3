@@ -21,15 +21,15 @@
   max-width: 800px;
 }
 fieldset {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 4px;
   padding: 8px;
   margin: 8px;
 }
 legend {
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 article {
-  border-bottom: 1px solid silver;
+  border-bottom: 1px solid var(--mat-sys-on-surface-variant);
   margin-bottom: 16px;
 }

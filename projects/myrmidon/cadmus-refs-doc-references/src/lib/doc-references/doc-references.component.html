@@ -16,9 +16,9 @@
     $first; let last = $last) {
     <div>
       <!-- child form -->
-      <div [formGroupName]="i" class="row">
+      <div [formGroupName]="i" class="form-row">
         <!-- child actions -->
-        <div style="flex: 0 0 auto">
+        <div class="button-row">
           <span class="nr">{{ i + 1 }}.</span>
           <button
             mat-icon-button
@@ -48,10 +48,10 @@
           </button>
         </div>
         <!-- child controls -->
-        <div style="flex: 0 0 auto">
+        <div class="form-row">
           <!-- type (bound) -->
           @if (typeEntries()) {
-          <mat-form-field style="width: 8em">
+          <mat-form-field>
             <mat-label>type</mat-label>
             <mat-select formControlName="type">
               @for (e of typeEntries(); track e) {
@@ -64,7 +64,7 @@
           }
           <!-- type (free) -->
           @else {
-          <mat-form-field style="width: 8em">
+          <mat-form-field>
             <mat-label>type</mat-label>
             <input matInput formControlName="type" />
             @if ( $any(item)['controls'].type.hasError('max-length') &&
@@ -75,7 +75,7 @@
           </mat-form-field>
           }
         </div>
-        <div style="flex: 0 0 auto">
+        <div class="form-row">
           <!-- tag (bound) -->
           @if (tagEntries()) {
           <mat-form-field>

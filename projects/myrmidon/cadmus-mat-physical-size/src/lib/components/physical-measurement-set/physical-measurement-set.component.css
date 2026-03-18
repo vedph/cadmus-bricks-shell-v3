@@ -7,25 +7,28 @@
 .form-row * {
   flex: 0 0 auto;
 }
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-tbody tr:nth-child(odd) {
-  background-color: #e2e2e2;
-}
-th {
-  text-align: left;
-  font-weight: normal;
-  color: silver;
-}
-td.fit-width {
-  width: 1px;
-  white-space: nowrap;
-}
 .nr {
   width: 7em;
 }
 .unit {
   width: 8em;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+tbody tr:nth-child(odd) {
+  background-color: var(--mat-sys-surface-container);
+}
+th {
+  text-align: left;
+  font-weight: normal;
+  color: var(--mat-sys-on-surface-variant);
+}
+tbody tr:hover {
+  background-color: var(--mat-sys-surface-container-high);
+}
+td.fit-width {
+  width: 1px;
+  white-space: nowrap;
 }

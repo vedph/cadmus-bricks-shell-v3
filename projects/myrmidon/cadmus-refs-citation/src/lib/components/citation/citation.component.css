@@ -1,5 +1,5 @@
 .muted {
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 .form-row {
   display: flex;
@@ -11,23 +11,23 @@
   flex: 0 0 auto;
 }
 .separator {
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 #scheme-field {
   margin-left: 12px;
 }
 #scheme-field mat-hint {
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 fieldset {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 4px;
   padding: 6px;
   margin: 8px 0;
 }
 legend {
   font-size: 0.8em;
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 .nr {
   width: 7em;
@@ -41,7 +41,7 @@ ul.error {
   margin: 0;
 }
 ul.error li {
-  color: red;
+  color: var(--mat-sys-error);
   font-size: 0.8em;
 }
 ul.error li::before {
@@ -50,7 +50,7 @@ ul.error li::before {
   vertical-align: middle;
 }
 ul.error li::marker {
-  color: red;
+  color: var(--mat-sys-error);
   font-size: 1.2em;
   vertical-align: middle;
 }

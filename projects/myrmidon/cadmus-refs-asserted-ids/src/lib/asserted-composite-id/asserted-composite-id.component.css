@@ -8,7 +8,7 @@
   flex: 0 0 auto;
 }
 .boxed {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 6px;
 }
@@ -21,15 +21,15 @@
 }
 .pin-info {
   font-size: 90%;
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 fieldset {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 6px;
 }
 legend {
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 .margin-top-sm {
   margin-top: 6px;
@@ -38,15 +38,15 @@ legend {
   margin-top: 12px;
 }
 .info {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
-  background-color: silver;
-  color: white;
+  background-color: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
   padding: 4px;
 }
 .info .label {
-  background-color: white;
-  color: silver;
+  background-color: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
   margin: 0 6px;
 }
 /* lt-md */

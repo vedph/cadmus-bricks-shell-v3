@@ -13,13 +13,13 @@ div.labeled {
 }
 div.label {
   font-size: 85%;
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 .labeled * {
   flex: 0 0 auto;
 }
 .required {
-  color: red;
+  color: var(--mat-sys-error);
 }
 .form-row {
   display: flex;

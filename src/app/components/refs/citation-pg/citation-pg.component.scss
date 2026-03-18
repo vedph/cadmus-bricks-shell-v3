@@ -1,41 +1,52 @@
 .error {
-  color: red;
+  color: var(--mat-sys-error);
 }
 .valid {
-  color: green;
+  color: var(--mat-sys-success);
 }
 .text-cit {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 6px;
-  background-color: #deedee;
+  background-color: var(--mat-sys-surface-variant);
 }
 fieldset {
-  border: 1px solid silver;
+  border: 1px solid var(--mat-sys-on-surface-variant);
+  border-radius: 6px;
+  padding: 6px;
+  background-color: var(--mat-sys-surface-variant);
+}
+fieldset {
+  border: 1px solid var(--mat-sys-on-surface-variant);
   border-radius: 6px;
   padding: 6px;
   margin: 8px 0;
 }
 legend {
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
 }
 table {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid silver;
-  margin: 8px 0;
 }
 tbody tr:nth-child(odd) {
-  background-color: #e2e2e2;
+  background-color: var(--mat-sys-surface-container);
 }
 th {
   text-align: left;
   font-weight: normal;
-  color: silver;
+  color: var(--mat-sys-on-surface-variant);
+}
+tbody tr:hover {
+  background-color: var(--mat-sys-surface-container-high);
 }
 td.fit-width {
   width: 1px;
   white-space: nowrap;
+}
+tbody tr.selected {
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
 }
 .form-row {
   display: flex;
@@ -47,6 +58,6 @@ td.fit-width {
   flex: 0 0 auto;
 }
 .muted {
-  color: gray;
+  color: var(--mat-sys-on-surface-variant);
   font-style: italic;
 }

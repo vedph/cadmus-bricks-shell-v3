@@ -2,20 +2,25 @@
   color: rgb(74, 48, 1);
 }
 table {
-  border: 1px solid silver;
-  border-radius: 6px;
-  padding: 4px 4px 4px;
-  margin-top: 8px;
+  width: 100%;
+  border-collapse: collapse;
 }
-tr:nth-child(odd) {
-  background-color: #f0f0f0;
+tbody tr:nth-child(odd) {
+  background-color: var(--mat-sys-surface-container);
 }
 th {
-  font-weight: normal;
   text-align: left;
-  color: silver;
+  font-weight: normal;
+  color: var(--mat-sys-on-surface-variant);
+}
+tbody tr:hover {
+  background-color: var(--mat-sys-surface-container-high);
 }
 td.fit-width {
   width: 1px;
   white-space: nowrap;
+}
+tbody tr.selected {
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
 }
