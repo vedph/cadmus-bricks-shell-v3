@@ -70,6 +70,10 @@ Example:
 
 ## History
 
+### 9.1.4
+
+- 2026-03-27: better styles for datation.
+
 ### 9.1.2
 
 - 🆕 added `AssertedHistoricalDateComponent`.

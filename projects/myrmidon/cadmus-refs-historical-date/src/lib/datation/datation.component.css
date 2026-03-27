@@ -1,7 +1,7 @@
-h4 {
-  font-weight: bold;
+.header {
+  font: var(--mat-sys-title-large);
   margin-bottom: 4px;
-  border-top: 1px solid #3F51B5;
+  border-top: 1px solid var(--mat-sys-on-surface-variant);
 }
 .form-row {
   display: flex;
@@ -16,7 +16,8 @@ h4 {
   width: 5em;
 }
 .hint {
-  width: 20em;
+  width: 100%;
+  max-width: 800px;
 }
 .value {
   width: 6em;

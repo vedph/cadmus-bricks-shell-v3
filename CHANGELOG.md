@@ -2,6 +2,9 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-03-27:
+  - updated Angular and packages.
+  - style improvements in historical date.
 - 2026-03-18: adjusted components colors to use CSS variables. General guidance:
 
 ## 10.0.7

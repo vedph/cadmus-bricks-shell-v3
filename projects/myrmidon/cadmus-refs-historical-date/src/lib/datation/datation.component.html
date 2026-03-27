@@ -1,5 +1,5 @@
 @if (label()) {
-<h4>{{ label() }}</h4>
+  <p class="header">{{ label() }}</p>
 }
 <form role="form" [formGroup]="form">
   <!-- value -->
@@ -19,20 +19,22 @@
     <mat-form-field class="md">
       <mat-label>month</mat-label>
       <input matInput [formControl]="month" type="number" min="0" max="12" />
-      @if (month.hasError('min') && (month.touched || month.dirty)) {
-      <mat-error>month less than 0</mat-error>
-      } @if (month.hasError('max') && (month.touched || month.dirty)) {
-      <mat-error>month greater than 12</mat-error>
+      @if (month.hasError("min") && (month.touched || month.dirty)) {
+        <mat-error>month less than 0</mat-error>
+      }
+      @if (month.hasError("max") && (month.touched || month.dirty)) {
+        <mat-error>month greater than 12</mat-error>
       }
     </mat-form-field>
     <!-- day -->
     <mat-form-field class="md">
       <mat-label>day</mat-label>
       <input matInput [formControl]="day" type="number" min="0" max="31" />
-      @if (day.hasError('min') && (day.touched || day.dirty)) {
-      <mat-error>day less than 0</mat-error>
-      } @if (day.hasError('max') && (day.touched || day.dirty)) {
-      <mat-error>day greater than 31</mat-error>
+      @if (day.hasError("min") && (day.touched || day.dirty)) {
+        <mat-error>day less than 0</mat-error>
+      }
+      @if (day.hasError("max") && (day.touched || day.dirty)) {
+        <mat-error>day greater than 31</mat-error>
       }
     </mat-form-field>
 
@@ -48,8 +50,8 @@
     <mat-form-field class="hint">
       <mat-label>hint</mat-label>
       <input matInput [formControl]="hint" />
-      @if (hint.hasError('maxLength') && (hint.touched || hint.dirty)) {
-      <mat-error>hint too long</mat-error>
+      @if (hint.hasError("maxLength") && (hint.touched || hint.dirty)) {
+        <mat-error>hint too long</mat-error>
       }
     </mat-form-field>
   </div>
