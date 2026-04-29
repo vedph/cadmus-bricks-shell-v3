@@ -24,7 +24,7 @@ Editor for a chronotope (place and/or date) with an optional [assertion](../cadm
 - 🚩 `cadmus-refs-asserted-chronotope`
 - ▶️ input:
   - `chronotope` (`AssertedChronotope`)
-  - `lookupProviderOptions` (`LookupProviderOptions | undefined`): optional preset options for lookup providers.Maps provider IDs to their available scopes.
+  - `lookupProviderOptions` (`LookupProviderOptions | undefined`): optional preset options for lookup providers. Maps provider IDs to their available scopes.
   - `placeLookupConfig` (`RefLookupConfig | undefined`): the configuration of the lookup service for places. When set, the place will be fetched from a service rather than manually entered.
 - 📚 thesauri:
   - `chronotope-tags` (for `tagEntries`)
@@ -42,7 +42,7 @@ A set of asserted chronotopes.
 - 🚩 `cadmus-asserted-chronotope-set`
 - ▶️ input:
   - `chronotopes` (`AssertedChronotope[]`)
-  - `lookupProviderOptions` (`LookupProviderOptions | undefined`): optional preset options for lookup providers.Maps provider IDs to their available scopes.
+  - `lookupProviderOptions` (`LookupProviderOptions | undefined`): optional preset options for lookup providers. Maps provider IDs to their available scopes.
   - `placeLookupConfig` (`RefLookupConfig | undefined`): the configuration of the lookup service for places. When set, the place will be fetched from a service rather than manually entered.
 - 📚 thesauri:
   - `chronotope-tags` (for `tagEntries`)
