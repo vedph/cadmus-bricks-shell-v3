@@ -1,6 +1,29 @@
 services:
-  bricks-app:
-    container_name: bricks-shell-v3
-    image: vedph2020/cadmus-bricks-shell-v3:10.0.7
+  # Cadmus Bricks API
+  cadmus-bricks-api:
+    image: vedph2020/cadmus-bricks-api:0.0.1
+    container_name: cadmus-bricks-api
+    restart: unless-stopped
+    ports:
+      - 5132:8080
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - cadmus-bricks-network
+
+  cadmus-bricks-app:
+    container_name: cadmus-bricks-app
+    restart: unless-stopped
+    image: vedph2020/cadmus-bricks-shell-v3:10.0.8
+    depends_on:
+      - cadmus-bricks-api
     ports:
       - 4200:80
+    #volumes:
+    #  - ./env.js:/usr/share/nginx/html/env.js
+    networks:
+      - cadmus-bricks-network
+
+networks:
+  cadmus-bricks-network:
+    driver: bridge

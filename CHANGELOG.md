@@ -2,6 +2,8 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+## 10.0.8
+
 - 2026-05-12: updated Angular and packages.
 - 2026-04-29: updated Angular and packages.
 - 2026-03-27:
