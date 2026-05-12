@@ -1,6 +1,6 @@
 {
   "name": "cadmus-bricks-shell-v3",
-  "version": "0.0.0",
+  "version": "10.0.7",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -44,17 +44,17 @@
     "build-lib": "pnpm run build-flg && pnpm run build-cit && pnpm run build-doc && pnpm run build-lok && pnpm run build-ass && pnpm run build-his && pnpm run build-cab && pnpm run build-col && pnpm run build-phg && pnpm run build-phs && pnpm run build-aid && pnpm run build-chr && pnpm run build-decc && pnpm run build-deci && pnpm run build-ext && pnpm run build-achr && pnpm run build-prp && pnpm run build-viaf && pnpm run build-sparql && pnpm run build-dbp && pnpm run build-blk && pnpm run build-nts && pnpm run build-ted && pnpm run build-tmd && pnpm run build-ttx && pnpm run build-geon && pnpm run build-whg && pnpm run build-pht && pnpm run build-muf && pnpm run build-zot && pnpm run build-obj && pnpm run build-mol && pnpm run build-bib && pnpm run build-geol"
   },
   "private": true,
-  "packageManager": "pnpm@10.33.2",
+  "packageManager": "pnpm@10.33.4",
   "dependencies": {
-    "@angular/animations": "^21.2.10",
-    "@angular/cdk": "^21.2.9",
-    "@angular/common": "^21.2.10",
-    "@angular/compiler": "^21.2.10",
-    "@angular/core": "^21.2.10",
-    "@angular/forms": "^21.2.10",
-    "@angular/material": "^21.2.9",
-    "@angular/platform-browser": "^21.2.10",
-    "@angular/router": "^21.2.10",
+    "@angular/animations": "^21.2.12",
+    "@angular/cdk": "^21.2.10",
+    "@angular/common": "^21.2.12",
+    "@angular/compiler": "^21.2.12",
+    "@angular/core": "^21.2.12",
+    "@angular/forms": "^21.2.12",
+    "@angular/material": "^21.2.10",
+    "@angular/platform-browser": "^21.2.12",
+    "@angular/router": "^21.2.12",
     "@cisstech/nge": "^18.3.0",
     "@maplibre/ngx-maplibre-gl": "^21.0.2",
     "@myrmidon/cadmus-api": "^14.0.8",
@@ -66,7 +66,7 @@
     "@myrmidon/paged-data-browsers": "^5.2.2",
     "@terraformer/wkt": "^2.2.1",
     "maplibre-gl": "^5.24.0",
-    "marked": "^18.0.2",
+    "marked": "^18.0.3",
     "monaco-editor": "^0.43.0",
     "rxjs": "~7.8.0",
     "ts-md5": "^2.0.1",
@@ -75,22 +75,22 @@
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "^2.5.0",
     "@analogjs/vitest-angular": "^2.5.0",
-    "@angular/build": "^21.2.8",
-    "@angular/cli": "^21.2.8",
-    "@angular/compiler-cli": "^21.2.10",
-    "@angular/localize": "^21.2.10",
+    "@angular/build": "^21.2.10",
+    "@angular/cli": "^21.2.10",
+    "@angular/compiler-cli": "^21.2.12",
+    "@angular/localize": "^21.2.12",
     "@testing-library/angular": "^19.2.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/geojson": "^7946.0.16",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.7.0",
     "@types/terraformer__wkt": "^2.0.3",
-    "jsdom": "^29.1.0",
+    "jsdom": "^29.1.1",
     "ng-packagr": "^21.2.3",
     "typescript": "~5.9.3",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.6"
   },
   "optionalDependencies": {
-    "@rollup/rollup-win32-arm64-msvc": "^4.60.2"
+    "@rollup/rollup-win32-arm64-msvc": "^4.60.3"
   },
   "pnpm": {
     "overrides": {
