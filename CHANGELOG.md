@@ -2,6 +2,12 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+## 10.0.9
+
+- 2026-05-13:
+  - changes to text in API-related demo pages.
+  - add API to Docker compose script.
+
 ## 10.0.8
 
 - 2026-05-12: updated Angular and packages.

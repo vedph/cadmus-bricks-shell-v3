@@ -1,24 +1,39 @@
 services:
-  # Cadmus Bricks API
+  cadmus-bricks-pgsql:
+    image: postgres
+    container_name: cadmus-bricks-pgsql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 127.0.0.1:5432:5432
+    networks:
+      - cadmus-bricks-network
+
   cadmus-bricks-api:
-    image: vedph2020/cadmus-bricks-api:0.0.1
-    container_name: cadmus-bricks-api
+    image: vedph2020/cadmus-bricks-api:0.0.4
     restart: unless-stopped
+    container_name: cadmus-bricks-api
+    depends_on:
+      - cadmus-bricks-pgsql
     ports:
       - 5132:8080
     environment:
       - ASPNETCORE_URLS=http://+:8080
+      - CONNECTIONSTRINGS__MOLDATABASE=Server=cadmus-bricks-pgsql;port=5432;Database={0};User Id=postgres;Password=postgres;Include Error Detail=True
+      - MOL__INITIALIZATIONDELAYSECONDS=20
     networks:
       - cadmus-bricks-network
 
   cadmus-bricks-app:
-    container_name: cadmus-bricks-app
+    image: vedph2020/cadmus-bricks-v3:10.0.9
     restart: unless-stopped
-    image: vedph2020/cadmus-bricks-shell-v3:10.0.8
+    container_name: cadmus-bricks-app
     depends_on:
       - cadmus-bricks-api
     ports:
-      - 4200:80
+      - 4211:80
     #volumes:
     #  - ./env.js:/usr/share/nginx/html/env.js
     networks:
