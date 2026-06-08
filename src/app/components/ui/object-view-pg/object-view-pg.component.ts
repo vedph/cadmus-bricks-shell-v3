@@ -1,5 +1,5 @@
 import { JsonPipe } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 
 import { ObjectViewComponent } from '@myrmidon/cadmus-ui-object-view';
@@ -8,6 +8,7 @@ import { ObjectViewComponent } from '@myrmidon/cadmus-ui-object-view';
   selector: 'app-object-view-pg',
   imports: [MatCardModule, ObjectViewComponent, JsonPipe],
   templateUrl: './object-view-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./object-view-pg.component.scss'],
 })
 export class ObjectViewPgComponent {

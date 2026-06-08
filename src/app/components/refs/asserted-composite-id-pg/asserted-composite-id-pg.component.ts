@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -101,6 +101,7 @@ export const ANIMAL_ENTRIES: ThesaurusEntry[] = [
   selector: 'app-asserted-composite-id-pg',
   templateUrl: './asserted-composite-id-pg.component.html',
   styleUrls: ['./asserted-composite-id-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

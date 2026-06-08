@@ -1,4 +1,4 @@
-import { Component, Inject, input, output, signal } from '@angular/core';
+import { Component, Inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -62,6 +62,7 @@ interface LookupInfo {
   selector: 'cadmus-scoped-pin-lookup',
   templateUrl: './scoped-pin-lookup.component.html',
   styleUrls: ['./scoped-pin-lookup.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ReactiveFormsModule,

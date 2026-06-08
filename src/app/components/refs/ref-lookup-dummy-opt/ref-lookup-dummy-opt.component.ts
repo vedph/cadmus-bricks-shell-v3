@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -18,6 +18,7 @@ import { RefLookupOptionsComponent } from '@myrmidon/cadmus-refs-lookup';
   selector: 'app-ref-lookup-dummy-opt',
   templateUrl: './ref-lookup-dummy-opt.component.html',
   styleUrls: ['./ref-lookup-dummy-opt.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     ReactiveFormsModule,

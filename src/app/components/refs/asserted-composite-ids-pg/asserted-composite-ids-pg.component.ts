@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -23,6 +23,7 @@ import { ANIMAL_ENTRIES } from '../asserted-composite-id-pg/asserted-composite-i
   selector: 'app-asserted-composite-ids-pg',
   templateUrl: './asserted-composite-ids-pg.component.html',
   styleUrls: ['./asserted-composite-ids-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

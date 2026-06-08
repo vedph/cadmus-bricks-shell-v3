@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -25,6 +25,7 @@ import {
     PhysicalMeasurementSetComponent,
   ],
   templateUrl: './physical-measurement-set-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './physical-measurement-set-pg.component.scss',
 })
 export class PhysicalMeasurementSetPgComponent {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -29,6 +29,7 @@ import {
     RefLookupComponent,
   ],
   templateUrl: './whg-ref-lookup-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './whg-ref-lookup-pg.component.scss',
 })
 export class WhgRefLookupPgComponent {

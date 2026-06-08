@@ -1,5 +1,5 @@
 import { render } from '@testing-library/angular';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
@@ -23,7 +23,7 @@ describe('PinTargetLookupComponent', () => {
   it('should render', async () => {
     const { fixture } = await render(PinTargetLookupComponent, {
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         {
           provide: 'indexLookupDefinitions',

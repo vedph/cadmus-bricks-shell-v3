@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Type } from '@angular/core';
+import { Component, Type, ChangeDetectionStrategy } from '@angular/core';
 import {
   RefLookupFilter,
   RefLookupService,
@@ -202,6 +202,7 @@ export class WebColorLookup implements RefLookupService {
   selector: 'app-ref-lookup-pg',
   templateUrl: './ref-lookup-pg.component.html',
   styleUrls: ['./ref-lookup-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

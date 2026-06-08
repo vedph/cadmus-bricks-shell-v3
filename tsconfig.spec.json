@@ -4,5 +4,16 @@
     "outDir": "./out-tsc/spec",
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src/**/*.ts", "projects/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "projects/**/*.ts"
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
 }

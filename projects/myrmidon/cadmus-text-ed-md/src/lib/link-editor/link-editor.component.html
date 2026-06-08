@@ -1,9 +1,9 @@
 <div [style.margin]="inDialog ? '16px' : '0'">
   <cadmus-refs-asserted-composite-id
-    [canEditTarget]="data?.canEditTarget"
-    [canSwitchMode]="data?.canSwitchMode"
-    [defaultPartTypeKey]="data?.defaultPartTypeKey"
-    [lookupDefinitions]="data?.lookupDefinitions"
+    [canEditTarget]="$safeNavigationMigration(data?.canEditTarget)"
+    [canSwitchMode]="$safeNavigationMigration(data?.canSwitchMode)"
+    [defaultPartTypeKey]="$safeNavigationMigration(data?.defaultPartTypeKey)"
+    [lookupDefinitions]="$safeNavigationMigration(data?.lookupDefinitions)"
     [idScopeEntries]="idScopeEntries()"
     [idTagEntries]="idTagEntries()"
     [assTagEntries]="assTagEntries()"

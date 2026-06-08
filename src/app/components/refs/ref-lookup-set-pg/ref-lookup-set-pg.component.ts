@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, signal } from '@angular/core';
+import { Component, OnDestroy, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -17,6 +17,7 @@ import { BiblissimaRefLookupService } from '@myrmidon/cadmus-refs-biblissima-loo
   selector: 'app-ref-lookup-set-pg',
   templateUrl: './ref-lookup-set-pg.component.html',
   styleUrls: ['./ref-lookup-set-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

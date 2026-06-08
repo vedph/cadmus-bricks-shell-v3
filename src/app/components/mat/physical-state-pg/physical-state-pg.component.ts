@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -30,6 +30,7 @@ import {
     PhysicalStateComponent,
   ],
   templateUrl: './physical-state-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './physical-state-pg.component.scss',
 })
 export class PhysicalStatePgComponent {

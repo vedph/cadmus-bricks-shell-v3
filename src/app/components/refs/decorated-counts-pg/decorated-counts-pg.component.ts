@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
 import { MatCardModule } from '@angular/material/card';
@@ -15,6 +15,7 @@ import { MatCheckbox } from "@angular/material/checkbox";
   selector: 'app-decorated-counts-pg',
   templateUrl: './decorated-counts-pg.component.html',
   styleUrls: ['./decorated-counts-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -28,6 +28,7 @@ import {
     ReplaceStringPipe,
   ],
   templateUrl: './mufi-ref-lookup-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './mufi-ref-lookup-pg.component.scss',
 })
 export class MufiRefLookupPgComponent {

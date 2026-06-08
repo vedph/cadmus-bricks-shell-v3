@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -62,6 +62,7 @@ import {
     MdLinkCtePlugin,
   ],
   templateUrl: './text-ed-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './text-ed-pg.component.css',
 })
 export class TextEdPgComponent {

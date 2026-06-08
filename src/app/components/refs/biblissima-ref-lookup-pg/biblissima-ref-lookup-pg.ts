@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -49,6 +49,7 @@ import {
     RefLookupComponent,
   ],
   templateUrl: './biblissima-ref-lookup-pg.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './biblissima-ref-lookup-pg.scss',
 })
 export class BiblissimaRefLookupPg {

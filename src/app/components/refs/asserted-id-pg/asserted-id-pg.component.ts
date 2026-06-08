@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -14,6 +14,7 @@ import {
   selector: 'app-asserted-id-pg',
   templateUrl: './asserted-id-pg.component.html',
   styleUrls: ['./asserted-id-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

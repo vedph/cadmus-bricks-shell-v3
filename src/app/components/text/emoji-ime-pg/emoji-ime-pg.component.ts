@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -29,6 +29,7 @@ import {
     MatInputModule,
   ],
   templateUrl: './emoji-ime-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './emoji-ime-pg.component.css',
 })
 export class EmojiImePgComponent {

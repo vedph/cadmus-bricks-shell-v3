@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 
@@ -12,6 +12,7 @@ import {
   selector: 'app-geo-location-editor-pg',
   templateUrl: './geo-location-editor-pg.component.html',
   styleUrls: ['./geo-location-editor-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, MatCardModule, GeoLocationEditor],
 })
 export class GeoLocationEditorPgComponent {

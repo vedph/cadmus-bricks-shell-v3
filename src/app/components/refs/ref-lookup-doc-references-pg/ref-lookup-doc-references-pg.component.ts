@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatCardModule } from '@angular/material/card';
@@ -19,6 +19,7 @@ import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
     LookupDocReferencesComponent,
   ],
   templateUrl: './ref-lookup-doc-references-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './ref-lookup-doc-references-pg.component.scss',
 })
 export class RefLookupDocReferencesPgComponent {

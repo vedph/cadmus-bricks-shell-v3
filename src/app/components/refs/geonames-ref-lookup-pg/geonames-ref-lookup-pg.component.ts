@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -47,6 +47,7 @@ interface Pair<T> {
     RefLookupComponent,
   ],
   templateUrl: './geonames-ref-lookup-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './geonames-ref-lookup-pg.component.scss',
 })
 export class GeonamesRefLookupPgComponent {

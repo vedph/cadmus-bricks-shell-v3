@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 
 // material
@@ -47,6 +47,7 @@ import { DC_SCHEME, OD_SCHEME } from './cit-schemes';
     ThemeToggleComponent,
   ],
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.scss',
 })
 export class App {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { MatCardModule } from '@angular/material/card';
@@ -25,6 +25,7 @@ import { WebColorLookup } from '../ref-lookup-pg/ref-lookup-pg.component';
     PinTargetLookupComponent,
   ],
   templateUrl: './pin-target-lookup-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './pin-target-lookup-pg.component.scss',
 })
 export class PinTargetLookupPgComponent {

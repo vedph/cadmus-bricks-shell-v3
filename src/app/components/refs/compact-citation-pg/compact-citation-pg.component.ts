@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -33,6 +33,7 @@ import {
     CompactCitationComponent,
   ],
   templateUrl: './compact-citation-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './compact-citation-pg.component.scss',
 })
 export class CompactCitationPgComponent {

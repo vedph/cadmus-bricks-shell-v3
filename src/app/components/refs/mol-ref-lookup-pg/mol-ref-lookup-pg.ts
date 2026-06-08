@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,6 +23,7 @@ import { JsonPipe } from '@angular/common';
     JsonPipe,
   ],
   templateUrl: './mol-ref-lookup-pg.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './mol-ref-lookup-pg.scss',
 })
 export class MolRefLookupPg {

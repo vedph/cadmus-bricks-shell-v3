@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -32,6 +32,7 @@ import {
     CitationSetComponent,
   ],
   templateUrl: './citation-set-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './citation-set-pg.component.scss',
 })
 export class CitationSetPgComponent {

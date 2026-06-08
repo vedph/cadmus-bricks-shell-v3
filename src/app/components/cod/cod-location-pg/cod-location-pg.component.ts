@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -29,6 +29,7 @@ import {
     CodLocationRangePipe,
   ],
   templateUrl: './cod-location-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cod-location-pg.component.scss',
 })
 export class CodLocationPgComponent implements OnInit {

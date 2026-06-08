@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -20,6 +20,7 @@ import { AssertedChronotopesPipe } from '@myrmidon/cadmus-refs-asserted-chronoto
   selector: 'app-asserted-chronotope-pg',
   templateUrl: './asserted-chronotope-pg.component.html',
   styleUrls: ['./asserted-chronotope-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

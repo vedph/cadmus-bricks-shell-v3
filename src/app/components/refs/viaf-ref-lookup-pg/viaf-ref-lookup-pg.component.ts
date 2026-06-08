@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -26,6 +26,7 @@ import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
   selector: 'app-viaf-ref-lookup-pg',
   templateUrl: './viaf-ref-lookup-pg.component.html',
   styleUrls: ['./viaf-ref-lookup-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

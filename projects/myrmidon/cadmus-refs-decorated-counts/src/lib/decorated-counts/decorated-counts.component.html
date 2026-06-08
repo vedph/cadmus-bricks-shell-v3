@@ -168,7 +168,7 @@
     <mat-expansion-panel [expanded]="edited()" [disabled]="!edited()">
       <mat-expansion-panel-header>
         <mat-panel-title>{{
-          edited()?.id | flatLookup : idEntries() : "id" : "value"
+          $safeNavigationMigration(edited()?.id) | flatLookup : idEntries() : "id" : "value"
         }}</mat-panel-title>
       </mat-expansion-panel-header>
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -38,6 +38,7 @@ import {
     CitationPipe,
   ],
   templateUrl: './citation-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './citation-pg.component.scss',
 })
 export class CitationPgComponent {

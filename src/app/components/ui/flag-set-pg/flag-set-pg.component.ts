@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -70,6 +70,7 @@ const TOPPINGS = [
     JsonPipe,
   ],
   templateUrl: './flag-set-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './flag-set-pg.component.scss',
 })
 export class FlagSetPgComponent {

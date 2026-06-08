@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -38,6 +38,7 @@ import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
     RefLookupComponent,
   ],
   templateUrl: './zotero-ref-lookup-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './zotero-ref-lookup-pg.component.scss',
 })
 export class ZoteroRefLookupPgComponent implements OnInit {

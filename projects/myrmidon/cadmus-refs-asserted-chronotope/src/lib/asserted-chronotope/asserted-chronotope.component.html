@@ -17,7 +17,7 @@
     <!-- date -->
     <mat-icon style="color: orange">hourglass_bottom</mat-icon>
     <mat-checkbox [formControl]="hasDate">{{
-      (chronotope()?.date | historicalDate) || "date"
+      ($safeNavigationMigration(chronotope()?.date) | historicalDate) || "date"
     }}</mat-checkbox>
     <button
       type="button"

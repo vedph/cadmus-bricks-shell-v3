@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -43,6 +43,7 @@ import { EnvService } from '@myrmidon/ngx-tools';
     RefLookupComponent,
   ],
   templateUrl: './dbpedia-ref-lookup-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dbpedia-ref-lookup-pg.component.css',
 })
 export class DbpediaRefLookupPgComponent {

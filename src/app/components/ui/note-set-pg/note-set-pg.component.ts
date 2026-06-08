@@ -1,5 +1,5 @@
 import { CommonModule, JsonPipe, KeyValue } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatCardModule } from '@angular/material/card';
@@ -13,6 +13,7 @@ import { MatButton } from '@angular/material/button';
   selector: 'app-note-set-pg',
   templateUrl: './note-set-pg.component.html',
   styleUrls: ['./note-set-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

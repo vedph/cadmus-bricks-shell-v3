@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
@@ -14,6 +14,7 @@ import {
   selector: 'app-doc-references-pg',
   templateUrl: './doc-references-pg.component.html',
   styleUrls: ['./doc-references-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
     FormsModule,

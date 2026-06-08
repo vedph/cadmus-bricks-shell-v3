@@ -1,5 +1,5 @@
 import { CommonModule, JsonPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -37,6 +37,7 @@ import {
     PhysicalGridCoordsPipe,
   ],
   templateUrl: './physical-grid-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './physical-grid-pg.component.scss',
 })
 export class PhysicalGridPgComponent {

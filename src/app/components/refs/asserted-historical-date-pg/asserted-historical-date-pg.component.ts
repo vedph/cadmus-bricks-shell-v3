@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 
@@ -12,6 +12,7 @@ import {
   selector: 'app-asserted-historical-date-pg',
   templateUrl: './asserted-historical-date-pg.component.html',
   styleUrls: ['./asserted-historical-date-pg.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, MatCardModule, AssertedHistoricalDateComponent],
 })
 export class AssertedHistoricalDatePgComponent implements OnInit {

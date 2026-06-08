@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatCardModule } from '@angular/material/card';
@@ -25,6 +25,7 @@ import {
     PhysicalDimensionComponent,
   ],
   templateUrl: './physical-dimension-pg.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./physical-dimension-pg.component.scss'],
 })
 export class PhysicalDimensionPgComponent {
