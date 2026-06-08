@@ -20,7 +20,7 @@ import { AssertedChronotopesPipe } from '@myrmidon/cadmus-refs-asserted-chronoto
   selector: 'app-asserted-chronotope-pg',
   templateUrl: './asserted-chronotope-pg.component.html',
   styleUrls: ['./asserted-chronotope-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

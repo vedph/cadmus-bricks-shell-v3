@@ -17,7 +17,7 @@ import {
   selector: 'app-chronotope-pg',
   templateUrl: './chronotope-pg.component.html',
   styleUrls: ['./chronotope-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

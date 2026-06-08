@@ -19,7 +19,7 @@ import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
     LookupDocReferencesComponent,
   ],
   templateUrl: './ref-lookup-doc-references-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './ref-lookup-doc-references-pg.component.scss',
 })
 export class RefLookupDocReferencesPgComponent {

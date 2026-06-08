@@ -28,7 +28,7 @@ import {
     ReplaceStringPipe,
   ],
   templateUrl: './mufi-ref-lookup-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './mufi-ref-lookup-pg.component.scss',
 })
 export class MufiRefLookupPgComponent {

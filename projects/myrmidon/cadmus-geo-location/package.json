@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-geo-location",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "Cadmus - geographical location component.",
   "keywords": [
     "Cadmus",
@@ -15,18 +15,18 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^21.1.0",
-    "@angular/core": "^21.1.0",
-    "@angular/forms": "^21.1.0",
-    "@angular/material": "^21.1.0",
-    "@maplibre/ngx-maplibre-gl": "^21.0.0",
-    "maplibre-gl": "^5.15.0",
-    "@myrmidon/ngx-mat-tools": "^1.0.1"
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/material": "^22.0.0",
+    "@maplibre/ngx-maplibre-gl": "^21.0.2",
+    "maplibre-gl": "^5.24.0",
+    "@myrmidon/ngx-mat-tools": "^2.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0",
     "@terraformer/wkt": "^2.2.1",
-    "@types/geojson": "^7946.0.0"
+    "@types/geojson": "^7946.0.16"
   },
   "sideEffects": false
 }

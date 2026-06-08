@@ -38,7 +38,7 @@ import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
     RefLookupComponent,
   ],
   templateUrl: './zotero-ref-lookup-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './zotero-ref-lookup-pg.component.scss',
 })
 export class ZoteroRefLookupPgComponent implements OnInit {

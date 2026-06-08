@@ -18,7 +18,7 @@ import { RefLookupOptionsComponent } from '@myrmidon/cadmus-refs-lookup';
   selector: 'app-ref-lookup-dummy-opt',
   templateUrl: './ref-lookup-dummy-opt.component.html',
   styleUrls: ['./ref-lookup-dummy-opt.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ReactiveFormsModule,

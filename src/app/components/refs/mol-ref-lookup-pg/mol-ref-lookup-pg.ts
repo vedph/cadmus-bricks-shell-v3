@@ -23,7 +23,7 @@ import { JsonPipe } from '@angular/common';
     JsonPipe,
   ],
   templateUrl: './mol-ref-lookup-pg.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './mol-ref-lookup-pg.scss',
 })
 export class MolRefLookupPg {

@@ -1,0 +1,10 @@
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
+minimumReleaseAgeExclude:
+  - '@myrmidon/cadmus-thesaurus-store@1.0.0'
+  - '@myrmidon/ngx-mat-tools@2.0.0'
+  - '@myrmidon/ngx-tools@3.0.0'
+  - '@myrmidon/paged-data-browsers@6.0.0'

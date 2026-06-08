@@ -12,7 +12,7 @@ import { AssertedIdsComponent } from '@myrmidon/cadmus-refs-asserted-ids';
   selector: 'app-asserted-ids-pg',
   templateUrl: './asserted-ids-pg.component.html',
   styleUrls: ['./asserted-ids-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

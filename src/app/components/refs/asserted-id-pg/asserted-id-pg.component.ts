@@ -14,7 +14,7 @@ import {
   selector: 'app-asserted-id-pg',
   templateUrl: './asserted-id-pg.component.html',
   styleUrls: ['./asserted-id-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

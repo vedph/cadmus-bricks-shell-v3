@@ -101,7 +101,7 @@ export const ANIMAL_ENTRIES: ThesaurusEntry[] = [
   selector: 'app-asserted-composite-id-pg',
   templateUrl: './asserted-composite-id-pg.component.html',
   styleUrls: ['./asserted-composite-id-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

@@ -20,7 +20,7 @@ import {
   selector: 'app-external-ids-pg',
   templateUrl: './external-ids-pg.component.html',
   styleUrls: ['./external-ids-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

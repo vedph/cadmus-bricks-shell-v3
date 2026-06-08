@@ -12,7 +12,7 @@ import {
   selector: 'app-asserted-historical-date-pg',
   templateUrl: './asserted-historical-date-pg.component.html',
   styleUrls: ['./asserted-historical-date-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatCardModule, AssertedHistoricalDateComponent],
 })
 export class AssertedHistoricalDatePgComponent implements OnInit {

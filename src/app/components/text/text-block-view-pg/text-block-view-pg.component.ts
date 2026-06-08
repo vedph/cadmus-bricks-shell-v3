@@ -27,7 +27,7 @@ import {
   styleUrls: ['./text-block-view-pg.component.css'],
   // let styles flow down this component
   encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ReactiveFormsModule,

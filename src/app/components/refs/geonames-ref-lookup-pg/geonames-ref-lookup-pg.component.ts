@@ -47,7 +47,7 @@ interface Pair<T> {
     RefLookupComponent,
   ],
   templateUrl: './geonames-ref-lookup-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './geonames-ref-lookup-pg.component.scss',
 })
 export class GeonamesRefLookupPgComponent {

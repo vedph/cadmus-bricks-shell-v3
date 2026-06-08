@@ -2,6 +2,8 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-06-08: ⚠️ upgraded to Angular 22, bumping all libraries major versions number because of the breaking change in their peer dependencies.
+
 ## 10.0.9
 
 - 2026-05-13:

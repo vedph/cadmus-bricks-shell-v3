@@ -12,7 +12,7 @@ import {
   selector: 'app-geo-location-editor-pg',
   templateUrl: './geo-location-editor-pg.component.html',
   styleUrls: ['./geo-location-editor-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatCardModule, GeoLocationEditor],
 })
 export class GeoLocationEditorPgComponent {

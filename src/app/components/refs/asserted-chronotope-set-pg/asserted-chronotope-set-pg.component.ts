@@ -17,7 +17,7 @@ import {
   selector: 'app-asserted-chronotope-set-pg',
   templateUrl: './asserted-chronotope-set-pg.component.html',
   styleUrls: ['./asserted-chronotope-set-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

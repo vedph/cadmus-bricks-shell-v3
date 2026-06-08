@@ -202,7 +202,7 @@ export class WebColorLookup implements RefLookupService {
   selector: 'app-ref-lookup-pg',
   templateUrl: './ref-lookup-pg.component.html',
   styleUrls: ['./ref-lookup-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

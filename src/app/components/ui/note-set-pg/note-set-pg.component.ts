@@ -13,7 +13,7 @@ import { MatButton } from '@angular/material/button';
   selector: 'app-note-set-pg',
   templateUrl: './note-set-pg.component.html',
   styleUrls: ['./note-set-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

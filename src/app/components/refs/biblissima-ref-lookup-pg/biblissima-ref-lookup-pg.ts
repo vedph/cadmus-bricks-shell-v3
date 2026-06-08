@@ -49,7 +49,7 @@ import {
     RefLookupComponent,
   ],
   templateUrl: './biblissima-ref-lookup-pg.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './biblissima-ref-lookup-pg.scss',
 })
 export class BiblissimaRefLookupPg {

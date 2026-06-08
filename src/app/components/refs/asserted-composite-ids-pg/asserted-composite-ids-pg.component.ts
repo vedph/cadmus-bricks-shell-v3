@@ -23,7 +23,7 @@ import { ANIMAL_ENTRIES } from '../asserted-composite-id-pg/asserted-composite-i
   selector: 'app-asserted-composite-ids-pg',
   templateUrl: './asserted-composite-ids-pg.component.html',
   styleUrls: ['./asserted-composite-ids-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

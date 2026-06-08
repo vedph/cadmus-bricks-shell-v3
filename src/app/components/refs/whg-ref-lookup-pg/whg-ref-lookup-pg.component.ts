@@ -29,7 +29,7 @@ import {
     RefLookupComponent,
   ],
   templateUrl: './whg-ref-lookup-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './whg-ref-lookup-pg.component.scss',
 })
 export class WhgRefLookupPgComponent {

@@ -37,7 +37,7 @@ import {
     PhysicalGridCoordsPipe,
   ],
   templateUrl: './physical-grid-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './physical-grid-pg.component.scss',
 })
 export class PhysicalGridPgComponent {

@@ -8,7 +8,7 @@ import { ObjectViewComponent } from '@myrmidon/cadmus-ui-object-view';
   selector: 'app-object-view-pg',
   imports: [MatCardModule, ObjectViewComponent, JsonPipe],
   templateUrl: './object-view-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./object-view-pg.component.scss'],
 })
 export class ObjectViewPgComponent {

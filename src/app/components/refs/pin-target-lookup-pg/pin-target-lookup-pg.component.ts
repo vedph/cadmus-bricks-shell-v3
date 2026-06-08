@@ -25,7 +25,7 @@ import { WebColorLookup } from '../ref-lookup-pg/ref-lookup-pg.component';
     PinTargetLookupComponent,
   ],
   templateUrl: './pin-target-lookup-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './pin-target-lookup-pg.component.scss',
 })
 export class PinTargetLookupPgComponent {

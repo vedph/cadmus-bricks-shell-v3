@@ -14,7 +14,7 @@ import {
   selector: 'app-doc-references-pg',
   templateUrl: './doc-references-pg.component.html',
   styleUrls: ['./doc-references-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

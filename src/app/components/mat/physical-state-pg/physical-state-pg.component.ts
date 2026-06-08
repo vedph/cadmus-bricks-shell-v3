@@ -30,7 +30,7 @@ import {
     PhysicalStateComponent,
   ],
   templateUrl: './physical-state-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './physical-state-pg.component.scss',
 })
 export class PhysicalStatePgComponent {

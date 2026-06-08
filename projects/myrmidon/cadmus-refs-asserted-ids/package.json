@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-asserted-ids",
-  "version": "10.0.17",
+  "version": "11.0.0",
   "description": "Cadmus - asserted IDs components.",
   "keywords": [
     "Cadmus",
@@ -15,13 +15,13 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^20.0.0 || ^21.0.0",
-    "@angular/core": "^20.0.0 || ^21.0.0",
-    "@angular/material": "^20.0.0 || ^21.0.0",
-    "@myrmidon/ngx-mat-tools": "^1.0.2",
-    "@myrmidon/cadmus-api": "^14.0.7",
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/material": "^22.0.0",
+    "@myrmidon/ngx-mat-tools": "^2.0.0",
+    "@myrmidon/cadmus-api": "^14.0.8",
     "@myrmidon/cadmus-refs-assertion": "^10.0.6",
-    "@myrmidon/cadmus-thesaurus-store": "^0.1.0"
+    "@myrmidon/cadmus-thesaurus-store": "^1.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

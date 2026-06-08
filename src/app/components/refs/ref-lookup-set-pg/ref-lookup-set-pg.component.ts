@@ -17,7 +17,7 @@ import { BiblissimaRefLookupService } from '@myrmidon/cadmus-refs-biblissima-loo
   selector: 'app-ref-lookup-set-pg',
   templateUrl: './ref-lookup-set-pg.component.html',
   styleUrls: ['./ref-lookup-set-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

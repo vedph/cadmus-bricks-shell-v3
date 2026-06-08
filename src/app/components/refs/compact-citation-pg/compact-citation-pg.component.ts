@@ -33,7 +33,7 @@ import {
     CompactCitationComponent,
   ],
   templateUrl: './compact-citation-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './compact-citation-pg.component.scss',
 })
 export class CompactCitationPgComponent {

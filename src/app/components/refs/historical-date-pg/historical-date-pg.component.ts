@@ -15,7 +15,7 @@ import {
   selector: 'app-historical-date-pg',
   templateUrl: './historical-date-pg.component.html',
   styleUrls: ['./historical-date-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

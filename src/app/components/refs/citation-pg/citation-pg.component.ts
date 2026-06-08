@@ -38,7 +38,7 @@ import {
     CitationPipe,
   ],
   templateUrl: './citation-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './citation-pg.component.scss',
 })
 export class CitationPgComponent {

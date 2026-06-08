@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-historical-date",
-  "version": "9.1.4",
+  "version": "10.0.0",
   "description": "Cadmus - historical date component.",
   "keywords": [
     "Cadmus",
@@ -15,10 +15,10 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^21.2.6",
-    "@angular/core": "^21.2.6",
-    "@angular/material": "^21.2.4",
-    "@myrmidon/ngx-tools": "^2.0.2"
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/material": "^22.0.0",
+    "@myrmidon/ngx-tools": "^3.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

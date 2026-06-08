@@ -15,7 +15,7 @@ import { MatCheckbox } from "@angular/material/checkbox";
   selector: 'app-decorated-counts-pg',
   templateUrl: './decorated-counts-pg.component.html',
   styleUrls: ['./decorated-counts-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

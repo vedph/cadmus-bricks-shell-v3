@@ -25,7 +25,7 @@ import {
     PhysicalDimensionComponent,
   ],
   templateUrl: './physical-dimension-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./physical-dimension-pg.component.scss'],
 })
 export class PhysicalDimensionPgComponent {

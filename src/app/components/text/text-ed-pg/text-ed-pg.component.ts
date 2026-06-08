@@ -62,7 +62,7 @@ import {
     MdLinkCtePlugin,
   ],
   templateUrl: './text-ed-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './text-ed-pg.component.css',
 })
 export class TextEdPgComponent {

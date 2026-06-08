@@ -29,7 +29,7 @@ import {
     RefLookupSetComponent,
   ],
   templateUrl: './preset-ref-lookup-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './preset-ref-lookup-pg.component.scss',
 })
 export class PresetRefLookupPgComponent {

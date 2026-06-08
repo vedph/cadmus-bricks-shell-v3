@@ -32,7 +32,7 @@ import {
     CitationSetComponent,
   ],
   templateUrl: './citation-set-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './citation-set-pg.component.scss',
 })
 export class CitationSetPgComponent {

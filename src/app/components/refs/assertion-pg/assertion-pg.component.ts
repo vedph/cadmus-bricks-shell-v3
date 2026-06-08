@@ -14,7 +14,7 @@ import {
   selector: 'app-assertion-pg',
   templateUrl: './assertion-pg.component.html',
   styleUrls: ['./assertion-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

@@ -62,7 +62,7 @@ interface LookupInfo {
   selector: 'cadmus-scoped-pin-lookup',
   templateUrl: './scoped-pin-lookup.component.html',
   styleUrls: ['./scoped-pin-lookup.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
     ReactiveFormsModule,

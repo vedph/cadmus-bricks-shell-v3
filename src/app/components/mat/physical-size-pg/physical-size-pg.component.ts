@@ -23,7 +23,7 @@ import {
   selector: 'app-physical-size-pg',
   templateUrl: './physical-size-pg.component.html',
   styleUrls: ['./physical-size-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

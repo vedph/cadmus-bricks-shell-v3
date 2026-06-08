@@ -29,7 +29,7 @@ import {
     CodLocationRangePipe,
   ],
   templateUrl: './cod-location-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './cod-location-pg.component.scss',
 })
 export class CodLocationPgComponent implements OnInit {

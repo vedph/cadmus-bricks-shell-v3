@@ -14,7 +14,7 @@ import {
   selector: 'app-custom-action-bar-pg',
   templateUrl: './custom-action-bar-pg.component.html',
   styleUrls: ['./custom-action-bar-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

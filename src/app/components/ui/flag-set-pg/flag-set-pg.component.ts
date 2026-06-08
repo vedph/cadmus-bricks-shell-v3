@@ -70,7 +70,7 @@ const TOPPINGS = [
     JsonPipe,
   ],
   templateUrl: './flag-set-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './flag-set-pg.component.scss',
 })
 export class FlagSetPgComponent {

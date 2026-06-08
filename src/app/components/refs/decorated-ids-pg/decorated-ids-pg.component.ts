@@ -13,7 +13,7 @@ import {
   selector: 'app-decorated-ids-pg',
   templateUrl: './decorated-ids-pg.component.html',
   styleUrls: ['./decorated-ids-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

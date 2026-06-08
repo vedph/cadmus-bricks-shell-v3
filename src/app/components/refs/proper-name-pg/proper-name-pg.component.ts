@@ -16,7 +16,7 @@ import {
   selector: 'app-proper-name-pg',
   templateUrl: './proper-name-pg.component.html',
   styleUrls: ['./proper-name-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

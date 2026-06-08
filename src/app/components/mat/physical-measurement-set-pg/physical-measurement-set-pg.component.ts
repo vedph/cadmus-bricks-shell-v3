@@ -25,7 +25,7 @@ import {
     PhysicalMeasurementSetComponent,
   ],
   templateUrl: './physical-measurement-set-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './physical-measurement-set-pg.component.scss',
 })
 export class PhysicalMeasurementSetPgComponent {

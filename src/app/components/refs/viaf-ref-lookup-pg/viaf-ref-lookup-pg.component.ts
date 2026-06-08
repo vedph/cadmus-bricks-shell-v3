@@ -26,7 +26,7 @@ import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
   selector: 'app-viaf-ref-lookup-pg',
   templateUrl: './viaf-ref-lookup-pg.component.html',
   styleUrls: ['./viaf-ref-lookup-pg.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

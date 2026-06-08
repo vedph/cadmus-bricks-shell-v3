@@ -29,7 +29,7 @@ import {
     MatInputModule,
   ],
   templateUrl: './emoji-ime-pg.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './emoji-ime-pg.component.css',
 })
 export class EmojiImePgComponent {
