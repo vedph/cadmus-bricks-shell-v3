@@ -117,7 +117,7 @@ export interface AssertedCompositeId {
 
 /**
  * An asserted composite ID editor. This allows the user to edit an asserted
- * composite ID, which can be an external ID or a lookup ID.
+ * composite ID, which can be an external ID, a lookup ID or a taxonomy ID.
  */
 @Component({
   selector: 'cadmus-refs-asserted-composite-id',

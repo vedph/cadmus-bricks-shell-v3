@@ -8,16 +8,17 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [External IDs](#external-ids)
   - [Internal IDs](#internal-ids)
   - [ID Components](#id-components)
-  - [Asserted Composite IDs](#asserted-composite-ids)
     - [AssertedCompositeIdComponent](#assertedcompositeidcomponent)
     - [AssertedCompositeIdsComponent](#assertedcompositeidscomponent)
+    - [PinTargetLookupComponent](#pintargetlookupcomponent)
+  - [Configuring Asserted ID](#configuring-asserted-id)
+    - [Configuring Lookup Providers](#configuring-lookup-providers)
+    - [Configuring Taxonomy Store](#configuring-taxonomy-store)
+    - [Defining Index Lookups](#defining-index-lookups)
+    - [Configuring the Target ID Editor](#configuring-the-target-id-editor)
   - [Legacy Components](#legacy-components)
     - [AssertedIdComponent](#assertedidcomponent)
     - [AssertedIdsComponent](#assertedidscomponent)
-  - [PinTargetLookupComponent](#pintargetlookupcomponent)
-  - [Configuring Asserted ID](#configuring-asserted-id)
-  - [AssertedIdsComponent](#assertedidscomponent-1)
-    - [Configuring the Target ID Editor](#configuring-the-target-id-editor)
   - [History](#history)
     - [10.0.14](#10014)
     - [10.0.13](#10013)
@@ -85,9 +86,7 @@ According to the scenario illustrated above, the basic requirements for ID compo
 
 >👉 The demo found in this workspace uses a [mock data service](../../../src/app/services/mock-item.service.ts) instead of the real one, which provides a minimal set of data and functions, just required for the components to function.
 
-Various components from this library provide a different level of complexity, so you can pick the one which best fits your purposes; in general, the most powerful and versatile ID picker is represented by the [asserted composite ID](#asserted-composite-id) and its multiple-targets counterpart [asserted composite IDs](#asserted-composite-ids), which can be used for both external and internal IDs and editable taxonomies, with full lookup support. Other components in this library should be considered obsolete.
-
-## Asserted Composite IDs
+Various components from this library provide a different level of complexity, so you can pick the one which best fits your purposes; in general, the most powerful and versatile ID picker is represented by the [asserted composite ID](#assertedcompositeidcomponent) and its multiple-targets counterpart [asserted composite IDs](#assertedcompositeidscomponent), which can be used for both external and internal IDs and editable taxonomies, with full lookup support. Other components in this library should be considered obsolete.
 
 ### AssertedCompositeIdComponent
 
@@ -153,6 +152,102 @@ A collection of asserted composite IDs.
 - ⚡ output:
   - `idsChange` (`AssertedCompositeId[]`)
 
+### PinTargetLookupComponent
+
+This component is not designed for direct use by higher-level consumer components. It is embedded by other components to edit their target.
+
+- ▶️ input:
+  - `target` (`PinTarget? | null`)
+  - `pinByTypeMode` (`boolean?`)
+  - `canSwitchMode` (`boolean?`)
+  - `canEditTarget` (`boolean?`)
+  - `defaultPartTypeKey` (`string?|null`)
+  - `lookupDefinitions` (`IndexLookupDefinitions?`)
+  - `extLookupConfigs` (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
+- 🔥 output:
+  - `targetChange` (`PinTarget`)
+  - `editorClose`
+
+## Configuring Asserted ID
+
+### Configuring Lookup Providers
+
+Lookup providers must be configured once in the app's root component. Typically (see [app.ts](../../../src/app/app.ts) in this repository):
+
+1. add a `configureLookup` function to your app's component code:
+
+    ```ts
+    private configureLookup(): void {
+      const storage = inject(RamStorageService);
+      storage.store(LOOKUP_CONFIGS_KEY, [
+        // the colors provider is a mock provider using local data
+        {
+          name: 'colors',
+          iconUrl: '/img/colors128.png',
+          description: 'Colors',
+          label: 'color',
+          service: new WebColorLookup(),
+          // compute the lookup item's ID
+          itemIdGetter: (item: any) => item?.value,
+          // compute the lookup item's human-friendly label
+          itemLabelGetter: (item: any) => item?.name,
+        },
+        // the VIAF provider consumes the public VIAF API
+        {
+          name: 'VIAF',
+          iconUrl: '/img/viaf128.png',
+          description: 'Virtual International Authority File',
+          label: 'ID',
+          service: inject(ViafRefLookupService),
+          itemIdGetter: (item: any) => item?.viafid,
+          itemLabelGetter: (item: any) => item?.term,
+        },
+        // ... etc.
+    }
+    ```
+
+2. call this function from your app's constructor.
+
+>It is suggested to add an icon for each provider so you can easily identify it. You can grab icons for existing providers from this repository (see the `public` folder).
+
+### Configuring Taxonomy Store
+
+The taxonomy store can be configured as follows:
+
+1. ensure to add TaxoStore packages: `pnpm i @myrmidon/taxo-store-api @myrmidon/taxo-store-picker`.
+2. add a `configureTaxoLookup` function to your app's component code, adding an entry for each taxonomy tree you want to expose:
+
+    ```ts
+    private configureTaxoLookup(storage: RamStorageService): void {
+      storage.store(LOOKUP_TAXOSTORE_CONFIGS_KEY, [
+        {
+          treeId: 'animals',
+          treeName: 'animals',
+          // user can edit nodes
+          canEdit: false,
+          // user can add new nodes
+          canAdd: false,
+          // user can delete nodes
+          canDelete: false,
+        },
+        {
+          treeId: 'food',
+          treeName: 'food',
+          canEdit: false,
+          canAdd: false,
+          canDelete: false,
+        },
+        // ... etc.
+      ] as TaxoStoreLookupConfig[]);
+    }
+    ```
+
+    >Note that here you can be very granular in your settings: for each taxonomy tree, you can define its UI label and whether its nodes can be edited, deleted and added by users.
+
+3. call this function from your app's constructor.
+
+### Defining Index Lookups
+
 TODO
 
 There are different **options** to customize the lookup behavior:
@@ -173,7 +268,7 @@ There are different **options** to customize the lookup behavior:
 
 These options can be variously combined to force users to use a specific behavior only; for instance, if you just want by-type lookup and automatic GID/label, set `pinByTypeMode` to true and `canSwitchMode` and `canEditTarget` to false.
 
-Also, you can use any number of lookup components for external IDs. To globally configure all the asserted composite IDs components for this purpose, you can define (e.g. in your app's component constructor) an array of configuration objects keyed under `ASSERTED_COMPOSITE_ID_CONFIGS_KEY`. Thus, this component provides many different ways for creating a link:
+Also, you can use any number of lookup components for external IDs. To globally configure all the asserted composite IDs components for this purpose, you can define (e.g. in your app's component constructor) an array of configuration objects keyed under `ASSERTED_COMPOSITE_ID_CONFIGS_KEY`. Thus, this component provides different ways for creating a link:
 
 - external:
   - from 1 or more lookups
@@ -186,6 +281,7 @@ Also, you can use any number of lookup components for external IDs. To globally 
     - lookup pin
   - manual
   - both
+- taxonomy: from 1 tree's node.
 
 Three components are used for this brick:
 
@@ -193,113 +289,9 @@ Three components are used for this brick:
 - `AssertedCompositeIdComponent`, the editor for each single ID. This allows you to edit shared metadata (tag and scope), and specific properties for both external and internal ID.
 - `PinTargetLookupComponent`, the editor for an internal ID, i.e. a link target based on pins lookup. This is the core of the editor's logic.
 
-## Legacy Components
 
-### AssertedIdComponent
+TODO
 
->⚠️ Obsolete, use [AssertedCompositeIdComponent](#assertedcompositeidcomponent).
-
-- 🔑 `AssertedIdComponent`
-- 🚩 `cadmus-refs-asserted-id`
-- ▶️ input:
-  - `id` (`AssertedId? | null`)
-  - `noEidLookup` (`boolean?`)
-  - `hasSubmit` (`boolean?`)
-- 📚 thesauri:
-  - `asserted-id-scopes` (for `idScopeEntries`)
-  - `asserted-id-tags` (for `idTagEntries`).
-  - `assertion-tags` (for `assTagEntries`).
-  - `doc-reference-types` (for `refTypeEntries`).
-  - `doc-reference-tags` (for `refTagEntries`).
-  - `asserted-id-features` (for `featureEntries`).
-- 🔥 output:
-  - `idChange` (`AssertedId`)
-  - `editorClose`
-  - `extMoreRequest` (`RefLookupSetEvent`): the user requested more about the current external lookup source.
-
-The asserted ID component allows editing a simple model representing a generic ID with an optional assertion. The ID has:
-
-- **value**: the ID itself.
-- **scope**: the context the ID originates from (e.g. an ontology, a repository, a website, etc.).
-- an optional **tag**, used to group or classify the ID.
-- an optional set of **features**, from a hierarchical thesaurus. For instance, these could be the role(s) of a person linked to an object, like customer, seller, creator, etc.
-- an optional **note**.
-- an optional **assertion**, used to define the uncertainty level of the assignment of this ID to the context it applies to.
-
-The asserted ID component provides an internal lookup mechanism based on data pins and metadata conventions. When users want to add an ID referring to some internal entity, either found in a part or corresponding to an item, he just has to pick the type of desired lookup (when more than a single lookup search definition is present), and type some characters to get the first N pins starting with these characters; he can then pick one from the list. Once a pin value is picked, the lookup control shows all the relevant data which can be used as components for the ID to build:
-
-- the item GUID.
-- the item title.
-- the part GUID.
-- the part type ID.
-- the item's metadata part entries.
-
-The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
-
-### AssertedIdsComponent
-
->⚠️ Obsolete, use [AssertedCompositeIdsComponent](#assertedcompositeidscomponent).
-
-An editable list of asserted IDs.
-
-- 🔑 `AssertedIdsComponent`
-- 🚩 `cadmus-refs-asserted-ids`
-- ▶️ input:
-  - `ids` (`AssertedId[]`)
-- 📚 thesauri:
-  - `asserted-id-scopes` (for `idScopeEntries`)
-  - `asserted-id-tags` (for `idTagEntries`)
-  - `assertion-tags` (for `assTagEntries`)
-  - `doc-reference-types` (for `refTypeEntries`)
-  - `doc-reference-tags` (for `refTagEntries`)
-  - `asserted-id-features` (for `featureEntries`).
-- 🔥 output:
-  - `idsChange` (`AssertedId[]`)
-
-## PinTargetLookupComponent
-
-This component is not designed for direct use by higher-level consumer components. It is embedded by other components to edit their target.
-
-- ▶️ input:
-  - `target` (`PinTarget? | null`)
-  - `pinByTypeMode` (`boolean?`)
-  - `canSwitchMode` (`boolean?`)
-  - `canEditTarget` (`boolean?`)
-  - `defaultPartTypeKey` (`string?|null`)
-  - `lookupDefinitions` (`IndexLookupDefinitions?`)
-  - `extLookupConfigs` (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
-- 🔥 output:
-  - `targetChange` (`PinTarget`)
-  - `editorClose`
-
-## Configuring Asserted ID
-
-The asserted ID component internally uses a scoped pin lookup component (`ScopedPinLookupComponent`) to provide a list of pin-based searches with a lookup control.  Whenever the user picks a pin value, he gets the details about its item and part, and item's metadata part, if any. He can then use these data to build a globally unique internal identifier by variously assembling these components.
-
-You can use the scoped ID lookup control to add a pin-based lookup for any entity in your own UI:
-
-(1) ensure to import the component (`ScopedPinLookupComponent`).
-
-(2) add a lookup control to your UI, like this:
-
-```html
-<!-- lookup -->
-<cadmus-scoped-pin-lookup *ngIf="!noLookup" (idPick)="onIdPick($event)"/>
-```
-
-In this sample, my UI has a `noLookup` property which can be used to hide the lookup if not required:
-
-```ts
-@Input()
-public noLookup?: boolean;
-
-public onIdPick(id: string): void {
-  // TODO: set your control's value, e.g.:
-  // this.myId.setValue(id);
-  // this.myId.updateValueAndValidity();
-  // this.myId.markAsDirty();
-}
-```
 
 (3) in your app's `index-lookup-definitions.ts` file, add the required lookup definitions. Each definition has a conventional key, and is an object with part type ID for the lookup scope, and pin name, e.g.:
 
@@ -326,8 +318,6 @@ export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
 ```
 
 >Note that while pin name and type will not be displayed to the end user, the key of each definition will. Unless you have a single definition, the lookup component will display a dropdown list with all the available keys, so that the user can select the lookup's scope. So, use short, yet meaningful keys here, like in the above sample (`meta_eid`, `event_eid`).
-
-## AssertedIdsComponent
 
 
 This component is used to edit an internal or external ID via lookup, and is the core of the [asserted composite ID](#asserted-composite-id) component:
@@ -407,6 +397,69 @@ export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
 ```
 
 >Note that while pin name and type will not be displayed to the end user, the key of each definition will. Unless you have a single definition, the lookup component will display a dropdown list with all the available keys, so that the user can select the lookup's scope. So, use short, yet meaningful keys here, like in the above sample (`meta_eid`, `event_eid`).
+
+## Legacy Components
+
+### AssertedIdComponent
+
+>⚠️ Obsolete, use [AssertedCompositeIdComponent](#assertedcompositeidcomponent).
+
+- 🔑 `AssertedIdComponent`
+- 🚩 `cadmus-refs-asserted-id`
+- ▶️ input:
+  - `id` (`AssertedId? | null`)
+  - `noEidLookup` (`boolean?`)
+  - `hasSubmit` (`boolean?`)
+- 📚 thesauri:
+  - `asserted-id-scopes` (for `idScopeEntries`)
+  - `asserted-id-tags` (for `idTagEntries`).
+  - `assertion-tags` (for `assTagEntries`).
+  - `doc-reference-types` (for `refTypeEntries`).
+  - `doc-reference-tags` (for `refTagEntries`).
+  - `asserted-id-features` (for `featureEntries`).
+- 🔥 output:
+  - `idChange` (`AssertedId`)
+  - `editorClose`
+  - `extMoreRequest` (`RefLookupSetEvent`): the user requested more about the current external lookup source.
+
+The asserted ID component allows editing a simple model representing a generic ID with an optional assertion. The ID has:
+
+- **value**: the ID itself.
+- **scope**: the context the ID originates from (e.g. an ontology, a repository, a website, etc.).
+- an optional **tag**, used to group or classify the ID.
+- an optional set of **features**, from a hierarchical thesaurus. For instance, these could be the role(s) of a person linked to an object, like customer, seller, creator, etc.
+- an optional **note**.
+- an optional **assertion**, used to define the uncertainty level of the assignment of this ID to the context it applies to.
+
+The asserted ID component provides an internal lookup mechanism based on data pins and metadata conventions. When users want to add an ID referring to some internal entity, either found in a part or corresponding to an item, he just has to pick the type of desired lookup (when more than a single lookup search definition is present), and type some characters to get the first N pins starting with these characters; he can then pick one from the list. Once a pin value is picked, the lookup control shows all the relevant data which can be used as components for the ID to build:
+
+- the item GUID.
+- the item title.
+- the part GUID.
+- the part type ID.
+- the item's metadata part entries.
+
+The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
+
+### AssertedIdsComponent
+
+>⚠️ Obsolete, use [AssertedCompositeIdsComponent](#assertedcompositeidscomponent).
+
+An editable list of asserted IDs.
+
+- 🔑 `AssertedIdsComponent`
+- 🚩 `cadmus-refs-asserted-ids`
+- ▶️ input:
+  - `ids` (`AssertedId[]`)
+- 📚 thesauri:
+  - `asserted-id-scopes` (for `idScopeEntries`)
+  - `asserted-id-tags` (for `idTagEntries`)
+  - `assertion-tags` (for `assTagEntries`)
+  - `doc-reference-types` (for `refTypeEntries`)
+  - `doc-reference-tags` (for `refTagEntries`)
+  - `asserted-id-features` (for `featureEntries`).
+- 🔥 output:
+  - `idsChange` (`AssertedId[]`)
 
 ## History
 
