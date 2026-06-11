@@ -55,29 +55,21 @@ An external ID can also come from a taxonomy. In this case:
 
 ## Internal IDs
 
-Internal IDs are human-friendly identifiers connected to any data in the Cadmus database. They can refer to:
+Every Cadmus object (item, part or fragment) has its own own _globally unique identifier_, which is an opaque GUID like `401267e7-282c-40e6-8f47-67be54382b07`. These identify the objects; but the framework is completely agnostic with reference to their model: the item is just an empty box, while objects put in it (parts or fragments) can have any model. This is a requirement for those objects to be composable and reusable in the context of an open-ended, dynamic modeling.
 
-- an item as a whole;
-- a specific part or fragment;
-- a specific property inside a part or fragment.
+The only way Cadmus has to link a part or an entry inside it is via "pins", i.e. name=value pairs which the part or fragment exposes in the index whenever it is saved. The part or fragment is the only component which knows what is inside its model; for the rest of the system, it is (and must be) a blackbox. Therefore, these pins act as target points for internal links.
 
-In most cases, human users prefer friendly identifiers, unique only in the context of their editing environment (which is what is present to the user's mind when entering data). These identifiers in Cadmus are named **EID**s (=_entity IDs_), and may be found scattered among parts or fragments via pins, or linked to whole items via a metadata part.
+Typically, according to the nature of each model, some pins can be designed to be used as anchor points and refer to the object as a whole, or to an entry in its model, when the model contains multiple entries. For instance, in a part with a list of manuscript [decorations](https://github.com/vedph/cadmus-codicology/blob/master/docs/cod-decorations.md), there are multiple entries, one per decoration; and one might want to target a specific decoration. To this end, each decoration has an `eid` property which represents a human-friendly, arbitrary string used to identify it, like `angel`. These identifiers are like the IDs you may type in a TEI document using the `@xml:id` attribute: they are short and human-friendly, and also allow to deeply link a subset of the object's data.
 
->All Cadmus data objects (items, parts and fragments) have their own _globally unique identifier_, which is an opaque GUID like `401267e7-282c-40e6-8f47-67be54382b07`. EIDs instead provide human-friendly identifiers, e.g. just like the IDs you type in a TEI document. Additionally, they can be used to target a specific feature inside a part or fragment, via search pins provided by it.
+So, internal IDs are human-friendly identifiers connected to any data in the Cadmus database. They can refer to:
 
-**Item EID**s are just human-friendly aliases used to refer to a Cadmus item as a whole. Whenever we want to assign a human-friendly ID to the _item_ itself, rather than referring to it by its GUID, the conventional method relies on the generic _metadata part_, which allows users entering any number of arbitrarily defined name=value pairs. So, a user might enter a pair like e.g. `eid=vat_lat_123`, and use it as the human friendly identifier for a manuscript item corresponding to Vat.Lat.123.
+- a specific entry inside a part or fragment containing multiple entries (typically via a property conventionally named `eid`);
+- a specific part or fragment (via any of its pins designed or chosen to represent the object as a whole);
+- an item as a whole (via its [metadata part](https://github.com/vedph/cadmus-general/blob/master/docs/metadata.md)'s `eid` metadatum): this is more tricky, because items are just containers of parts and fragments. So, they have no pins at all on their own, except for those connected to their fixed set of metadata (like title), which usually are not convenient as identifiers, unless you have a well-defined convention for assigning titles. So, conventionally the metadata part is used to provide a human-friendly ID for the item as a whole: whenever the item contains that part, and that part has a metadatum with name=`eid`, this is assumed to be the item's human-friendly ID. So, a user might enter a metadatum like e.g. `eid`=`vat_lat_123`, and use it as the human friendly identifier for a manuscript item corresponding to Vat.Lat.123.
 
-Ultimately, even an item EID, just like any other EID is just based on a **search pin**. In Cadmus, any part or fragment in an item provides any number of _search pins_, which essentially are name=value pairs, used for a simple search during editing.
+Thus, ultimately all EIDs are based on a search pins. Each pin name is unique only in the context of the part or fragment defining it, so that pin design is not constrained; yet, a pin can easily be turned into a globally unique identifier by adding to it other data.
 
-Each pin name is unique only in the context of the part or fragment defining it, so that pin design is not constrained; yet, a pin can easily be turned into a globally unique identifier by adding to it other data.
-
-For instance, given that every part or fragment has its own globally unique ID, you can just prepend it to the pin name to get a globally unique internal ID pointing to a specific feature of a specific part or fragment. Thus, users just enter pins as arbitrary, easy to use strings, when entering data; but the general architecture also provides a way for making them globally unique.
-
->This is how the in-editor search is implemented, and a similar mechanism is also used when mapping entities from parts into a semantic graph (via mapping rules).
-
-For instance, say a decorations part in a manuscript item collects a number of decorations; for each one, it might define an arbitrary EID (like e.g. `angel1`) used to identify it among the others, in the context of that part.
-
-When filling the decorations part with data, users just ensure that this EID is unique in the context of the list they are editing; in other terms, no other decoration in that part will have `angel1` as its ID, while it might happen that `angel1` is used somewhere else in another part. Yet, should we be in need of a non-scoped, unique ID, we could easily build it by assembling together the EID with its part/item IDs, which by definition are globally unique (being GUIDs).
+For instance, given that every part or fragment has its own globally unique ID, you can just prepend it to the pin name to get a globally unique internal ID pointing to a specific feature of a specific part or fragment. Thus, we get the best of both worlds: when entering data, users are free to define pins as arbitrary, easy to use strings (e.g. "angel1", "angel2", "devil", etc.); but the general architecture also provides a way for making them globally unique, so they do not have to worry about that. All what they need to care about is that they are unique within the part or fragment they are editing.
 
 ## ID Components
 
