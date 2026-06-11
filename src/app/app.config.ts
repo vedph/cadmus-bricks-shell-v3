@@ -9,6 +9,8 @@ import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
   withFetch,
+  withInterceptors,
+  withXhr,
 } from '@angular/common/http';
 
 // material
@@ -23,6 +25,7 @@ import { ItemService, ThesaurusService } from '@myrmidon/cadmus-api';
 import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
 
 // bricks
+import { authJwtInterceptor } from '@myrmidon/auth-jwt-login';
 import {
   PROXY_INTERCEPTOR_OPTIONS,
   ProxyInterceptor,
@@ -58,7 +61,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withViewTransitions()),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withXhr(), withInterceptors([authJwtInterceptor])),
     provideNativeDateAdapter(),
     importProvidersFrom(NgeMonacoModule.forRoot({})),
     {

@@ -16,6 +16,10 @@ import {
   LOOKUP_CONFIGS_KEY,
   RefLookupConfig,
 } from '@myrmidon/cadmus-refs-lookup';
+import {
+  LOOKUP_TAXOSTORE_CONFIGS_KEY,
+  TaxoStoreLookupConfig,
+} from '@myrmidon/cadmus-refs-asserted-ids';
 import { ViafRefLookupService } from '@myrmidon/cadmus-refs-viaf-lookup';
 import { GeoNamesRefLookupService } from '@myrmidon/cadmus-refs-geonames-lookup';
 import {
@@ -58,6 +62,9 @@ export class App {
 
     // configure external lookup for asserted composite IDs
     this.configureLookup(storage);
+
+    // configure taxonomy lookup for asserted composite IDs
+    this.configureTaxoLookup(storage);
 
     // configure citation service
     this.configureCitationService(storage);
@@ -142,6 +149,25 @@ export class App {
         },
       },
     ] as RefLookupConfig[]);
+  }
+
+  private configureTaxoLookup(storage: RamStorageService): void {
+    storage.store(LOOKUP_TAXOSTORE_CONFIGS_KEY, [
+      {
+        treeId: 'animals',
+        treeName: 'animals',
+        canEdit: false,
+        canAdd: false,
+        canDelete: false,
+      },
+      {
+        treeId: 'food',
+        treeName: 'food',
+        canEdit: false,
+        canAdd: false,
+        canDelete: false,
+      },
+    ] as TaxoStoreLookupConfig[]);
   }
 
   private configureCitationService(storage: RamStorageService): void {

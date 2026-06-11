@@ -1,7 +1,9 @@
 <form [formGroup]="form" (submit)="save()">
   <div class="form-row">
     <!-- external -->
+    @if (!hideTargetSelector()) {
     <mat-checkbox [formControl]="external">external</mat-checkbox>
+    }
     <!-- mode switcher -->
     @if (!external.value) {
     <div>

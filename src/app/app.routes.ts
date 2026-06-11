@@ -1,9 +1,12 @@
 import { Routes } from '@angular/router';
 
 import { HomeComponent } from './components/home/home.component';
+import { LoginPageComponent } from './login-page/login-page.component';
+import { jwtGuard } from '@myrmidon/auth-jwt-login';
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent },
+  { path: 'login', component: LoginPageComponent },
   // cod/location
   {
     path: 'cod/location',
@@ -75,6 +78,7 @@ export const routes: Routes = [
       import('./components/refs/asserted-composite-id-pg/asserted-composite-id-pg.component').then(
         (m) => m.AssertedCompositeIdPgComponent,
       ),
+    canActivate: [jwtGuard],
   },
   // refs/asserted-composite-ids
   {
@@ -83,6 +87,7 @@ export const routes: Routes = [
       import('./components/refs/asserted-composite-ids-pg/asserted-composite-ids-pg.component').then(
         (m) => m.AssertedCompositeIdsPgComponent,
       ),
+    canActivate: [jwtGuard],
   },
   // refs/asserted-id
   {

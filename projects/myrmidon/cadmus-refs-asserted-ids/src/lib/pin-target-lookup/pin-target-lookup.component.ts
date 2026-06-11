@@ -182,6 +182,21 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   public readonly target = model<PinTarget>();
 
   /**
+   * True to hide the internal "external" target source checkbox,
+   * letting the parent component fully command the source mode via
+   * externalMode.
+   */
+  public readonly hideTargetSelector = input<boolean>(false);
+
+  /**
+   * When set, commands whether the target source is external (true)
+   * or internal (false), overriding the internal heuristic based on
+   * the target's itemId. Leave unset to let this component decide on
+   * its own, as before.
+   */
+  public readonly externalMode = input<boolean>();
+
+  /**
    * The default value for part type key when the by-type mode is active.
    */
   public readonly defaultPartTypeKey = input<string>();
@@ -280,6 +295,16 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       const target = this.target();
       console.log('target changed', target);
       this.updateForm(target);
+    });
+
+    // when externalMode is commanded by the parent, sync it to the
+    // external form control
+    effect(() => {
+      const externalMode = this.externalMode();
+      if (externalMode !== undefined && this.external.value !== externalMode) {
+        this.external.setValue(externalMode);
+        this.external.markAsDirty();
+      }
     });
   }
 
@@ -548,7 +573,9 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
             this._updatingForm = true;
             this.item.setValue(item, { emitEvent: false });
             this.form.markAsPristine();
-            this.external.setValue(false, { emitEvent: false });
+            if (this.externalMode() === undefined) {
+              this.external.setValue(false, { emitEvent: false });
+            }
             this.updateTargetFromData();
             this._updatingForm = false;
           },
@@ -557,14 +584,18 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
               console.error('Item service error', error);
             }
             this._updatingForm = true;
-            this.external.setValue(false, { emitEvent: false });
+            if (this.externalMode() === undefined) {
+              this.external.setValue(false, { emitEvent: false });
+            }
             this._updatingForm = false;
           },
         });
       } else {
-        this.external.setValue(true, {
-          emitEvent: false,
-        });
+        if (this.externalMode() === undefined) {
+          this.external.setValue(true, {
+            emitEvent: false,
+          });
+        }
         this.updateTargetFromData();
       }
     } finally {

@@ -67,20 +67,74 @@
         (expandedChange)="targetExpanded.set($event)"
       >
         <mat-expansion-panel-header>target</mat-expansion-panel-header>
-        <cadmus-pin-target-lookup
-          [pinByTypeMode]="pinByTypeMode()"
-          [canSwitchMode]="canSwitchMode()"
-          [canEditTarget]="canEditTarget()"
-          [lookupDefinitions]="lookupDefinitions()"
-          [lookupProviderOptions]="lookupProviderOptions()"
-          [defaultPartTypeKey]="defaultPartTypeKey()"
-          [target]="target.value || undefined"
-          [extLookupConfigs]="extLookupConfigs()"
-          (targetChange)="onTargetChange($event)"
-          (editorClose)="onEditorClose()"
-          (extMoreRequest)="onExtMoreRequest($event)"
-          (extLookupConfigChange)="onExtLookupConfigChange($event)"
-        />
+
+        <!-- target source mode -->
+        <div class="form-row">
+          <mat-form-field class="short-text">
+            <mat-label>source</mat-label>
+            <mat-select
+              [value]="targetMode()"
+              (selectionChange)="onTargetModeChange($event.value)"
+            >
+              <mat-option value="internal">🔗 internal</mat-option>
+              <mat-option value="external">🌐 external</mat-option>
+              @if (hasTaxonomy()) {
+                <mat-option value="taxonomy">🌴 taxonomy</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        @if (targetMode() === 'taxonomy') {
+          <!-- taxonomy source -->
+          @if (taxoLookupConfigs().length > 1) {
+            <div class="form-row">
+              <mat-form-field class="short-text">
+                <mat-label>tree</mat-label>
+                <mat-select
+                  [value]="selectedTaxoConfig()"
+                  (selectionChange)="onTaxoConfigChange($event.value)"
+                >
+                  @for (c of taxoLookupConfigs(); track c.treeId) {
+                    <mat-option [value]="c">{{ c.treeName }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
+          @if (selectedTaxoConfig(); as taxoConfig) {
+            <ts-taxo-store-picker
+              [treeId]="taxoConfig.treeId"
+              [hasTopNodeFilter]="taxoConfig.hasTopNodeFilter ?? false"
+              [hasFlagsFilter]="taxoConfig.hasFlagsFilter ?? false"
+              [availableFlags]="taxoConfig.availableFlags ?? []"
+              [canEdit]="taxoConfig.canEdit ?? true"
+              [canAdd]="taxoConfig.canAdd ?? true"
+              [canDelete]="taxoConfig.canDelete ?? true"
+              [hideLoc]="taxoConfig.hideLoc ?? false"
+              [hideFilter]="taxoConfig.hideFilter ?? false"
+              [label]="taxoConfig.treeName"
+              (nodePick)="onTaxoNodePick($event)"
+            />
+          }
+        } @else {
+          <cadmus-pin-target-lookup
+            [hideTargetSelector]="true"
+            [externalMode]="targetMode() === 'external'"
+            [pinByTypeMode]="pinByTypeMode()"
+            [canSwitchMode]="canSwitchMode()"
+            [canEditTarget]="canEditTarget()"
+            [lookupDefinitions]="lookupDefinitions()"
+            [lookupProviderOptions]="lookupProviderOptions()"
+            [defaultPartTypeKey]="defaultPartTypeKey()"
+            [target]="target.value || undefined"
+            [extLookupConfigs]="extLookupConfigs()"
+            (targetChange)="onTargetChange($event)"
+            (editorClose)="onEditorClose()"
+            (extMoreRequest)="onExtMoreRequest($event)"
+            (extLookupConfigChange)="onExtLookupConfigChange($event)"
+          />
+        }
       </mat-expansion-panel>
     </div>
 

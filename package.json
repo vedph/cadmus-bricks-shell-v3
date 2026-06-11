@@ -57,13 +57,17 @@
     "@angular/router": "^22.0.0",
     "@cisstech/nge": "^18.3.0",
     "@maplibre/ngx-maplibre-gl": "^21.0.2",
-    "@myrmidon/cadmus-api": "^14.0.8",
-    "@myrmidon/cadmus-core": "^12.0.4",
+    "@myrmidon/auth-jwt-login": "^9.0.0",
+    "@myrmidon/cadmus-api": "^15.0.0",
+    "@myrmidon/cadmus-core": "^13.0.0",
+    "@myrmidon/cadmus-refs-lookup": "link:./dist/myrmidon/cadmus-refs-lookup",
     "@myrmidon/cadmus-thesaurus-store": "^1.0.0",
-    "@myrmidon/cadmus-ui-object-view": "^0.0.4",
+    "@myrmidon/cadmus-ui-object-view": "link:./dist/myrmidon/cadmus-ui-object-view",
     "@myrmidon/ngx-mat-tools": "^2.0.0",
     "@myrmidon/ngx-tools": "^3.0.0",
     "@myrmidon/paged-data-browsers": "^6.0.0",
+    "@myrmidon/taxo-store-api": "^1.0.1",
+    "@myrmidon/taxo-store-picker": "^1.0.0",
     "@terraformer/wkt": "^2.2.1",
     "maplibre-gl": "^5.24.0",
     "marked": "^18.0.5",
@@ -82,7 +86,7 @@
     "@testing-library/angular": "^19.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/geojson": "^7946.0.16",
-    "@types/node": "^25.9.2",
+    "@types/node": "^25.9.3",
     "@types/terraformer__wkt": "^2.0.3",
     "jsdom": "^29.1.1",
     "ng-packagr": "^22.0.0",
@@ -91,10 +95,5 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-win32-arm64-msvc": "^4.61.1"
-  },
-  "pnpm": {
-    "overrides": {
-      "rollup": "npm:@rollup/wasm-node"
-    }
   }
 }
