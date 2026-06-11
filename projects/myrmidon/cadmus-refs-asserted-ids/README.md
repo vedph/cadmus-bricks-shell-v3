@@ -242,11 +242,88 @@ The taxonomy store can be configured as follows:
     }
     ```
 
-    >Note that here you can be very granular in your settings: for each taxonomy tree, you can define its UI label and whether its nodes can be edited, deleted and added by users.
+    >Note that here you can be very granular in your settings: for each taxonomy tree, you can define its UI label and whether its nodes can be edited, deleted and added by users, and set other options to change the picker's behavior (see `TaxoStoreLookupConfig`).
 
 3. call this function from your app's constructor.
 
 ### Defining Index Lookups
+
+The part type ID and pin name filter (i.e. the _index lookup definitions_) can be set from many sources:
+
+1. directly from the consumer code by setting `lookupDefinitions`;
+2. from injection, when (1) is not used;
+3. from thesaurus `model-types`, when (2) is empty.
+
+The typical approach is via `lookupDefinitions`. To this end:
+
+1. add an `index-lookup-definitions.ts` file to your app with code like this (change the array to fit your scenario):
+
+    ```ts
+    import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
+    import {
+      HISTORICAL_EVENTS_PART_TYPEID,
+      METADATA_PART_TYPEID,
+    } from '@myrmidon/cadmus-part-general-ui';
+    import { COD_CONTENTS_PART_TYPEID } from '@myrmidon/cadmus-part-codicology-contents';
+    import { COD_DECORATIONS_PART_TYPEID } from '@myrmidon/cadmus-part-codicology-decorations';
+    import { COD_EDITS_PART_TYPEID } from '@myrmidon/cadmus-part-codicology-edits';
+    import { COD_HANDS_PART_TYPEID } from '@myrmidon/cadmus-part-codicology-hands';
+    import { COD_MATERIAL_DSC_PART_TYPEID } from '@myrmidon/cadmus-part-codicology-material-dsc';
+
+    export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
+      // item's metadata
+      meta_eid: {
+        typeId: METADATA_PART_TYPEID,
+        name: 'eid',
+      },
+      // general parts
+      event_eid: {
+        typeId: HISTORICAL_EVENTS_PART_TYPEID,
+        name: 'eid',
+      },
+      // codicology parts
+      cod_unit_eid: {
+        typeId: COD_MATERIAL_DSC_PART_TYPEID,
+        name: 'unit-eid',
+      },
+      cod_hand_eid: {
+        typeId: COD_HANDS_PART_TYPEID,
+        name: 'eid',
+      },
+      cod_decoration_eid: {
+        typeId: COD_DECORATIONS_PART_TYPEID,
+        name: 'eid',
+      },
+      cod_artist_eid: {
+        typeId: COD_DECORATIONS_PART_TYPEID,
+        name: 'artist-id',
+      },
+      cod_content_eid: {
+        typeId: COD_CONTENTS_PART_TYPEID,
+        name: 'eid',
+      },
+      cod_edit_eid: {
+        typeId: COD_EDITS_PART_TYPEID,
+        name: 'eid',
+      },
+    };
+    ```
+
+These definitions are used to define preset filters for internal lookup:
+
+- each object is a filter, with its name (e.g. `meta_eid`).
+- `typeId` defines the type ID of the part/fragment where the ID to be looked up is stored.
+- `roleId` (optional) can be used to specify the part or fragment's role ID.
+- `name` defines the corresponding data pin's name to search in.
+
+This way, a pin-based lookup will be limited within the scope defined by the combination of object's type ID and pin's name, thus focusing on a specific subset of pins.
+
+Once this definition is in place, it can be injected where needed by adding this among the consumer class constructor’s arguments:
+
+```ts
+@Inject(INDEX_LOOKUP_DEFINITIONS)
+private _lookupDefs: IndexLookupDefinitions
+```
 
 TODO
 
@@ -256,11 +333,6 @@ There are different **options** to customize the lookup behavior:
   - _by part type_: you directly lookup by pin name, in the context of a specific part type. The part type is selected from a dropdown list, which draws its data from the configured `IndexLookupDefinitions`.
   - _by item instance_: you lookup pins filtered by a specific item (via its assigned EID in its metadata part), and optionally by any of its parts. This is the default mode, as in most cases users have a top-bottom approach and think first of the item they want to target, and then, possibly, to a specific portion of its data (unless they are just happy to target the item as a whole).
 
->The part type ID and pin name filter (i.e. the _index lookup definitions_) can be set from many sources:
-
-1. directly from the consumer code by setting `lookupDefinitions`;
-2. from injection, when (1) is not used;
-3. from thesaurus `model-types`, when (2) is empty.
 
 - set `pinByTypeMode` to true to let the editor use by-type mode instead of by-item;
 - set `canSwitchMode` to true to allow users switch between by-type and by-item modes;
