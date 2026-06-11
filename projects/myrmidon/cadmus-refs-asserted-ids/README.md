@@ -15,7 +15,6 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Configuring Lookup Providers](#configuring-lookup-providers)
     - [Configuring Taxonomy Store](#configuring-taxonomy-store)
     - [Defining Index Lookups](#defining-index-lookups)
-    - [Configuring the Target ID Editor](#configuring-the-target-id-editor)
   - [Legacy Components](#legacy-components)
     - [AssertedIdComponent](#assertedidcomponent)
     - [AssertedIdsComponent](#assertedidscomponent)
@@ -316,6 +315,8 @@ These definitions are used to define preset filters for internal lookup:
 - `roleId` (optional) can be used to specify the part or fragment's role ID.
 - `name` defines the corresponding data pin's name to search in.
 
+>Note that while pin name and type will not be displayed to the end user, the key of each definition will. Unless you have a single definition, the lookup component will display a dropdown list with all the available keys, so that the user can select the lookup's scope. So, use short, yet meaningful keys here, like in the above sample (`meta_eid`, `event_eid`).
+
 This way, a pin-based lookup will be limited within the scope defined by the combination of object's type ID and pin's name, thus focusing on a specific subset of pins.
 
 Once this definition is in place, it can be injected where needed by adding this among the consumer class constructor’s arguments:
@@ -361,38 +362,7 @@ Three components are used for this brick:
 - `AssertedCompositeIdComponent`, the editor for each single ID. This allows you to edit shared metadata (tag and scope), and specific properties for both external and internal ID.
 - `PinTargetLookupComponent`, the editor for an internal ID, i.e. a link target based on pins lookup. This is the core of the editor's logic.
 
-
 TODO
-
-
-(3) in your app's `index-lookup-definitions.ts` file, add the required lookup definitions. Each definition has a conventional key, and is an object with part type ID for the lookup scope, and pin name, e.g.:
-
-```ts
-import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
-import {
-  METADATA_PART_TYPEID,
-  HISTORICAL_EVENTS_PART_TYPEID,
-} from '@myrmidon/cadmus-part-general-ui';
-
-export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
-  // item's metadata
-  meta_eid: {
-    typeId: METADATA_PART_TYPEID,
-    name: 'eid',
-  },
-  // general parts
-  event_eid: {
-    typeId: HISTORICAL_EVENTS_PART_TYPEID,
-    name: 'eid',
-  },
-  // ... etc.
-};
-```
-
->Note that while pin name and type will not be displayed to the end user, the key of each definition will. Unless you have a single definition, the lookup component will display a dropdown list with all the available keys, so that the user can select the lookup's scope. So, use short, yet meaningful keys here, like in the above sample (`meta_eid`, `event_eid`).
-
-
-This component is used to edit an internal or external ID via lookup, and is the core of the [asserted composite ID](#asserted-composite-id) component:
 
 - for **external** IDs, you can enter the ID and its human-friendly label manually, or get them from any number of lookup providers (e.g. VIAF, geonames, etc.).
 
@@ -429,46 +399,6 @@ Optionally, users can customize both `gid` and `label` (when `canBuildGid` and `
 The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
 
 >👉 The demo found in this workspace uses a [mock data service](../../../src/app/services/mock-item.service.ts) instead of the real one, which provides a minimal set of data and functions, just required for the components to function.
-
-### Configuring the Target ID Editor
-
-You can configure the target ID editor to use any number of lookup providers:
-
-(1) ensure to import the `PinTargetLookupComponent` control in your component.
-
-(2) add a lookup control to your UI, like this:
-
-```html
-<!-- lookup -->
-<cadmus-pin-target-lookup [canSwitchMode]="true"
-                          (targetChange)="onTargetChange($event)"/>
-```
-
-(3) specify the lookup definitions, either from binding, or via injection. In the latter case, in your app's `index-lookup-definitions.ts` file, add the required lookup definitions. Each definition has a conventional key, and is an object with part type ID for the lookup scope, and pin name, e.g.:
-
-```ts
-import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
-import {
-  METADATA_PART_TYPEID,
-  HISTORICAL_EVENTS_PART_TYPEID,
-} from '@myrmidon/cadmus-part-general-ui';
-
-export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
-  // item's metadata
-  meta_eid: {
-    typeId: METADATA_PART_TYPEID,
-    name: 'eid',
-  },
-  // general parts
-  event_eid: {
-    typeId: HISTORICAL_EVENTS_PART_TYPEID,
-    name: 'eid',
-  },
-  // ... etc.
-};
-```
-
->Note that while pin name and type will not be displayed to the end user, the key of each definition will. Unless you have a single definition, the lookup component will display a dropdown list with all the available keys, so that the user can select the lookup's scope. So, use short, yet meaningful keys here, like in the above sample (`meta_eid`, `event_eid`).
 
 ## Legacy Components
 
