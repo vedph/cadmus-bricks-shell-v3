@@ -8,12 +8,15 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [External IDs](#external-ids)
   - [Internal IDs](#internal-ids)
   - [ID Components](#id-components)
-  - [Asserted Composite ID](#asserted-composite-id)
   - [Asserted Composite IDs](#asserted-composite-ids)
-  - [AssertedIdComponent](#assertedidcomponent)
-    - [Configuring Asserted ID](#configuring-asserted-id)
-  - [AssertedIdsComponent](#assertedidscomponent)
+    - [AssertedCompositeIdComponent](#assertedcompositeidcomponent)
+    - [AssertedCompositeIdsComponent](#assertedcompositeidscomponent)
+  - [Legacy Components](#legacy-components)
+    - [AssertedIdComponent](#assertedidcomponent)
+    - [AssertedIdsComponent](#assertedidscomponent)
   - [PinTargetLookupComponent](#pintargetlookupcomponent)
+  - [Configuring Asserted ID](#configuring-asserted-id)
+  - [AssertedIdsComponent](#assertedidscomponent-1)
     - [Configuring the Target ID Editor](#configuring-the-target-id-editor)
   - [History](#history)
     - [10.0.14](#10014)
@@ -57,19 +60,19 @@ An external ID can also come from a taxonomy. In this case:
 
 Every Cadmus object (item, part or fragment) has its own own _globally unique identifier_, which is an opaque GUID like `401267e7-282c-40e6-8f47-67be54382b07`. These identify the objects; but the framework is completely agnostic with reference to their model: the item is just an empty box, while objects put in it (parts or fragments) can have any model. This is a requirement for those objects to be composable and reusable in the context of an open-ended, dynamic modeling.
 
-The only way Cadmus has to link a part or an entry inside it is via "pins", i.e. name=value pairs which the part or fragment exposes in the index whenever it is saved. The part or fragment is the only component which knows what is inside its model; for the rest of the system, it is (and must be) a blackbox. Therefore, these pins act as target points for internal links.
+The only way Cadmus has to link a part or an entry inside it is via "**pins**", i.e. name=value pairs which the part or fragment exposes in the index whenever it is saved. The part or fragment is the only component which knows what is inside its model; for the rest of the system, it is (and must be) a blackbox. Therefore, these pins are assigned by the object itself by reflecting on its own data, and act as target points for internal links.
 
 Typically, according to the nature of each model, some pins can be designed to be used as anchor points and refer to the object as a whole, or to an entry in its model, when the model contains multiple entries. For instance, in a part with a list of manuscript [decorations](https://github.com/vedph/cadmus-codicology/blob/master/docs/cod-decorations.md), there are multiple entries, one per decoration; and one might want to target a specific decoration. To this end, each decoration has an `eid` property which represents a human-friendly, arbitrary string used to identify it, like `angel`. These identifiers are like the IDs you may type in a TEI document using the `@xml:id` attribute: they are short and human-friendly, and also allow to deeply link a subset of the object's data.
 
 So, internal IDs are human-friendly identifiers connected to any data in the Cadmus database. They can refer to:
 
-- a specific entry inside a part or fragment containing multiple entries (typically via a property conventionally named `eid`);
-- a specific part or fragment (via any of its pins designed or chosen to represent the object as a whole);
-- an item as a whole (via its [metadata part](https://github.com/vedph/cadmus-general/blob/master/docs/metadata.md)'s `eid` metadatum): this is more tricky, because items are just containers of parts and fragments. So, they have no pins at all on their own, except for those connected to their fixed set of metadata (like title), which usually are not convenient as identifiers, unless you have a well-defined convention for assigning titles. So, conventionally the metadata part is used to provide a human-friendly ID for the item as a whole: whenever the item contains that part, and that part has a metadatum with name=`eid`, this is assumed to be the item's human-friendly ID. So, a user might enter a metadatum like e.g. `eid`=`vat_lat_123`, and use it as the human friendly identifier for a manuscript item corresponding to Vat.Lat.123.
+- a specific _internal entry_ inside a part or fragment containing multiple entries (typically via a property conventionally named `eid`);
+- a specific _part or fragment_ (via any of its pins designed or chosen to represent the object as a whole);
+- an _item_ as a whole (via its [metadata part](https://github.com/vedph/cadmus-general/blob/master/docs/metadata.md)'s `eid` metadatum): this is more tricky, because items are just containers of parts and fragments. So, they have no pins at all on their own, except for those connected to their fixed set of metadata (like title), which usually are not convenient as identifiers, unless you have a well-defined convention for assigning titles. So, conventionally the metadata part is used to provide a human-friendly ID for the item as a whole: whenever the item contains that part, and that part has a metadatum with name=`eid`, this is assumed to be the item's human-friendly ID. So, a user might enter a metadatum like e.g. `eid`=`vat_lat_123`, and use it as the human friendly identifier for a manuscript item corresponding to Vat.Lat.123.
 
-Thus, ultimately all EIDs are based on a search pins. Each pin name is unique only in the context of the part or fragment defining it, so that pin design is not constrained; yet, a pin can easily be turned into a globally unique identifier by adding to it other data.
+Thus, ultimately all EIDs are based on a search pins. Each _pin name is unique only in the context of the part or fragment defining it_, so that pin design is not constrained; yet, a pin can easily be turned into a globally unique identifier by adding to it other data. For instance, given that every part or fragment has its own globally unique ID, you can just prepend it to the pin name to get a globally unique internal ID pointing to a specific feature of a specific part or fragment. Thus, we get the best of both worlds: when entering data, users are free to define pins as arbitrary, easy to use strings (e.g. "angel1", "angel2", "devil", etc.); but the general architecture also provides a way for making them globally unique, so they do not have to worry about that. All what they need to care about is that they are unique within the part or fragment they are editing.
 
-For instance, given that every part or fragment has its own globally unique ID, you can just prepend it to the pin name to get a globally unique internal ID pointing to a specific feature of a specific part or fragment. Thus, we get the best of both worlds: when entering data, users are free to define pins as arbitrary, easy to use strings (e.g. "angel1", "angel2", "devil", etc.); but the general architecture also provides a way for making them globally unique, so they do not have to worry about that. All what they need to care about is that they are unique within the part or fragment they are editing.
+---
 
 ## ID Components
 
@@ -82,9 +85,11 @@ According to the scenario illustrated above, the basic requirements for ID compo
 
 >👉 The demo found in this workspace uses a [mock data service](../../../src/app/services/mock-item.service.ts) instead of the real one, which provides a minimal set of data and functions, just required for the components to function.
 
-Various components from this library provide a different level of complexity, so you can pick the one which best fits your purposes; in general, the most powerful and versatile ID picker is represented by the [asserted composite ID](#asserted-composite-id), which can be used for both external and internal IDs, with full lookup support from lookup providers in either case.
+Various components from this library provide a different level of complexity, so you can pick the one which best fits your purposes; in general, the most powerful and versatile ID picker is represented by the [asserted composite ID](#asserted-composite-id) and its multiple-targets counterpart [asserted composite IDs](#asserted-composite-ids), which can be used for both external and internal IDs and editable taxonomies, with full lookup support. Other components in this library should be considered obsolete.
 
-## Asserted Composite ID
+## Asserted Composite IDs
+
+### AssertedCompositeIdComponent
 
 - 🔑 `AssertedCompositeIdComponent`
 - 🚩 `cadmus-refs-asserted-composite-id`
@@ -111,15 +116,44 @@ This is the most complete ID reference, which can be used for both external and 
 - a `target`, representing the pin-based target of the ID. The target model has these properties:
   - a global ID, `gid`, built from the pin or manually defined;
   - a human-friendly `label` for the target, built from the pin or manually defined;
-  - for internal links only:
+  - for _internal_ links only:
     - `itemId` for the item the pin derives from;
     - when the pin derives from a part, an optional `partId`, `partTypeId`, `roleId`;
     - the `name` and `value` of the pin.
 - an optional `scope`, representing the context the ID originates from (e.g. an ontology, a repository, a website, etc.).
-- an optional `tag`, eventually used to group or classify the ID.
-- an optional `assertion`, eventually used to define the uncertainty level of the assignment of this ID to the context it applies to.
+- an optional `tag`, possibly used to group or classify the ID.
+- an optional `assertion`, possibly used to define the uncertainty level of the assignment of this ID to the context it applies to.
 
-When the ID is **external**, the only properties set for the target model are `gid` (=the ID) and `label`. You can easily distinguish between an external and internal ID by looking at a property like `name`, which is always present for internal IDs, and never present for external IDs.
+To distinguish among link targets:
+
+- when the ID is **external**, the only properties set for the target model are `gid` (=the ID) and `label`. So, they never have the `name` property, which instead is required for internal links.
+- when the ID is a **taxonomy** node, it is just like an external link, but the `gid` always starts with prefix `@TX:`.
+- when the ID is **internal**, it has the `name` property (which is the pin's name, a pin being required by definition for an internal link).
+- You can easily distinguish between an external and internal ID by looking at a property like `name`, which is always present for internal IDs, and never present for external IDs.
+
+### AssertedCompositeIdsComponent
+
+A collection of asserted composite IDs.
+
+- 🔑 `AssertedCompositeIdsComponent`
+- 🚩 `cadmus-refs-asserted-composite-ids`
+- ▶️ input:
+  - `ids` (`AssertedId[]`)
+  - `pinByTypeMode` (`boolean?`)
+  - `canSwitchMode` (`boolean?`)
+  - `canEditTarget` (`boolean?`)
+  - `defaultPartTypeKey` (`string?|null`)
+  - `lookupDefinitions` (`IndexLookupDefinitions?`)
+- 📚 thesauri:
+  - `asserted-id-scopes` (for `idScopeEntries`)
+  - `asserted-id-tags` (for `idTagEntries`)
+  - `assertion-tags` (for `assTagEntries`)
+  - `doc-reference-types` (for `refTypeEntries`)
+  - `doc-reference-tags` (for `refTagEntries`)
+- ⚡ output:
+  - `idsChange` (`AssertedCompositeId[]`)
+
+TODO
 
 There are different **options** to customize the lookup behavior:
 
@@ -159,29 +193,11 @@ Three components are used for this brick:
 - `AssertedCompositeIdComponent`, the editor for each single ID. This allows you to edit shared metadata (tag and scope), and specific properties for both external and internal ID.
 - `PinTargetLookupComponent`, the editor for an internal ID, i.e. a link target based on pins lookup. This is the core of the editor's logic.
 
-## Asserted Composite IDs
+## Legacy Components
 
-A collection of asserted composite IDs.
+### AssertedIdComponent
 
-- 🔑 `AssertedCompositeIdsComponent`
-- 🚩 `cadmus-refs-asserted-composite-ids`
-- ▶️ input:
-  - `ids` (`AssertedId[]`)
-  - `pinByTypeMode` (`boolean?`)
-  - `canSwitchMode` (`boolean?`)
-  - `canEditTarget` (`boolean?`)
-  - `defaultPartTypeKey` (`string?|null`)
-  - `lookupDefinitions` (`IndexLookupDefinitions?`)
-- 📚 thesauri:
-  - `asserted-id-scopes` (for `idScopeEntries`)
-  - `asserted-id-tags` (for `idTagEntries`)
-  - `assertion-tags` (for `assTagEntries`)
-  - `doc-reference-types` (for `refTypeEntries`)
-  - `doc-reference-tags` (for `refTagEntries`)
-- ⚡ output:
-  - `idsChange` (`AssertedCompositeId[]`)
-
-## AssertedIdComponent
+>⚠️ Obsolete, use [AssertedCompositeIdComponent](#assertedcompositeidcomponent).
 
 - 🔑 `AssertedIdComponent`
 - 🚩 `cadmus-refs-asserted-id`
@@ -220,7 +236,43 @@ The asserted ID component provides an internal lookup mechanism based on data pi
 
 The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
 
-### Configuring Asserted ID
+### AssertedIdsComponent
+
+>⚠️ Obsolete, use [AssertedCompositeIdsComponent](#assertedcompositeidscomponent).
+
+An editable list of asserted IDs.
+
+- 🔑 `AssertedIdsComponent`
+- 🚩 `cadmus-refs-asserted-ids`
+- ▶️ input:
+  - `ids` (`AssertedId[]`)
+- 📚 thesauri:
+  - `asserted-id-scopes` (for `idScopeEntries`)
+  - `asserted-id-tags` (for `idTagEntries`)
+  - `assertion-tags` (for `assTagEntries`)
+  - `doc-reference-types` (for `refTypeEntries`)
+  - `doc-reference-tags` (for `refTagEntries`)
+  - `asserted-id-features` (for `featureEntries`).
+- 🔥 output:
+  - `idsChange` (`AssertedId[]`)
+
+## PinTargetLookupComponent
+
+This component is not designed for direct use by higher-level consumer components. It is embedded by other components to edit their target.
+
+- ▶️ input:
+  - `target` (`PinTarget? | null`)
+  - `pinByTypeMode` (`boolean?`)
+  - `canSwitchMode` (`boolean?`)
+  - `canEditTarget` (`boolean?`)
+  - `defaultPartTypeKey` (`string?|null`)
+  - `lookupDefinitions` (`IndexLookupDefinitions?`)
+  - `extLookupConfigs` (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
+- 🔥 output:
+  - `targetChange` (`PinTarget`)
+  - `editorClose`
+
+## Configuring Asserted ID
 
 The asserted ID component internally uses a scoped pin lookup component (`ScopedPinLookupComponent`) to provide a list of pin-based searches with a lookup control.  Whenever the user picks a pin value, he gets the details about its item and part, and item's metadata part, if any. He can then use these data to build a globally unique internal identifier by variously assembling these components.
 
@@ -277,35 +329,6 @@ export const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
 
 ## AssertedIdsComponent
 
-An editable list of asserted IDs.
-
-- 🔑 `AssertedIdsComponent`
-- 🚩 `cadmus-refs-asserted-ids`
-- ▶️ input:
-  - `ids` (`AssertedId[]`)
-- 📚 thesauri:
-  - `asserted-id-scopes` (for `idScopeEntries`)
-  - `asserted-id-tags` (for `idTagEntries`)
-  - `assertion-tags` (for `assTagEntries`)
-  - `doc-reference-types` (for `refTypeEntries`)
-  - `doc-reference-tags` (for `refTagEntries`)
-  - `asserted-id-features` (for `featureEntries`).
-- 🔥 output:
-  - `idsChange` (`AssertedId[]`)
-
-## PinTargetLookupComponent
-
-- ▶️ input:
-  - `target` (`PinTarget? | null`)
-  - `pinByTypeMode` (`boolean?`)
-  - `canSwitchMode` (`boolean?`)
-  - `canEditTarget` (`boolean?`)
-  - `defaultPartTypeKey` (`string?|null`)
-  - `lookupDefinitions` (`IndexLookupDefinitions?`)
-  - `extLookupConfigs` (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
-- 🔥 output:
-  - `targetChange` (`PinTarget`)
-  - `editorClose`
 
 This component is used to edit an internal or external ID via lookup, and is the core of the [asserted composite ID](#asserted-composite-id) component:
 

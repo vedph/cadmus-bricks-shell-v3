@@ -8,7 +8,6 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
-  withFetch,
   withInterceptors,
   withXhr,
 } from '@angular/common/http';
