@@ -27,8 +27,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
-import { NgeMarkdownModule } from '@cisstech/nge/markdown';
+import { marked } from 'marked';
 
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 
@@ -65,7 +66,6 @@ export interface NoteSet {
  * the noteChange event is emitted with its key and value.
  * To use this component, just bind its set property to a set,
  * and handle the noteChange event.
- * NOTE: requires ngx-markdown.
  */
 @Component({
   selector: 'cadmus-ui-note-set',
@@ -74,7 +74,6 @@ export interface NoteSet {
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    NgeMarkdownModule,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -109,6 +108,7 @@ export class NoteSetComponent implements OnInit {
   public readonly keys = signal<KeyValue<string, string>[]>([]);
   public readonly currentDef = signal<NoteSetDefinition | undefined>(undefined);
   public readonly currentLen = signal<number>(0);
+  public readonly previewHtml = signal<SafeHtml>('');
 
   public readonly noteCount = computed(
     () => Object.values(this.set().notes ?? {}).filter((v) => !!v).length
@@ -131,7 +131,11 @@ export class NoteSetComponent implements OnInit {
       .map((def) => def.label || def.key);
   });
 
-  constructor(formBuilder: FormBuilder, private _dialogService: DialogService) {
+  constructor(
+    formBuilder: FormBuilder,
+    private _dialogService: DialogService,
+    private _sanitizer: DomSanitizer
+  ) {
     // form
     this.text = formBuilder.control(null);
     this.key = formBuilder.control(null);
@@ -238,6 +242,19 @@ export class NoteSetComponent implements OnInit {
       .subscribe((n) => {
         this.currentLen.set(n);
       });
+
+    // update the markdown preview when typing
+    this.text.valueChanges.pipe(debounceTime(50)).subscribe(() => {
+      this.updatePreview();
+    });
+  }
+
+  /**
+   * Renders the current text as sanitized HTML for the Markdown preview.
+   */
+  private updatePreview(): void {
+    const html = marked.parse(this.text.value || '', { async: false }) as string;
+    this.previewHtml.set(this._sanitizer.bypassSecurityTrustHtml(html));
   }
 
   private updateForm(set?: NoteSet): void {

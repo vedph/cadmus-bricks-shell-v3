@@ -14,10 +14,10 @@
     "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0",
     "@angular/material": "^22.0.0",
-    "@cisstech/nge": "^18.3.0",
     "@myrmidon/ngx-mat-tools": "^2.0.0"
   },
   "dependencies": {
+    "marked": "^18.0.5",
     "tslib": "^2.3.0"
   },
   "sideEffects": false

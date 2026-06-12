@@ -56,9 +56,11 @@
       </mat-tab>
       <mat-tab label="inline">
         <div id="editor">
-          <nge-monaco-editor
-            style="--editor-height: 100%"
-            (ready)="onEditorInit($event)"
+          <ngx-monaco-editor
+            [formControl]="editorText"
+            [language]="'markdown'"
+            [options]="editorOptions"
+            (editorInitialized)="onEditorInit($event)"
           />
         </div>
       </mat-tab>

@@ -148,21 +148,37 @@ constructor(private _editService: CadmusTextEdService) {
 
 ## Linking to Monaco
 
-Even though the service is totally UI-agnostic, typically you use this service in connection with a Monaco editor instance. To this end, you just use Monaco in your component as usual, and get its instance so you can manipulate its text.
+Even though the service is totally UI-agnostic, typically you use this service in connection with a Monaco editor instance, via [@jean-merelis/ngx-monaco-editor](https://github.com/jean-merelis/ngx-monaco-editor). This wrapper binds the editor's text to a form control, and gives you the underlying Monaco editor instance so you can manipulate its text for the edit shortcuts.
 
 (1) inject the edit service in your component's constructor (`private _editService: CadmusTextEdService`).
 
-(2) add imports (ensure to install with `npm i @cisstech/nge monaco-editor`):
+(2) install the wrapper and Monaco (`npm i monaco-editor @jean-merelis/ngx-monaco-editor`), provide `NGX_MONACO_LOADER_PROVIDER` (with `DefaultMonacoLoader`) in your app configuration, and add the Monaco assets to `angular.json`:
 
-```ts
-import { NgeMonacoModule } from '@cisstech/nge/monaco';
+```json
+{
+  "glob": "**/*",
+  "input": "node_modules/monaco-editor/min/vs",
+  "output": "vs"
+}
 ```
 
-(3) add to your component the fields required for the Monaco editor model and editor instance, and the initialization function to be bound to the editor `ready` event (`(ready)="onEditorInit($event)"`). This will call the utility function `applyEdit` to apply the plugin result. Typical **code**:
+(3) import `NgxMonacoEditorComponent` (and the `EditorInitializedEvent`/`StandaloneEditorConstructionOptions` types) from `@jean-merelis/ngx-monaco-editor` into your component's `imports`.
+
+(4) add to your component the field for the editor instance, a form control for its text, and the initialization function bound to the `editorInitialized` event. This will call the utility function `applyEdit` to apply the plugin result. Typical **code**:
 
 ```ts
-private _editorModel?: monaco.editor.ITextModel;
 private _editor?: monaco.editor.IStandaloneCodeEditor;
+
+// form control bound to the editor's text
+public text: FormControl<string>;
+
+public readonly editorOptions: StandaloneEditorConstructionOptions = {
+  minimap: {
+    side: 'left',
+  },
+  wordWrap: 'on',
+  automaticLayout: true,
+};
 
 private async applyEdit(selector: string) {
   if (!this._editor) {
@@ -187,51 +203,31 @@ private async applyEdit(selector: string) {
   ]);
 }
 
-public onEditorInit(editor: monaco.editor.IEditor) {
-  editor.updateOptions({
-    minimap: {
-      side: 'left',
-    },
-    wordWrap: 'on',
-    automaticLayout: true
-  });
-  // TODO set your format and optional initial text
-  this._editorModel =
-    this._editorModel || monaco.editor.createModel('', 'markdown');
-  editor.setModel(this._editorModel);
-  this._editor = editor as monaco.editor.IStandaloneCodeEditor;
-
-  // TODO: optionally push to disposables (see below) if synching a bound control
+public onEditorInit(event: EditorInitializedEvent) {
+  this._editor = event.editor;
 
   // TODO: configure the desired plugins in one of these ways:
   // a) globally, if you inject into your component constructor:
   // @Inject(CADMUS_TEXT_ED_BINDINGS_TOKEN) @Optional() private _editorBindings?: CadmusTextEdBindings
-   if (this._editorBindings) {
+  if (this._editorBindings) {
     Object.keys(this._editorBindings).forEach((key) => {
       const n = parseInt(key, 10);
-      console.log('Binding ' + n + ' to ' + this._editorBindings![key as any]);
       this._editor!.addCommand(n, () => {
         this.applyEdit(this._editorBindings![key as any]);
       });
     });
   }
 
-  // b) manually, like here:
-  this._editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, () => {
-    this.applyEdit('md.bold');
-  });
-  this._editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => {
-    this.applyEdit('md.italic');
-  });
-  this._editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE, () => {
-    this.applyEdit('txt.emoji');
-  });
-  this._editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyL, () => {
-    this.applyEdit('md.link');
-  });
+  // b) manually, using the numeric key binding codes
+  // (2080 = Ctrl+B, 2087 = Ctrl+I, 2083 = Ctrl+E, 2090 = Ctrl+L,
+  // i.e. monaco.KeyMod.CtrlCmd | monaco.KeyCode.Key*)
+  this._editor.addCommand(2080, () => this.applyEdit('md.bold'));
+  this._editor.addCommand(2087, () => this.applyEdit('md.italic'));
+  this._editor.addCommand(2083, () => this.applyEdit('txt.emoji'));
+  this._editor.addCommand(2090, () => this.applyEdit('md.link'));
 
   // focus to editor
-  editor.focus();
+  this._editor.focus();
 }
 ```
 
@@ -249,9 +245,11 @@ The **template** corresponding to the above code is like:
 
 ```html
 <div id="editor">
-  <nge-monaco-editor
-    style="--editor-height: 100%"
-    (ready)="onEditorInit($event)"
+  <ngx-monaco-editor
+    [formControl]="text"
+    [language]="'markdown'"
+    [options]="editorOptions"
+    (editorInitialized)="onEditorInit($event)"
   />
 </div>
 ```
@@ -263,42 +261,6 @@ with these **styles**:
   height: 600px;
 }
 ```
-
-If you are **binding Monaco's text to a control**, you can follow these steps:
-
-1. add Monaco **disposables** to the component variables:
-
-    ```ts
-    private readonly _disposables: monaco.IDisposable[] = [];
-    ```
-
-2. override on destroy to **properly destroy** Monaco disposables:
-
-    ```ts
-    public ngOnDestroy() {
-      super.ngOnDestroy();
-      this._disposables.forEach((d) => d.dispose());
-    }
-    ```
-
-3. in the editor's init function, after setting `this._editor`, add this code to handle change **updating the control** accordingly:
-
-    ```ts
-    this._disposables.push(
-      this._editorModel.onDidChangeContent((e) => {
-        this.text.setValue(this._editorModel!.getValue());
-        this.text.markAsDirty();
-        this.text.updateValueAndValidity();
-      })
-    );
-    ```
-
-4. when **setting your control's data**, set both the control's value and the model's value like:
-
-    ```ts
-    this.text.setValue(part.text);
-    this._editorModel?.setValue(part.text || '');
-    ```
 
 ## Example
 

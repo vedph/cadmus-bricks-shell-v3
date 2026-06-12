@@ -94,9 +94,7 @@
     </div>
     <!-- preview -->
     @if (currentDef()?.markdown) {
-    <div class="preview">
-      <nge-markdown [data]="text.value || undefined"></nge-markdown>
-    </div>
+    <div class="preview" [innerHTML]="previewHtml()"></div>
     }
   </div>
   }

@@ -1,7 +1,6 @@
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
-  importProvidersFrom,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter, withViewTransitions } from '@angular/router';
@@ -17,7 +16,10 @@ import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { provideNativeDateAdapter } from '@angular/material/core';
 
 // vendors
-import { NgeMonacoModule } from '@cisstech/nge/monaco';
+import {
+  DefaultMonacoLoader,
+  NGX_MONACO_LOADER_PROVIDER,
+} from '@jean-merelis/ngx-monaco-editor';
 
 // cadmus
 import { ItemService, ThesaurusService } from '@myrmidon/cadmus-api';
@@ -62,7 +64,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withViewTransitions()),
     provideHttpClient(withXhr(), withInterceptors([authJwtInterceptor])),
     provideNativeDateAdapter(),
-    importProvidersFrom(NgeMonacoModule.forRoot({})),
+    {
+      provide: NGX_MONACO_LOADER_PROVIDER,
+      useFactory: () => new DefaultMonacoLoader(),
+    },
     {
       provide: MAT_DIALOG_DEFAULT_OPTIONS,
       useValue: {

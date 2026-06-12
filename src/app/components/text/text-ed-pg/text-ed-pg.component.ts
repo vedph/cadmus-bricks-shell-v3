@@ -20,7 +20,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 
-import { NgeMonacoModule } from '@cisstech/nge/monaco';
+import {
+  EditorInitializedEvent,
+  NgxMonacoEditorComponent,
+  StandaloneCodeEditor,
+  StandaloneEditorConstructionOptions,
+} from '@jean-merelis/ngx-monaco-editor';
 
 import {
   MdBoldCtePlugin,
@@ -52,7 +57,7 @@ import {
     MatInputModule,
     MatSelectModule,
     MatTabsModule,
-    NgeMonacoModule,
+    NgxMonacoEditorComponent,
   ],
   providers: [
     CadmusTextEdService,
@@ -66,8 +71,15 @@ import {
   styleUrl: './text-ed-pg.component.css',
 })
 export class TextEdPgComponent {
-  private _model?: monaco.editor.ITextModel;
-  private _editor?: monaco.editor.IStandaloneCodeEditor;
+  private _editor?: StandaloneCodeEditor;
+
+  public readonly editorOptions: StandaloneEditorConstructionOptions = {
+    minimap: {
+      side: 'left',
+    },
+    wordWrap: 'on',
+    automaticLayout: true,
+  };
 
   public selector: FormControl<string>;
   public text: FormControl<string>;
@@ -116,34 +128,25 @@ export class TextEdPgComponent {
     });
   }
 
-  public onEditorInit(editor: monaco.editor.IEditor) {
-    editor.updateOptions({
-      minimap: {
-        side: 'left',
-      },
-      wordWrap: 'on',
-      automaticLayout: true,
-    });
-    this._model =
-      this._model || monaco.editor.createModel('# Hello world', 'markdown');
-    editor.setModel(this._model);
-    this._editor = editor as monaco.editor.IStandaloneCodeEditor;
+  public onEditorInit(event: EditorInitializedEvent) {
+    this._editor = event.editor;
 
-    this._editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, () => {
-      // this._ngZone.run(async () => await this.applyEdit('md.bold'));
+    // 2080 = Ctrl+B, 2087 = Ctrl+I, 2083 = Ctrl+E, 2090 = Ctrl+L
+    // (monaco.KeyMod.CtrlCmd | monaco.KeyCode.Key*)
+    this._editor.addCommand(2080, () => {
       this.applyEdit('md.bold');
     });
-    this._editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => {
+    this._editor.addCommand(2087, () => {
       this.applyEdit('md.italic');
     });
-    this._editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE, () => {
+    this._editor.addCommand(2083, () => {
       this.applyEdit('txt.emoji');
     });
-    this._editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyL, () => {
+    this._editor.addCommand(2090, () => {
       this.applyEdit('md.link');
     });
 
-    editor.focus();
+    this._editor.focus();
   }
 
   private parseContext(): any | undefined {

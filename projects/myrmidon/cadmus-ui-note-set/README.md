@@ -2,7 +2,7 @@
 
 - 📦 `@myrmidon/cadmus-ui-note-set`
 - 📦 dependencies:
-  - `ngx-markdown`
+  - `marked`
 
 - [CadmusUiNoteSet](#cadmusuinoteset)
   - [NoteSetComponent](#notesetcomponent)
