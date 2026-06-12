@@ -16,3 +16,5 @@ minimumReleaseAgeExclude:
   - '@myrmidon/paged-data-browsers@6.0.0'
   - '@myrmidon/taxo-store-api@1.0.1'
   - '@types/node@25.9.3'
+  - '@analogjs/vite-plugin-angular@2.6.1'
+  - '@analogjs/vitest-angular@2.6.1'
