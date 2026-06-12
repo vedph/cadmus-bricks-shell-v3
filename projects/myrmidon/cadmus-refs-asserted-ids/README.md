@@ -129,6 +129,50 @@ To distinguish among link targets:
 - when the ID is **internal**, it has the `name` property (which is the pin's name, a pin being required by definition for an internal link).
 - You can easily distinguish between an external and internal ID by looking at a property like `name`, which is always present for internal IDs, and never present for external IDs.
 
+For internal lookup, with thousands of parts/fragments providing dozens of pins, you quickly end up with a lot of them. So, to ease their lookup in this control, you can filter them. This component provides _two modes_ to get to a pin-based link target:
+
+- _by item instance_ (option `pinByTypeMode`=`false`): lookup pins filtered by a specific item (via its assigned EID in its metadata part), and optionally by any of its parts. This is the default mode, as in most cases users have a top-bottom approach and think first of the item they want to target, and then, possibly, to a specific portion of its data (unless they are just happy to target the item as a whole).
+- _by part type_ (option `pinByTypeMode`=`true`): directly lookup by pin value, in the context of a specific part type and pin namem, as specified by index lookup definitions (`indexLookupDefinitions` property). The list of part types may come from several sources:
+  - explicitly set via the component `lookupDefinitions` property;
+  - if this is not set, the lookup definitions will be got via injection when available;
+  - if the injected definitions are empty, the lookup definitions will be built from the `model-types` thesaurus;
+  - if this is not available either, the _by-type_ lookup will be disabled.
+
+>Filtering by item essentially means filtering by an object instance: for instance a specific manuscript object. Filtering by type instead means filtering by pin class, as each part or fragment provides its own set of search pins, whose names are meaningful and unique only in their context.
+>You can use options `canSwitchMode` to allow users switching between by-type and by-item modes, and `canEditTarget` to allow users edit the link target GID and label also for internal pins, where they are automatically provided by pin lookup.
+
+According to the target type and component settings, the following modes are available:
+
+- external:
+  - pick an ID from 1 or more lookup providers
+  - manually type or paste an ID
+  - manually build an ID from the target object's properties
+- internal:
+  - from pin lookup:
+    - by type: pick a preset (as specified by lookup index definitions) and then lookup a pin within its scope.
+    - by item:
+      - filter by item: lookup pins limited to a specific item.
+      - filter by item's part: lookup pins limited to a specific item's part.
+      - lookup pin directly from its name
+  - manual
+  - both
+- taxonomy: from 1 tree's node.
+
+Once the user picks an internal pin, the target is automatically filled with data from the pin itself. Two values are calculated:
+
+- `gid`, the global ID for the target is `P<part-id>/<pin-value>` when the pin is from a part; or `I<item-id>/<pin-value>` when it is from an item only.
+- `label`, the human-friendly label for the target, is `<pin-value> | <item-title> (<part-type>[, <part-role>])`, where `<part-type>` is either the human-friendly name of the part type ID (as drawn from the `model-types` thesaurus), or the part type ID itself.
+
+Optionally, users can customize both `gid` and `label` (when `canBuildGid` and `canBuildLabel` are true). As for `gid`, users have access to a full set of metadata about the target, so that they can build their own global ID. Once a pin value is picked, the lookup control shows all the relevant data which can be used as components for the ID to build:
+
+- the item GUID.
+- the item title.
+- the part GUID.
+- the part type ID.
+- the item's metadata part entries.
+
+The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
+
 ### AssertedCompositeIdsComponent
 
 A collection of asserted composite IDs.
@@ -325,80 +369,6 @@ Once this definition is in place, it can be injected where needed by adding this
 @Inject(INDEX_LOOKUP_DEFINITIONS)
 private _lookupDefs: IndexLookupDefinitions
 ```
-
-TODO
-
-There are different **options** to customize the lookup behavior:
-
-- lookup pins by part type or by item instance:
-  - _by part type_: you directly lookup by pin name, in the context of a specific part type. The part type is selected from a dropdown list, which draws its data from the configured `IndexLookupDefinitions`.
-  - _by item instance_: you lookup pins filtered by a specific item (via its assigned EID in its metadata part), and optionally by any of its parts. This is the default mode, as in most cases users have a top-bottom approach and think first of the item they want to target, and then, possibly, to a specific portion of its data (unless they are just happy to target the item as a whole).
-
-
-- set `pinByTypeMode` to true to let the editor use by-type mode instead of by-item;
-- set `canSwitchMode` to true to allow users switch between by-type and by-item modes;
-- set `canEditTarget` to true to allow users edit the link target GID and label also for internal pins, where they are automatically provided by pin lookup.
-
-These options can be variously combined to force users to use a specific behavior only; for instance, if you just want by-type lookup and automatic GID/label, set `pinByTypeMode` to true and `canSwitchMode` and `canEditTarget` to false.
-
-Also, you can use any number of lookup components for external IDs. To globally configure all the asserted composite IDs components for this purpose, you can define (e.g. in your app's component constructor) an array of configuration objects keyed under `ASSERTED_COMPOSITE_ID_CONFIGS_KEY`. Thus, this component provides different ways for creating a link:
-
-- external:
-  - from 1 or more lookups
-  - manual
-  - both
-- internal:
-  - from pin lookup:
-    - filter by item
-    - filter by item's part
-    - lookup pin
-  - manual
-  - both
-- taxonomy: from 1 tree's node.
-
-Three components are used for this brick:
-
-- `AssertedCompositeIdsComponent`, the top level editor for the list of IDs. This has buttons to add new internal/external IDs, and a list of existing IDs. Each existing ID has buttons for editing, moving, and deleting it. When editing, the `AssertedIdComponent` is used in an expansion panel.
-- `AssertedCompositeIdComponent`, the editor for each single ID. This allows you to edit shared metadata (tag and scope), and specific properties for both external and internal ID.
-- `PinTargetLookupComponent`, the editor for an internal ID, i.e. a link target based on pins lookup. This is the core of the editor's logic.
-
-TODO
-
-- for **external** IDs, you can enter the ID and its human-friendly label manually, or get them from any number of lookup providers (e.g. VIAF, geonames, etc.).
-
-- for **internal** IDs, your lookup is based on search pins.
-
-- for **both** external and internal IDs, you can optionally specify a scope (usually defining the context of the ID, like VIAF or DBPedia, or your own Cadmus database) and a tag (an arbitrary string for grouping or tagging the ID in some way).
-
-With thousands of parts/fragments providing dozens of pins, you quickly end up with a lot of them. So, to ease their lookup in this control, you can filter them. This component provides _two modes_ to get to a pin-based link target:
-
-- **by item** (default mode): the user selects an item from a lookup list; then a part, from the list of the parts found in the selected item; and finally a pin, from a lookup list of pins filtered by that item's part. This essentially provides a way of selecting a pin from a restricted lookup set, by walking the data hierarchy from item to part/fragment and finally pin.
-- **by type**: the user selects the part's type (this is automatically pre-selected when only a single type is set), and then selects a pin from a lookup list of pins filtered by that part's type. The list of part types may come from several sources:
-  - explicitly set via the component `lookupDefinitions` property;
-  - if this is not set, the lookup definitions will be got via injection when available;
-  - if the injected definitions are empty, the lookup definitions will be built from the `model-types` thesaurus;
-  - if this is not available either, the _by-type_ lookup will be disabled.
-
->Filtering by item essentially means filtering by an object instance: for instance a specific manuscript object. Filtering by type instead means filtering by pin class, as each part or fragment provides its own set of search pins, whose names are meaningful and unique only in their context.
-
-In both cases, in the end the target ID model is the same; it's just the way the user selects the pin which changes. You can specify the mode for the component with `pinByTypeMode`, and control the possibility of switching between modes with `canSwitchMode`.
-
-Once the user picks an internal pin, the target is automatically filled with data from the pin itself. Two values are calculated:
-
-- `gid`, the global ID for the target is `P<part-id>/<pin-value>` when the pin is from a part; or `I<item-id>/<pin-value>` when it is from an item only.
-- `label`, the human-friendly label for the target, is `<pin-value> | <item-title> (<part-type>[, <part-role>])`, where `<part-type>` is either the human-friendly name of the part type ID (as drawn from the `model-types` thesaurus), or the part type ID itself.
-
-Optionally, users can customize both `gid` and `label` (when `canBuildGid` and `canBuildLabel` are true). As for `gid`, users have access to a full set of metadata about the target, so that they can build their own global ID. Once a pin value is picked, the lookup control shows all the relevant data which can be used as components for the ID to build:
-
-- the item GUID.
-- the item title.
-- the part GUID.
-- the part type ID.
-- the item's metadata part entries.
-
-The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
-
->👉 The demo found in this workspace uses a [mock data service](../../../src/app/services/mock-item.service.ts) instead of the real one, which provides a minimal set of data and functions, just required for the components to function.
 
 ## Legacy Components
 
