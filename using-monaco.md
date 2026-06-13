@@ -89,7 +89,7 @@ private _editor?: StandaloneCodeEditor;
 public text: FormControl<string>;
 
 public readonly editorOptions: StandaloneEditorConstructionOptions = {
-  minimap: { side: 'left' },
+  minimap: { side: 'right' },
   wordWrap: 'on',
   automaticLayout: true,
 };
@@ -150,27 +150,12 @@ configuration), bind keyboard shortcuts to plugin selectors in
 `onEditorInit`:
 
 ```ts
-public onEditorInit(event: EditorInitializedEvent) {
-  this._editor = event.editor;
-
-  // 2080 = Ctrl+B, 2087 = Ctrl+I, 2083 = Ctrl+E, 2090 = Ctrl+L
-  // (monaco.KeyMod.CtrlCmd | monaco.KeyCode.Key*)
-  this._editor.addCommand(2080, () => this.applyEdit('md.bold'));
-  this._editor.addCommand(2087, () => this.applyEdit('md.italic'));
-  this._editor.addCommand(2083, () => this.applyEdit('txt.emoji'));
-  this._editor.addCommand(2090, () => this.applyEdit('md.link'));
-
-  this._editor.focus();
-}
-
 private async applyEdit(selector: string) {
   if (!this._editor) {
     return;
   }
   const selection = this._editor.getSelection();
-  const text = selection
-    ? this._editor.getModel()!.getValueInRange(selection)
-    : '';
+  const text = selection ? this._editor.getModel()!.getValueInRange(selection) : '';
 
   const result = await this._editService.edit({ selector, text });
 
@@ -181,6 +166,20 @@ private async applyEdit(selector: string) {
       forceMoveMarkers: true,
     },
   ]);
+}
+
+public onEditorInit(event: EditorInitializedEvent) {
+  this._editor = event.editor;
+  this._editor.focus();
+
+  if (this._editorBindings) {
+    Object.keys(this._editorBindings).forEach((key) => {
+      const n = parseInt(key, 10);
+      this._editor!.addCommand(n, () => {
+        this.applyEdit(this._editorBindings![key as any]);
+      });
+    });
+  }
 }
 ```
 
