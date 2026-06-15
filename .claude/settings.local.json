@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx vitest run:*)"
+      "Bash(npx vitest run:*)",
+      "Bash(curl -s \"https://iconclass.org/api/search/?q=spider&format=json&size=5\")",
+      "Bash(curl -s \"https://iconclass.org/api/images/97EE1?lang=en&format=json\")",
+      "Bash(curl -s \"https://iconclass.org/97EE1.json\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"https://iconclass.org/api/search/?q=spider&format=json&size=5\")",
+      "Bash(curl -s \"https://iconclass.org/api/search?q=spider&size=5\")",
+      "Bash(curl -s \"https://iconclass.org/search?q=spider\" -H \"Accept: application/json\" -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\\\\n\" \"https://iconclass.org/11H\\(NORBERT\\)59.json\")",
+      "Bash(curl -s \"https://iconclass.org/25F713.json\")"
     ]
   }
 }

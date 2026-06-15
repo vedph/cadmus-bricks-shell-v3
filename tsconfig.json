@@ -59,6 +59,9 @@
       "@myrmidon/cadmus-refs-historical-date": [
         "./dist/myrmidon/cadmus-refs-historical-date"
       ],
+      "@myrmidon/cadmus-refs-iconclass-lookup": [
+        "./dist/myrmidon/cadmus-refs-iconclass-lookup"
+      ],
       "@myrmidon/cadmus-refs-lookup": [
         "./dist/myrmidon/cadmus-refs-lookup"
       ],
@@ -339,6 +342,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-refs-sparql/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-iconclass-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-iconclass-lookup/tsconfig.spec.json"
     }
   ]
 }
