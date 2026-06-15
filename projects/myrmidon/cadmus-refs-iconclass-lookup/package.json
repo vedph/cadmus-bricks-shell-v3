@@ -1,6 +1,20 @@
 {
   "name": "@myrmidon/cadmus-refs-iconclass-lookup",
   "version": "0.0.1",
+  "description": "Cadmus - Iconclass lookup.",
+  "keywords": [
+    "Cadmus",
+    "bricks",
+    "Iconclass"
+  ],
+  "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vedph/cadmus-bricks-shell-v3"
+  },
+  "author": {
+    "name": "Daniele Fusi"
+  },
   "peerDependencies": {
     "@angular/common": "^22.0.0",
     "@angular/core": "^22.0.0"

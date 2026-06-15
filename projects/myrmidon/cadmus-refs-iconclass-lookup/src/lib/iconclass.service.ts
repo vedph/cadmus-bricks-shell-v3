@@ -10,7 +10,7 @@ import { ErrorService } from '@myrmidon/ngx-tools';
  * If not provided, defaults to 'https://iconclass.org'.
  */
 export const ICONCLASS_API_BASE_TOKEN = new InjectionToken<string>(
-  'ICONCLASS_API_BASE'
+  'ICONCLASS_API_BASE',
 );
 
 const DEFAULT_API_BASE = 'https://iconclass.org';
@@ -270,7 +270,7 @@ export class IconclassService {
   constructor(
     private _http: HttpClient,
     private _error: ErrorService,
-    @Optional() @Inject(ICONCLASS_API_BASE_TOKEN) apiBase?: string
+    @Optional() @Inject(ICONCLASS_API_BASE_TOKEN) apiBase?: string,
   ) {
     this.apiBase = apiBase || DEFAULT_API_BASE;
   }
@@ -297,7 +297,7 @@ export class IconclassService {
    */
   public search(
     query: string,
-    options?: IconclassSearchOptions
+    options?: IconclassSearchOptions,
   ): Observable<IconclassSearchResult> {
     if (!query?.trim()) {
       return of({ result: [], total: 0 });
@@ -325,16 +325,22 @@ export class IconclassService {
    * @returns Observable with the notation's data, or `undefined` if the
    * notation does not exist.
    */
-  public getNotation(notation: string): Observable<IconclassNotation | undefined> {
+  public getNotation(
+    notation: string,
+  ): Observable<IconclassNotation | undefined> {
     if (!notation?.trim()) {
       return of(undefined);
     }
 
     const url = `${this.apiBase}/${this.encodeNotation(notation.trim())}.json`;
     return this._http.get<IconclassNotation | Record<string, never>>(url).pipe(
-      map((data) => (data && (data as IconclassNotation).n ? (data as IconclassNotation) : undefined)),
+      map((data) =>
+        data && (data as IconclassNotation).n
+          ? (data as IconclassNotation)
+          : undefined,
+      ),
       retry(3),
-      catchError(this._error.handleError)
+      catchError(this._error.handleError),
     );
   }
 
@@ -348,7 +354,7 @@ export class IconclassService {
    */
   public getImages(
     notation: string,
-    options?: IconclassImagesOptions
+    options?: IconclassImagesOptions,
   ): Observable<IconclassImagesResult> {
     if (!notation?.trim()) {
       return of({ count: 0, size: 0, images: [] });
@@ -361,7 +367,7 @@ export class IconclassService {
     }
 
     const url = `${this.apiBase}/api/images/${this.encodeNotation(
-      notation.trim()
+      notation.trim(),
     )}`;
     return this._http
       .get<IconclassImagesResult>(url, { params })
@@ -380,7 +386,7 @@ export class IconclassService {
    */
   public getLabel(
     notation: IconclassNotation,
-    lang: IconclassLanguage | string = 'en'
+    lang: IconclassLanguage | string = 'en',
   ): string {
     const txt = notation.txt || {};
     if (txt[lang]) {

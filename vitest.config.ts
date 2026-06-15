@@ -84,6 +84,10 @@ export default defineConfig({
         __dirname,
         'projects/myrmidon/cadmus-refs-historical-date/src/public-api.ts',
       ),
+      '@myrmidon/cadmus-refs-iconclass-lookup': resolve(
+        __dirname,
+        'projects/myrmidon/cadmus-refs-iconclass-lookup/src/public-api.ts',
+      ),
       '@myrmidon/cadmus-refs-lookup': resolve(
         __dirname,
         'projects/myrmidon/cadmus-refs-lookup/src/public-api.ts',

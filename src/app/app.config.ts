@@ -85,6 +85,7 @@ export const appConfig: ApplicationConfig = {
         urls: [
           'http://lookup.dbpedia.org/api/search',
           'http://lookup.dbpedia.org/api/prefix',
+          'https://iconclass.org',
         ],
       },
     },

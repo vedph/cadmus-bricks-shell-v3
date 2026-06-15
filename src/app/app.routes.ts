@@ -201,6 +201,14 @@ export const routes: Routes = [
         (m) => m.AssertedHistoricalDatePgComponent,
       ),
   },
+  // refs/iconclass-ref-lookup
+  {
+    path: 'refs/iconclass-ref-lookup',
+    loadComponent: () =>
+      import('./components/refs/iconclass-ref-lookup-pg/iconclass-ref-lookup-pg.component').then(
+        (m) => m.IconclassRefLookupPgComponent,
+      ),
+  },
   // refs/historical-date
   {
     path: 'refs/historical-date',

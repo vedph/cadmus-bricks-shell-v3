@@ -3,3 +3,4 @@
  */
 
 export * from './lib/iconclass.service';
+export * from './lib/iconclass-lookup.service';

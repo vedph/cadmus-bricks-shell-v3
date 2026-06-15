@@ -26,6 +26,7 @@
     "build-geol": "ng build @myrmidon/cadmus-geo-location",
     "build-geon": "ng build @myrmidon/cadmus-refs-geonames-lookup",
     "build-his": "ng build @myrmidon/cadmus-refs-historical-date",
+    "build-icl": "ng build @myrmidon/cadmus-refs-iconclass-lookup",
     "build-lok": "ng build @myrmidon/cadmus-refs-lookup",
     "build-mol": "ng build @myrmidon/cadmus-refs-mol-lookup",
     "build-muf": "ng build @myrmidon/cadmus-refs-mufi-lookup",
