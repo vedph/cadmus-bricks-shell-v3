@@ -14,8 +14,12 @@ import {
 
 /**
  * ICONCLASS reference lookup service, used to lookup ICONCLASS notations
- * by their label/keywords and get back their full data (including the
- * notation code and its human-readable label).
+ * by their label/keywords and get back their ID and a concise label.
+ *
+ * A trailing `*` is automatically appended to the query to request
+ * prefix/wildcard matching from the API (e.g. typing "spi" searches for
+ * "spi*"). Whether the API honours the wildcard depends on the endpoint;
+ * if not supported, users must type whole words.
  */
 @Injectable({
   providedIn: 'root',
@@ -26,11 +30,13 @@ export class IconclassRefLookupService implements RefLookupService {
   constructor(private _iconclass: IconclassService) {}
 
   /**
-   * Lookup notations matching the given text. The matching notation codes
-   * are then resolved into their full data via {@link IconclassService.getNotation}.
+   * Lookup notations matching the given text. A trailing `*` is
+   * automatically appended to the query for prefix matching. Each
+   * matching notation code is then resolved to its full data via
+   * {@link IconclassService.getNotation}.
    * @param filter The filter.
-   * @param options The optional search options.
-   * @returns Observable with the matching notations' data.
+   * @param options Optional search options.
+   * @returns Observable with the matching notations' full data.
    */
   public lookup(
     filter: RefLookupFilter,
@@ -39,8 +45,9 @@ export class IconclassRefLookupService implements RefLookupService {
     if (!filter.text) {
       return of([]);
     }
+    const q = filter.text.endsWith('*') ? filter.text : `${filter.text}*`;
     return this._iconclass
-      .search(filter.text, {
+      .search(q, {
         ...options,
         size: options?.size || filter.limit,
       })
@@ -55,7 +62,9 @@ export class IconclassRefLookupService implements RefLookupService {
             ),
           );
         }),
-        map((notations) => notations.filter((n) => !!n) as IconclassNotation[]),
+        map(
+          (notations) => notations.filter((n) => !!n) as IconclassNotation[],
+        ),
       );
   }
 
@@ -70,6 +79,20 @@ export class IconclassRefLookupService implements RefLookupService {
     if (!item) {
       return '';
     }
-    return `${this._iconclass.getLabel(item)} (${item.n})`;
+    const full = this._iconclass.getLabel(item);
+    // ICONCLASS labels use ':' (concept: narrative) and ';' (subject; attributes)
+    // to separate the short concept name from its fuller definition.
+    const colon = full.indexOf(':');
+    const semi = full.indexOf(';');
+    const sep =
+      colon < 0 && semi < 0
+        ? -1
+        : colon < 0
+          ? semi
+          : semi < 0
+            ? colon
+            : Math.min(colon, semi);
+    const label = sep > 0 ? full.substring(0, sep).trim() : full;
+    return `${label} (${item.n})`;
   }
 }

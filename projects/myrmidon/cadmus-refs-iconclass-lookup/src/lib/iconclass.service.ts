@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 
 import { ErrorService } from '@myrmidon/ngx-tools';
@@ -64,6 +64,21 @@ export interface IconclassSearchResult {
    * items returned in `result`).
    */
   total: number;
+}
+
+/**
+ * A lightweight notation object returned by the hydrated search endpoint
+ * (`/api/search?q=...&n=...&p=...`). Unlike the plain search that returns
+ * only notation codes, each item here carries the multilingual label,
+ * avoiding the need for extra per-notation round-trips.
+ *
+ * Note: `notation` here corresponds to `n` in the full {@link IconclassNotation}.
+ */
+export interface IconclassHydratedNotation {
+  /** The notation code (e.g. "25F711(SPIDER)"). */
+  notation: string;
+  /** The human-readable label per language. */
+  txt: IconclassLocalizedMap<string>;
 }
 
 /**
@@ -193,20 +208,24 @@ export interface IconclassImagesResult {
 }
 
 /**
- * Options for {@link IconclassService.search}.
+ * Options for {@link IconclassService.search} and
+ * {@link IconclassService.searchHydrated}.
  */
 export interface IconclassSearchOptions {
   /**
-   * The maximum number of notation codes to return. The API also returns
-   * the overall `total` count of matches regardless of this limit.
+   * The maximum number of results to return.
    */
   size?: number;
   /**
    * The preferred language for the response (one of
-   * {@link ICONCLASS_LANGUAGES}). In practice this does not seem to affect
-   * which notations are matched, only some response metadata.
+   * {@link ICONCLASS_LANGUAGES}).
    */
   lang?: IconclassLanguage | string;
+  /**
+   * 1-based page number for paginated hydrated search
+   * ({@link IconclassService.searchHydrated} only).
+   */
+  page?: number;
 }
 
 /**
@@ -372,6 +391,81 @@ export class IconclassService {
     return this._http
       .get<IconclassImagesResult>(url, { params })
       .pipe(retry(3), catchError(this._error.handleError));
+  }
+
+  /**
+   * Search for notations matching the given query and return hydrated results
+   * (notation code + multilingual label) in a single call, without the N+1
+   * round-trips required by the plain {@link search} + {@link getNotation}
+   * combination.
+   *
+   * The query may include a trailing `*` wildcard for prefix matching
+   * (e.g. `"spi*"` matches keywords starting with "spi"). The API uses
+   * `n` as the page-size parameter and `p` for the 1-based page number.
+   *
+   * @param query The search query, optionally ending with `*`.
+   * @param options Optional search parameters.
+   * @returns Observable with an array of hydrated notation objects.
+   */
+  public searchHydrated(
+    query: string,
+    options?: IconclassSearchOptions,
+  ): Observable<IconclassHydratedNotation[]> {
+    if (!query?.trim()) {
+      return of([]);
+    }
+
+    let params = new HttpParams().set('q', query.trim());
+    if (options?.size) {
+      params = params.set('size', options.size);
+    }
+    if (options?.page) {
+      params = params.set('p', options.page);
+    }
+    if (options?.lang) {
+      params = params.set('lang', options.lang);
+    }
+
+    const url = `${this.apiBase}/api/search`;
+    return this._http
+      .get<IconclassHydratedNotation[]>(url, { params })
+      .pipe(retry(3), catchError(this._error.handleError));
+  }
+
+  /**
+   * Resolve the full ancestors of a notation from its `p` (path) array.
+   * The `p` array includes the notation itself as the last element, so
+   * this method fetches all entries except the last one.
+   * @param notation The already-fetched notation whose ancestors to resolve.
+   * @returns Observable with the ancestor notations ordered from root down
+   * to the immediate parent.
+   */
+  public getAncestors(
+    notation: IconclassNotation,
+  ): Observable<IconclassNotation[]> {
+    const ancestorIds = notation.p.slice(0, -1);
+    if (!ancestorIds.length) {
+      return of([]);
+    }
+    return forkJoin(ancestorIds.map((id) => this.getNotation(id))).pipe(
+      map((notations) => notations.filter((n) => !!n) as IconclassNotation[]),
+    );
+  }
+
+  /**
+   * Resolve the direct children of a notation from its `c` array.
+   * @param notation The already-fetched notation whose children to resolve.
+   * @returns Observable with the immediate child notations.
+   */
+  public getChildren(
+    notation: IconclassNotation,
+  ): Observable<IconclassNotation[]> {
+    if (!notation.c?.length) {
+      return of([]);
+    }
+    return forkJoin(notation.c.map((id) => this.getNotation(id))).pipe(
+      map((notations) => notations.filter((n) => !!n) as IconclassNotation[]),
+    );
   }
 
   /**

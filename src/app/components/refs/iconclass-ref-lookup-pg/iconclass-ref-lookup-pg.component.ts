@@ -74,11 +74,8 @@ export class IconclassRefLookupPgComponent {
         this.searchResult = r;
         this.searching = false;
       },
-      error: (error) => {
-        console.error('Error!');
-        if (error) {
-          console.log(JSON.stringify(error));
-        }
+      error: (error: unknown) => {
+        console.error('Error!', error);
         this.searching = false;
       },
     });

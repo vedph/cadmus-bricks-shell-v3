@@ -1,24 +1,23 @@
 # CadmusRefsIconclassLookup
 
-This library provides `IconclassService`, an Angular service wrapping the public
-[ICONCLASS](https://iconclass.org) API, to be used for looking up ICONCLASS
+This library provides `IconclassService`, an Angular service wrapping the public [ICONCLASS](https://iconclass.org) API, to be used for looking up ICONCLASS
 descriptors (notations) when describing the subject matter of an image.
 
 ## About ICONCLASS
 
-[ICONCLASS](https://iconclass.org) is a hierarchical classification system for
-iconographic research. Each subject ("descriptor") is identified by an
-alphanumeric **notation** (e.g. `97EE1`), optionally followed by a bracketed
-qualifier (e.g. `25F713(+4712)`, or a "kindred" placeholder like
-`25F713(...)` meaning "spiders (with NAME)"). Notations are organized in a
-tree: e.g. `9` → `97` → `97E` → `97EE` → `97EE1`.
+[ICONCLASS](https://iconclass.org) is a hierarchical classification system for iconographic research. Each subject ("descriptor") is identified by an alphanumeric **notation** (e.g. `97EE1`), optionally followed by a bracketed qualifier (e.g. `25F713(+4712)`, or a "kindred" placeholder like `25F713(...)` meaning "spiders (with NAME)"). Notations are organized in a tree: e.g. `9` → `97` → `97E` → `97EE` → `97EE1`.
+
+Iconclass is not a flat dictionary of tags; it is an alphanumeric hierarchical classification system. Iconclass structures knowledge using alphanumeric strings called **notations**. Each extra character represents a deeper level of specificity.
+
+- `7` → Bible
+- `71` → Old Testament
+- `71H` → Story of David
+- `71H7` → David and Bathsheba
+- `71H71` → David, from the roof observering Bathsheba bathing
 
 ## The API
 
-The ICONCLASS API is **not formally documented** (its `openapi.json` is
-empty), so the following has been determined by experimentation against
-`https://iconclass.org`. All endpoints return JSON and require no
-authentication.
+The ICONCLASS API is **not formally documented** (its `openapi.json` is empty), so the following has been determined by experimentation against `https://iconclass.org`. All endpoints return JSON and require no authentication.
 
 ### 1. Search: `GET /api/search?q={query}&size={size}&lang={lang}`
 
@@ -34,15 +33,9 @@ Full-text search across notations' multilingual labels and keywords. Returns:
 - `q` (required): the free-text query (e.g. `spider`).
 - `size` (optional): maximum number of notation codes to return. `total`
   always reports the overall number of matches, even if greater than `size`.
-- `lang` (optional): one of `en`, `de`, `fr`, `it`, `pt`, `jp`. In practice it
-  does **not** seem to restrict which notations match (e.g. `q=ragno&lang=it`
-  returns the same notations as `q=spider`), so it's mostly useful for
-  symmetry with the other endpoints.
+- `lang` (optional): one of `en`, `de`, `fr`, `it`, `pt`, `jp`. In practice it does **not** seem to restrict which notations match (e.g. `q=ragno&lang=it`  returns the same notations as `q=spider`), so it's mostly useful for symmetry with the other endpoints.
 
-The `result` array contains **plain notation codes only** — no labels or
-other metadata. Some of them may be "kindred" placeholder notations (ending
-in `(...)`, meaning "... with NAME/PLACE/etc."). To get human-readable
-information for each result, call the notation endpoint below.
+The `result` array contains **plain notation codes only** — no labels or other metadata. Some of them may be "kindred" placeholder notations (ending in `(...)`, meaning "... with NAME/PLACE/etc."). To get human-readable information for each result, call the notation endpoint below.
 
 ### 2. Notation data: `GET /{notation}.json`
 
@@ -70,31 +63,22 @@ Fields:
 - `n`: the notation code itself.
 - `b`: the "base" notation, without any bracketed qualifier (equal to `n`
   when there is none).
-- `k`: present only for notations with a `(+...)` qualifier; the
-  corresponding "key" code (e.g. `25Fk4712` for `25F713(+4712)`).
-- `p`: the full ancestors path, from the top-level digit down to and
-  including this notation.
+- `k`: present only for notations with a `(+...)` qualifier; the corresponding "key" code (e.g. `25Fk4712` for `25F713(+4712)`).
+- `p`: the full ancestors path, from the top-level digit down to and including this notation.
 - `c`: direct children notations (if any).
 - `r`: related/"see also" notations (if any).
 - `l`: codes of auxiliary "keys" (facets) combinable with this notation.
-- `txt`: the human-readable label/description, per language. Not all
-  languages are always populated (some may be empty strings).
-- `kw`: keywords, per language. Not all languages are always populated (some
-  may be empty arrays).
+- `txt`: the human-readable label/description, per language. Not all languages are always populated (some may be empty strings).
+- `kw`: keywords, per language. Not all languages are always populated (some may be empty arrays).
 
-**Important**: notations that don't exist return HTTP 200 with an empty JSON
-object `{}` (not a 404). `IconclassService.getNotation` treats this case (no
+**Important**: notations that don't exist return HTTP 200 with an empty JSON object `{}` (not a 404). `IconclassService.getNotation` treats this case (no
 `n` property) as "not found" and resolves to `undefined`.
 
-This endpoint works for **every** notation code returned by `/api/search`,
-including "kindred" placeholders like `25F713(...)` and qualified notations
-like `25F713(+4712)`. Special characters (`(`, `)`, `+`) must appear literally
-in the URL path; `IconclassService` takes care of this.
+This endpoint works for **every** notation code returned by `/api/search`, including "kindred" placeholders like `25F713(...)` and qualified notations like `25F713(+4712)`. Special characters (`(`, `)`, `+`) must appear literally in the URL path; `IconclassService` takes care of this.
 
 ### 3. Example images: `GET /api/images/{notation}?lang={lang}&format=json`
 
-Returns example artworks/images tagged with the given notation (as
-contributed by partner collections):
+Returns example artworks/images tagged with the given notation (as contributed by partner collections):
 
 ```json
 {
@@ -120,32 +104,20 @@ contributed by partner collections):
 
 Notes:
 
-- `count` is the number of records actually returned; `size` is the maximum
-  page size used by the API (around 49 in our tests).
-- Each record's shape **depends on the contributing collection** — only a
-  few common fields (`ID`, `IC`, `TITLE`, `TYPE`, `CREATOR`, `DATE`,
-  `LOCATION`, `DESCRIPTION`, `URL_IMAGE`, `URL_WEBPAGE`) are typed in
-  `IconclassImageRecord`; any other field is still accessible (the interface
-  has an index signature). Every field is an array of strings, even for
-  single values.
-- `URL_IMAGE` is just a filename within the source collection — there is no
-  documented, stable base URL to turn it into a full image URL. Use
-  `URL_WEBPAGE` to link back to the artwork on its source website instead.
-- Many notations — especially deep/specific ones — have `count: 0` and
-  `images: []`. This is normal, not an error.
+- `count` is the number of records actually returned; `size` is the maximum page size used by the API (around 49 in our tests).
+- Each record's shape **depends on the contributing collection** — only a few common fields (`ID`, `IC`, `TITLE`, `TYPE`, `CREATOR`, `DATE`, `LOCATION`, `DESCRIPTION`, `URL_IMAGE`, `URL_WEBPAGE`) are typed in `IconclassImageRecord`; any other field is still accessible (the interface has an index signature). Every field is an array of strings, even for single values.
+- `URL_IMAGE` is just a filename within the source collection — there is no documented, stable base URL to turn it into a full image URL. Use `URL_WEBPAGE` to link back to the artwork on its source website instead.
+- Many notations — especially deep/specific ones — have `count: 0` and `images: []`. This is normal, not an error.
 
 ## `IconclassService`
 
 ```ts
 class IconclassService {
-  search(query: string, options?: IconclassSearchOptions):
-    Observable<IconclassSearchResult>;
+  search(query: string, options?: IconclassSearchOptions): Observable<IconclassSearchResult>;
 
-  getNotation(notation: string):
-    Observable<IconclassNotation | undefined>;
+  getNotation(notation: string): Observable<IconclassNotation | undefined>;
 
-  getImages(notation: string, options?: IconclassImagesOptions):
-    Observable<IconclassImagesResult>;
+  getImages(notation: string, options?: IconclassImagesOptions): Observable<IconclassImagesResult>;
 
   getLabel(notation: IconclassNotation, lang?: IconclassLanguage | string): string;
 }
@@ -186,24 +158,8 @@ this._iconclass.search('spider', { size: 20 }).subscribe((result) => {
 
 ## Possible future additions
 
-The following endpoints/features were not implemented here but could be
-useful for a richer descriptor-picking UI:
+The following endpoints/features were not implemented here but could be useful for a richer descriptor-picking UI:
 
-- **Browse the hierarchy**: `getNotation` already returns `c` (children) and
-  `p` (ancestors path), so a tree-browsing UI (drill down from top-level
-  digits to specific notations) can be built on top of the existing service
-  without new endpoints — just call `getNotation` on each `c` entry.
-- **`RefLookupService` adapter** (`IconclassRefLookupService`), following the
-  pattern used by `@myrmidon/cadmus-refs-viaf-lookup`'s
-  `ViafRefLookupService`, to plug `IconclassService.search` +
-  `getNotation` into `RefLookupComponent`/`RefLookupSetComponent` from
-  `@myrmidon/cadmus-refs-lookup`. `getName` would use `getLabel`, and the
-  "ID" stored for an item would be the notation code itself.
-- **Localized search**: although `lang` doesn't currently filter search
-  results, the UI could still let users pick a display language and use
-  `getLabel(data, lang)` to show localized labels/keywords for the same
-  result set.
-- **Caching**: `getNotation` results are static (notation data doesn't
-  change), so a simple in-memory cache keyed by notation code would avoid
-  repeated requests when the same notations are resolved multiple times
-  (e.g. while browsing the hierarchy or rendering search results).
+- **Browse the hierarchy**: `getNotation` already returns `c` (children) and `p` (ancestors path), so a tree-browsing UI (drill down from top-level digits to specific notations) can be built on top of the existing service without new endpoints — just call `getNotation` on each `c` entry.
+- **Localized search**: although `lang` doesn't currently filter search results, the UI could still let users pick a display language and use `getLabel(data, lang)` to show localized labels/keywords for the same result set.
+- **Caching**: `getNotation` results are static (notation data doesn't change), so a simple in-memory cache keyed by notation code would avoid repeated requests when the same notations are resolved multiple times (e.g. while browsing the hierarchy or rendering search results).
