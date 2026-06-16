@@ -27,7 +27,7 @@ services:
       - cadmus-bricks-network
 
   cadmus-bricks-app:
-    image: vedph2020/cadmus-bricks-v3:10.0.9
+    image: vedph2020/cadmus-bricks-v3:10.0.10
     restart: unless-stopped
     container_name: cadmus-bricks-app
     depends_on:
