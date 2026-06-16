@@ -1,7 +1,7 @@
 // https://www.jvandemo.com/how-to-use-environment-variables-to-configure-your-angular-application-without-a-rebuild/
 (function (window) {
   window.__env = window.__env || {};
-  window.__env.version = "10.0.9";
+  window.__env.version = "10.0.10";
   // this is the base API URL used for authentication (auth-jwt-login)
   // and for the taxonomies store (taxo-store-api)
   window.__env.apiUrl = "http://localhost:5132/api/";
