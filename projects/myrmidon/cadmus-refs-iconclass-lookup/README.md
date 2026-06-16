@@ -91,11 +91,6 @@ including "kindred" placeholders like `25F713(...)` and qualified notations
 like `25F713(+4712)`. Special characters (`(`, `)`, `+`) must appear literally
 in the URL path; `IconclassService` takes care of this.
 
-> The user-reported case of `11H(NORBERT)59` "returning nothing" was tested
-> against `/api/images/{notation}`, not `/{notation}.json`: the notation
-> endpoint resolves it fine, it's just that no example images are associated
-> with it (see below).
-
 ### 3. Example images: `GET /api/images/{notation}?lang={lang}&format=json`
 
 Returns example artworks/images tagged with the given notation (as
