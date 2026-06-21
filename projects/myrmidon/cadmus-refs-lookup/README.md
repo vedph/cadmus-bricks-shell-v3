@@ -12,6 +12,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Configuring Lookup Scopes](#configuring-lookup-scopes)
   - [LookupDocReferencesComponent](#lookupdocreferencescomponent)
   - [History](#history)
+    - [10.0.8](#1008)
     - [10.0.7](#1007)
     - [10.0.5](#1005)
     - [10.0.3](#1003)
@@ -176,6 +177,7 @@ npm i @myrmidon/cadmus-refs-dbpedia-lookup @myrmidon/cadmus-refs-geonames-lookup
   useValue: 'YOUR-GEONAMES-USERNAME',
 },
 // proxy
+// ⚠️ if using interceptor options, ensure you add withInterceptorsFromDi() to the provideHttpClient call!
 {
   provide: PROXY_INTERCEPTOR_OPTIONS,
   useValue: {
