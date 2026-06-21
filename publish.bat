@@ -95,6 +95,11 @@ call npm publish --access=public
 cd ..\..\..
 pause
 
+cd .\dist\myrmidon\cadmus-refs-iconclass-lookup
+call npm publish --access=public
+cd ..\..\..
+pause
+
 cd .\dist\myrmidon\cadmus-refs-lookup
 call npm publish --access=public
 cd ..\..\..

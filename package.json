@@ -42,10 +42,10 @@
     "build-whg": "ng build @myrmidon/cadmus-refs-whg-lookup",
     "build-zot": "ng build @myrmidon/cadmus-refs-zotero-lookup",
     "build-obj": "ng build @myrmidon/cadmus-ui-object-view",
-    "build-lib": "pnpm run build-flg && pnpm run build-cit && pnpm run build-doc && pnpm run build-lok && pnpm run build-ass && pnpm run build-his && pnpm run build-cab && pnpm run build-col && pnpm run build-phg && pnpm run build-phs && pnpm run build-aid && pnpm run build-chr && pnpm run build-decc && pnpm run build-deci && pnpm run build-ext && pnpm run build-achr && pnpm run build-prp && pnpm run build-viaf && pnpm run build-sparql && pnpm run build-dbp && pnpm run build-blk && pnpm run build-nts && pnpm run build-ted && pnpm run build-tmd && pnpm run build-ttx && pnpm run build-geon && pnpm run build-whg && pnpm run build-pht && pnpm run build-muf && pnpm run build-zot && pnpm run build-obj && pnpm run build-mol && pnpm run build-bib && pnpm run build-geol"
+    "build-lib": "pnpm run build-flg && pnpm run build-cit && pnpm run build-doc && pnpm run build-lok && pnpm run build-ass && pnpm run build-his && pnpm run build-cab && pnpm run build-col && pnpm run build-phg && pnpm run build-phs && pnpm run build-aid && pnpm run build-chr && pnpm run build-decc && pnpm run build-deci && pnpm run build-ext && pnpm run build-achr && pnpm run build-prp && pnpm run build-viaf && pnpm run build-sparql && pnpm run build-dbp && pnpm run build-blk && pnpm run build-nts && pnpm run build-ted && pnpm run build-tmd && pnpm run build-ttx && pnpm run build-geon && pnpm run build-whg && pnpm run build-pht && pnpm run build-muf && pnpm run build-zot && pnpm run build-obj && pnpm run build-mol && pnpm run build-bib && pnpm run build-geol && pnpm run build-icl"
   },
   "private": true,
-  "packageManager": "pnpm@11.7.0",
+  "packageManager": "pnpm@11.8.0",
   "dependencies": {
     "@angular/animations": "^22.0.1",
     "@angular/cdk": "^22.0.1",
@@ -87,7 +87,7 @@
     "@testing-library/angular": "^19.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/geojson": "^7946.0.16",
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.0",
     "@types/terraformer__wkt": "^2.0.3",
     "jsdom": "^29.1.1",
     "ng-packagr": "^22.0.0",
@@ -95,6 +95,6 @@
     "vitest": "^4.1.9"
   },
   "optionalDependencies": {
-    "@rollup/rollup-win32-arm64-msvc": "^4.62.0"
+    "@rollup/rollup-win32-arm64-msvc": "^4.62.2"
   }
 }
