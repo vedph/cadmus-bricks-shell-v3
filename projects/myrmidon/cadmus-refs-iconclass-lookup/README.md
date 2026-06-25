@@ -3,6 +3,72 @@
 This library provides `IconclassService`, an Angular service wrapping the public [ICONCLASS](https://iconclass.org) API, to be used for looking up ICONCLASS
 descriptors (notations) when describing the subject matter of an image.
 
+## Quick Configuration
+
+⚠️ This requires backend proxy API.
+
+1. in your `app.config.ts` add proxy interceptor:
+
+```ts
+import { PROXY_INTERCEPTOR_OPTIONS, ProxyInterceptor } from '@myrmidon/cadmus-refs-lookup';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // ...
+    provideHttpClient(
+      withXhr(),
+      // add interceptors
+      withInterceptors([jwtInterceptor]),
+      withInterceptorsFromDi(),
+      withJsonpSupport(),
+    ),
+    {
+      provide: PROXY_INTERCEPTOR_OPTIONS,
+      useValue: {
+        proxyUrl: (window as any).__env?.proxyUrl || 'http://localhost:5064/api/proxy',
+        urls: [
+          'https://iconclass.org',
+        ],
+      },
+    },
+    //...
+  ]
+};
+```
+
+2. in your `env.js` add the proxy URL:
+
+```js
+(function (window) {
+  window.__env = window.__env || {};
+  // ...
+  // proxy
+  window.__env.proxyUrl = "http://localhost:5064/api/proxy";
+})(this);
+```
+
+3. in your app.ts configure lookup:
+
+```ts
+// configure external lookup for asserted composite IDs;
+// storage (of type RamStorageService) was injected
+
+storage.store(LOOKUP_CONFIGS_KEY, [
+  // ICONCLASS
+  {
+    name: 'Iconclass',
+    iconUrl: '/img/iconclass128.png',
+    description: 'Iconclass classification system',
+    label: 'ID',
+    service: inject(IconclassRefLookupService),
+    itemIdGetter: (item: any) => item?.n,
+    itemLabelGetter: (item: any) => item?.txt?.en,
+  },
+]);
+```
+
+4. add the `iconclass128.png` icon to your `public/img` folder.
+
 ## About ICONCLASS
 
 [ICONCLASS](https://iconclass.org) is a hierarchical classification system for iconographic research. Each subject ("descriptor") is identified by an alphanumeric **notation** (e.g. `97EE1`), optionally followed by a bracketed qualifier (e.g. `25F713(+4712)`, or a "kindred" placeholder like `25F713(...)` meaning "spiders (with NAME)"). Notations are organized in a tree: e.g. `9` → `97` → `97E` → `97EE` → `97EE1`.
