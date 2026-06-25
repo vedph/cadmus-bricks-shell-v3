@@ -22,6 +22,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptorsFromDi(),
       withJsonpSupport(),
     ),
+    { provide: HTTP_INTERCEPTORS, useClass: ProxyInterceptor, multi: true },
     {
       provide: PROXY_INTERCEPTOR_OPTIONS,
       useValue: {
