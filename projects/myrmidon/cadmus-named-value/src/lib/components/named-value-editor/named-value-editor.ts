@@ -211,7 +211,7 @@ export class NamedValueEditor {
     effect(() => {
       const external = this.value();
       const current = untracked(() => this.assembled());
-      if (this._sameValue(external, current)) {
+      if (this.sameValue(external, current)) {
         return;
       }
       this.applyExternalValue(external);
@@ -221,14 +221,14 @@ export class NamedValueEditor {
     effect(() => {
       const current = this.assembled();
       const external = untracked(() => this.value());
-      if (this._sameValue(current, external)) {
+      if (this.sameValue(current, external)) {
         return;
       }
       this.value.set(current);
     });
   }
 
-  private _sameValue(a: NamedValue | undefined, b: NamedValue | undefined): boolean {
+  private sameValue(a: NamedValue | undefined, b: NamedValue | undefined): boolean {
     return (a?.name ?? '') === (b?.name ?? '') && (a?.value ?? '') === (b?.value ?? '');
   }
 

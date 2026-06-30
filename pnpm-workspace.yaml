@@ -18,3 +18,4 @@ minimumReleaseAgeExclude:
   - '@types/node@25.9.3'
   - '@analogjs/vite-plugin-angular@2.6.1'
   - '@analogjs/vitest-angular@2.6.1'
+  - '@terraformer/wkt@2.2.2'

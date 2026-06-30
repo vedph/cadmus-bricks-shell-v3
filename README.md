@@ -9,6 +9,7 @@
   - [References](#references)
   - [Text](#text)
   - [UI](#ui)
+  - [Utility](#utility)
   - [Monaco Editor Configuration for Angular 21](#monaco-editor-configuration-for-angular-21)
     - [The Issue](#the-issue)
     - [Required Configuration Steps](#required-configuration-steps)
@@ -108,6 +109,10 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 - [@myrmidon/cadmus-ui-flag-set](projects/myrmidon/cadmus-ui-flag-set/README.md)
 - [@myrmidon/cadmus-ui-note-set](projects/myrmidon/cadmus-ui-note-set/README.md)
 - [@myrmidon/cadmus-ui-object-view](projects/myrmidon/cadmus-ui-object-view/README.md)
+
+## Utility
+
+- [@myrmidon/cadmus-named-value](projects/myrmidon/cadmus-named-value/README.md)
 
 ## Monaco Editor Configuration for Angular 21
 
