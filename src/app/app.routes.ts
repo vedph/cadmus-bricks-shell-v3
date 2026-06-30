@@ -361,6 +361,14 @@ export const routes: Routes = [
         (m) => m.FlagSetPgComponent,
       ),
   },
+  // ui/named-value-editor
+  {
+    path: 'ui/named-value-editor',
+    loadComponent: () =>
+      import('./components/ui/named-value-editor-pg/named-value-editor-pg.component').then(
+        (m) => m.NamedValueEditorPgComponent,
+      ),
+  },
   // ui/note-set
   {
     path: 'ui/note-set',

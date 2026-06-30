@@ -20,6 +20,9 @@
       "@myrmidon/cadmus-mat-physical-state": [
         "./dist/myrmidon/cadmus-mat-physical-state"
       ],
+      "@myrmidon/cadmus-named-value": [
+        "./dist/myrmidon/cadmus-named-value"
+      ],
       "@myrmidon/cadmus-refs-asserted-chronotope": [
         "./dist/myrmidon/cadmus-refs-asserted-chronotope"
       ],
@@ -348,6 +351,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-refs-iconclass-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-named-value/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-named-value/tsconfig.spec.json"
     }
   ]
 }

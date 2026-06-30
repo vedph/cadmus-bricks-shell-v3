@@ -1,0 +1,67 @@
+<div class="form-row">
+  <!-- name -->
+  @if (!closedNames()) {
+    <mat-form-field>
+      <mat-label>name</mat-label>
+      <input matInput [formField]="form.name" (blur)="onNameChanged()" />
+      @if (form.name().invalid() && form.name().touched()) {
+        <mat-error>{{ form.name().errors()[0]?.message || 'invalid' }}</mat-error>
+      }
+    </mat-form-field>
+  } @else {
+    <mat-form-field>
+      <mat-label>name</mat-label>
+      <mat-select [formField]="form.name" (selectionChange)="onNameChanged()">
+        @for (item of closedNames(); track item.value) {
+          <mat-option [value]="item.value">{{ item.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.name().invalid() && form.name().touched()) {
+        <mat-error>{{ form.name().errors()[0]?.message || 'invalid' }}</mat-error>
+      }
+    </mat-form-field>
+  }
+
+  <!-- value -->
+  @if (closedNameSelected() && isConstrained()) {
+    @if (showPrefix()) {
+      <mat-form-field class="small-input">
+        <mat-label>prefix</mat-label>
+        <input matInput [formField]="form.prefix" />
+        @if (form.prefix().invalid() && form.prefix().touched()) {
+          <mat-error>{{ form.prefix().errors()[0]?.message || 'invalid' }}</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <mat-form-field>
+      <mat-label>value *</mat-label>
+      <mat-select [formField]="form.picked">
+        @for (item of closedValueItems(); track item.value) {
+          <mat-option [value]="item.value">{{ item.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (isMulti()) {
+      <mat-form-field>
+        <mat-label>values *</mat-label>
+        <input matInput [formField]="form.text" />
+      </mat-form-field>
+    }
+  } @else {
+    <mat-form-field>
+      <mat-label>value *</mat-label>
+      <input matInput [formField]="form.text" />
+    </mat-form-field>
+  }
+
+  <button
+    type="button"
+    mat-icon-button
+    matTooltip="clear"
+    (click)="cancel()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>

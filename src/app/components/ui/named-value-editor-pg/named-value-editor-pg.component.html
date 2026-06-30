@@ -1,0 +1,35 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      <h2>Named Value Editor</h2>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div>
+      <mat-checkbox [(ngModel)]="useClosedNames">closed names</mat-checkbox>
+      <mat-checkbox [(ngModel)]="useClosedValues">closed values</mat-checkbox>
+      <mat-checkbox [(ngModel)]="useMultiValuedNames"
+        >multi-valued names</mat-checkbox
+      >
+      <mat-checkbox [(ngModel)]="hasPrefix">has prefix</mat-checkbox>
+      <mat-checkbox [(ngModel)]="usePrefixPattern"
+        >prefix pattern (^\@\d+:$)</mat-checkbox
+      >
+    </div>
+    <hr />
+    <cadmus-named-value-editor
+      [closedNames]="closedNames()"
+      [closedValues]="closedValues()"
+      [multiValuedNames]="multiValuedNames()"
+      [hasPrefix]="hasPrefix()"
+      [prefixPattern]="prefixPattern()"
+      [(value)]="value"
+      (valueChange)="onValueChange($event)"
+    />
+    <hr />
+    <h3>Value</h3>
+    <div>
+      <pre>{{ value | json }}</pre>
+    </div>
+  </mat-card-content>
+</mat-card>

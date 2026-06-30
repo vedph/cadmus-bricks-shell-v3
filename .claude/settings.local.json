@@ -9,7 +9,8 @@
       "Bash(curl -s \"https://iconclass.org/api/search?q=spider&size=5\")",
       "Bash(curl -s \"https://iconclass.org/search?q=spider\" -H \"Accept: application/json\" -o /dev/null -w \"%{http_code}\\\\n\")",
       "Bash(curl -s -w \"\\\\nHTTP:%{http_code}\\\\n\" \"https://iconclass.org/11H\\(NORBERT\\)59.json\")",
-      "Bash(curl -s \"https://iconclass.org/25F713.json\")"
+      "Bash(curl -s \"https://iconclass.org/25F713.json\")",
+      "Bash(npx ng *)"
     ]
   }
 }
