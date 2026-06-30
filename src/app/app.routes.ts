@@ -369,6 +369,14 @@ export const routes: Routes = [
         (m) => m.NamedValueEditorPgComponent,
       ),
   },
+  // ui/named-value-set-editor
+  {
+    path: 'ui/named-value-set-editor',
+    loadComponent: () =>
+      import('./components/ui/named-value-set-editor-pg/named-value-set-editor-pg.component').then(
+        (m) => m.NamedValueSetEditorPgComponent,
+      ),
+  },
   // ui/note-set
   {
     path: 'ui/note-set',

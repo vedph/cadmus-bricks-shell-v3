@@ -214,7 +214,7 @@ export class NamedValueEditor {
       if (this._sameValue(external, current)) {
         return;
       }
-      this._applyExternalValue(external);
+      this.applyExternalValue(external);
     });
 
     // push local edits to the bound value, unless they already match it
@@ -232,7 +232,7 @@ export class NamedValueEditor {
     return (a?.name ?? '') === (b?.name ?? '') && (a?.value ?? '') === (b?.value ?? '');
   }
 
-  private _applyExternalValue(v: NamedValue | undefined): void {
+  private applyExternalValue(v: NamedValue | undefined): void {
     const name = v?.name ?? '';
     const rawValue = v?.value ?? '';
     const multi = !!name && !!this.multiValuedNames()?.includes(name);

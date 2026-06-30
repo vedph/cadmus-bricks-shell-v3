@@ -1,0 +1,108 @@
+<div class="form-row">
+  <!-- add -->
+  <button
+    type="button"
+    color="primary"
+    mat-icon-button
+    matTooltip="Add a new value"
+    (click)="addValue()"
+  >
+    <mat-icon class="mat-primary">add_circle</mat-icon>
+  </button>
+
+  <!-- filter -->
+  @if (showFilter()) {
+  <mat-form-field>
+    <mat-label>name filter</mat-label>
+    <input matInput [(ngModel)]="filter" />
+  </mat-form-field>
+  }
+</div>
+
+<!-- editor -->
+@if (editedValue(); as ev) {
+<cadmus-named-value-editor
+  [value]="ev"
+  (valueChange)="onValueChange($event)"
+  [closedNames]="closedNames()"
+  [closedValues]="closedValues()"
+  [multiValuedNames]="multiValuedNames()"
+  [hasPrefix]="hasPrefix()"
+  [prefixPattern]="prefixPattern()"
+  (valueCancel)="closeValueEditor()"
+/>
+}
+
+<!-- list -->
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>name</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (item of filteredValues(); track item) {
+    <tr [class.selected]="$index === editedIndex()">
+      <td class="fit-width">
+        <!-- edit -->
+        <button
+          type="button"
+          color="primary"
+          mat-icon-button
+          matTooltip="Edit this value"
+          (click)="editValue(item)"
+        >
+          <mat-icon class="mat-primary">edit</mat-icon>
+        </button>
+        <!-- delete -->
+        <button
+          type="button"
+          color="warn"
+          mat-icon-button
+          matTooltip="Delete this value"
+          (click)="deleteValue(item)"
+        >
+          <mat-icon class="mat-warn">delete</mat-icon>
+        </button>
+      </td>
+      <td>
+        @if (closedNames()?.length) {
+        <span
+          >{{ item.name | flatLookup: closedNames() : "value" : "name" }}</span
+        >
+        } @else {
+        <span>{{ item.name }}</span>
+        }
+      </td>
+      <td>
+        @if (closedValues()?.[item.name]?.length) {
+        <span
+          >{{ item.value | flatLookup: closedValues()![item.name] : "value" :
+          "name" }}</span
+        >
+        } @else {
+        <span>{{ item.value }}</span>
+        }
+      </td>
+    </tr>
+    } @empty {
+    <tr>
+      <td colspan="3">No values.</td>
+    </tr>
+    }
+  </tbody>
+</table>
+
+<!-- batch actions -->
+@if (batchMode()) {
+<div class="form-row">
+  <button type="button" mat-button class="mat-primary" (click)="save()">
+    Save
+  </button>
+  <button type="button" mat-button class="mat-warn" (click)="closeBatch()">
+    Close
+  </button>
+</div>
+}
