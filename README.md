@@ -44,7 +44,7 @@ To use a brick:
 
 1. `pnpm run build-lib`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker build . -t vedph2020/cadmus-bricks-v3:10.0.10 -t vedph2020/cadmus-bricks-v3:latest` (replace with the current version).
+3. `docker buildx build --platform linux/amd64,linux/arm64 -t vedph2020/cadmus-bricks-v3:10.0.11 -t vedph2020/cadmus-bricks-v3:latest --push .`
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
 

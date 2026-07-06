@@ -2,6 +2,9 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+## 10.0.11
+
+- 2026-07-06: Docker.
 - 2026-06-30: 🆕 added named values library.
 
 ## 10.0.10
