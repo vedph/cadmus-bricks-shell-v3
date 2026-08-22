@@ -148,7 +148,7 @@ export class GeoLocationEditor {
   // #region Map state signals
   public readonly mapReady = signal(false);
   public readonly mapCenter = signal<LngLatLike>([12.4922, 41.8902]);
-  public readonly mapZoom = signal<[number]>([4]);
+  public readonly mapZoom = signal<number>(4);
 
   private readonly _latSignal = signal<number | null>(null);
   private readonly _lngSignal = signal<number | null>(null);
@@ -305,7 +305,7 @@ export class GeoLocationEditor {
       this._latSignal.set(loc.latitude);
       this._lngSignal.set(loc.longitude);
       this.mapCenter.set([loc.longitude, loc.latitude]);
-      this.mapZoom.set([12]);
+      this.mapZoom.set(12);
 
       this.updateGeometryOverlays();
       this.updateRadiusOverlay();
@@ -653,7 +653,7 @@ export class GeoLocationEditor {
     const lng = this.longitude.value;
     if (lat != null && lng != null) {
       this.mapCenter.set([lng, lat]);
-      this.mapZoom.set([14]);
+      this.mapZoom.set(14);
     }
   }
   // #endregion
@@ -690,7 +690,7 @@ export class GeoLocationEditor {
         this.syncLatLngSignals();
         this.updateLabelOverlay();
         this.mapCenter.set([pos.coords.longitude, pos.coords.latitude]);
-        this.mapZoom.set([14]);
+        this.mapZoom.set(14);
       },
       (err) => {
         this.locating.set(false);
