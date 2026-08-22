@@ -38,9 +38,6 @@
       "@myrmidon/cadmus-refs-chronotope": [
         "./dist/myrmidon/cadmus-refs-chronotope"
       ],
-      "@myrmidon/cadmus-refs-citation": [
-        "./dist/myrmidon/cadmus-refs-citation"
-      ],
       "@myrmidon/cadmus-refs-dbpedia-lookup": [
         "./dist/myrmidon/cadmus-refs-dbpedia-lookup"
       ],
@@ -49,9 +46,6 @@
       ],
       "@myrmidon/cadmus-refs-decorated-ids": [
         "./dist/myrmidon/cadmus-refs-decorated-ids"
-      ],
-      "@myrmidon/cadmus-refs-doc-references": [
-        "./dist/myrmidon/cadmus-refs-doc-references"
       ],
       "@myrmidon/cadmus-refs-external-ids": [
         "./dist/myrmidon/cadmus-refs-external-ids"
@@ -64,9 +58,6 @@
       ],
       "@myrmidon/cadmus-refs-iconclass-lookup": [
         "./dist/myrmidon/cadmus-refs-iconclass-lookup"
-      ],
-      "@myrmidon/cadmus-refs-lookup": [
-        "./dist/myrmidon/cadmus-refs-lookup"
       ],
       "@myrmidon/cadmus-refs-mol-lookup": [
         "./dist/myrmidon/cadmus-refs-mol-lookup"
@@ -109,9 +100,6 @@
       ],
       "@myrmidon/cadmus-ui-note-set": [
         "./dist/myrmidon/cadmus-ui-note-set"
-      ],
-      "@myrmidon/cadmus-ui-object-view": [
-        "./dist/myrmidon/cadmus-ui-object-view"
       ]
     },
     "strict": true,

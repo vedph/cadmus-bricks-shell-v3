@@ -45,6 +45,7 @@ import {
   ZOTERO_USER_ID_TOKEN,
 } from '@myrmidon/cadmus-refs-zotero-lookup';
 import { EnvService } from '@myrmidon/ngx-tools';
+import { provideMaplibreWorker } from '@maplibre/ngx-maplibre-gl/config';
 
 // for lookup in asserted IDs - note that this would require a backend
 const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
@@ -65,6 +66,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withViewTransitions()),
     provideHttpClient(withXhr(), withInterceptors([authJwtInterceptor]), withInterceptorsFromDi()),
     provideNativeDateAdapter(),
+    provideMaplibreWorker('maplibre-gl-worker.mjs'),
     {
       provide: NGX_MONACO_LOADER_PROVIDER,
       useFactory: () => new DefaultMonacoLoader(),
