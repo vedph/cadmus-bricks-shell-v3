@@ -67,8 +67,8 @@ export class MdLinkCtePlugin implements CadmusTextEdPlugin {
     try {
       // if target is JSON, parse it
       if (m[3].startsWith('{')) {
-        // replace \) with ) before parsing
-        const json = m[3].replace('\\)', ')');
+        // replace all \) with ) before parsing
+        const json = m[3].replace(/\\\)/g, ')');
         return {
           left: m[1],
           wrapped: m[2],
@@ -108,8 +108,8 @@ export class MdLinkCtePlugin implements CadmusTextEdPlugin {
     let s = JSON.stringify(id, (key, value) => {
       return value === '' ? undefined : value;
     });
-    // escape ) with \) to avoid Markdown parsing issues
-    return s.replace(')', '\\)');
+    // escape all ) with \) to avoid Markdown parsing issues
+    return s.replace(/\)/g, '\\)');
   }
 
   /**
@@ -157,6 +157,9 @@ export class MdLinkCtePlugin implements CadmusTextEdPlugin {
     sb.push('(');
     sb.push(this.stringifyId(id));
     sb.push(')');
+    if (parsedLink.right) {
+      sb.push(parsedLink.right);
+    }
 
     return {
       id: this.id,

@@ -200,7 +200,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       unit: this.defaultUnit() || this.unitEntries()?.[0]?.id || 'cm',
     } as PhysicalMeasurement);
 
-    if (!this.nameEntries?.length) {
+    if (!this.nameEntries()?.length) {
       this.name.reset();
     }
 
@@ -285,7 +285,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
     const measurements = [...this.measurements()];
     // get the index of the existing measurement with the same name
     const existingIndex = measurements.findIndex(
-      (m) => m.name === this.edited!.name
+      (m) => m.name === this.edited()!.name
     );
     // append or replace
     if (this.editedIndex() === -1) {

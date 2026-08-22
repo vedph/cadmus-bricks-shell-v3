@@ -1,10 +1,618 @@
-import { render } from '@testing-library/angular';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
-import { ExternalIdsComponent } from './external-ids.component';
+import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+import { Assertion } from '@myrmidon/cadmus-refs-assertion';
+
+import {
+  ExternalIdsComponent,
+  RankedExternalId,
+} from './external-ids.component';
 
 describe('ExternalIdsComponent', () => {
-  it('should render', async () => {
-    const { fixture } = await render(ExternalIdsComponent);
-    expect(fixture.componentInstance).toBeTruthy();
+  let component: ExternalIdsComponent;
+  let fixture: ComponentFixture<ExternalIdsComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ExternalIdsComponent],
+      providers: [provideNoopAnimations()],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ExternalIdsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
   });
+
+  /** Click the "add ID" button in the template. Using a real DOM click
+   * (rather than calling component.addId() directly) is important here:
+   * this component is OnPush and reads no signal in its template for the
+   * ids array (idsArr is a plain FormArray, not a signal), so directly
+   * invoking public methods from a test does not itself mark the OnPush
+   * view dirty. A real click event, like in actual usage, does. */
+  function clickAddId(): void {
+    const btn: HTMLButtonElement = fixture.nativeElement.querySelector(
+      'button'
+    );
+    btn.click();
+    fixture.detectChanges();
+  }
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  //#region defaults
+  describe('defaults', () => {
+    it('should default ids to an empty array', () => {
+      expect(component.ids()).toEqual([]);
+    });
+
+    it('should default lookupProviderOptions, scopeEntries, tagEntries, assTagEntries, refTypeEntries, refTagEntries to undefined', () => {
+      expect(component.lookupProviderOptions()).toBeUndefined();
+      expect(component.scopeEntries()).toBeUndefined();
+      expect(component.tagEntries()).toBeUndefined();
+      expect(component.assTagEntries()).toBeUndefined();
+      expect(component.refTypeEntries()).toBeUndefined();
+      expect(component.refTagEntries()).toBeUndefined();
+    });
+
+    it('should start with an empty idsArr and no assertion open', () => {
+      expect(component.idsArr.length).toBe(0);
+      expect(component.assEdOpen()).toBe(false);
+      expect(component.assertionNr()).toBe(0);
+      expect(component.assertion()).toBeUndefined();
+    });
+  });
+  //#endregion
+
+  //#region addId (hang/loop investigation)
+  describe('addId', () => {
+    it('should not hang or loop forever, and should settle synchronously', () => {
+      // this is the key regression test: addId() ultimately calls
+      // emitIdsChange(), which sets the `ids` model. Since `ids` is also
+      // watched by a constructor effect that rebuilds the form
+      // (updateForm), a naive implementation could re-enter addId/clearIds
+      // and loop forever. The component guards against this via the
+      // _updatingForm flag: updateForm() suppresses emitIdsChange() calls
+      // triggered by its own addId()/clearIds() calls while it rebuilds
+      // the form array. If this test completes at all (does not time out),
+      // the guard is working.
+      component.addId({ value: 'test' });
+      fixture.detectChanges();
+
+      expect(component.ids()).toBeDefined();
+      expect(component.idsArr.length).toBe(1);
+      expect(component.ids().length).toBe(1);
+      expect(component.ids()[0].value).toBe('test');
+    });
+
+    it('should add an empty, invalid row when called with no argument', () => {
+      component.addId();
+      fixture.detectChanges();
+
+      expect(component.idsArr.length).toBe(1);
+      const g = component.idsArr.at(0);
+      expect(g.get('value')?.value).toBeFalsy();
+      expect(g.get('value')?.hasError('required')).toBe(true);
+      expect(component.form.invalid).toBe(true);
+    });
+
+    it('should add a row populated from the given id', () => {
+      const id: RankedExternalId = {
+        value: 'v1',
+        scope: 's1',
+        tag: 't1',
+        rank: 2,
+      };
+      component.addId(id);
+      fixture.detectChanges();
+
+      const g = component.idsArr.at(0);
+      expect(g.get('value')?.value).toBe('v1');
+      expect(g.get('scope')?.value).toBe('s1');
+      expect(g.get('tag')?.value).toBe('t1');
+      expect(g.get('rank')?.value).toBe(2);
+    });
+
+    it('should emit ids change (update the ids model) when adding a row directly', () => {
+      component.addId({ value: 'v1' });
+      fixture.detectChanges();
+
+      expect(component.ids().length).toBe(1);
+      expect(component.ids()[0].value).toBe('v1');
+    });
+
+    it('should support adding many rows without hanging', () => {
+      for (let i = 0; i < 25; i++) {
+        component.addId({ value: `v${i}` });
+      }
+      fixture.detectChanges();
+
+      expect(component.idsArr.length).toBe(25);
+      expect(component.ids().length).toBe(25);
+    });
+
+    it('should propagate a debounced row value change into the ids model', async () => {
+      vi.useFakeTimers();
+      try {
+        component.addId({ value: 'v1' });
+        fixture.detectChanges();
+
+        const g = component.idsArr.at(0);
+        g.get('value')?.setValue('v1-changed');
+        await vi.advanceTimersByTimeAsync(350);
+
+        expect(component.ids()[0].value).toBe('v1-changed');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('should trim whitespace from value/scope/tag when emitting ids', async () => {
+      vi.useFakeTimers();
+      try {
+        component.addId({ value: 'v1' });
+        fixture.detectChanges();
+
+        const g = component.idsArr.at(0);
+        g.get('value')?.setValue('  padded-value  ');
+        g.get('scope')?.setValue('  padded-scope  ');
+        g.get('tag')?.setValue('  padded-tag  ');
+        await vi.advanceTimersByTimeAsync(350);
+
+        expect(component.ids()[0].value).toBe('padded-value');
+        expect(component.ids()[0].scope).toBe('padded-scope');
+        expect(component.ids()[0].tag).toBe('padded-tag');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('should preserve the rank when a row round-trips through the ids model', async () => {
+      // regression test: getIds() must include rank, otherwise it is
+      // silently dropped as soon as the model->form effect rebuilds the
+      // row from the emitted ids.
+      component.addId({ value: 'v1', rank: 7 });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.ids()[0].rank).toBe(7);
+      expect(component.idsArr.at(0).get('rank')?.value).toBe(7);
+    });
+  });
+  //#endregion
+
+  //#region model -> form sync (setting ids input)
+  describe('model -> form sync', () => {
+    it('should populate idsArr when ids is set externally', async () => {
+      fixture.componentRef.setInput('ids', [
+        { value: 'a', scope: 'sa', tag: 'ta' },
+        { value: 'b' },
+      ]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.idsArr.length).toBe(2);
+      expect(component.idsArr.at(0).get('value')?.value).toBe('a');
+      expect(component.idsArr.at(1).get('value')?.value).toBe('b');
+      expect(component.form.pristine).toBe(true);
+    });
+
+    it('should not hang or loop forever when ids is set externally multiple times', async () => {
+      fixture.componentRef.setInput('ids', [{ value: 'a' }]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput('ids', [{ value: 'b' }, { value: 'c' }]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.idsArr.length).toBe(2);
+      expect(component.idsArr.at(0).get('value')?.value).toBe('b');
+      expect(component.idsArr.at(1).get('value')?.value).toBe('c');
+    });
+
+    it('should reset the form when ids is set to an empty array', async () => {
+      fixture.componentRef.setInput('ids', [{ value: 'a' }]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput('ids', []);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.idsArr.length).toBe(0);
+    });
+
+    it('should rebuild the idsArr without re-emitting a redundant ids change (no infinite loop)', async () => {
+      // set up a spy on the ids model's set() to count how many times it
+      // is written to while processing a single external input change.
+      const setSpy = vi.spyOn(component.ids, 'set');
+
+      fixture.componentRef.setInput('ids', [{ value: 'a' }, { value: 'b' }]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // updateForm() (triggered once by the input change) must not itself
+      // call emitIdsChange()/ids.set() while rebuilding the form -- only
+      // direct user-driven calls (addId/removeId/etc invoked outside of
+      // updateForm) do that.
+      expect(setSpy).not.toHaveBeenCalled();
+    });
+  });
+  //#endregion
+
+  //#region removeId
+  describe('removeId', () => {
+    it('should remove the row at the given index and emit ids change', () => {
+      component.addId({ value: 'a' });
+      component.addId({ value: 'b' });
+      fixture.detectChanges();
+
+      component.removeId(0);
+      fixture.detectChanges();
+
+      expect(component.idsArr.length).toBe(1);
+      expect(component.idsArr.at(0).get('value')?.value).toBe('b');
+      expect(component.ids().length).toBe(1);
+      expect(component.ids()[0].value).toBe('b');
+    });
+
+    it('should close any open assertion editor', () => {
+      component.addId({ value: 'a' });
+      fixture.detectChanges();
+      component.editAssertion(0);
+      expect(component.assEdOpen()).toBe(true);
+
+      component.removeId(0);
+
+      expect(component.assEdOpen()).toBe(false);
+      expect(component.assertionNr()).toBe(0);
+      expect(component.assertion()).toBeUndefined();
+    });
+  });
+  //#endregion
+
+  //#region moveIdUp / moveIdDown
+  describe('moveIdUp', () => {
+    it('should do nothing when index < 1', () => {
+      component.addId({ value: 'a' });
+      component.addId({ value: 'b' });
+      fixture.detectChanges();
+
+      component.moveIdUp(0);
+      fixture.detectChanges();
+
+      expect(component.idsArr.at(0).get('value')?.value).toBe('a');
+      expect(component.idsArr.at(1).get('value')?.value).toBe('b');
+    });
+
+    it('should swap the row with the previous one', () => {
+      component.addId({ value: 'a' });
+      component.addId({ value: 'b' });
+      fixture.detectChanges();
+
+      component.moveIdUp(1);
+      fixture.detectChanges();
+
+      expect(component.idsArr.at(0).get('value')?.value).toBe('b');
+      expect(component.idsArr.at(1).get('value')?.value).toBe('a');
+      expect(component.ids()[0].value).toBe('b');
+      expect(component.ids()[1].value).toBe('a');
+    });
+  });
+
+  describe('moveIdDown', () => {
+    it('should do nothing when index is the last one', () => {
+      component.addId({ value: 'a' });
+      component.addId({ value: 'b' });
+      fixture.detectChanges();
+
+      component.moveIdDown(1);
+      fixture.detectChanges();
+
+      expect(component.idsArr.at(0).get('value')?.value).toBe('a');
+      expect(component.idsArr.at(1).get('value')?.value).toBe('b');
+    });
+
+    it('should swap the row with the next one', () => {
+      component.addId({ value: 'a' });
+      component.addId({ value: 'b' });
+      fixture.detectChanges();
+
+      component.moveIdDown(0);
+      fixture.detectChanges();
+
+      expect(component.idsArr.at(0).get('value')?.value).toBe('b');
+      expect(component.idsArr.at(1).get('value')?.value).toBe('a');
+    });
+  });
+  //#endregion
+
+  //#region clearIds
+  describe('clearIds', () => {
+    it('should remove all rows and emit ids change', () => {
+      component.addId({ value: 'a' });
+      component.addId({ value: 'b' });
+      fixture.detectChanges();
+
+      component.clearIds();
+      fixture.detectChanges();
+
+      expect(component.idsArr.length).toBe(0);
+      expect(component.ids()).toEqual([]);
+    });
+
+    it('should close any open assertion editor', () => {
+      component.addId({ value: 'a' });
+      fixture.detectChanges();
+      component.editAssertion(0);
+
+      component.clearIds();
+
+      expect(component.assEdOpen()).toBe(false);
+    });
+  });
+  //#endregion
+
+  //#region assertion editing
+  describe('editAssertion', () => {
+    it('should open the assertion editor for the given row', () => {
+      component.addId({ value: 'a' });
+      fixture.detectChanges();
+
+      component.editAssertion(0);
+
+      expect(component.assEdOpen()).toBe(true);
+      expect(component.assertionNr()).toBe(1);
+      // the row's assertion control was never set, and by the time this
+      // is read the row has round-tripped once through
+      // getIds()/getIdGroup() (via the model->form sync effect), which
+      // normalizes an unset value to null (standard reactive forms
+      // behavior for a FormControl built with no explicit value)
+      expect(component.assertion()).toBeNull();
+    });
+
+    it('should load the existing assertion of the row, if any', () => {
+      const assertion: Assertion = { rank: 1, note: 'note1' };
+      component.addId({ value: 'a', assertion });
+      fixture.detectChanges();
+
+      component.editAssertion(0);
+
+      expect(component.assertion()).toEqual(assertion);
+    });
+
+    it('should not corrupt another row\'s assertion the very first time it is called (regression: assertionNr signal truthiness bug)', () => {
+      // Before the fix, saveAssertion()/closeAssertion() checked
+      // `if (this.assertionNr)` instead of `if (this.assertionNr())`.
+      // Since assertionNr is a signal (a function, always truthy), this
+      // unconditionally ran saveAssertion()'s body even when nothing was
+      // being edited yet (assertionNr() === 0). saveAssertion() would then
+      // resolve `idsArr.at(assertionNr() - 1)` = `idsArr.at(-1)`, which
+      // FormArray resolves via negative-index wraparound to the LAST row,
+      // overwriting its assertion with the (default, undefined) assertion
+      // signal value -- silently destroying unrelated data.
+      const bAssertion: Assertion = { rank: 9, note: 'b-assertion' };
+      component.addId({ value: 'a' });
+      component.addId({ value: 'b', assertion: bAssertion });
+      fixture.detectChanges();
+
+      // editing row 0, which has no assertion of its own, must not touch
+      // row 1's existing assertion
+      component.editAssertion(0);
+
+      expect(component.idsArr.at(1).get('assertion')?.value).toEqual(
+        bAssertion
+      );
+    });
+
+    it('should save the previously edited assertion before switching to another row', () => {
+      component.addId({ value: 'a' });
+      component.addId({ value: 'b' });
+      fixture.detectChanges();
+
+      component.editAssertion(0);
+      const assertion: Assertion = { rank: 3, note: 'edited' };
+      component.onAssertionChange(assertion);
+
+      component.editAssertion(1);
+
+      // row 0's assertion control should have been saved with the edited
+      // assertion before moving on to row 1
+      expect(component.idsArr.at(0).get('assertion')?.value).toEqual(
+        assertion
+      );
+      // editor should now target row 1 (index 1 -> assertionNr 2), with a
+      // fresh (null) assertion since row 1 has none (see note above about
+      // unset FormControl values normalizing to null)
+      expect(component.assertionNr()).toBe(2);
+      expect(component.assertion()).toBeNull();
+    });
+  });
+
+  describe('onAssertionChange', () => {
+    it('should update the assertion signal', () => {
+      const assertion: Assertion = { rank: 2 };
+      component.onAssertionChange(assertion);
+      expect(component.assertion()).toEqual(assertion);
+    });
+  });
+
+  describe('saveAssertion', () => {
+    it('should do nothing when no assertion is currently being edited', () => {
+      component.addId({ value: 'a' });
+      fixture.detectChanges();
+
+      component.saveAssertion();
+
+      expect(component.idsArr.at(0).get('assertion')?.value).toBeFalsy();
+    });
+
+    it('should write the edited assertion into the row and close the editor', () => {
+      component.addId({ value: 'a' });
+      fixture.detectChanges();
+
+      component.editAssertion(0);
+      const assertion: Assertion = { rank: 5, note: 'hello' };
+      component.onAssertionChange(assertion);
+
+      component.saveAssertion();
+
+      expect(component.idsArr.at(0).get('assertion')?.value).toEqual(
+        assertion
+      );
+      expect(component.assEdOpen()).toBe(false);
+      expect(component.assertionNr()).toBe(0);
+      expect(component.assertion()).toBeUndefined();
+    });
+
+    it('should emit ids change including the saved assertion', () => {
+      component.addId({ value: 'a' });
+      fixture.detectChanges();
+
+      component.editAssertion(0);
+      const assertion: Assertion = { rank: 5 };
+      component.onAssertionChange(assertion);
+      component.saveAssertion();
+
+      expect(component.ids()[0].assertion).toEqual(assertion);
+    });
+  });
+  //#endregion
+
+  //#region ngOnDestroy
+  describe('ngOnDestroy', () => {
+    it('should not throw when destroying with no rows', () => {
+      expect(() => fixture.destroy()).not.toThrow();
+    });
+
+    it('should not throw when destroying with rows present', () => {
+      component.addId({ value: 'a' });
+      component.addId({ value: 'b' });
+      fixture.detectChanges();
+
+      expect(() => fixture.destroy()).not.toThrow();
+    });
+  });
+  //#endregion
+
+  //#region template
+  describe('template', () => {
+    it('should render an "add ID" button that adds a row when clicked', () => {
+      clickAddId();
+      expect(component.idsArr.length).toBe(1);
+    });
+
+    it('should render one row per id in idsArr', () => {
+      clickAddId();
+      clickAddId();
+
+      // note: '.form-row' alone is not specific enough here -- the nested
+      // cadmus-refs-assertion (and its own nested lookup components)
+      // reuse the same '.form-row' class internally, and the assertion
+      // panel is present as soon as idsArr.length > 0. The "remove" button
+      // is unique to (and one-per) external-id row.
+      const removeButtons = fixture.nativeElement.querySelectorAll(
+        'button[matTooltip="Remove this ID"]'
+      );
+      expect(removeButtons.length).toBe(2);
+    });
+
+    it('should render a free-text scope input when scopeEntries is not set', () => {
+      clickAddId();
+
+      const scopeSelect = fixture.nativeElement.querySelector(
+        'mat-select[formcontrolname="scope"]'
+      );
+      const scopeInputs = Array.from(
+        fixture.nativeElement.querySelectorAll(
+          'input[formcontrolname="scope"]'
+        )
+      );
+      expect(scopeSelect).toBeFalsy();
+      expect(scopeInputs.length).toBe(1);
+    });
+
+    it('should render a bound scope select when scopeEntries is set', async () => {
+      const entries: ThesaurusEntry[] = [
+        { id: 's1', value: 'Scope 1' },
+        { id: 's2', value: 'Scope 2' },
+      ];
+      fixture.componentRef.setInput('scopeEntries', entries);
+      component.addId({ value: 'a' });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const scopeSelect = fixture.nativeElement.querySelector(
+        'mat-select[formcontrolname="scope"]'
+      );
+      expect(scopeSelect).toBeTruthy();
+    });
+
+    it('should render a free-text tag input when tagEntries is not set', () => {
+      clickAddId();
+
+      const tagSelect = fixture.nativeElement.querySelector(
+        'mat-select[formcontrolname="tag"]'
+      );
+      expect(tagSelect).toBeFalsy();
+    });
+
+    it('should render a bound tag select when tagEntries is set', async () => {
+      const entries: ThesaurusEntry[] = [{ id: 't1', value: 'Tag 1' }];
+      fixture.componentRef.setInput('tagEntries', entries);
+      component.addId({ value: 'a' });
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const tagSelect = fixture.nativeElement.querySelector(
+        'mat-select[formcontrolname="tag"]'
+      );
+      expect(tagSelect).toBeTruthy();
+    });
+
+    it('should not render the assertion panel when there are no rows', () => {
+      const panel = fixture.nativeElement.querySelector(
+        'mat-expansion-panel'
+      );
+      expect(panel).toBeFalsy();
+    });
+
+    it('should render the assertion panel once there is at least one row', () => {
+      clickAddId();
+
+      const panel = fixture.nativeElement.querySelector(
+        'mat-expansion-panel'
+      );
+      expect(panel).toBeTruthy();
+    });
+
+    it('should invoke removeId when the remove button is clicked', () => {
+      clickAddId();
+      const spy = vi.spyOn(component, 'removeId');
+
+      const removeBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+        'button[matTooltip="Remove this ID"]'
+      );
+      removeBtn.click();
+
+      expect(spy).toHaveBeenCalledWith(0);
+    });
+
+    it('should invoke editAssertion when the assertion button is clicked', () => {
+      clickAddId();
+      const spy = vi.spyOn(component, 'editAssertion');
+
+      const assBtn: HTMLButtonElement = fixture.nativeElement.querySelector(
+        'button[matTooltip="Edit assertion"]'
+      );
+      assBtn.click();
+
+      expect(spy).toHaveBeenCalledWith(0);
+    });
+  });
+  //#endregion
 });

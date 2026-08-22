@@ -439,7 +439,7 @@ export class Datation implements DatationModel {
         fi++;
       }
     }
-    format = sb.join();
+    format = sb.join('');
 
     // split into tokens and literals
     const tokens = [

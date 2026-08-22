@@ -244,7 +244,7 @@ export class ExternalIdsComponent implements OnDestroy {
 
   public saveAssertion(): void {
     // save the currently edited assertion if any
-    if (this.assertionNr) {
+    if (this.assertionNr()) {
       const g = this.idsArr.at(this.assertionNr()! - 1) as FormGroup;
       g.controls['assertion'].setValue(this.assertion());
       this.closeAssertion();
@@ -253,7 +253,7 @@ export class ExternalIdsComponent implements OnDestroy {
   }
 
   private closeAssertion(): void {
-    if (this.assertionNr) {
+    if (this.assertionNr()) {
       this.assEdOpen.set(false);
       this.assertionNr.set(0);
       this.assertion.set(undefined);
@@ -275,8 +275,14 @@ export class ExternalIdsComponent implements OnDestroy {
       }
       this.form.markAsPristine();
     }
+    // note: no emitIdsChange() call here. Since ids is a model bound to
+    // this same effect, unconditionally re-emitting after rebuilding the
+    // form from an externally set value would set ids() again, which would
+    // re-trigger this effect indefinitely (infinite loop). The row-level
+    // valueChanges subscriptions, plus the explicit addId/removeId/
+    // moveIdUp/moveIdDown/clearIds calls, already propagate every
+    // user-driven change.
     this._updatingForm = false;
-    this.emitIdsChange();
   }
 
   private getIds(): RankedExternalId[] {
@@ -287,6 +293,7 @@ export class ExternalIdsComponent implements OnDestroy {
         value: g.controls['value'].value?.trim(),
         scope: g.controls['scope'].value?.trim(),
         tag: g.controls['tag'].value?.trim(),
+        rank: g.controls['rank'].value,
         assertion: g.controls['assertion'].value,
       });
     }

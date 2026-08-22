@@ -28,6 +28,10 @@ Each custom action is defined by an object implementing `BarCustomAction`.
 
 ## History
 
+### 9.0.2
+
+- 2026-08-22: fixed `payload` not being invoked as a signal when passed to `onCustomAction` and to each action's `disabled` callback, so the actual payload value is now received instead of the signal function itself.
+
 ### 9.0.1
 
 - 2025-09-10: set `CustomActionBarComponent` change detection to `OnPush`.

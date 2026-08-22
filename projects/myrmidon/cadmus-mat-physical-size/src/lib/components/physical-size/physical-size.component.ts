@@ -225,7 +225,6 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     // when size changes, update form
     effect(() => {
       const size = this.size();
-      console.log('size', size);
       this.updateForm(size);
     });
 

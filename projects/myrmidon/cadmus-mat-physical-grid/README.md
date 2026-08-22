@@ -62,6 +62,7 @@ The component allows you to specify the location of 1 or more cells, according t
   - `mode` (`PhysicalGridMode`): the mode of selection in the grid: single allows to select a single cell, multiple allows to select multiple cells wherever they are, contiguous allows to select only contiguous cells.
 - 🔥 output:
   - `locationChange` (`PhysicalGridLocation`): emitted when the location changes.
+  - `modeChange` (`PhysicalGridMode`): emitted when the selection mode changes.
   - `collapsedGridChange` (`boolean`): emitted when the grid is collapsed.
 
 ## Service

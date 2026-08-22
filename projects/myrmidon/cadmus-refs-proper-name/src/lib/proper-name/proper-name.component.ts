@@ -241,7 +241,9 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   public addPiece(): void {
     this.editPiece(
       {
-        type: this.pieceTypes.length ? this.pieceTypes()[0].id : '',
+        // note: pieceTypes is a signal, so it must be invoked (pieceTypes())
+        // to read the underlying array before checking its length
+        type: this.pieceTypes().length ? this.pieceTypes()[0].id : '',
         value: '',
       },
       -1,

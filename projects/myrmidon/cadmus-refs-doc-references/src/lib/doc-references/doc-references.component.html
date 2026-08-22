@@ -105,7 +105,7 @@
         <!-- citation -->
         <mat-form-field style="flex: 1 0 1fr">
           <mat-label>citation</mat-label>
-          <input matInput formControlName="citation" />
+          <input matInput formControlName="citation" #author />
           @if ( $any(item)['controls'].citation.hasError('max-length') &&
           ($any(item)['controls'].citation.dirty ||
           $any(item)['controls'].citation.touched) ) {

@@ -385,7 +385,7 @@ export class NoteSetComponent implements OnInit {
    * Save the currently edited note.
    */
   public save(): void {
-    if (!this.currentDef || this.text.invalid) {
+    if (!this.currentDef() || this.text.invalid) {
       return;
     }
     this.saveNote({

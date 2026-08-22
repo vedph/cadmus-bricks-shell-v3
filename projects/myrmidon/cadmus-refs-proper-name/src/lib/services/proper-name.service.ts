@@ -75,11 +75,10 @@ export class ProperNameService {
           id: id,
           value: entry.value,
           single: single,
-          ordinal: this.getEntryOrdinal(
-            entry.id,
-            sortedIds,
-            results.length + 1
-          ),
+          // use the stripped id (without the trailing '*' singleton
+          // marker) so that _order entries -- which never carry the
+          // marker -- correctly match singleton type ids too
+          ordinal: this.getEntryOrdinal(id, sortedIds, results.length + 1),
         };
         results.push(lastParentEntry);
       }

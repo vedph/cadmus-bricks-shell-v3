@@ -50,7 +50,7 @@
     <mat-form-field class="hint">
       <mat-label>hint</mat-label>
       <input matInput [formControl]="hint" />
-      @if (hint.hasError("maxLength") && (hint.touched || hint.dirty)) {
+      @if (hint.hasError("maxlength") && (hint.touched || hint.dirty)) {
         <mat-error>hint too long</mat-error>
       }
     </mat-form-field>

@@ -246,8 +246,8 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
         added.push({
           id: m[1],
           value: parseFloat(m[2]),
-          tag: m[3]?.substring(1, m[3].length - 2),
-          note: m[4]?.substring(1, m[4].length - 2),
+          tag: m[3]?.substring(1, m[3].length - 1),
+          note: m[4]?.substring(1, m[4].length - 1),
         });
       }
     }

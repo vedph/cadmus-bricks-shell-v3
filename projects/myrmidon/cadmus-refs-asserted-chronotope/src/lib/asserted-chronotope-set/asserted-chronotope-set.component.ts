@@ -109,7 +109,6 @@ export class AssertedChronotopeSetComponent implements OnInit {
     // when chronotopes change, update form
     effect(() => {
       const chronotopes = this.chronotopes();
-      console.log('chronotopes', chronotopes);
       this.updateForm(chronotopes);
     });
 

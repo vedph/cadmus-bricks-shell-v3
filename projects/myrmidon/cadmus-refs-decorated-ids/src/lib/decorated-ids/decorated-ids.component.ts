@@ -139,7 +139,6 @@ export class DecoratedIdsComponent {
     // when ids change, update form and close ID editor
     effect(() => {
       const ids = this.ids();
-      console.log('ids change', ids);
       this.closeIdEditor();
       this.updateForm(ids);
     });
@@ -203,7 +202,7 @@ export class DecoratedIdsComponent {
   }
 
   private getEditedId(): DecoratedId | null {
-    if (!this.edited) {
+    if (!this.edited()) {
       return null;
     }
     return {

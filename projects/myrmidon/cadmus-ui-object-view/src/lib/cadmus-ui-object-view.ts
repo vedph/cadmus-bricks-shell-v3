@@ -262,7 +262,10 @@ export class ObjectViewComponent {
     });
   }
 
-  private filterBlacklistedProperties(obj: any): any {
+  private filterBlacklistedProperties(
+    obj: any,
+    visited: WeakSet<object> = new WeakSet()
+  ): any {
     if (obj === null || obj === undefined) {
       return obj;
     }
@@ -272,23 +275,31 @@ export class ObjectViewComponent {
       return obj;
     }
 
+    // guard against circular references: without this, a self-referencing
+    // object (e.g. a component instance) would recurse until the call
+    // stack overflows, which is then silently swallowed by the per-property
+    // try/catch below at some arbitrary depth, leaving createNodeTree to
+    // choke on the resulting (still huge, no longer even circular) object
+    // and wipe the whole tree
+    if (visited.has(obj)) {
+      return '[Circular Reference]';
+    }
+    visited.add(obj);
+
     // handle arrays
     if (Array.isArray(obj)) {
-      return obj.map((item) => this.filterBlacklistedProperties(item));
+      return obj.map((item) =>
+        this.filterBlacklistedProperties(item, visited)
+      );
     }
 
     // handle objects
     const blacklist = new Set(this.propertyBlacklist());
     const filtered: any = {};
 
-    for (const [key, value] of Object.entries(obj)) {
+    for (const key of Object.keys(obj)) {
       // skip blacklisted properties
       if (blacklist.has(key)) {
-        continue;
-      }
-
-      // skip function properties (these are typically methods or service references)
-      if (typeof value === 'function') {
         continue;
       }
 
@@ -297,9 +308,26 @@ export class ObjectViewComponent {
         continue;
       }
 
+      // read the property value inside its own try/catch: a getter that
+      // throws must be caught here, since Object.entries()/obj[key] both
+      // invoke the getter eagerly -- catching only the recursive call
+      // below (as before) would not protect against this
+      let value: any;
+      try {
+        value = obj[key];
+      } catch (error) {
+        filtered[key] = '[Unprocessable Property]';
+        continue;
+      }
+
+      // skip function properties (these are typically methods or service references)
+      if (typeof value === 'function') {
+        continue;
+      }
+
       // recursively filter nested objects
       try {
-        filtered[key] = this.filterBlacklistedProperties(value);
+        filtered[key] = this.filterBlacklistedProperties(value, visited);
       } catch (error) {
         // if we can't process a property (e.g., circular reference, getter that throws),
         // replace it with a placeholder

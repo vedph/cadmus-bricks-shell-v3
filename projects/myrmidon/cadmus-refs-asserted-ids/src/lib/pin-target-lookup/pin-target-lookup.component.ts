@@ -293,7 +293,6 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     // when target changes, update form
     effect(() => {
       const target = this.target();
-      console.log('target changed', target);
       this.updateForm(target);
     });
 

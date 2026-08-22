@@ -16,7 +16,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
 // material
@@ -141,11 +141,17 @@ export class AssertionComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
     this._sub = this.form.valueChanges
-      .pipe(debounceTime(300))
+      .pipe(
+        // react only on user changes, i.e. those not caused by updateForm
+        // reacting to an externally set assertion. This check must happen
+        // before debounceTime, as _updatingForm is reset synchronously right
+        // after updateForm's setValue calls, well before any debounced
+        // emission would reach a check placed after debounceTime.
+        filter(() => !this._updatingForm),
+        debounceTime(300)
+      )
       .subscribe((_) => {
-        if (!this._updatingForm) {
-          this.saveAssertion();
-        }
+        this.saveAssertion();
       });
   }
 

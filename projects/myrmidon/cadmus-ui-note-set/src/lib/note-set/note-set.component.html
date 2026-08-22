@@ -69,7 +69,7 @@
       <textarea rows="3" matInput [formControl]="text"></textarea>
       @if ($any(text).errors?.required && (text.touched || text.dirty)) {
       <mat-error>required</mat-error>
-      } @if ($any(text).errors?.maxLength) {
+      } @if ($any(text).errors?.maxlength) {
       <mat-error>too long</mat-error>
       }
     </mat-form-field>
