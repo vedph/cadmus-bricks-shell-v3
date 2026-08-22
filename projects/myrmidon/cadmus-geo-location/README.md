@@ -18,36 +18,7 @@ npm install @maplibre/ngx-maplibre-gl maplibre-gl @terraformer/wkt @types/geojso
 npm install @myrmidon/ngx-mat-tools
 ```
 
-### 2. Import MapLibre CSS
-
-The MapLibre GL stylesheet **must** be imported globally. Without it, the map will render with broken layout and missing controls.
-
-**Option A** (suggested) -- in your global `styles.scss` (or `styles.css`):
-
-```scss
-@import "maplibre-gl/dist/maplibre-gl.css";
-```
-
-**Option B** -- in `angular.json`, under `projects > your-app > architect > build > options > styles`:
-
-```json
-"styles": [
-  "node_modules/maplibre-gl/dist/maplibre-gl.css",
-  "src/styles.scss"
-]
-```
-
-### 3. CommonJS Warning (Optional)
-
-MapLibre GL is distributed as CommonJS. Angular CLI will emit a warning during build:
-
-> Module 'maplibre-gl' is not ESM
-
-This is harmless. To silence it, add to `angular.json` under `build > options`:
-
-```json
-"allowedCommonJsDependencies": ["maplibre-gl"]
-```
+To setup `@maplibre/ngx-maplibre-gl` see <https://github.com/maplibre/ngx-maplibre-gl>.
 
 ## Model
 
