@@ -67,7 +67,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 16. `cadmus-refs-lookup`
 - [x] 17. `cadmus-refs-decorated-ids` — uses `NgxToolsValidators`
 - [x] 18. `cadmus-refs-assertion`
-- [ ] 19. `cadmus-refs-external-ids` — has `FormArray`
+- [x] 19. `cadmus-refs-external-ids` — has `FormArray`
 - [ ] 20. `cadmus-refs-proper-name` — uses `NgxToolsValidators`
 - [ ] 21. `cadmus-refs-asserted-chronotope` — uses `NgxToolsValidators`
 - [ ] 22. `cadmus-refs-asserted-ids`
@@ -571,4 +571,55 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   draft against its own prior raw snapshot, never against the
   differently-shaped (trimmed) output. Combined with the usual effect-side
   `_lastAssertion`/`_hasLastAssertion` reference guard on the model.
-  objects first, both coming in and going back out.
+- **`cadmus-refs-external-ids`** - second `FormArray` case, an array of
+  rows each with a nested `Assertion` object (edited via a separate
+  `cadmus-refs-assertion` instance, never through `[formField]`). Applied
+  the `doc-references` architecture directly: `applyEach(path.idsArr,
+  (row) => {...})` for per-row `required`/`maxLength` validators, one
+  unified `toObservable(this._draft).pipe(debounceTime(300))` autosave,
+  and the `_lastSyncedDraft` JSON-snapshot guard (from
+  `cadmus-refs-assertion`) to distinguish a real edit from the debounce
+  re-firing after `updateForm()`'s own write. **Kept a deliberate
+  hybrid**, unlike every array-field component so far: structural
+  mutations (`addId`/`removeId`/`moveIdUp`/`moveIdDown`/`clearIds`/
+  `saveAssertion`) call `emitIdsChange()` *immediately*, synchronously,
+  in addition to going through the debounced pipeline - the original
+  reactive-forms version emitted structural changes immediately (via
+  direct `ids.set()` calls) while only per-field *edits* went through a
+  debounced `valueChanges` subscription, and several tests assert on the
+  model synchronously right after calling `addId()`/`removeId()`/etc.
+  with no `await`. `emitIdsChange()` also updates `_lastSyncedDraft` to
+  the just-emitted state, so the debounce firing ~300ms later for the
+  same structural change is a correctly-recognized no-op rather than a
+  redundant duplicate save.
+  **Major new finding**: a per-row field write reached through
+  `applyEach()` (e.g. `component.idsArr[0].value().value.set(x)`) does
+  update the draft correctly - reading `this._draft()` immediately
+  afterward shows the new value - but the `toObservable(this._draft)`
+  pipeline's internal effect **does not fire under
+  `vi.useFakeTimers()`/`vi.advanceTimersByTimeAsync()`** for this
+  specific case, even though the exact same `toObservable()` +
+  `debounceTime()` + fake-timers combination was already confirmed
+  working (in `cadmus-text-ed-txt`'s spec, and elsewhere) for *scalar*
+  (non-array) fields. Confirmed by switching two failing tests from fake
+  timers to real timers (`await new Promise(resolve =>
+  setTimeout(resolve, 400))`) with no other change - they passed
+  immediately. Root cause not fully isolated (plausibly `applyEach`'s
+  per-item change propagation schedules its notification differently
+  than a top-level field write, in a way fake timers' clock don't
+  advance past), but the practical rule going forward: **when a test
+  needs to observe a debounced autosave triggered by a write to a field
+  reached through `applyEach()`/an array item, use real timers
+  (`setTimeout` + `await`), not `vi.useFakeTimers()`** - reserve fake
+  timers for debounces on top-level scalar fields, where they're already
+  proven reliable.
+  Also ported the `ngAfterViewInit` "focus the newly added row" QueryList
+  subscription using a `_suppressFocus` flag that is set by
+  `updateForm()` but deliberately *not* reset synchronously at the end
+  of it - `idQueryList.changes` only fires once change detection has
+  actually re-rendered the `@for` loop, well after `updateForm()`
+  returns, so the flag must survive until the subscription itself
+  consumes (clears) it - the same category of hazard as the
+  `toObservable()`-vs-synchronous-flag timing issues elsewhere in this
+  migration, just applied to `QueryList.changes` instead of an
+  Observable bridge.

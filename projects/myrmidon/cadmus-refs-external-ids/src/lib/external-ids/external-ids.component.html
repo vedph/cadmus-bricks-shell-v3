@@ -1,5 +1,5 @@
-<form [formGroup]="form">
-  <div formArrayName="idsArr">
+<form>
+  <div>
     <div>
       <button
         type="button"
@@ -11,15 +11,15 @@
       </button>
     </div>
     @for (
-      item of idsArr.controls;
-      track item;
+      item of idsArr;
+      track $index;
       let i = $index;
       let first = $first;
       let last = $last
     ) {
       <div>
         <!-- child form -->
-        <div [formGroupName]="i" class="form-row">
+        <div class="form-row">
           <!-- child actions -->
           <div>{{ i + 1 }}.</div>
           <div>
@@ -54,18 +54,16 @@
           <!-- value -->
           <mat-form-field>
             <mat-label>external ID</mat-label>
-            <input #id autofocus matInput formControlName="value" />
+            <input #id autofocus matInput [formField]="item.value" />
             @if (
-              $any(item)["controls"].value?.hasError("required") &&
-              ($any(item)["controls"].value.dirty ||
-                $any(item)["controls"].value.touched)
+              item.value().getError('required') &&
+              (item.value().dirty() || item.value().touched())
             ) {
               <mat-error>ID required </mat-error>
             }
             @if (
-              $any(item)["controls"].value?.hasError("max-length") &&
-              ($any(item)["controls"].value.dirty ||
-                $any(item)["controls"].value.touched)
+              item.value().getError('maxLength') &&
+              (item.value().dirty() || item.value().touched())
             ) {
               <mat-error>ID too long </mat-error>
             }
@@ -74,7 +72,7 @@
           @if (scopeEntries()?.length) {
             <mat-form-field>
               <mat-label>scope</mat-label>
-              <mat-select formControlName="scope">
+              <mat-select [formField]="item.scope">
                 @for (e of scopeEntries(); track e) {
                   <mat-option [value]="e.id">
                     {{ e.value }}
@@ -87,11 +85,10 @@
           @else {
             <mat-form-field>
               <mat-label>scope</mat-label>
-              <input matInput formControlName="scope" />
+              <input matInput [formField]="item.scope" />
               @if (
-                $any(item)["controls"].scope?.hasError("max-length") &&
-                ($any(item)["controls"].scope.dirty ||
-                  $any(item)["controls"].scope.touched)
+                item.scope().getError('maxLength') &&
+                (item.scope().dirty() || item.scope().touched())
               ) {
                 <mat-error>scope too long </mat-error>
               }
@@ -101,7 +98,7 @@
           @if (tagEntries()?.length) {
             <mat-form-field>
               <mat-label>tag</mat-label>
-              <mat-select formControlName="tag">
+              <mat-select [formField]="item.tag">
                 @for (e of tagEntries(); track e) {
                   <mat-option [value]="e.id">
                     {{ e.value }}
@@ -114,11 +111,10 @@
           @else {
             <mat-form-field>
               <mat-label>tag</mat-label>
-              <input matInput formControlName="tag" />
+              <input matInput [formField]="item.tag" />
               @if (
-                $any(item)["controls"].tag?.hasError("max-length") &&
-                ($any(item)["controls"].tag.dirty ||
-                  $any(item)["controls"].tag.touched)
+                item.tag().getError('maxLength') &&
+                (item.tag().dirty() || item.tag().touched())
               ) {
                 <mat-error>tag too long </mat-error>
               }
@@ -137,7 +133,7 @@
       </div>
     }
     <!-- assertion -->
-    @if (idsArr.length) {
+    @if (idsArr().value().length) {
       <mat-expansion-panel
         [disabled]="!assertionNr()"
         [expanded]="assEdOpen()"
@@ -147,7 +143,7 @@
           >#{{ assertionNr() }} assertion</mat-expansion-panel-header
         >
         <cadmus-refs-assertion
-          [assertion]="assertion()"
+          [assertion]="assertion() ?? undefined"
           [assTagEntries]="assTagEntries()"
           [refTagEntries]="refTagEntries()"
           [refTypeEntries]="refTypeEntries()"

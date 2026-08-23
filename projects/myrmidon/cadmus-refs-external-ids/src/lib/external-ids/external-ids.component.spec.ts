@@ -25,12 +25,7 @@ describe('ExternalIdsComponent', () => {
     await fixture.whenStable();
   });
 
-  /** Click the "add ID" button in the template. Using a real DOM click
-   * (rather than calling component.addId() directly) is important here:
-   * this component is OnPush and reads no signal in its template for the
-   * ids array (idsArr is a plain FormArray, not a signal), so directly
-   * invoking public methods from a test does not itself mark the OnPush
-   * view dirty. A real click event, like in actual usage, does. */
+  /** Click the "add ID" button in the template. */
   function clickAddId(): void {
     const btn: HTMLButtonElement = fixture.nativeElement.querySelector(
       'button'
@@ -59,7 +54,7 @@ describe('ExternalIdsComponent', () => {
     });
 
     it('should start with an empty idsArr and no assertion open', () => {
-      expect(component.idsArr.length).toBe(0);
+      expect(component.idsArr().value().length).toBe(0);
       expect(component.assEdOpen()).toBe(false);
       expect(component.assertionNr()).toBe(0);
       expect(component.assertion()).toBeUndefined();
@@ -73,17 +68,15 @@ describe('ExternalIdsComponent', () => {
       // this is the key regression test: addId() ultimately calls
       // emitIdsChange(), which sets the `ids` model. Since `ids` is also
       // watched by a constructor effect that rebuilds the form
-      // (updateForm), a naive implementation could re-enter addId/clearIds
-      // and loop forever. The component guards against this via the
-      // _updatingForm flag: updateForm() suppresses emitIdsChange() calls
-      // triggered by its own addId()/clearIds() calls while it rebuilds
-      // the form array. If this test completes at all (does not time out),
-      // the guard is working.
+      // (updateForm), a naive implementation could re-enter and loop
+      // forever. The component guards against this via the last-processed
+      // reference guard on the model->form effect. If this test completes
+      // at all (does not time out), the guard is working.
       component.addId({ value: 'test' });
       fixture.detectChanges();
 
       expect(component.ids()).toBeDefined();
-      expect(component.idsArr.length).toBe(1);
+      expect(component.idsArr().value().length).toBe(1);
       expect(component.ids().length).toBe(1);
       expect(component.ids()[0].value).toBe('test');
     });
@@ -92,11 +85,11 @@ describe('ExternalIdsComponent', () => {
       component.addId();
       fixture.detectChanges();
 
-      expect(component.idsArr.length).toBe(1);
-      const g = component.idsArr.at(0);
-      expect(g.get('value')?.value).toBeFalsy();
-      expect(g.get('value')?.hasError('required')).toBe(true);
-      expect(component.form.invalid).toBe(true);
+      expect(component.idsArr().value().length).toBe(1);
+      const g = component.idsArr[0];
+      expect(g.value().value()).toBeFalsy();
+      expect(g.value().getError('required')).toBeTruthy();
+      expect(component.form().invalid()).toBe(true);
     });
 
     it('should add a row populated from the given id', () => {
@@ -109,11 +102,11 @@ describe('ExternalIdsComponent', () => {
       component.addId(id);
       fixture.detectChanges();
 
-      const g = component.idsArr.at(0);
-      expect(g.get('value')?.value).toBe('v1');
-      expect(g.get('scope')?.value).toBe('s1');
-      expect(g.get('tag')?.value).toBe('t1');
-      expect(g.get('rank')?.value).toBe(2);
+      const g = component.idsArr[0];
+      expect(g.value().value()).toBe('v1');
+      expect(g.scope().value()).toBe('s1');
+      expect(g.tag().value()).toBe('t1');
+      expect(g.rank().value()).toBe(2);
     });
 
     it('should emit ids change (update the ids model) when adding a row directly', () => {
@@ -130,44 +123,34 @@ describe('ExternalIdsComponent', () => {
       }
       fixture.detectChanges();
 
-      expect(component.idsArr.length).toBe(25);
+      expect(component.idsArr().value().length).toBe(25);
       expect(component.ids().length).toBe(25);
     });
 
     it('should propagate a debounced row value change into the ids model', async () => {
-      vi.useFakeTimers();
-      try {
-        component.addId({ value: 'v1' });
-        fixture.detectChanges();
+      component.addId({ value: 'v1' });
+      fixture.detectChanges();
 
-        const g = component.idsArr.at(0);
-        g.get('value')?.setValue('v1-changed');
-        await vi.advanceTimersByTimeAsync(350);
+      component.idsArr[0].value().value.set('v1-changed');
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      fixture.detectChanges();
 
-        expect(component.ids()[0].value).toBe('v1-changed');
-      } finally {
-        vi.useRealTimers();
-      }
+      expect(component.ids()[0].value).toBe('v1-changed');
     });
 
     it('should trim whitespace from value/scope/tag when emitting ids', async () => {
-      vi.useFakeTimers();
-      try {
-        component.addId({ value: 'v1' });
-        fixture.detectChanges();
+      component.addId({ value: 'v1' });
+      fixture.detectChanges();
 
-        const g = component.idsArr.at(0);
-        g.get('value')?.setValue('  padded-value  ');
-        g.get('scope')?.setValue('  padded-scope  ');
-        g.get('tag')?.setValue('  padded-tag  ');
-        await vi.advanceTimersByTimeAsync(350);
+      component.idsArr[0].value().value.set('  padded-value  ');
+      component.idsArr[0].scope().value.set('  padded-scope  ');
+      component.idsArr[0].tag().value.set('  padded-tag  ');
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      fixture.detectChanges();
 
-        expect(component.ids()[0].value).toBe('padded-value');
-        expect(component.ids()[0].scope).toBe('padded-scope');
-        expect(component.ids()[0].tag).toBe('padded-tag');
-      } finally {
-        vi.useRealTimers();
-      }
+      expect(component.ids()[0].value).toBe('padded-value');
+      expect(component.ids()[0].scope).toBe('padded-scope');
+      expect(component.ids()[0].tag).toBe('padded-tag');
     });
 
     it('should preserve the rank when a row round-trips through the ids model', async () => {
@@ -179,7 +162,7 @@ describe('ExternalIdsComponent', () => {
       await fixture.whenStable();
 
       expect(component.ids()[0].rank).toBe(7);
-      expect(component.idsArr.at(0).get('rank')?.value).toBe(7);
+      expect(component.idsArr[0].rank().value()).toBe(7);
     });
   });
   //#endregion
@@ -194,10 +177,10 @@ describe('ExternalIdsComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.idsArr.length).toBe(2);
-      expect(component.idsArr.at(0).get('value')?.value).toBe('a');
-      expect(component.idsArr.at(1).get('value')?.value).toBe('b');
-      expect(component.form.pristine).toBe(true);
+      expect(component.idsArr().value().length).toBe(2);
+      expect(component.idsArr[0].value().value()).toBe('a');
+      expect(component.idsArr[1].value().value()).toBe('b');
+      expect(component.form().dirty()).toBe(false);
     });
 
     it('should not hang or loop forever when ids is set externally multiple times', async () => {
@@ -209,9 +192,9 @@ describe('ExternalIdsComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.idsArr.length).toBe(2);
-      expect(component.idsArr.at(0).get('value')?.value).toBe('b');
-      expect(component.idsArr.at(1).get('value')?.value).toBe('c');
+      expect(component.idsArr().value().length).toBe(2);
+      expect(component.idsArr[0].value().value()).toBe('b');
+      expect(component.idsArr[1].value().value()).toBe('c');
     });
 
     it('should reset the form when ids is set to an empty array', async () => {
@@ -223,7 +206,7 @@ describe('ExternalIdsComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.idsArr.length).toBe(0);
+      expect(component.idsArr().value().length).toBe(0);
     });
 
     it('should rebuild the idsArr without re-emitting a redundant ids change (no infinite loop)', async () => {
@@ -254,8 +237,8 @@ describe('ExternalIdsComponent', () => {
       component.removeId(0);
       fixture.detectChanges();
 
-      expect(component.idsArr.length).toBe(1);
-      expect(component.idsArr.at(0).get('value')?.value).toBe('b');
+      expect(component.idsArr().value().length).toBe(1);
+      expect(component.idsArr[0].value().value()).toBe('b');
       expect(component.ids().length).toBe(1);
       expect(component.ids()[0].value).toBe('b');
     });
@@ -285,8 +268,8 @@ describe('ExternalIdsComponent', () => {
       component.moveIdUp(0);
       fixture.detectChanges();
 
-      expect(component.idsArr.at(0).get('value')?.value).toBe('a');
-      expect(component.idsArr.at(1).get('value')?.value).toBe('b');
+      expect(component.idsArr[0].value().value()).toBe('a');
+      expect(component.idsArr[1].value().value()).toBe('b');
     });
 
     it('should swap the row with the previous one', () => {
@@ -297,8 +280,8 @@ describe('ExternalIdsComponent', () => {
       component.moveIdUp(1);
       fixture.detectChanges();
 
-      expect(component.idsArr.at(0).get('value')?.value).toBe('b');
-      expect(component.idsArr.at(1).get('value')?.value).toBe('a');
+      expect(component.idsArr[0].value().value()).toBe('b');
+      expect(component.idsArr[1].value().value()).toBe('a');
       expect(component.ids()[0].value).toBe('b');
       expect(component.ids()[1].value).toBe('a');
     });
@@ -313,8 +296,8 @@ describe('ExternalIdsComponent', () => {
       component.moveIdDown(1);
       fixture.detectChanges();
 
-      expect(component.idsArr.at(0).get('value')?.value).toBe('a');
-      expect(component.idsArr.at(1).get('value')?.value).toBe('b');
+      expect(component.idsArr[0].value().value()).toBe('a');
+      expect(component.idsArr[1].value().value()).toBe('b');
     });
 
     it('should swap the row with the next one', () => {
@@ -325,8 +308,8 @@ describe('ExternalIdsComponent', () => {
       component.moveIdDown(0);
       fixture.detectChanges();
 
-      expect(component.idsArr.at(0).get('value')?.value).toBe('b');
-      expect(component.idsArr.at(1).get('value')?.value).toBe('a');
+      expect(component.idsArr[0].value().value()).toBe('b');
+      expect(component.idsArr[1].value().value()).toBe('a');
     });
   });
   //#endregion
@@ -341,7 +324,7 @@ describe('ExternalIdsComponent', () => {
       component.clearIds();
       fixture.detectChanges();
 
-      expect(component.idsArr.length).toBe(0);
+      expect(component.idsArr().value().length).toBe(0);
       expect(component.ids()).toEqual([]);
     });
 
@@ -367,11 +350,9 @@ describe('ExternalIdsComponent', () => {
 
       expect(component.assEdOpen()).toBe(true);
       expect(component.assertionNr()).toBe(1);
-      // the row's assertion control was never set, and by the time this
-      // is read the row has round-tripped once through
-      // getIds()/getIdGroup() (via the model->form sync effect), which
-      // normalizes an unset value to null (standard reactive forms
-      // behavior for a FormControl built with no explicit value)
+      // the row's assertion control was never set, and toControls()
+      // normalizes an unset value to null (matching the original
+      // reactive-forms FormControl-built-with-no-value behavior)
       expect(component.assertion()).toBeNull();
     });
 
@@ -385,16 +366,7 @@ describe('ExternalIdsComponent', () => {
       expect(component.assertion()).toEqual(assertion);
     });
 
-    it('should not corrupt another row\'s assertion the very first time it is called (regression: assertionNr signal truthiness bug)', () => {
-      // Before the fix, saveAssertion()/closeAssertion() checked
-      // `if (this.assertionNr)` instead of `if (this.assertionNr())`.
-      // Since assertionNr is a signal (a function, always truthy), this
-      // unconditionally ran saveAssertion()'s body even when nothing was
-      // being edited yet (assertionNr() === 0). saveAssertion() would then
-      // resolve `idsArr.at(assertionNr() - 1)` = `idsArr.at(-1)`, which
-      // FormArray resolves via negative-index wraparound to the LAST row,
-      // overwriting its assertion with the (default, undefined) assertion
-      // signal value -- silently destroying unrelated data.
+    it('should not corrupt another row\'s assertion the very first time it is called', () => {
       const bAssertion: Assertion = { rank: 9, note: 'b-assertion' };
       component.addId({ value: 'a' });
       component.addId({ value: 'b', assertion: bAssertion });
@@ -404,9 +376,7 @@ describe('ExternalIdsComponent', () => {
       // row 1's existing assertion
       component.editAssertion(0);
 
-      expect(component.idsArr.at(1).get('assertion')?.value).toEqual(
-        bAssertion
-      );
+      expect(component.idsArr[1].assertion().value()).toEqual(bAssertion);
     });
 
     it('should save the previously edited assertion before switching to another row', () => {
@@ -422,12 +392,9 @@ describe('ExternalIdsComponent', () => {
 
       // row 0's assertion control should have been saved with the edited
       // assertion before moving on to row 1
-      expect(component.idsArr.at(0).get('assertion')?.value).toEqual(
-        assertion
-      );
+      expect(component.idsArr[0].assertion().value()).toEqual(assertion);
       // editor should now target row 1 (index 1 -> assertionNr 2), with a
-      // fresh (null) assertion since row 1 has none (see note above about
-      // unset FormControl values normalizing to null)
+      // fresh (null) assertion since row 1 has none
       expect(component.assertionNr()).toBe(2);
       expect(component.assertion()).toBeNull();
     });
@@ -448,7 +415,7 @@ describe('ExternalIdsComponent', () => {
 
       component.saveAssertion();
 
-      expect(component.idsArr.at(0).get('assertion')?.value).toBeFalsy();
+      expect(component.idsArr[0].assertion().value()).toBeFalsy();
     });
 
     it('should write the edited assertion into the row and close the editor', () => {
@@ -461,9 +428,7 @@ describe('ExternalIdsComponent', () => {
 
       component.saveAssertion();
 
-      expect(component.idsArr.at(0).get('assertion')?.value).toEqual(
-        assertion
-      );
+      expect(component.idsArr[0].assertion().value()).toEqual(assertion);
       expect(component.assEdOpen()).toBe(false);
       expect(component.assertionNr()).toBe(0);
       expect(component.assertion()).toBeUndefined();
@@ -503,7 +468,7 @@ describe('ExternalIdsComponent', () => {
   describe('template', () => {
     it('should render an "add ID" button that adds a row when clicked', () => {
       clickAddId();
-      expect(component.idsArr.length).toBe(1);
+      expect(component.idsArr().value().length).toBe(1);
     });
 
     it('should render one row per id in idsArr', () => {
@@ -524,16 +489,16 @@ describe('ExternalIdsComponent', () => {
     it('should render a free-text scope input when scopeEntries is not set', () => {
       clickAddId();
 
-      const scopeSelect = fixture.nativeElement.querySelector(
-        'mat-select[formcontrolname="scope"]'
-      );
-      const scopeInputs = Array.from(
-        fixture.nativeElement.querySelectorAll(
-          'input[formcontrolname="scope"]'
-        )
-      );
+      // scope to the id row itself (the first .form-row): the nested
+      // cadmus-refs-assertion, rendered as soon as one row exists, has
+      // its own unrelated matInput fields (tag/rank/note) that would
+      // otherwise pollute an unscoped query.
+      const row = fixture.nativeElement.querySelector('.form-row');
+      const scopeSelect = row.querySelector('mat-select');
+      const rowInputs = Array.from(row.querySelectorAll('input[matinput]'));
       expect(scopeSelect).toBeFalsy();
-      expect(scopeInputs.length).toBe(1);
+      // value, scope, tag are all free-text inputs by default
+      expect(rowInputs.length).toBe(3);
     });
 
     it('should render a bound scope select when scopeEntries is set', async () => {
@@ -546,19 +511,8 @@ describe('ExternalIdsComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const scopeSelect = fixture.nativeElement.querySelector(
-        'mat-select[formcontrolname="scope"]'
-      );
+      const scopeSelect = fixture.nativeElement.querySelector('mat-select');
       expect(scopeSelect).toBeTruthy();
-    });
-
-    it('should render a free-text tag input when tagEntries is not set', () => {
-      clickAddId();
-
-      const tagSelect = fixture.nativeElement.querySelector(
-        'mat-select[formcontrolname="tag"]'
-      );
-      expect(tagSelect).toBeFalsy();
     });
 
     it('should render a bound tag select when tagEntries is set', async () => {
@@ -568,10 +522,8 @@ describe('ExternalIdsComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      const tagSelect = fixture.nativeElement.querySelector(
-        'mat-select[formcontrolname="tag"]'
-      );
-      expect(tagSelect).toBeTruthy();
+      const tagSelects = fixture.nativeElement.querySelectorAll('mat-select');
+      expect(tagSelects.length).toBe(1);
     });
 
     it('should not render the assertion panel when there are no rows', () => {

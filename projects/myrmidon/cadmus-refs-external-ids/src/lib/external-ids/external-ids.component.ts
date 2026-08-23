@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   effect,
@@ -10,13 +11,14 @@ import {
   ViewChildren,
 } from '@angular/core';
 import {
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  applyEach,
+  FieldTree,
+  FormField,
+  form,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -49,13 +51,39 @@ export interface RankedExternalId extends ExternalId {
   rank?: number;
 }
 
+interface ExternalIdControls {
+  value: string;
+  scope: string;
+  tag: string;
+  rank: number | null;
+  assertion: Assertion | null;
+}
+
+interface ExternalIdsControls {
+  idsArr: ExternalIdControls[];
+}
+
+// maps an incoming id into a fresh row object (never adopts the caller's
+// own object references) - required both to normalize unset fields the
+// way reactive forms did (undefined -> '' / null), and to keep the
+// signal-forms FieldTree from tagging the caller's own objects with its
+// internal array-item identity Symbol (see signal-forms-migration.md).
+function toControls(id?: RankedExternalId): ExternalIdControls {
+  return {
+    value: id?.value ?? '',
+    scope: id?.scope ?? '',
+    tag: id?.tag ?? '',
+    rank: id?.rank ?? null,
+    assertion: id?.assertion ?? null,
+  };
+}
+
 @Component({
   selector: 'cadmus-refs-external-ids',
   templateUrl: './external-ids.component.html',
   styleUrls: ['./external-ids.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -67,10 +95,29 @@ export interface RankedExternalId extends ExternalId {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExternalIdsComponent implements OnDestroy {
+export class ExternalIdsComponent implements AfterViewInit, OnDestroy {
   private _idSubscription: Subscription | undefined;
-  private _idsSubs: Subscription[];
-  private _updatingForm: boolean | undefined;
+  // set by updateForm() right before rebuilding the row list from an
+  // external model sync, and consumed (cleared) the next time the
+  // QueryList's changes fire - not reset synchronously at the end of
+  // updateForm(), since idQueryList.changes only fires once change
+  // detection has actually re-rendered the @for loop, well after
+  // updateForm() itself returns (the same deferred-effect timing hazard
+  // documented for toObservable() elsewhere in this migration).
+  private _suppressFocus = false;
+
+  // set synchronously wherever `ids` is written (not inside the effect
+  // below), paired with _hasLastIds since undefined is both "never saved
+  // yet" and a legitimate real value - see signal-forms-migration.md.
+  private _lastIds: RankedExternalId[] | undefined = undefined;
+  private _hasLastIds = false;
+  // a JSON snapshot of the draft as of the last external sync or emitted
+  // save, used by the debounced autosave to tell "the draft changed only
+  // because of a sync/save we already accounted for" apart from a real
+  // user edit - see the cadmus-refs-assertion entry in
+  // signal-forms-migration.md for why a synchronous flag can't do this
+  // job once toObservable()'s deferred emission is involved.
+  private _lastSyncedDraft = '';
 
   @ViewChildren('id') idQueryList: QueryList<any> | undefined;
 
@@ -102,26 +149,47 @@ export class ExternalIdsComponent implements OnDestroy {
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
-  public idsArr: FormArray;
-  public form: FormGroup;
+  private readonly _draft = signal<ExternalIdsControls>({ idsArr: [] });
+  public readonly form: FieldTree<ExternalIdsControls>;
+  public readonly idsArr: FieldTree<ExternalIdControls[]>;
 
   // edited assertion
   public readonly assEdOpen = signal<boolean>(false);
   public readonly assertionNr = signal<number>(0);
-  public readonly assertion = signal<Assertion | undefined>(undefined);
+  public readonly assertion = signal<Assertion | null | undefined>(undefined);
 
-  constructor(private _formBuilder: FormBuilder) {
-    this._idsSubs = [];
-    // form
-    this.idsArr = _formBuilder.array([]);
-    this.form = _formBuilder.group({
-      idsArr: this.idsArr,
+  constructor() {
+    this.form = form(this._draft, (path) => {
+      applyEach(path.idsArr, (row) => {
+        required(row.value);
+        maxLength(row.value, 500);
+        maxLength(row.scope, 50);
+        maxLength(row.tag, 50);
+      });
     });
+    this.idsArr = this.form.idsArr;
 
     // when ids change, update form
     effect(() => {
-      this.updateForm(this.ids());
+      const ids = this.ids();
+      if (this._hasLastIds && this._lastIds === ids) {
+        return;
+      }
+      this._lastIds = ids;
+      this._hasLastIds = true;
+      this.updateForm(ids);
     });
+
+    // autosave: debounced, and only when something actually changed
+    // since the last external sync or explicit save (see _lastSyncedDraft)
+    toObservable(this._draft)
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe(() => {
+        if (JSON.stringify(this._draft()) === this._lastSyncedDraft) {
+          return;
+        }
+        this.emitIdsChange();
+      });
   }
 
   public ngAfterViewInit(): void {
@@ -129,64 +197,31 @@ export class ExternalIdsComponent implements OnDestroy {
     this._idSubscription = this.idQueryList?.changes
       .pipe(debounceTime(300))
       .subscribe((lst: QueryList<any>) => {
-        if (!this._updatingForm && lst.length > 0) {
+        const suppress = this._suppressFocus;
+        this._suppressFocus = false;
+        if (!suppress && lst.length > 0) {
           lst.last.nativeElement.focus();
         }
       });
   }
 
-  private unsubscribeIds(): void {
-    for (let i = 0; i < this._idsSubs.length; i++) {
-      this._idsSubs[i].unsubscribe();
-    }
-  }
-
   public ngOnDestroy(): void {
-    this.unsubscribeIds();
     this._idSubscription?.unsubscribe();
   }
 
-  private getIdGroup(id?: RankedExternalId): FormGroup {
-    return this._formBuilder.group({
-      value: this._formBuilder.control(id?.value, [
-        Validators.required,
-        Validators.maxLength(500),
-      ]),
-      scope: this._formBuilder.control(id?.scope, Validators.maxLength(50)),
-      tag: this._formBuilder.control(id?.tag, Validators.maxLength(50)),
-      rank: this._formBuilder.control(id?.rank),
-      assertion: this._formBuilder.control(id?.assertion),
-    });
-  }
-
   public addId(id?: RankedExternalId): void {
-    const g = this.getIdGroup(id);
-    this._idsSubs.push(
-      g.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-        this.emitIdsChange();
-      }),
-    );
-    this.idsArr.push(g);
-    if (!this._updatingForm) {
-      this.emitIdsChange();
-    }
+    this._draft.update((v) => ({ idsArr: [...v.idsArr, toControls(id)] }));
+    this.emitIdsChange();
   }
 
   public removeId(index: number): void {
     this.closeAssertion();
-    this._idsSubs[index].unsubscribe();
-    this._idsSubs.splice(index, 1);
-    this.idsArr.removeAt(index);
+    this._draft.update((v) => {
+      const idsArr = [...v.idsArr];
+      idsArr.splice(index, 1);
+      return { idsArr };
+    });
     this.emitIdsChange();
-  }
-
-  private swapArrElems(a: any[], i: number, j: number): void {
-    if (i === j) {
-      return;
-    }
-    const t = a[i];
-    a[i] = a[j];
-    a[j] = t;
   }
 
   public moveIdUp(index: number): void {
@@ -194,46 +229,42 @@ export class ExternalIdsComponent implements OnDestroy {
       return;
     }
     this.closeAssertion();
-    const ctl = this.idsArr.controls[index];
-    this.idsArr.removeAt(index);
-    this.idsArr.insert(index - 1, ctl);
-
-    this.swapArrElems(this._idsSubs, index, index - 1);
-
+    this._draft.update((v) => {
+      const idsArr = [...v.idsArr];
+      const item = idsArr[index];
+      idsArr.splice(index, 1);
+      idsArr.splice(index - 1, 0, item);
+      return { idsArr };
+    });
     this.emitIdsChange();
   }
 
   public moveIdDown(index: number): void {
-    if (index + 1 >= this.idsArr.length) {
+    if (index + 1 >= this._draft().idsArr.length) {
       return;
     }
     this.closeAssertion();
-    const item = this.idsArr.controls[index];
-    this.idsArr.removeAt(index);
-    this.idsArr.insert(index + 1, item);
-
-    this.swapArrElems(this._idsSubs, index, index + 1);
-
+    this._draft.update((v) => {
+      const idsArr = [...v.idsArr];
+      const item = idsArr[index];
+      idsArr.splice(index, 1);
+      idsArr.splice(index + 1, 0, item);
+      return { idsArr };
+    });
     this.emitIdsChange();
   }
 
   public clearIds(): void {
     this.closeAssertion();
-    this.idsArr.clear();
-    this.unsubscribeIds();
-    this._idsSubs = [];
-    if (!this._updatingForm) {
-      this.emitIdsChange();
-    }
+    this._draft.set({ idsArr: [] });
+    this.emitIdsChange();
   }
 
   public editAssertion(index: number): void {
     // save the currently edited assertion if any
     this.saveAssertion();
     // edit the new assertion
-    this.assertion.set(
-      (this.idsArr.at(index) as FormGroup).controls['assertion'].value,
-    );
+    this.assertion.set(this._draft().idsArr[index]?.assertion ?? null);
     this.assertionNr.set(index + 1);
     this.assEdOpen.set(true);
   }
@@ -245,8 +276,12 @@ export class ExternalIdsComponent implements OnDestroy {
   public saveAssertion(): void {
     // save the currently edited assertion if any
     if (this.assertionNr()) {
-      const g = this.idsArr.at(this.assertionNr()! - 1) as FormGroup;
-      g.controls['assertion'].setValue(this.assertion());
+      const idx = this.assertionNr() - 1;
+      this._draft.update((v) => {
+        const idsArr = [...v.idsArr];
+        idsArr[idx] = { ...idsArr[idx], assertion: this.assertion() ?? null };
+        return { idsArr };
+      });
       this.closeAssertion();
       this.emitIdsChange();
     }
@@ -261,46 +296,29 @@ export class ExternalIdsComponent implements OnDestroy {
   }
 
   private updateForm(ids: RankedExternalId[]): void {
-    if (!this.idsArr) {
-      return;
-    }
-    this._updatingForm = true;
-    this.clearIds();
-
-    if (!ids) {
-      this.form.reset();
-    } else {
-      for (const id of ids) {
-        this.addId(id);
-      }
-      this.form.markAsPristine();
-    }
-    // note: no emitIdsChange() call here. Since ids is a model bound to
-    // this same effect, unconditionally re-emitting after rebuilding the
-    // form from an externally set value would set ids() again, which would
-    // re-trigger this effect indefinitely (infinite loop). The row-level
-    // valueChanges subscriptions, plus the explicit addId/removeId/
-    // moveIdUp/moveIdDown/clearIds calls, already propagate every
-    // user-driven change.
-    this._updatingForm = false;
+    this._suppressFocus = true;
+    const draft: ExternalIdsControls = {
+      idsArr: (ids || []).map((id) => toControls(id)),
+    };
+    this._draft.set(draft);
+    this._lastSyncedDraft = JSON.stringify(draft);
   }
 
   private getIds(): RankedExternalId[] {
-    const ids: RankedExternalId[] = [];
-    for (let i = 0; i < this.idsArr.length; i++) {
-      const g = this.idsArr.controls[i] as FormGroup;
-      ids.push({
-        value: g.controls['value'].value?.trim(),
-        scope: g.controls['scope'].value?.trim(),
-        tag: g.controls['tag'].value?.trim(),
-        rank: g.controls['rank'].value,
-        assertion: g.controls['assertion'].value,
-      });
-    }
-    return ids;
+    return this._draft().idsArr.map((g) => ({
+      value: g.value.trim(),
+      scope: g.scope.trim() || undefined,
+      tag: g.tag.trim() || undefined,
+      rank: g.rank ?? undefined,
+      assertion: g.assertion ?? undefined,
+    }));
   }
 
   private emitIdsChange(): void {
-    this.ids.set(this.getIds());
+    const ids = this.getIds();
+    this._lastIds = ids;
+    this._hasLastIds = true;
+    this._lastSyncedDraft = JSON.stringify(this._draft());
+    this.ids.set(ids);
   }
 }
