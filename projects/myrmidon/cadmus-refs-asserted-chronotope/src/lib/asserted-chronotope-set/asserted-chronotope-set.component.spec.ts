@@ -11,6 +11,13 @@ function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// the signal-forms FieldTree tags each array-of-object item it adopts
+// with a hidden identity Symbol (see signal-forms-migration.md); strip it
+// via a JSON round-trip before comparing array-field reads with toEqual.
+function clean<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
+}
+
 describe('AssertedChronotopeSetComponent', () => {
   it('should render', async () => {
     const { fixture } = await render(AssertedChronotopeSetComponent);
@@ -21,7 +28,7 @@ describe('AssertedChronotopeSetComponent', () => {
     const { fixture } = await render(AssertedChronotopeSetComponent);
     const component = fixture.componentInstance;
 
-    expect(component.entries.value).toEqual([]);
+    expect(clean(component.form.entries().value())).toEqual([]);
     expect(component.editedIndex()).toBe(-1);
     expect(component.edited()).toBeUndefined();
   });
@@ -34,8 +41,8 @@ describe('AssertedChronotopeSetComponent', () => {
     component.chronotopes.set(chronotopes);
     fixture.detectChanges();
 
-    expect(component.entries.value).toEqual(chronotopes);
-    expect(component.form.pristine).toBe(true);
+    expect(clean(component.form.entries().value())).toEqual(chronotopes);
+    expect(component.form().dirty()).toBe(false);
   });
 
   it('should reset the form when chronotopes is set to undefined', async () => {
@@ -48,7 +55,7 @@ describe('AssertedChronotopeSetComponent', () => {
     component.chronotopes.set(undefined);
     fixture.detectChanges();
 
-    expect(component.entries.value).toEqual([]);
+    expect(clean(component.form.entries().value())).toEqual([]);
   });
 
   describe('editor lifecycle', () => {
@@ -103,7 +110,7 @@ describe('AssertedChronotopeSetComponent', () => {
 
       component.onChronotopeSave();
 
-      expect(component.entries.value).toEqual([]);
+      expect(clean(component.form.entries().value())).toEqual([]);
     });
 
     it('should do nothing when edited is an empty object', async () => {
@@ -113,7 +120,7 @@ describe('AssertedChronotopeSetComponent', () => {
       component.addChronotope();
       component.onChronotopeSave();
 
-      expect(component.entries.value).toEqual([]);
+      expect(clean(component.form.entries().value())).toEqual([]);
       // editor remains open since the save was rejected
       expect(component.edited()).toEqual({});
     });
@@ -127,7 +134,7 @@ describe('AssertedChronotopeSetComponent', () => {
       component.onChronotopeChange(chronotope);
       component.onChronotopeSave();
 
-      expect(component.entries.value).toEqual([chronotope]);
+      expect(clean(component.form.entries().value())).toEqual([chronotope]);
       expect(component.chronotopes()).toEqual([chronotope]);
       expect(component.edited()).toBeUndefined();
       expect(component.editedIndex()).toBe(-1);
@@ -145,7 +152,7 @@ describe('AssertedChronotopeSetComponent', () => {
       component.onChronotopeChange(second);
       component.onChronotopeSave();
 
-      expect(component.entries.value).toEqual([second]);
+      expect(clean(component.form.entries().value())).toEqual([second]);
       expect(component.chronotopes()).toEqual([second]);
     });
   });
@@ -166,7 +173,7 @@ describe('AssertedChronotopeSetComponent', () => {
       component.deleteChronotope(0);
 
       expect(confirm).toHaveBeenCalled();
-      expect(component.entries.value).toEqual([{ place: { value: 'Athens' } }]);
+      expect(clean(component.form.entries().value())).toEqual([{ place: { value: 'Athens' } }]);
       expect(component.chronotopes()).toEqual([{ place: { value: 'Athens' } }]);
     });
 
@@ -181,7 +188,7 @@ describe('AssertedChronotopeSetComponent', () => {
 
       component.deleteChronotope(0);
 
-      expect(component.entries.value).toEqual([{ place: { value: 'Rome' } }]);
+      expect(clean(component.form.entries().value())).toEqual([{ place: { value: 'Rome' } }]);
     });
   });
 
@@ -196,7 +203,7 @@ describe('AssertedChronotopeSetComponent', () => {
 
       component.moveChronotopeUp(1);
 
-      expect(component.entries.value).toEqual([b, a]);
+      expect(clean(component.form.entries().value())).toEqual([b, a]);
       expect(component.chronotopes()).toEqual([b, a]);
     });
 
@@ -210,7 +217,7 @@ describe('AssertedChronotopeSetComponent', () => {
 
       component.moveChronotopeUp(0);
 
-      expect(component.entries.value).toEqual([a, b]);
+      expect(clean(component.form.entries().value())).toEqual([a, b]);
     });
 
     it('moveChronotopeDown should swap with the next entry', async () => {
@@ -223,7 +230,7 @@ describe('AssertedChronotopeSetComponent', () => {
 
       component.moveChronotopeDown(0);
 
-      expect(component.entries.value).toEqual([b, a]);
+      expect(clean(component.form.entries().value())).toEqual([b, a]);
       expect(component.chronotopes()).toEqual([b, a]);
     });
 
@@ -237,7 +244,7 @@ describe('AssertedChronotopeSetComponent', () => {
 
       component.moveChronotopeDown(1);
 
-      expect(component.entries.value).toEqual([a, b]);
+      expect(clean(component.form.entries().value())).toEqual([a, b]);
     });
   });
 

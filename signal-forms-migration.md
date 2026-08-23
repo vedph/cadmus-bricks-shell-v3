@@ -69,7 +69,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 18. `cadmus-refs-assertion`
 - [x] 19. `cadmus-refs-external-ids` — has `FormArray`
 - [x] 20. `cadmus-refs-proper-name` — uses `NgxToolsValidators`
-- [ ] 21. `cadmus-refs-asserted-chronotope` — uses `NgxToolsValidators`
+- [x] 21. `cadmus-refs-asserted-chronotope` — uses `NgxToolsValidators`
 - [ ] 22. `cadmus-refs-asserted-ids`
 - [ ] 23. `cadmus-text-ed-md`
 
@@ -671,3 +671,43 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
     wrote, so "freshly computed output equals current model" is a
     reliable proxy for "nothing changed since the last sync," with no
     trim-asymmetry trap to fall into.
+- **`cadmus-refs-asserted-chronotope`** (2 components) — third
+  `NgxToolsValidators` case.
+  - `asserted-chronotope`: `hasPlace`/`hasDate` were never part of either
+    reactive-forms `FormGroup` in the original (two standalone
+    `FormControl`s outside `plForm`/`dtForm`), so they became plain
+    `signal<boolean>()`s rather than signal-forms fields - no
+    `[formField]` binding possible for a lone boolean outside a
+    `form()` tree anyway. **Major simplification**: the original's
+    "auto-open the editor when the checkbox is checked" behavior was
+    driven by a debounced `hasPlace.valueChanges` subscription gated by
+    an `_updatingForm` flag (checked via `filter()` before
+    `debounceTime()`, relying on reactive-forms' synchronous emission -
+    the same hazard already documented for `toObservable()` elsewhere)
+    plus a second `_hasPlaceChangeFrozen` consume-once flag whose only
+    job was to swallow the emission `updateValueAndValidity()` produced
+    despite the preceding `setValue(..., {emitEvent:false})`. Replaced
+    both mechanisms entirely by moving the reaction into the
+    `mat-checkbox`'s own `(change)` handler - `(change)` only ever fires
+    for genuine user interaction, never for programmatic
+    `hasPlace.set()` calls, so there is no "was this our own echo"
+    question left to answer. This is the same "explicit event handler
+    instead of implicit reactive watch" idiom used repeatedly earlier in
+    this migration (`compact-citation`'s `onRangeToggle`,
+    `RefLookupComponent.onScopeChange`), here eliminating an entire
+    two-flag apparatus rather than just one guard. `plAssertion`/
+    `dtAssertion`/`date` are, as usual, plain fields not bound via
+    `[formField]` (edited through nested components instead), so the
+    "native input needs a string-compatible type" rule never applied to
+    them despite holding objects.
+  - `asserted-chronotope-set`: `entries: AssertedChronotope[]` is a
+    top-level array-of-objects field (no `applyEach`, not bound via
+    `[formField]` anywhere - rows are display-only, edited through a
+    nested `AssertedChronotopeComponent`), given the same map-in/map-out
+    defense as `decorated-ids`/`proper-name`. `NgxToolsSignalValidators
+    .strictMinLength(path.entries, 1)` used exactly like the other two
+    occurrences of this validator. Dropped a redundant `ngOnInit()` that
+    called `updateForm()` a second time on init (already covered by the
+    constructor's model-sync `effect()`, which runs once on init
+    regardless), matching the "no OnInit/OnDestroy needed" simplification
+    already applied to several other components in this migration.

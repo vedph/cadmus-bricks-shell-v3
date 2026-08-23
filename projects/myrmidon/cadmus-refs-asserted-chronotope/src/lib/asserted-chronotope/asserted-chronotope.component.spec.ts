@@ -21,15 +21,15 @@ describe('AssertedChronotopeComponent', () => {
     const { fixture } = await render(AssertedChronotopeComponent);
     const component = fixture.componentInstance;
 
-    expect(component.hasPlace.value).toBe(false);
-    expect(component.plTag.value).toBeNull();
-    expect(component.plAssertion.value).toBeNull();
-    expect(component.place.value).toBeNull();
+    expect(component.hasPlace()).toBe(false);
+    expect(component.plForm.tag().value()).toBe('');
+    expect(component.plForm.assertion().value()).toBeNull();
+    expect(component.plForm.place().value()).toBe('');
 
-    expect(component.hasDate.value).toBe(false);
-    expect(component.dtTag.value).toBeNull();
-    expect(component.dtAssertion.value).toBeNull();
-    expect(component.date.value).toBeNull();
+    expect(component.hasDate()).toBe(false);
+    expect(component.dtForm.tag().value()).toBe('');
+    expect(component.dtForm.assertion().value()).toBeNull();
+    expect(component.dtForm.date().value()).toBeNull();
 
     expect(component.placeExpanded()).toBe(false);
     expect(component.dateExpanded()).toBe(false);
@@ -45,11 +45,11 @@ describe('AssertedChronotopeComponent', () => {
     component.chronotope.set(chronotope);
     fixture.detectChanges();
 
-    expect(component.hasPlace.value).toBe(true);
-    expect(component.plTag.value).toBe('tag1');
-    expect(component.place.value).toBe('Rome');
-    expect(component.hasDate.value).toBe(false);
-    expect(component.plForm.pristine).toBe(true);
+    expect(component.hasPlace()).toBe(true);
+    expect(component.plForm.tag().value()).toBe('tag1');
+    expect(component.plForm.place().value()).toBe('Rome');
+    expect(component.hasDate()).toBe(false);
+    expect(component.plForm().dirty()).toBe(false);
   });
 
   it('should populate the date form when chronotope has a date', async () => {
@@ -63,11 +63,11 @@ describe('AssertedChronotopeComponent', () => {
     component.chronotope.set(chronotope);
     fixture.detectChanges();
 
-    expect(component.hasDate.value).toBe(true);
-    expect(component.dtTag.value).toBe('dtag');
-    expect(component.date.value).toEqual(chronotope.date);
-    expect(component.hasPlace.value).toBe(false);
-    expect(component.dtForm.pristine).toBe(true);
+    expect(component.hasDate()).toBe(true);
+    expect(component.dtForm.tag().value()).toBe('dtag');
+    expect(component.dtForm.date().value()).toEqual(chronotope.date);
+    expect(component.hasPlace()).toBe(false);
+    expect(component.dtForm().dirty()).toBe(false);
   });
 
   it('should reset both forms when chronotope is set to undefined', async () => {
@@ -80,8 +80,8 @@ describe('AssertedChronotopeComponent', () => {
     component.chronotope.set(undefined);
     fixture.detectChanges();
 
-    expect(component.hasPlace.value).toBe(false);
-    expect(component.place.value).toBeNull();
+    expect(component.hasPlace()).toBe(false);
+    expect(component.plForm.place().value()).toBe('');
     expect(component.placeItemId()).toBeUndefined();
     expect(component.placeDisplayLabel()).toBeUndefined();
   });
@@ -112,8 +112,8 @@ describe('AssertedChronotopeComponent', () => {
 
       component.editPlace();
 
-      expect(component.place.value).toBe('Rome');
-      expect(component.plAssertion.value).toEqual({ rank: 1 });
+      expect(component.plForm.place().value()).toBe('Rome');
+      expect(component.plForm.assertion().value()).toEqual({ rank: 1 });
       expect(component.placeExpanded()).toBe(true);
     });
 
@@ -122,10 +122,10 @@ describe('AssertedChronotopeComponent', () => {
       const component = fixture.componentInstance;
 
       component.onPlAssertionChange({ rank: 2 } as any);
-      expect(component.plAssertion.value).toEqual({ rank: 2 });
+      expect(component.plForm.assertion().value()).toEqual({ rank: 2 });
 
       component.onPlAssertionChange(undefined);
-      expect(component.plAssertion.value).toBeNull();
+      expect(component.plForm.assertion().value()).toBeNull();
     });
 
     it('closePlace should collapse the place editor', async () => {
@@ -142,13 +142,13 @@ describe('AssertedChronotopeComponent', () => {
       const { fixture } = await render(AssertedChronotopeComponent);
       const component = fixture.componentInstance;
 
-      component.place.setValue('  Rome  ');
-      component.plTag.setValue('  t1  ');
+      component.plForm.place().value.set('  Rome  ');
+      component.plForm.tag().value.set('  t1  ');
       component.placeExpanded.set(true);
 
       component.savePlace();
 
-      expect(component.hasPlace.value).toBe(true);
+      expect(component.hasPlace()).toBe(true);
       expect(component.placeExpanded()).toBe(false);
       expect(component.chronotope()?.place).toEqual({
         tag: 't1',
@@ -162,12 +162,12 @@ describe('AssertedChronotopeComponent', () => {
       const component = fixture.componentInstance;
 
       // place is required: leaving it empty makes the form invalid
-      component.place.setValue(null);
+      component.plForm.place().value.set('');
       component.placeExpanded.set(true);
 
       component.savePlace();
 
-      expect(component.hasPlace.value).toBe(false);
+      expect(component.hasPlace()).toBe(false);
       expect(component.placeExpanded()).toBe(false);
     });
 
@@ -183,9 +183,9 @@ describe('AssertedChronotopeComponent', () => {
 
       component.onPlaceLookupChange({ id: 'r1', name: 'Rome' });
 
-      expect(component.place.value).toBe('r1');
+      expect(component.plForm.place().value()).toBe('r1');
       expect(component.placeDisplayLabel()).toBe('Rome (r1)');
-      expect(component.place.dirty).toBe(true);
+      expect(component.plForm.place().dirty()).toBe(true);
     });
 
     it('onPlaceLookupChange should just use the id as label when label equals id', async () => {
@@ -200,7 +200,7 @@ describe('AssertedChronotopeComponent', () => {
 
       component.onPlaceLookupChange({ id: 'r1' });
 
-      expect(component.place.value).toBe('r1');
+      expect(component.plForm.place().value()).toBe('r1');
       expect(component.placeDisplayLabel()).toBe('r1');
     });
 
@@ -215,7 +215,7 @@ describe('AssertedChronotopeComponent', () => {
 
       component.onPlaceLookupChange(null);
 
-      expect(component.place.value).toBeNull();
+      expect(component.plForm.place().value()).toBe('');
       expect(component.placeDisplayLabel()).toBeUndefined();
     });
 
@@ -227,7 +227,7 @@ describe('AssertedChronotopeComponent', () => {
 
       component.onPlaceLookupChange({ id: 'x' });
 
-      expect(component.place.value).toBeNull();
+      expect(component.plForm.place().value()).toBe('');
       expect(component.placeDisplayLabel()).toBeUndefined();
     });
 
@@ -272,8 +272,11 @@ describe('AssertedChronotopeComponent', () => {
 
       component.editDate();
 
-      expect(component.date.value).toEqual({ ...date, assertion: { rank: 3 } });
-      expect(component.dtAssertion.value).toEqual({ rank: 3 });
+      expect(component.dtForm.date().value()).toEqual({
+        ...date,
+        assertion: { rank: 3 },
+      });
+      expect(component.dtForm.assertion().value()).toEqual({ rank: 3 });
       expect(component.dateExpanded()).toBe(true);
     });
 
@@ -282,10 +285,10 @@ describe('AssertedChronotopeComponent', () => {
       const component = fixture.componentInstance;
 
       component.onDtAssertionChange({ rank: 4 } as any);
-      expect(component.dtAssertion.value).toEqual({ rank: 4 });
+      expect(component.dtForm.assertion().value()).toEqual({ rank: 4 });
 
       component.onDtAssertionChange(undefined);
-      expect(component.dtAssertion.value).toBeNull();
+      expect(component.dtForm.assertion().value()).toBeNull();
     });
 
     it('onDateChange should update the date control and mark it dirty', async () => {
@@ -295,8 +298,8 @@ describe('AssertedChronotopeComponent', () => {
 
       component.onDateChange(date);
 
-      expect(component.date.value).toEqual(date);
-      expect(component.date.dirty).toBe(true);
+      expect(component.dtForm.date().value()).toEqual(date);
+      expect(component.dtForm.date().dirty()).toBe(true);
     });
 
     it('closeDate should collapse the date editor', async () => {
@@ -314,13 +317,13 @@ describe('AssertedChronotopeComponent', () => {
       const component = fixture.componentInstance;
       const date: HistoricalDateModel = { a: { value: 900 } };
 
-      component.date.setValue(date);
-      component.dtTag.setValue('  dtag  ');
+      component.dtForm.date().value.set(date);
+      component.dtForm.tag().value.set('  dtag  ');
       component.dateExpanded.set(true);
 
       component.saveDate();
 
-      expect(component.hasDate.value).toBe(true);
+      expect(component.hasDate()).toBe(true);
       expect(component.dateExpanded()).toBe(false);
       expect(component.chronotope()?.date).toEqual({
         ...date,
@@ -334,12 +337,12 @@ describe('AssertedChronotopeComponent', () => {
       const component = fixture.componentInstance;
 
       // date is required: leaving it null makes the form invalid
-      component.date.setValue(null);
+      component.dtForm.date().value.set(null);
       component.dateExpanded.set(true);
 
       component.saveDate();
 
-      expect(component.hasDate.value).toBe(false);
+      expect(component.hasDate()).toBe(false);
       expect(component.dateExpanded()).toBe(false);
     });
   });
@@ -349,8 +352,8 @@ describe('AssertedChronotopeComponent', () => {
       const { fixture } = await render(AssertedChronotopeComponent);
       const component = fixture.componentInstance;
 
-      component.hasPlace.setValue(true);
-      await wait(400);
+      component.onHasPlaceChange(true);
+      await wait(50);
       fixture.detectChanges();
 
       expect(component.placeExpanded()).toBe(true);
@@ -363,11 +366,10 @@ describe('AssertedChronotopeComponent', () => {
       component.chronotope.set({ place: { value: 'Rome' } });
       fixture.detectChanges();
 
-      component.hasPlace.setValue(false);
-      await wait(400);
+      component.onHasPlaceChange(false);
       fixture.detectChanges();
 
-      expect(component.place.value).toBeNull();
+      expect(component.plForm.place().value()).toBe('');
       expect(component.chronotope()?.place).toBeUndefined();
     });
 
@@ -375,8 +377,8 @@ describe('AssertedChronotopeComponent', () => {
       const { fixture } = await render(AssertedChronotopeComponent);
       const component = fixture.componentInstance;
 
-      component.hasDate.setValue(true);
-      await wait(400);
+      component.onHasDateChange(true);
+      await wait(50);
       fixture.detectChanges();
 
       expect(component.dateExpanded()).toBe(true);
@@ -390,15 +392,10 @@ describe('AssertedChronotopeComponent', () => {
       component.chronotope.set({ date });
       fixture.detectChanges();
 
-      component.hasDate.setValue(false);
-      await wait(400);
+      component.onHasDateChange(false);
       fixture.detectChanges();
 
-      // note: unlike the plain place <input>, the nested
-      // cadmus-refs-historical-date component echoes back its (falsy) date
-      // input via (dateChange), which ends up setting the control to
-      // `undefined` rather than the `null` set by date.reset() itself.
-      expect(component.date.value).toBeFalsy();
+      expect(component.dtForm.date().value()).toBeNull();
       expect(component.chronotope()?.date).toBeUndefined();
     });
   });

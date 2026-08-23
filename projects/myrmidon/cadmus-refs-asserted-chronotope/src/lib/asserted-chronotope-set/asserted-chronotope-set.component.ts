@@ -4,17 +4,10 @@ import {
   effect,
   input,
   model,
-  OnInit,
   signal,
   untracked,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FieldTree, form } from '@angular/forms/signals';
 import { take } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -25,7 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
-import { NgxToolsValidators } from '@myrmidon/ngx-tools';
+import { NgxToolsSignalValidators } from '@myrmidon/ngx-tools';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 import { HistoricalDatePipe } from '@myrmidon/cadmus-refs-historical-date';
 import {
@@ -46,8 +39,6 @@ import {
   templateUrl: './asserted-chronotope-set.component.html',
   styleUrls: ['./asserted-chronotope-set.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -59,7 +50,7 @@ import {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AssertedChronotopeSetComponent implements OnInit {
+export class AssertedChronotopeSetComponent {
   public readonly editedIndex = signal<number>(-1);
   public readonly edited = signal<AssertedChronotope | undefined>(undefined);
   public readonly placeLabels = signal<Record<string, string>>({});
@@ -90,20 +81,14 @@ export class AssertedChronotopeSetComponent implements OnInit {
    */
   public readonly placeLookupConfig = input<RefLookupConfig>();
 
-  public entries: FormControl<AssertedChronotope[]>;
-  public form: FormGroup;
+  private readonly _draft = signal<{ entries: AssertedChronotope[] }>({
+    entries: [],
+  });
+  public readonly form: FieldTree<{ entries: AssertedChronotope[] }>;
 
-  constructor(
-    formBuilder: FormBuilder,
-    private _dialogService: DialogService,
-  ) {
-    // form
-    this.entries = formBuilder.control([], {
-      validators: NgxToolsValidators.strictMinLengthValidator(1),
-      nonNullable: true,
-    });
-    this.form = formBuilder.group({
-      entries: this.entries,
+  constructor(private _dialogService: DialogService) {
+    this.form = form(this._draft, (path) => {
+      NgxToolsSignalValidators.strictMinLength(path.entries, 1);
     });
 
     // when chronotopes change, update form
@@ -153,19 +138,17 @@ export class AssertedChronotopeSetComponent implements OnInit {
     });
   }
 
-  public ngOnInit(): void {
-    if (this.chronotopes()?.length) {
-      this.updateForm(this.chronotopes());
-    }
-  }
-
   private updateForm(chronotopes: AssertedChronotope[] | undefined): void {
-    if (!chronotopes) {
-      this.form!.reset();
-      return;
-    }
-    this.entries.setValue(chronotopes || []);
-    this.form.markAsPristine();
+    // map into fresh objects rather than adopting the caller's own
+    // AssertedChronotope references directly - see
+    // signal-forms-migration.md (cadmus-refs-decorated-ids entry) for why.
+    this._draft.set({
+      entries: (chronotopes || []).map((c) => ({
+        place: c.place,
+        date: c.date,
+      })),
+    });
+    this.form().reset();
   }
 
   public addChronotope(): void {
@@ -196,17 +179,16 @@ export class AssertedChronotopeSetComponent implements OnInit {
       return;
     }
 
-    const chronotopes = [...this.entries.value];
+    const entries = [...this._draft().entries];
 
     if (this.editedIndex() > -1) {
-      chronotopes.splice(this.editedIndex(), 1, this.edited()!);
+      entries.splice(this.editedIndex(), 1, this.edited()!);
     } else {
-      chronotopes.push(this.edited()!);
+      entries.push(this.edited()!);
     }
 
-    this.entries.setValue(chronotopes);
-    this.entries.updateValueAndValidity();
-    this.entries.markAsDirty();
+    this._draft.set({ entries });
+    this.form.entries().markAsDirty();
     this.closeChronotope();
     this.saveChronotopes();
   }
@@ -217,11 +199,10 @@ export class AssertedChronotopeSetComponent implements OnInit {
       .pipe(take(1))
       .subscribe((yes) => {
         if (yes) {
-          const entries = [...this.entries.value];
+          const entries = [...this._draft().entries];
           entries.splice(index, 1);
-          this.entries.setValue(entries);
-          this.entries.updateValueAndValidity();
-          this.entries.markAsDirty();
+          this._draft.set({ entries });
+          this.form.entries().markAsDirty();
           this.saveChronotopes();
         }
       });
@@ -231,32 +212,34 @@ export class AssertedChronotopeSetComponent implements OnInit {
     if (index < 1) {
       return;
     }
-    const entry = this.entries.value[index];
-    const entries = [...this.entries.value];
+    const entries = [...this._draft().entries];
+    const entry = entries[index];
     entries.splice(index, 1);
     entries.splice(index - 1, 0, entry);
-    this.entries.setValue(entries);
-    this.entries.updateValueAndValidity();
-    this.entries.markAsDirty();
+    this._draft.set({ entries });
+    this.form.entries().markAsDirty();
     this.saveChronotopes();
   }
 
   public moveChronotopeDown(index: number): void {
-    if (index + 1 >= this.entries.value.length) {
+    if (index + 1 >= this._draft().entries.length) {
       return;
     }
-    const entry = this.entries.value[index];
-    const entries = [...this.entries.value];
+    const entries = [...this._draft().entries];
+    const entry = entries[index];
     entries.splice(index, 1);
     entries.splice(index + 1, 0, entry);
-    this.entries.setValue(entries);
-    this.entries.updateValueAndValidity();
-    this.entries.markAsDirty();
+    this._draft.set({ entries });
+    this.form.entries().markAsDirty();
     this.saveChronotopes();
   }
 
   private saveChronotopes(): void {
-    const chronotopes = this.entries.value?.length ? this.entries.value : [];
-    this.chronotopes.set(chronotopes);
+    const entries = this._draft().entries;
+    this.chronotopes.set(
+      entries.length
+        ? entries.map((c) => ({ place: c.place, date: c.date }))
+        : [],
+    );
   }
 }

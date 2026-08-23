@@ -1,4 +1,4 @@
-<form [formGroup]="form">
+<form>
   <div>
     <button
       type="button"
@@ -9,7 +9,7 @@
       <mat-icon>add_circle</mat-icon> chronotope
     </button>
   </div>
-  @if (entries.value.length) {
+  @if (form.entries().value().length) {
     <table>
       <thead>
         <tr>
@@ -20,7 +20,7 @@
       </thead>
       <tbody>
         @for (
-          entry of entries.value;
+          entry of form.entries().value();
           track entry;
           let i = $index;
           let first = $first;
