@@ -31,6 +31,8 @@ To use a brick:
 2. import the component(s) you want to use.
 3. use the brick via its selector in your component template, binding it to your code as required by its API.
 
+To run library tests: `pnpm run test:lib`. This excludes the app, which is just a demo (also, `cadmus-refs-*-lookup` libraries have no real tests).
+
 ## Docker
 
 🐋 Quick **Docker image** build (the only purpose of this image is letting testers play with controls in the incubator):
