@@ -5,7 +5,6 @@ import {
   input,
   output,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { SafeHtmlPipe } from '@myrmidon/ngx-tools';
 
@@ -29,12 +28,7 @@ export interface TextBlockEventArgs {
   selector: 'cadmus-text-block-view',
   templateUrl: './text-block-view.component.html',
   styleUrls: ['./text-block-view.component.css'],
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    ArrayIntersectPipe,
-    SafeHtmlPipe
-],
+  imports: [ArrayIntersectPipe, SafeHtmlPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TextBlockViewComponent {

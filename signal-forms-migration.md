@@ -59,7 +59,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 8. `cadmus-refs-citation`
 - [x] 9. `cadmus-refs-historical-date`
 - [x] 10. `cadmus-refs-doc-references` — has `FormArray`
-- [ ] 11. `cadmus-text-block-view`
+- [x] 11. `cadmus-text-block-view`
 - [ ] 12. `cadmus-ui-note-set`
 - [ ] 13. `cadmus-text-ed-txt`
 - [ ] 14. `cadmus-mat-physical-state`
