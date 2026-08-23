@@ -2,6 +2,8 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+## 10.0.12
+
 - 2026-08-22:
   - ⚠️ updated packages fixing an API issue with maplibre in `geo-location-editor` where the zoom type has changed and configuring the library as described in <https://github.com/maplibre/ngx-maplibre-gl>.
   - implemented tests for all libraries except `cadmus-refs-*-lookup`, fixing some bugs.
