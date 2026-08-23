@@ -2,21 +2,19 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  effect,
   input,
   model,
-  OnDestroy,
-  OnInit,
   signal,
   ViewChild,
 } from '@angular/core';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { Subscription } from 'rxjs';
+  FieldTree,
+  FormField,
+  disabled,
+  form,
+  min,
+} from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -40,13 +38,31 @@ export interface PhysicalMeasurement extends PhysicalDimension {
 }
 
 /**
+ * The controls used to add a new measurement.
+ */
+interface AddMeasureControls {
+  name: string;
+  hasCustom: boolean;
+  custom: string;
+  batch: string;
+}
+
+/**
+ * The controls used to edit an existing (or new) measurement.
+ */
+interface EditedMeasureControls {
+  value: number;
+  unit: string | null;
+  tag: string;
+}
+
+/**
  * Editor for a set of physical measurements.
  */
 @Component({
   selector: 'cadmus-mat-physical-measurement-set',
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -61,9 +77,7 @@ export interface PhysicalMeasurement extends PhysicalDimension {
   styleUrl: './physical-measurement-set.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
-
+export class PhysicalMeasurementSetComponent {
   /**
    * The set of measurements.
    */
@@ -99,57 +113,42 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   @ViewChild('cstn', { static: false })
   public customCtl?: ElementRef;
 
-  public name: FormControl<string | null>;
-  public hasCustom: FormControl<boolean>;
-  public custom: FormControl<string | null>;
-  public batch: FormControl<string | null>;
-  public form: FormGroup;
-
-  public value: FormControl<number>;
-  public unit: FormControl<string | null>;
-  public tag: FormControl<string | null>;
-  public editedForm: FormGroup;
+  // add-measurement form
+  public readonly form: FieldTree<AddMeasureControls>;
+  // edited-measurement form
+  private readonly _editedDraft = signal<EditedMeasureControls>({
+    value: 0,
+    unit: null,
+    tag: '',
+  });
+  public readonly editedForm: FieldTree<EditedMeasureControls>;
 
   public readonly editedIndex = signal<number>(-1);
   public readonly edited = signal<PhysicalMeasurement | undefined>(undefined);
 
-  constructor(formBuilder: FormBuilder) {
-    this.name = formBuilder.control(null);
-    this.hasCustom = formBuilder.control(false, { nonNullable: true });
-    this.custom = formBuilder.control(null);
-    this.batch = formBuilder.control(null);
-    this.form = formBuilder.group({
-      name: this.name,
-      hasCustom: this.hasCustom,
-      custom: this.custom,
-      batch: this.batch,
-    });
-
-    this.value = formBuilder.control(0, { nonNullable: true });
-    this.unit = formBuilder.control(null);
-    this.tag = formBuilder.control(null);
-    this.editedForm = formBuilder.group({
-      value: this.value,
-      unit: this.unit,
-      tag: this.tag,
-    });
-  }
-
-  public ngOnInit(): void {
-    this._sub = this.hasCustom.valueChanges.subscribe((value) => {
-      if (value) {
-        this.name.disable();
-      } else {
-        this.name.enable();
+  constructor() {
+    this.form = form(
+      signal<AddMeasureControls>({
+        name: '',
+        hasCustom: false,
+        custom: '',
+        batch: '',
+      }),
+      (path) => {
+        disabled(path.name, { when: (ctx) => ctx.valueOf(path.hasCustom) });
       }
-      if (value && this.customCtl) {
+    );
+    this.editedForm = form(this._editedDraft, (path) => {
+      min(path.value, 0);
+    });
+
+    // when hasCustom becomes true, focus the custom input
+    effect(() => {
+      const hasCustom = this.form.hasCustom().value();
+      if (hasCustom && this.customCtl) {
         setTimeout(() => this.customCtl!.nativeElement.focus(), 0);
       }
     });
-  }
-
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
   }
 
   public closeMeasurement(): void {
@@ -159,13 +158,15 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
 
   private updateEditedForm(): void {
     if (!this.edited()) {
-      this.editedForm.reset();
+      this._editedDraft.set({ value: 0, unit: null, tag: '' });
     } else {
-      this.value.setValue(this.edited()!.value);
-      this.unit.setValue(this.edited()!.unit);
-      this.tag.setValue(this.edited()!.tag || null);
-      this.editedForm.markAsPristine();
+      this._editedDraft.set({
+        value: this.edited()!.value,
+        unit: this.edited()!.unit,
+        tag: this.edited()!.tag || '',
+      });
     }
+    this.editedForm().reset();
   }
 
   public editMeasurement(index: number): void {
@@ -181,7 +182,7 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   public addMeasurement(event?: Event): void {
     this.closeMeasurement();
 
-    if (this.hasCustom.value) {
+    if (this.form.hasCustom().value()) {
       this.addCustomMeasurement(event);
       return;
     }
@@ -189,19 +190,19 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
     }
-    if (!this.name.value) {
+    if (!this.form.name().value()) {
       return;
     }
 
     this.editedIndex.set(-1);
     this.edited.set({
-      name: this.name.value,
+      name: this.form.name().value(),
       value: 0,
       unit: this.defaultUnit() || this.unitEntries()?.[0]?.id || 'cm',
     } as PhysicalMeasurement);
 
     if (!this.nameEntries()?.length) {
-      this.name.reset();
+      this.form.name().value.set('');
     }
 
     this.updateEditedForm();
@@ -212,24 +213,26 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
     }
-    if (!this.custom.value) {
+    if (!this.form.custom().value()) {
       return;
     }
 
     this.editedIndex.set(-1);
     this.edited.set({
-      name: this.custom.value,
+      name: this.form.custom().value(),
       value: 0,
       unit: this.defaultUnit() || this.unitEntries()?.[0]?.id || 'cm',
     } as PhysicalMeasurement);
 
     this.updateEditedForm();
-    this.custom.reset();
+    this.form.custom().value.set('');
   }
 
   public addBatchMeasurements(): void {
     // parse from batch.value with form "name=value unit (tag);..."
-    const entries = this.batch.value
+    const entries = this.form
+      .batch()
+      .value()
       ?.split(';')
       .filter((s) => s.trim().length > 0);
     if (!entries?.length) {
@@ -277,9 +280,9 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
   public saveMeasurement(): void {
     this.edited.set({
       name: this.edited()!.name,
-      value: this.value.value,
-      unit: this.unit.value,
-      tag: this.tag.value || undefined,
+      value: this.editedForm.value().value(),
+      unit: this.editedForm.unit().value(),
+      tag: this.editedForm.tag().value() || undefined,
     } as PhysicalMeasurement);
 
     const measurements = [...this.measurements()];
@@ -311,6 +314,10 @@ export class PhysicalMeasurementSetComponent implements OnInit, OnDestroy {
 
   public onDimensionChange(dimension?: PhysicalDimension): void {
     this.edited.set({ ...this.edited(), ...dimension! } as PhysicalMeasurement);
+  }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
   }
 
   public moveMeasurementUp(index: number): void {

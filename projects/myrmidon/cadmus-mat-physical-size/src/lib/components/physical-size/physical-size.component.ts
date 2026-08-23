@@ -7,17 +7,17 @@ import {
   input,
   model,
   OnDestroy,
-  OnInit,
   signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  FieldTree,
+  FormField,
+  form,
+  maxLength,
+  min,
+  validateTree,
+} from '@angular/forms/signals';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -46,14 +46,30 @@ export interface PhysicalSize {
   note?: string;
 }
 
+/**
+ * The editable controls backing the visual size editor.
+ */
+interface PhysicalSizeControls {
+  tag: string;
+  wValue: number;
+  wUnit: string;
+  wTag: string;
+  hValue: number;
+  hUnit: string;
+  hTag: string;
+  dValue: number;
+  dUnit: string;
+  dTag: string;
+  note: string;
+}
+
 @Component({
   selector: 'cadmus-mat-physical-size',
   templateUrl: './physical-size.component.html',
   styleUrls: ['./physical-size.component.css'],
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     // material
     MatButtonModule,
     MatCheckboxModule,
@@ -66,7 +82,7 @@ export interface PhysicalSize {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PhysicalSizeComponent implements OnInit, OnDestroy {
+export class PhysicalSizeComponent implements OnDestroy {
   private _sub?: Subscription;
 
   /**
@@ -108,36 +124,23 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
    */
   public readonly hideTag = input<boolean>();
 
-  public form: FormGroup;
-  public tag: FormControl<string | null>;
-  public wValue: FormControl<number>;
-  public wUnit: FormControl<string>;
-  public wTag: FormControl<string | null>;
-  public hValue: FormControl<number>;
-  public hUnit: FormControl<string>;
-  public hTag: FormControl<string | null>;
-  public dValue: FormControl<number>;
-  public dUnit: FormControl<string>;
-  public dTag: FormControl<string | null>;
-  public note: FormControl<string | null>;
+  private readonly _draft = signal<PhysicalSizeControls>(
+    this.makeDefaultControls()
+  );
+  public readonly form: FieldTree<PhysicalSizeControls>;
 
-  public text: FormControl<string | null>;
+  private readonly _text = signal({ text: '' });
+  public readonly textForm: FieldTree<{ text: string }>;
 
   public readonly visualExpanded = signal<boolean>(false);
 
-  // trick to force label refresh on form changes
-  private readonly formChanged = signal(0);
-
   public readonly label = computed(() => {
-    // read the signal to make this computed depend on it
-    this.formChanged();
-
-    const wValue = this.wValue.value;
-    const hValue = this.hValue.value;
-    const dValue = this.dValue.value;
-    const wUnit = this.wUnit.value;
-    const hUnit = this.hUnit.value;
-    const dUnit = this.dUnit.value;
+    const wValue = this.form.wValue().value();
+    const hValue = this.form.hValue().value();
+    const dValue = this.form.dValue().value();
+    const wUnit = this.form.wUnit().value();
+    const hUnit = this.form.hUnit().value();
+    const dUnit = this.form.dUnit().value();
     const hBeforeW = this.hBeforeW();
 
     // determine the unique unit if any
@@ -176,50 +179,38 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     return sb.join(' × ') + (uniqueUnit ? ' ' + uniqueUnit : '');
   });
 
-  constructor(formBuilder: FormBuilder) {
-    this.tag = formBuilder.control(null, Validators.maxLength(50));
+  constructor() {
+    this.form = form(this._draft, (path) => {
+      maxLength(path.tag, 50);
+      maxLength(path.wTag, 50);
+      maxLength(path.hTag, 50);
+      maxLength(path.dTag, 50);
+      maxLength(path.note, 100);
+      min(path.wValue, 0);
+      min(path.hValue, 0);
+      min(path.dValue, 0);
 
-    this.wValue = formBuilder.control(0, { nonNullable: true });
-    this.wUnit = formBuilder.control(this.defaultWUnit(), {
-      nonNullable: true,
+      // at least one of w/h/d has a value without a matching unit
+      validateTree(path, (ctx) => {
+        const w = ctx.valueOf(path.wValue) || 0;
+        const h = ctx.valueOf(path.hValue) || 0;
+        const d = ctx.valueOf(path.dValue) || 0;
+
+        if (w && !ctx.valueOf(path.wUnit)) {
+          return { kind: 'unit' };
+        }
+        if (h && !ctx.valueOf(path.hUnit)) {
+          return { kind: 'unit' };
+        }
+        if (d && !ctx.valueOf(path.dUnit)) {
+          return { kind: 'unit' };
+        }
+        return null;
+      });
     });
-    this.wTag = formBuilder.control(null, Validators.maxLength(50));
 
-    this.hValue = formBuilder.control(0, { nonNullable: true });
-    this.hUnit = formBuilder.control(this.defaultHUnit(), {
-      nonNullable: true,
-    });
-    this.hTag = formBuilder.control(null, Validators.maxLength(50));
-
-    this.dValue = formBuilder.control(0, { nonNullable: true });
-    this.dUnit = formBuilder.control(this.defaultDUnit(), {
-      nonNullable: true,
-    });
-    this.dTag = formBuilder.control(null, Validators.maxLength(50));
-
-    this.note = formBuilder.control(null, Validators.maxLength(100));
-
-    this.form = formBuilder.group(
-      {
-        tag: this.tag,
-        wValue: this.wValue,
-        wUnit: this.wUnit,
-        wTag: this.wTag,
-        hValue: this.hValue,
-        hUnit: this.hUnit,
-        hTag: this.hTag,
-        dValue: this.dValue,
-        dUnit: this.dUnit,
-        dTag: this.dTag,
-        note: this.note,
-      },
-      {
-        validators: this.validateUnit,
-      }
-    );
-
-    this.text = formBuilder.control(null, {
-      validators: Validators.maxLength(1000),
+    this.textForm = form(this._text, (path) => {
+      maxLength(path.text, 1000);
     });
 
     // when size changes, update form
@@ -231,32 +222,29 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     // when hBeforeW changes, update text
     effect(() => {
       setTimeout(() => {
-        this.text.setValue(
-          PhysicalSizeParser.toString(this.size(), this.hBeforeW()),
-          { emitEvent: false }
+        this.textForm.text().value.set(
+          PhysicalSizeParser.toString(this.size(), this.hBeforeW()) || ''
         );
       }, 0);
     });
-  }
 
-  public ngOnInit(): void {
-    this._sub = this.form.valueChanges
+    // debounced form -> model sync
+    this._sub = toObservable(this._draft)
       .pipe(distinctUntilChanged(), debounceTime(400))
-      .subscribe((_) => {
-        this.size.set(this.getSize());
-        // notify the label computed to update
-        this.formChanged.update((v) => v + 1);
+      .subscribe(() => {
+        const newSize = this.getSize();
+        if (this.sizesEqual(newSize, this.size())) {
+          return;
+        }
+        this.size.set(newSize);
         if (
-          this.isModelValid(this.size()) &&
-          this.tag.valid &&
-          this.note.valid
+          this.isModelValid(newSize) &&
+          this.form.tag().valid() &&
+          this.form.note().valid()
         ) {
-          // this.updateLabel();
-          // update text
           setTimeout(() => {
-            this.text.setValue(
-              PhysicalSizeParser.toString(this.size()!, this.hBeforeW()),
-              { emitEvent: false }
+            this.textForm.text().value.set(
+              PhysicalSizeParser.toString(newSize, this.hBeforeW()) || ''
             );
           }, 0);
         }
@@ -272,44 +260,61 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
     }
-    if (!this.text.value) {
+    const text = this.textForm.text().value();
+    if (!text) {
       return;
     }
     const size = PhysicalSizeParser.parse(
-      this.text.value,
+      text,
       this.hBeforeW(),
       this.hBeforeW() ? this.defaultHUnit() : this.defaultWUnit()
     );
     if (size) {
       this.updateForm(size);
       this.size.set(size);
-      // manually trigger label update since updateForm uses emitEvent: false
-      this.formChanged.update((v) => v + 1);
     }
   }
 
-  private validateUnit(form: FormGroup): { [key: string]: any } | null {
-    const w = form.get('wValue')?.value || 0;
-    const h = form.get('hValue')?.value || 0;
-    const d = form.get('dValue')?.value || 0;
+  private makeDefaultControls(): PhysicalSizeControls {
+    return {
+      tag: '',
+      wValue: 0,
+      wUnit: this.defaultWUnit(),
+      wTag: '',
+      hValue: 0,
+      hUnit: this.defaultHUnit(),
+      hTag: '',
+      dValue: 0,
+      dUnit: this.defaultDUnit(),
+      dTag: '',
+      note: '',
+    };
+  }
 
-    if (w && !form.get('wUnit')?.value) {
-      return {
-        unit: true,
-      };
+  private dimensionsEqual(a?: PhysicalDimension, b?: PhysicalDimension): boolean {
+    if (a === b) {
+      return true;
     }
-    if (h && !form.get('hUnit')?.value) {
-      return {
-        unit: true,
-      };
+    if (!a || !b) {
+      return false;
     }
-    if (d && !form.get('dUnit')?.value) {
-      return {
-        unit: true,
-      };
-    }
+    return a.value === b.value && a.unit === b.unit && a.tag === b.tag;
+  }
 
-    return null;
+  private sizesEqual(a?: PhysicalSize, b?: PhysicalSize): boolean {
+    if (a === b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    return (
+      a.tag === b.tag &&
+      a.note === b.note &&
+      this.dimensionsEqual(a.w, b.w) &&
+      this.dimensionsEqual(a.h, b.h) &&
+      this.dimensionsEqual(a.d, b.d)
+    );
   }
 
   private getDimensionLabel(value: number, unit?: string | null): string {
@@ -341,88 +346,49 @@ export class PhysicalSizeComponent implements OnInit, OnDestroy {
     );
   }
 
-  private resetUnits(): void {
-    this.wUnit.setValue(this.defaultWUnit(), { emitEvent: false });
-    this.hUnit.setValue(this.defaultHUnit(), { emitEvent: false });
-    this.dUnit.setValue(this.defaultDUnit(), { emitEvent: false });
-  }
-
   private updateForm(size?: PhysicalSize | null): void {
     if (!size) {
-      this.form.reset({ emitEvent: false });
-      this.resetUnits();
+      this._draft.set(this.makeDefaultControls());
     } else {
-      this.tag.setValue(size.tag || null, { emitEvent: false });
-      this.note.setValue(size.note || null, { emitEvent: false });
-
-      if (size.w?.value) {
-        this.wValue.setValue(size.w.value, { emitEvent: false });
-        // use the model's unit if available, otherwise use default
-        this.wUnit.setValue(size.w.unit || this.defaultWUnit(), {
-          emitEvent: false,
-        });
-        this.wTag.setValue(size.w.tag || null, { emitEvent: false });
-      } else {
-        this.wValue.reset(undefined, { emitEvent: false });
-        this.wUnit.setValue(this.defaultWUnit(), { emitEvent: false });
-        this.wTag.reset(undefined, { emitEvent: false });
-      }
-
-      if (size.h?.value) {
-        this.hValue.setValue(size.h.value, { emitEvent: false });
-        // use the model's unit if available, otherwise use default
-        this.hUnit.setValue(size.h.unit || this.defaultHUnit(), {
-          emitEvent: false,
-        });
-        this.hTag.setValue(size.h.tag || null, { emitEvent: false });
-      } else {
-        this.hValue.reset(undefined, { emitEvent: false });
-        this.hUnit.setValue(this.defaultHUnit(), { emitEvent: false });
-        this.hTag.reset(undefined, { emitEvent: false });
-      }
-
-      if (size.d?.value) {
-        this.dValue.setValue(size.d.value, { emitEvent: false });
-        // use the model's unit if available, otherwise use default
-        this.dUnit.setValue(size.d.unit || this.defaultDUnit(), {
-          emitEvent: false,
-        });
-        this.dTag.setValue(size.d.tag || null, { emitEvent: false });
-      } else {
-        this.dValue.reset(undefined, { emitEvent: false });
-        this.dUnit.setValue(this.defaultDUnit(), { emitEvent: false });
-        this.dTag.reset(undefined, { emitEvent: false });
-      }
-
-      this.form.markAsPristine();
+      this._draft.set({
+        tag: size.tag || '',
+        wValue: size.w?.value || 0,
+        wUnit: size.w?.value
+          ? size.w.unit || this.defaultWUnit()
+          : this.defaultWUnit(),
+        wTag: (size.w?.value ? size.w.tag : undefined) || '',
+        hValue: size.h?.value || 0,
+        hUnit: size.h?.value
+          ? size.h.unit || this.defaultHUnit()
+          : this.defaultHUnit(),
+        hTag: (size.h?.value ? size.h.tag : undefined) || '',
+        dValue: size.d?.value || 0,
+        dUnit: size.d?.value
+          ? size.d.unit || this.defaultDUnit()
+          : this.defaultDUnit(),
+        dTag: (size.d?.value ? size.d.tag : undefined) || '',
+        note: size.note || '',
+      });
     }
+    this.form().reset();
   }
 
-  private getDimension(
-    v: FormControl,
-    u: FormControl,
-    t: FormControl
-  ): PhysicalDimension {
+  private getDimension(value: number, unit: string, tag: string): PhysicalDimension {
     return {
-      value: v.value || 0,
-      unit: u.value,
-      tag: t.value?.trim(),
+      value: value || 0,
+      unit,
+      tag: tag.trim() || undefined,
     };
   }
 
   private getSize(): PhysicalSize {
+    const v = this._draft();
     return {
-      tag: this.tag.value?.trim(),
-      note: this.note.value?.trim(),
-      w: this.wValue.value
-        ? this.getDimension(this.wValue, this.wUnit, this.wTag)
-        : undefined,
-      h: this.hValue.value
-        ? this.getDimension(this.hValue, this.hUnit, this.hTag)
-        : undefined,
-      d: this.dValue.value
-        ? this.getDimension(this.dValue, this.dUnit, this.dTag)
-        : undefined,
+      tag: v.tag.trim() || undefined,
+      note: v.note.trim() || undefined,
+      w: v.wValue ? this.getDimension(v.wValue, v.wUnit, v.wTag) : undefined,
+      h: v.hValue ? this.getDimension(v.hValue, v.hUnit, v.hTag) : undefined,
+      d: v.dValue ? this.getDimension(v.dValue, v.dUnit, v.dTag) : undefined,
     };
   }
 }

@@ -5,15 +5,17 @@ import {
   input,
   model,
   output,
+  signal,
 } from '@angular/core';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  FieldTree,
+  FormField,
+  disabled,
+  form,
+  maxLength,
+  min,
+  required,
+} from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -34,6 +36,15 @@ export interface PhysicalDimension {
 }
 
 /**
+ * The editable controls backing a physical dimension.
+ */
+interface PhysicalDimensionControls {
+  value: number;
+  unit: string | null;
+  tag: string;
+}
+
+/**
  * Editor for a single physical dimension.
  */
 @Component({
@@ -41,8 +52,7 @@ export interface PhysicalDimension {
   templateUrl: './physical-dimension.component.html',
   styleUrls: ['./physical-dimension.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -93,19 +103,23 @@ export class PhysicalDimensionComponent {
    */
   public readonly cancelEdit = output();
 
-  public value: FormControl<number>;
-  public unit: FormControl<string | null>;
-  public tag: FormControl<string | null>;
-  public form: FormGroup;
+  private readonly _draft = signal<PhysicalDimensionControls>({
+    value: 0,
+    unit: null,
+    tag: '',
+  });
+  public readonly form: FieldTree<PhysicalDimensionControls>;
 
-  constructor(formBuilder: FormBuilder) {
-    this.value = formBuilder.control(0, { nonNullable: true });
-    this.unit = formBuilder.control(null, Validators.required);
-    this.tag = formBuilder.control(null, Validators.maxLength(50));
-    this.form = formBuilder.group({
-      value: this.value,
-      unit: this.unit,
-      tag: this.tag,
+  constructor() {
+    this.form = form(this._draft, (path) => {
+      min(path.value, 0);
+      required(path.unit);
+      maxLength(path.tag, 50);
+      disabled(path.value, { when: () => !!this.disabled() });
+      disabled(path.unit, {
+        when: () => !!this.disabled() || this.unitDisabled(),
+      });
+      disabled(path.tag, { when: () => !!this.disabled() });
     });
 
     // when dimension changes, update form
@@ -113,42 +127,27 @@ export class PhysicalDimensionComponent {
       const dimension = this.dimension();
       this.updateForm(dimension);
     });
-
-    // when disabled changes, update form
-    effect(() => {
-      if (this.disabled()) {
-        this.form.disable();
-      } else {
-        this.form.enable();
-      }
-    });
-
-    // when unitDisabled changes, enable/disable unit control
-    effect(() => {
-      if (this.unitDisabled()) {
-        this.unit.disable();
-      } else {
-        this.unit.enable();
-      }
-    });
   }
 
-  private updateForm(model?: PhysicalDimension): void {
-    if (!model) {
-      this.form.reset();
+  private updateForm(dimension?: PhysicalDimension): void {
+    if (!dimension) {
+      this._draft.set({ value: 0, unit: null, tag: '' });
     } else {
-      this.value.setValue(model.value, { emitEvent: false });
-      this.unit.setValue(model.unit, { emitEvent: false });
-      this.tag.setValue(model.tag || null, { emitEvent: false });
-      this.form.markAsPristine();
+      this._draft.set({
+        value: dimension.value,
+        unit: dimension.unit,
+        tag: dimension.tag || '',
+      });
     }
+    this.form().reset();
   }
 
   private getDimension(): PhysicalDimension {
+    const value = this.form().value();
     return {
-      value: this.value.value || 0,
-      unit: this.unit.value || '',
-      tag: this.tag.value || undefined,
+      value: value.value || 0,
+      unit: value.unit || '',
+      tag: value.tag || undefined,
     };
   }
 
@@ -156,10 +155,15 @@ export class PhysicalDimensionComponent {
     this.cancelEdit.emit();
   }
 
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
+  }
+
   public save(pristine = true): void {
-    if (this.form.invalid) {
+    if (this.form().invalid()) {
       // show validation errors
-      this.form.markAllAsTouched();
+      this.form().markAsTouched();
       return;
     }
 
@@ -167,7 +171,7 @@ export class PhysicalDimensionComponent {
     this.dimension.set(dimension);
 
     if (pristine) {
-      this.form.markAsPristine();
+      this.form().reset();
     }
   }
 }

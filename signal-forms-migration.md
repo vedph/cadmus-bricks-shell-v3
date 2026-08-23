@@ -53,7 +53,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 2. `cadmus-refs-decorated-counts`
 - [x] 3. `cadmus-ui-custom-action-bar`
 - [x] 4. `cadmus-ui-flag-set`
-- [ ] 5. `cadmus-mat-physical-size`
+- [x] 5. `cadmus-mat-physical-size`
 - [ ] 6. `cadmus-cod-location`
 - [ ] 7. `cadmus-geo-location`
 - [ ] 8. `cadmus-refs-citation`
@@ -124,3 +124,43 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   component storing `checkedIds` in a reactive-forms `FormControl` — that's
   external/app-side code, not this library's own forms, so left as-is per the
   libraries-only scope.
+- **`cadmus-mat-physical-size`** (3 components): the hardest one so far.
+  - `physical-dimension`: sibling-driven `disabled`/`readonly` cascades
+    (`disabled`, `unitDisabled` inputs) became pure schema `disabled(path.x,
+    {when})` declarations instead of imperative `form.disable()`/
+    `unit.disable()` effects — much cleaner. `[formField]` on a native numeric
+    `<input>` reserves the `min` attribute even with **no** `min()` validator
+    declared, so a static `min="0"` HTML attribute always conflicts; added
+    `min(path.value, 0)` schema validators everywhere a dimension value input
+    had one, across all 3 components in this library.
+  - `physical-size`: the FormGroup's cross-field custom validator
+    (`validateUnit`) became a root-level `validateTree(path, ctx => ...)`
+    using `ctx.valueOf(path.x)` to read sibling fields. The debounced
+    `form.valueChanges` → model sync (`distinctUntilChanged, debounceTime(400)`)
+    was ported via `toObservable(this._draft).pipe(...)` from
+    `@angular/core/rxjs-interop` — same Subscription-based lifecycle,
+    `ngOnDestroy` still unsubscribes. **Real correctness gotcha**: reactive
+    forms' `{emitEvent: false}` on every programmatic `setValue()` call had no
+    signal-forms equivalent — `.value.set()` always notifies. Without it, the
+    debounced model-sync pipeline re-triggered itself forever (model→form
+    effect writes `_draft` → debounce fires → writes `size` → model→form
+    effect fires again → ...), a slow ~400ms-cadence infinite loop. Fixed by
+    comparing the newly computed model to the current one (structural
+    equality) before calling `.set()` in the debounced handler, so no genuine
+    change means no signal write, breaking the cycle. Also simplified the
+    `label` computed: it used to read plain (non-reactive) `FormControl.value`
+    behind a manual `formChanged` signal bumped by the debounced sync; since
+    signal-form field reads are themselves reactive, `label` now reads
+    `this.form.wValue().value()` etc. directly and updates immediately,
+    letting the `formChanged` trick be deleted entirely.
+  - `physical-measurement-set`: same add-form/edited-form shape as
+    `cadmus-refs-decorated-counts`. Removing the outer `[formGroup]` wrapper
+    also removes `FormGroupDirective`'s implicit `preventDefault()` on
+    `submit` events bubbling from any `type="submit"` button inside the
+    `<form>` — added an explicit `(submit)="onFormSubmit($event)"` handler
+    that calls `event.preventDefault()` since a `type="submit"` "Save
+    measurement" button lives inside this form. **Test gotcha**: an
+    `effect()` reacting to a field's value (e.g. hasCustom → focus) does not
+    flush synchronously or on a bare `setTimeout(...,0)` await in a test —
+    the test must `fixture.detectChanges()`/`await fixture.whenStable()`
+    after the field write for Angular to actually run the effect.

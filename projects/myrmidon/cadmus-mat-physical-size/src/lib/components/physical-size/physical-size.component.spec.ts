@@ -40,16 +40,16 @@ describe('PhysicalSizeComponent', () => {
     });
 
     it('should initialize dimension controls with default units', () => {
-      expect(component.wValue.value).toBe(0);
-      expect(component.wUnit.value).toBe('cm');
-      expect(component.hValue.value).toBe(0);
-      expect(component.hUnit.value).toBe('cm');
-      expect(component.dValue.value).toBe(0);
-      expect(component.dUnit.value).toBe('cm');
+      expect(component.form.wValue().value()).toBe(0);
+      expect(component.form.wUnit().value()).toBe('cm');
+      expect(component.form.hValue().value()).toBe(0);
+      expect(component.form.hUnit().value()).toBe('cm');
+      expect(component.form.dValue().value()).toBe(0);
+      expect(component.form.dUnit().value()).toBe('cm');
     });
 
     it('should be valid initially (no dimension has a value)', () => {
-      expect(component.form.valid).toBe(true);
+      expect(component.form().valid()).toBe(true);
     });
 
     it('should compute an empty label initially', () => {
@@ -70,18 +70,18 @@ describe('PhysicalSizeComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.tag.value).toBe('overall');
-      expect(component.wValue.value).toBe(20);
-      expect(component.wUnit.value).toBe('cm');
-      expect(component.wTag.value).toBe('w-tag');
-      expect(component.hValue.value).toBe(10);
-      expect(component.hUnit.value).toBe('cm');
-      expect(component.hTag.value).toBe('h-tag');
-      expect(component.note.value).toBe('a note');
+      expect(component.form.tag().value()).toBe('overall');
+      expect(component.form.wValue().value()).toBe(20);
+      expect(component.form.wUnit().value()).toBe('cm');
+      expect(component.form.wTag().value()).toBe('w-tag');
+      expect(component.form.hValue().value()).toBe(10);
+      expect(component.form.hUnit().value()).toBe('cm');
+      expect(component.form.hTag().value()).toBe('h-tag');
+      expect(component.form.note().value()).toBe('a note');
       // depth not set => reset to defaults
-      expect(component.dValue.value).toBe(0);
-      expect(component.dUnit.value).toBe('cm');
-      expect(component.form.pristine).toBe(true);
+      expect(component.form.dValue().value()).toBe(0);
+      expect(component.form.dUnit().value()).toBe('cm');
+      expect(component.form().dirty()).toBe(false);
     });
 
     it('should fall back to the default unit when a dimension has no unit', async () => {
@@ -92,8 +92,8 @@ describe('PhysicalSizeComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.wUnit.value).toBe('cm');
-      expect(component.hUnit.value).toBe('mm');
+      expect(component.form.wUnit().value()).toBe('cm');
+      expect(component.form.hUnit().value()).toBe('mm');
     });
 
     it('should reset width fields to defaults when w is absent', async () => {
@@ -103,8 +103,8 @@ describe('PhysicalSizeComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.wValue.value).toBe(0);
-      expect(component.wUnit.value).toBe('cm');
+      expect(component.form.wValue().value()).toBe(0);
+      expect(component.form.wUnit().value()).toBe('cm');
     });
 
     it('should reset the whole form when size is set back to undefined', async () => {
@@ -121,14 +121,14 @@ describe('PhysicalSizeComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.wValue.value).toBe(0);
-      expect(component.wUnit.value).toBe('cm');
-      expect(component.hValue.value).toBe(0);
-      expect(component.hUnit.value).toBe('cm');
-      expect(component.dValue.value).toBe(0);
-      expect(component.dUnit.value).toBe('cm');
-      expect(component.tag.value).toBeNull();
-      expect(component.note.value).toBeNull();
+      expect(component.form.wValue().value()).toBe(0);
+      expect(component.form.wUnit().value()).toBe('cm');
+      expect(component.form.hValue().value()).toBe(0);
+      expect(component.form.hUnit().value()).toBe('cm');
+      expect(component.form.dValue().value()).toBe(0);
+      expect(component.form.dUnit().value()).toBe('cm');
+      expect(component.form.tag().value()).toBe('');
+      expect(component.form.note().value()).toBe('');
     });
   });
   //#endregion
@@ -136,29 +136,29 @@ describe('PhysicalSizeComponent', () => {
   //#region validateUnit
   describe('unit validator', () => {
     it('should require a unit for width when width has a value', () => {
-      component.wValue.setValue(10);
-      component.wUnit.setValue('');
-      expect(component.form.hasError('unit')).toBe(true);
+      component.form.wValue().value.set(10);
+      component.form.wUnit().value.set('');
+      expect(component.form().getError('unit')).toBeDefined();
     });
 
     it('should require a unit for height when height has a value', () => {
-      component.hValue.setValue(10);
-      component.hUnit.setValue('');
-      expect(component.form.hasError('unit')).toBe(true);
+      component.form.hValue().value.set(10);
+      component.form.hUnit().value.set('');
+      expect(component.form().getError('unit')).toBeDefined();
     });
 
     it('should require a unit for depth when depth has a value', () => {
-      component.dValue.setValue(10);
-      component.dUnit.setValue('');
-      expect(component.form.hasError('unit')).toBe(true);
+      component.form.dValue().value.set(10);
+      component.form.dUnit().value.set('');
+      expect(component.form().getError('unit')).toBeDefined();
     });
 
     it('should be valid when every non-zero dimension has a unit', () => {
-      component.wValue.setValue(10);
-      component.wUnit.setValue('cm');
-      component.hValue.setValue(5);
-      component.hUnit.setValue('cm');
-      expect(component.form.hasError('unit')).toBeFalsy();
+      component.form.wValue().value.set(10);
+      component.form.wUnit().value.set('cm');
+      component.form.hValue().value.set(5);
+      component.form.hUnit().value.set('cm');
+      expect(component.form().getError('unit')).toBeUndefined();
     });
   });
   //#endregion
@@ -167,30 +167,30 @@ describe('PhysicalSizeComponent', () => {
   describe('parseText', () => {
     it('should do nothing when text is empty', () => {
       const before = component.size();
-      component.text.setValue('');
+      component.textForm.text().value.set('');
       component.parseText();
       expect(component.size()).toBe(before);
     });
 
     it('should do nothing when text cannot be parsed', () => {
       const before = component.size();
-      component.text.setValue('not a valid size');
+      component.textForm.text().value.set('not a valid size');
       component.parseText();
       expect(component.size()).toBe(before);
     });
 
     it('should update the model and form fields from valid text', () => {
-      component.text.setValue('20cm x 10mm');
+      component.textForm.text().value.set('20cm x 10mm');
       component.parseText();
 
       expect(component.size()).toEqual({
         w: { value: 20, unit: 'cm' },
         h: { value: 10, unit: 'mm' },
       });
-      expect(component.wValue.value).toBe(20);
-      expect(component.wUnit.value).toBe('cm');
-      expect(component.hValue.value).toBe(10);
-      expect(component.hUnit.value).toBe('mm');
+      expect(component.form.wValue().value()).toBe(20);
+      expect(component.form.wUnit().value()).toBe('cm');
+      expect(component.form.hValue().value()).toBe(10);
+      expect(component.form.hUnit().value()).toBe('mm');
     });
 
     it('should respect hBeforeW when parsing', async () => {
@@ -198,7 +198,7 @@ describe('PhysicalSizeComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.text.setValue('10cm x 20cm');
+      component.textForm.text().value.set('10cm x 20cm');
       component.parseText();
 
       expect(component.size()!.h).toEqual({ value: 10, unit: 'cm' });
@@ -206,7 +206,7 @@ describe('PhysicalSizeComponent', () => {
     });
 
     it('should call preventDefault and stopPropagation when an event is passed', () => {
-      component.text.setValue('20cm x 10cm');
+      component.textForm.text().value.set('20cm x 10cm');
       const event = {
         preventDefault: vi.fn(),
         stopPropagation: vi.fn(),
@@ -219,7 +219,7 @@ describe('PhysicalSizeComponent', () => {
     });
 
     it('should not throw when no event is passed and text is empty', () => {
-      component.text.setValue('');
+      component.textForm.text().value.set('');
       expect(() => component.parseText()).not.toThrow();
     });
   });
@@ -228,34 +228,32 @@ describe('PhysicalSizeComponent', () => {
   //#region label
   describe('label', () => {
     it('should show a single dimension with its unit', async () => {
-      component.text.setValue('20cm x 0cm');
-      // 0-height is not parseable as a valid 2-dim size by the parser's
-      // regex (it still matches, value 0 just means the dimension is
-      // "off"), so drive the label through parseText with two dimensions
-      // and then zero out one via direct control update instead.
-      component.wValue.setValue(20);
-      component.wUnit.setValue('cm');
-      component.hValue.setValue(0);
-      // direct control edits flow through the debounced (400ms) form
-      // valueChanges pipeline before the label computed signal is bumped
-      await new Promise((resolve) => setTimeout(resolve, 450));
+      // signal-form field reads are directly reactive, so the label
+      // computed updates immediately on direct field writes (unlike the
+      // old FormGroup-based version, which needed the debounced
+      // valueChanges pipeline to bump a manual "form changed" signal
+      // before the label recomputed)
+      component.form.wValue().value.set(20);
+      component.form.wUnit().value.set('cm');
+      component.form.hValue().value.set(0);
+
       expect(component.label()).toBe('20.00 cm');
     });
 
     it('should collapse identical units into a single trailing unit', () => {
-      component.text.setValue('20cm x 10cm');
+      component.textForm.text().value.set('20cm x 10cm');
       component.parseText();
       expect(component.label()).toBe('20.00 × 10.00 cm');
     });
 
     it('should show per-dimension units when they differ', () => {
-      component.text.setValue('20cm x 10mm');
+      component.textForm.text().value.set('20cm x 10mm');
       component.parseText();
       expect(component.label()).toBe('20.00 cm × 10.00 mm');
     });
 
     it('should include depth when present', () => {
-      component.text.setValue('20cm x 10cm x 5cm');
+      component.textForm.text().value.set('20cm x 10cm x 5cm');
       component.parseText();
       expect(component.label()).toBe('20.00 × 10.00 × 5.00 cm');
     });
@@ -265,7 +263,7 @@ describe('PhysicalSizeComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.text.setValue('10cm x 20cm');
+      component.textForm.text().value.set('10cm x 20cm');
       component.parseText();
       // hBeforeW: first number is h, second is w; label puts h before w
       expect(component.label()).toBe('10.00 × 20.00 cm');
@@ -281,10 +279,10 @@ describe('PhysicalSizeComponent', () => {
 
   describe('form -> model sync (debounced)', () => {
     it('should update the model after the debounce period', async () => {
-      component.wValue.setValue(20);
-      component.wUnit.setValue('cm');
-      component.hValue.setValue(10);
-      component.hUnit.setValue('cm');
+      component.form.wValue().value.set(20);
+      component.form.wUnit().value.set('cm');
+      component.form.hValue().value.set(10);
+      component.form.hUnit().value.set('cm');
       await delay(500);
 
       expect(component.size()?.w).toEqual({ value: 20, unit: 'cm', tag: undefined });
@@ -292,12 +290,12 @@ describe('PhysicalSizeComponent', () => {
     });
 
     it('should trim the overall tag and note when building the model', async () => {
-      component.wValue.setValue(20);
-      component.wUnit.setValue('cm');
-      component.hValue.setValue(10);
-      component.hUnit.setValue('cm');
-      component.tag.setValue('  overall  ');
-      component.note.setValue('  a note  ');
+      component.form.wValue().value.set(20);
+      component.form.wUnit().value.set('cm');
+      component.form.hValue().value.set(10);
+      component.form.hUnit().value.set('cm');
+      component.form.tag().value.set('  overall  ');
+      component.form.note().value.set('  a note  ');
       await delay(500);
 
       expect(component.size()?.tag).toBe('overall');
@@ -305,7 +303,7 @@ describe('PhysicalSizeComponent', () => {
     });
 
     it('should leave w/h/d undefined in the model when their value is 0', async () => {
-      component.tag.setValue('just-a-tag');
+      component.form.tag().value.set('just-a-tag');
       await delay(500);
 
       expect(component.size()?.w).toBeUndefined();
@@ -314,13 +312,13 @@ describe('PhysicalSizeComponent', () => {
     });
 
     it('should update the text field once the model becomes valid', async () => {
-      component.wValue.setValue(20);
-      component.wUnit.setValue('cm');
-      component.hValue.setValue(10);
-      component.hUnit.setValue('cm');
+      component.form.wValue().value.set(20);
+      component.form.wUnit().value.set('cm');
+      component.form.hValue().value.set(10);
+      component.form.hUnit().value.set('cm');
       await delay(500);
 
-      expect(component.text.value).toBe('20cm x 10cm');
+      expect(component.textForm.text().value()).toBe('20cm x 10cm');
     });
   });
   //#endregion
@@ -335,7 +333,7 @@ describe('PhysicalSizeComponent', () => {
     });
 
     it('should enable the parse button when text has a value', async () => {
-      component.text.setValue('20cm x 10cm');
+      component.textForm.text().value.set('20cm x 10cm');
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -394,10 +392,10 @@ describe('PhysicalSizeComponent', () => {
     it('should unsubscribe and stop syncing form changes to the model', async () => {
       component.ngOnDestroy();
 
-      component.wValue.setValue(20);
-      component.wUnit.setValue('cm');
-      component.hValue.setValue(10);
-      component.hUnit.setValue('cm');
+      component.form.wValue().value.set(20);
+      component.form.wUnit().value.set('cm');
+      component.form.hValue().value.set(10);
+      component.form.hUnit().value.set('cm');
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       expect(component.size()).toBeUndefined();

@@ -48,21 +48,21 @@ describe('PhysicalDimensionComponent', () => {
       expect(component.label()).toBeUndefined();
     });
 
-    it('should initialize the form with value=0, unit=null, tag=null', () => {
-      expect(component.value.value).toBe(0);
-      expect(component.unit.value).toBeNull();
-      expect(component.tag.value).toBeNull();
+    it('should initialize the form with value=0, unit=null, tag=""', () => {
+      expect(component.form.value().value()).toBe(0);
+      expect(component.form.unit().value()).toBeNull();
+      expect(component.form.tag().value()).toBe('');
     });
 
     it('should require unit', () => {
-      expect(component.unit.hasError('required')).toBe(true);
+      expect(component.form.unit().getError('required')).toBeDefined();
     });
 
     it('should apply maxLength(50) to tag', () => {
-      component.tag.setValue('x'.repeat(51));
-      expect(component.tag.hasError('maxlength')).toBe(true);
-      component.tag.setValue('x'.repeat(50));
-      expect(component.tag.hasError('maxlength')).toBe(false);
+      component.form.tag().value.set('x'.repeat(51));
+      expect(component.form.tag().getError('maxLength')).toBeDefined();
+      component.form.tag().value.set('x'.repeat(50));
+      expect(component.form.tag().getError('maxLength')).toBeUndefined();
     });
   });
   //#endregion
@@ -78,18 +78,18 @@ describe('PhysicalDimensionComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.value.value).toBe(12.5);
-      expect(component.unit.value).toBe('cm');
-      expect(component.tag.value).toBe('note');
-      expect(component.form.pristine).toBe(true);
+      expect(component.form.value().value()).toBe(12.5);
+      expect(component.form.unit().value()).toBe('cm');
+      expect(component.form.tag().value()).toBe('note');
+      expect(component.form().dirty()).toBe(false);
     });
 
-    it('should default tag to null when dimension has no tag', async () => {
+    it('should default tag to empty string when dimension has no tag', async () => {
       fixture.componentRef.setInput('dimension', { value: 5, unit: 'mm' });
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.tag.value).toBeNull();
+      expect(component.form.tag().value()).toBe('');
     });
 
     it('should reset the form when dimension is set back to undefined', async () => {
@@ -105,26 +105,23 @@ describe('PhysicalDimensionComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      // value is a nonNullable control, so it resets to its initial
-      // default (0) rather than null
-      expect(component.value.value).toBe(0);
-      expect(component.unit.value).toBeNull();
-      expect(component.tag.value).toBeNull();
+      expect(component.form.value().value()).toBe(0);
+      expect(component.form.unit().value()).toBeNull();
+      expect(component.form.tag().value()).toBe('');
     });
   });
   //#endregion
 
-  //#region disabled / unitDisabled effects
-  describe('disabled effect', () => {
+  //#region disabled / unitDisabled logic
+  describe('disabled logic', () => {
     it('should disable the whole form when disabled is true', async () => {
       fixture.componentRef.setInput('disabled', true);
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.form.disabled).toBe(true);
-      expect(component.value.disabled).toBe(true);
-      expect(component.unit.disabled).toBe(true);
-      expect(component.tag.disabled).toBe(true);
+      expect(component.form.value().disabled()).toBe(true);
+      expect(component.form.unit().disabled()).toBe(true);
+      expect(component.form.tag().disabled()).toBe(true);
     });
 
     it('should re-enable the form when disabled becomes false', async () => {
@@ -136,13 +133,13 @@ describe('PhysicalDimensionComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.form.disabled).toBe(false);
+      expect(component.form.value().disabled()).toBe(false);
     });
   });
 
-  describe('unitDisabled effect', () => {
+  describe('unitDisabled logic', () => {
     it('should leave unit enabled by default', () => {
-      expect(component.unit.disabled).toBe(false);
+      expect(component.form.unit().disabled()).toBe(false);
     });
 
     it('should disable only the unit control when unitDisabled is true', async () => {
@@ -150,9 +147,9 @@ describe('PhysicalDimensionComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.unit.disabled).toBe(true);
-      expect(component.value.disabled).toBe(false);
-      expect(component.tag.disabled).toBe(false);
+      expect(component.form.unit().disabled()).toBe(true);
+      expect(component.form.value().disabled()).toBe(false);
+      expect(component.form.tag().disabled()).toBe(false);
     });
 
     it('should re-enable unit when unitDisabled becomes false', async () => {
@@ -164,7 +161,7 @@ describe('PhysicalDimensionComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.unit.disabled).toBe(false);
+      expect(component.form.unit().disabled()).toBe(false);
     });
   });
   //#endregion
@@ -175,11 +172,11 @@ describe('PhysicalDimensionComponent', () => {
       const spy = vi.fn();
       component.dimension.subscribe(spy);
 
-      component.value.setValue(10);
+      component.form.value().value.set(10);
       // unit left null => required error
       component.save();
 
-      expect(component.unit.touched).toBe(true);
+      expect(component.form.unit().touched()).toBe(true);
       expect(spy).not.toHaveBeenCalled();
       expect(component.dimension()).toBeUndefined();
     });
@@ -188,9 +185,9 @@ describe('PhysicalDimensionComponent', () => {
       const spy = vi.fn();
       component.dimension.subscribe(spy);
 
-      component.value.setValue(10);
-      component.unit.setValue('cm');
-      component.tag.setValue('note');
+      component.form.value().value.set(10);
+      component.form.unit().value.set('cm');
+      component.form.tag().value.set('note');
 
       component.save();
 
@@ -203,9 +200,9 @@ describe('PhysicalDimensionComponent', () => {
     });
 
     it('should map an empty tag to undefined', () => {
-      component.value.setValue(10);
-      component.unit.setValue('cm');
-      component.tag.setValue(null);
+      component.form.value().value.set(10);
+      component.form.unit().value.set('cm');
+      component.form.tag().value.set('');
 
       component.save();
 
@@ -217,8 +214,8 @@ describe('PhysicalDimensionComponent', () => {
     });
 
     it('should default value to 0 when value control is falsy', () => {
-      component.value.setValue(0);
-      component.unit.setValue('mm');
+      component.form.value().value.set(0);
+      component.form.unit().value.set('mm');
 
       component.save();
 
@@ -226,28 +223,28 @@ describe('PhysicalDimensionComponent', () => {
     });
 
     it('should mark the form pristine synchronously when pristine=true (default)', () => {
-      component.value.setValue(10);
-      component.unit.setValue('cm');
-      // setValue() alone does not dirty a reactive form control; that
+      component.form.value().value.set(10);
+      component.form.unit().value.set('cm');
+      // setting the value alone does not dirty a signal form field; that
       // only happens through UI interaction (or an explicit mark call)
-      component.form.markAsDirty();
-      expect(component.form.dirty).toBe(true);
+      component.form().markAsDirty();
+      expect(component.form().dirty()).toBe(true);
 
       component.save();
 
-      expect(component.form.pristine).toBe(true);
+      expect(component.form().dirty()).toBe(false);
     });
 
     it('should leave the form dirty synchronously when pristine=false is passed', () => {
-      component.value.setValue(10);
-      component.unit.setValue('cm');
-      component.form.markAsDirty();
+      component.form.value().value.set(10);
+      component.form.unit().value.set('cm');
+      component.form().markAsDirty();
 
       component.save(false);
 
       // synchronously (before the model -> form sync effect flushes),
       // the form should remain dirty since pristine=false was requested.
-      expect(component.form.dirty).toBe(true);
+      expect(component.form().dirty()).toBe(true);
     });
   });
   //#endregion
@@ -340,9 +337,9 @@ describe('PhysicalDimensionComponent', () => {
     });
 
     it('should enable the save button once the form is valid and dirty', async () => {
-      component.value.setValue(10);
-      component.unit.setValue('cm');
-      component.form.markAsDirty();
+      component.form.value().value.set(10);
+      component.form.unit().value.set('cm');
+      component.form().markAsDirty();
       fixture.detectChanges();
       await fixture.whenStable();
 

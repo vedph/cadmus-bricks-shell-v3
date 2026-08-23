@@ -1,15 +1,16 @@
-<form [formGroup]="form">
+<form (submit)="onFormSubmit($event)">
   <div class="form-row">
     <!-- measure (bound) -->
     @if (nameEntries()?.length) {
     <mat-form-field>
       <mat-label>measure</mat-label>
-      <mat-select [formControl]="name">
+      <mat-select [formField]="form.name">
         @for (e of nameEntries(); track e) {
         <mat-option [value]="e.id">{{ e.value }}</mat-option>
         }
       </mat-select>
-      @if ($any(name).errors?.required && (name.dirty || name.touched)) {
+      @if (form.name().getError('required') && (form.name().dirty() ||
+      form.name().touched())) {
       <mat-error>measure required</mat-error>
       }
     </mat-form-field>
@@ -19,12 +20,14 @@
       <mat-label>measure</mat-label>
       <input
         matInput
-        [formControl]="name"
+        [formField]="form.name"
         (keydown.enter)="addMeasurement($event)"
       />
-      @if ($any(name).errors?.required && (name.dirty || name.touched)) {
+      @if (form.name().getError('required') && (form.name().dirty() ||
+      form.name().touched())) {
       <mat-error>name required</mat-error>
-      } @if ($any(name).errors?.maxLength && (name.dirty || name.touched)) {
+      } @if (form.name().getError('maxLength') && (form.name().dirty() ||
+      form.name().touched())) {
       <mat-error>measure too long</mat-error>
       }
     </mat-form-field>
@@ -33,22 +36,24 @@
     <!-- custom -->
     @if (nameEntries()?.length && allowCustomName()) {
     <div class="form-row">
-      <mat-checkbox [formControl]="hasCustom">custom</mat-checkbox>
+      <mat-checkbox [formField]="form.hasCustom">custom</mat-checkbox>
 
       <!-- custom measure -->
-      <mat-form-field [style.display]="hasCustom.value ? 'block' : 'none'">
+      <mat-form-field
+        [style.display]="form.hasCustom().value() ? 'block' : 'none'"
+      >
         <mat-label>custom</mat-label>
         <input
           matInput
-          [formControl]="custom"
+          [formField]="form.custom"
           (keydown.enter)="addCustomMeasurement($event)"
           #cstn
         />
-        @if ($any(custom).errors?.required && (custom.dirty || custom.touched))
-        {
+        @if (form.custom().getError('required') && (form.custom().dirty() ||
+        form.custom().touched())) {
         <mat-error>custom required</mat-error>
-        } @if ($any(custom).errors?.maxLength && (custom.dirty ||
-        custom.touched)) {
+        } @if (form.custom().getError('maxLength') && (form.custom().dirty()
+        || form.custom().touched())) {
         <mat-error>measure too long</mat-error>
         }
       </mat-form-field>
@@ -59,7 +64,8 @@
       type="button"
       mat-icon-button
       [disabled]="
-        (!hasCustom.value && !name.value) || (hasCustom.value && !custom.value)
+        (!form.hasCustom().value() && !form.name().value()) ||
+        (form.hasCustom().value() && !form.custom().value())
       "
       matTooltip="Add measure"
       (click)="addMeasurement()"
@@ -70,7 +76,7 @@
     <!-- batch -->
     <mat-form-field>
       <mat-label>batch</mat-label>
-      <input matInput [formControl]="batch" />
+      <input matInput [formField]="form.batch" />
       <mat-hint>Name=ValueUnit (Tag); ...</mat-hint>
       <button
         type="button"
@@ -78,7 +84,7 @@
         matSuffix
         (click)="addBatchMeasurements()"
         matTooltip="Add batch measurements"
-        [disabled]="!batch.value"
+        [disabled]="!form.batch().value()"
       >
         <mat-icon class="mat-primary">add_circle</mat-icon>
       </button>
@@ -167,20 +173,20 @@
             matInput
             type="number"
             step="any"
-            min="0"
-            [formControl]="value"
+            [formField]="editedForm.value"
           />
         </mat-form-field>
 
         <!-- unit -->
         <mat-form-field class="unit" class="unit">
           <mat-label>unit</mat-label>
-          <mat-select [formControl]="unit">
+          <mat-select [formField]="editedForm.unit">
             @for (e of unitEntries(); track e) {
             <mat-option [value]="e.id">{{ e.value }}</mat-option>
             }
           </mat-select>
-          @if ($any(unit).errors?.required && (unit.dirty || unit.touched)) {
+          @if (editedForm.unit().getError('required') &&
+          (editedForm.unit().dirty() || editedForm.unit().touched())) {
           <mat-error>unit required</mat-error>
           }
         </mat-form-field>
@@ -190,7 +196,7 @@
         @if (dimTagEntries()?.length) {
         <mat-form-field class="tag">
           <mat-label>tag</mat-label>
-          <mat-select [formControl]="tag">
+          <mat-select [formField]="editedForm.tag">
             @for (e of dimTagEntries(); track e) {
             <mat-option [value]="e.id">{{ e.value }}</mat-option>
             }
@@ -201,8 +207,9 @@
         @else {
         <mat-form-field class="tag">
           <mat-label>tag</mat-label>
-          <input matInput [formControl]="tag" />
-          @if ($any(tag).errors?.maxLength && (tag.dirty || tag.touched)) {
+          <input matInput [formField]="editedForm.tag" />
+          @if (editedForm.tag().getError('maxLength') &&
+          (editedForm.tag().dirty() || editedForm.tag().touched())) {
           <mat-error>tag too long</mat-error>
           }
         </mat-form-field>

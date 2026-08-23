@@ -36,11 +36,11 @@ describe('PhysicalMeasurementSetComponent', () => {
       expect(component.edited()).toBeUndefined();
     });
 
-    it('should default hasCustom to false and name/custom/batch to null', () => {
-      expect(component.hasCustom.value).toBe(false);
-      expect(component.name.value).toBeNull();
-      expect(component.custom.value).toBeNull();
-      expect(component.batch.value).toBeNull();
+    it('should default hasCustom to false and name/custom/batch to empty', () => {
+      expect(component.form.hasCustom().value()).toBe(false);
+      expect(component.form.name().value()).toBe('');
+      expect(component.form.custom().value()).toBe('');
+      expect(component.form.batch().value()).toBe('');
     });
 
     it('should default unitEntries to an empty array', () => {
@@ -52,14 +52,14 @@ describe('PhysicalMeasurementSetComponent', () => {
   //#region hasCustom toggling
   describe('hasCustom toggling', () => {
     it('should disable the name control when hasCustom becomes true', () => {
-      component.hasCustom.setValue(true);
-      expect(component.name.disabled).toBe(true);
+      component.form.hasCustom().value.set(true);
+      expect(component.form.name().disabled()).toBe(true);
     });
 
     it('should re-enable the name control when hasCustom becomes false', () => {
-      component.hasCustom.setValue(true);
-      component.hasCustom.setValue(false);
-      expect(component.name.disabled).toBe(false);
+      component.form.hasCustom().value.set(true);
+      component.form.hasCustom().value.set(false);
+      expect(component.form.name().disabled()).toBe(false);
     });
 
     it('should focus the custom input once it is rendered and hasCustom becomes true', async () => {
@@ -73,7 +73,9 @@ describe('PhysicalMeasurementSetComponent', () => {
       expect(component.customCtl).toBeTruthy();
       const focusSpy = vi.spyOn(component.customCtl!.nativeElement, 'focus');
 
-      component.hasCustom.setValue(true);
+      component.form.hasCustom().value.set(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(focusSpy).toHaveBeenCalled();
@@ -99,18 +101,18 @@ describe('PhysicalMeasurementSetComponent', () => {
         value: 5,
         unit: 'cm',
       });
-      expect(component.value.value).toBe(5);
-      expect(component.unit.value).toBe('cm');
+      expect(component.editedForm.value().value()).toBe(5);
+      expect(component.editedForm.unit().value()).toBe('cm');
     });
 
     it('should do nothing when editing the already-edited index again', () => {
       component.editMeasurement(0);
       // dirty the edited-form value to detect whether a second call resets it
-      component.value.setValue(999);
+      component.editedForm.value().value.set(999);
 
       component.editMeasurement(0);
 
-      expect(component.value.value).toBe(999);
+      expect(component.editedForm.value().value()).toBe(999);
     });
 
     it('should close the editor and clear edited state', () => {
@@ -126,13 +128,13 @@ describe('PhysicalMeasurementSetComponent', () => {
   //#region addMeasurement (free-text name mode)
   describe('addMeasurement (free-text name mode)', () => {
     it('should do nothing when the name is empty', () => {
-      component.name.setValue('');
+      component.form.name().value.set('');
       component.addMeasurement();
       expect(component.edited()).toBeUndefined();
     });
 
     it('should start editing a new measurement with the given name', () => {
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       component.addMeasurement();
 
       expect(component.editedIndex()).toBe(-1);
@@ -144,9 +146,9 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should reset the name control after adding (free-text mode)', () => {
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       component.addMeasurement();
-      expect(component.name.value).toBeNull();
+      expect(component.form.name().value()).toBe('');
     });
 
     it('should use defaultUnit when provided', async () => {
@@ -154,7 +156,7 @@ describe('PhysicalMeasurementSetComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       component.addMeasurement();
 
       expect(component.edited()?.unit).toBe('mm');
@@ -167,14 +169,14 @@ describe('PhysicalMeasurementSetComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       component.addMeasurement();
 
       expect(component.edited()?.unit).toBe('in');
     });
 
     it('should call preventDefault/stopPropagation when an event is passed', () => {
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       const event = {
         preventDefault: vi.fn(),
         stopPropagation: vi.fn(),
@@ -187,8 +189,8 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should delegate to addCustomMeasurement when hasCustom is true', () => {
-      component.hasCustom.setValue(true);
-      component.custom.setValue('Custom name');
+      component.form.hasCustom().value.set(true);
+      component.form.custom().value.set('Custom name');
 
       component.addMeasurement();
 
@@ -208,10 +210,10 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should not reset the name control after adding when nameEntries is bound', () => {
-      component.name.setValue('width');
+      component.form.name().value.set('width');
       component.addMeasurement();
 
-      expect(component.name.value).toBe('width');
+      expect(component.form.name().value()).toBe('width');
     });
   });
   //#endregion
@@ -219,13 +221,13 @@ describe('PhysicalMeasurementSetComponent', () => {
   //#region addCustomMeasurement
   describe('addCustomMeasurement', () => {
     it('should do nothing when custom is empty', () => {
-      component.custom.setValue('');
+      component.form.custom().value.set('');
       component.addCustomMeasurement();
       expect(component.edited()).toBeUndefined();
     });
 
     it('should start editing a new measurement and reset the custom control', () => {
-      component.custom.setValue('Custom name');
+      component.form.custom().value.set('Custom name');
       component.addCustomMeasurement();
 
       expect(component.edited()).toEqual({
@@ -233,11 +235,11 @@ describe('PhysicalMeasurementSetComponent', () => {
         value: 0,
         unit: 'cm',
       });
-      expect(component.custom.value).toBeNull();
+      expect(component.form.custom().value()).toBe('');
     });
 
     it('should call preventDefault/stopPropagation when an event is passed', () => {
-      component.custom.setValue('Custom name');
+      component.form.custom().value.set('Custom name');
       const event = {
         preventDefault: vi.fn(),
         stopPropagation: vi.fn(),
@@ -254,19 +256,19 @@ describe('PhysicalMeasurementSetComponent', () => {
   //#region addBatchMeasurements
   describe('addBatchMeasurements', () => {
     it('should do nothing when batch is empty', () => {
-      component.batch.setValue('');
+      component.form.batch().value.set('');
       component.addBatchMeasurements();
       expect(component.measurements()).toEqual([]);
     });
 
     it('should do nothing when no entry matches the expected format', () => {
-      component.batch.setValue('bogus; also bogus');
+      component.form.batch().value.set('bogus; also bogus');
       component.addBatchMeasurements();
       expect(component.measurements()).toEqual([]);
     });
 
     it('should parse a single measurement with explicit unit', () => {
-      component.batch.setValue('width=10cm');
+      component.form.batch().value.set('width=10cm');
       component.addBatchMeasurements();
 
       expect(component.measurements()).toEqual([
@@ -275,7 +277,7 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should parse a measurement with a tag', () => {
-      component.batch.setValue('depth=5mm (thickness)');
+      component.form.batch().value.set('depth=5mm (thickness)');
       component.addBatchMeasurements();
 
       expect(component.measurements()).toEqual([
@@ -284,7 +286,7 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should inherit the previous unit when omitted', () => {
-      component.batch.setValue('width=10cm;height=20');
+      component.form.batch().value.set('width=10cm;height=20');
       component.addBatchMeasurements();
 
       expect(component.measurements()).toEqual([
@@ -294,7 +296,7 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should skip an entry with no unit and no previous unit to inherit', () => {
-      component.batch.setValue('height=20;width=10cm');
+      component.form.batch().value.set('height=20;width=10cm');
       component.addBatchMeasurements();
 
       // "height=20" has no unit and no previous unit yet => skipped
@@ -304,9 +306,9 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should parse multiple entries with mixed units and tags', () => {
-      component.batch.setValue(
-        'width=10cm;height=20;depth=5mm (thickness)'
-      );
+      component.form
+        .batch()
+        .value.set('width=10cm;height=20;depth=5mm (thickness)');
       component.addBatchMeasurements();
 
       expect(component.measurements()).toEqual([
@@ -320,7 +322,7 @@ describe('PhysicalMeasurementSetComponent', () => {
       component.measurements.set([
         { name: 'existing', value: 1, unit: 'cm' },
       ]);
-      component.batch.setValue('width=10cm');
+      component.form.batch().value.set('width=10cm');
       component.addBatchMeasurements();
 
       expect(component.measurements().length).toBe(2);
@@ -332,7 +334,7 @@ describe('PhysicalMeasurementSetComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.batch.setValue('width=99cm');
+      component.form.batch().value.set('width=99cm');
       component.addBatchMeasurements();
 
       expect(component.measurements()).toEqual([
@@ -342,7 +344,7 @@ describe('PhysicalMeasurementSetComponent', () => {
 
     it('should keep duplicate names when distinct is false', () => {
       component.measurements.set([{ name: 'width', value: 1, unit: 'cm' }]);
-      component.batch.setValue('width=99cm');
+      component.form.batch().value.set('width=99cm');
       component.addBatchMeasurements();
 
       expect(component.measurements().length).toBe(2);
@@ -353,11 +355,11 @@ describe('PhysicalMeasurementSetComponent', () => {
   //#region saveMeasurement
   describe('saveMeasurement', () => {
     it('should append a new measurement when editedIndex is -1', () => {
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       component.addMeasurement();
-      component.value.setValue(15);
-      component.unit.setValue('cm');
-      component.tag.setValue('note');
+      component.editedForm.value().value.set(15);
+      component.editedForm.unit().value.set('cm');
+      component.editedForm.tag().value.set('note');
 
       component.saveMeasurement();
 
@@ -367,11 +369,11 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should map an empty tag to undefined', () => {
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       component.addMeasurement();
-      component.value.setValue(15);
-      component.unit.setValue('cm');
-      component.tag.setValue('');
+      component.editedForm.value().value.set(15);
+      component.editedForm.unit().value.set('cm');
+      component.editedForm.tag().value.set('');
 
       component.saveMeasurement();
 
@@ -379,10 +381,10 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should close the editor after saving', () => {
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       component.addMeasurement();
-      component.value.setValue(15);
-      component.unit.setValue('cm');
+      component.editedForm.value().value.set(15);
+      component.editedForm.unit().value.set('cm');
 
       component.saveMeasurement();
 
@@ -396,8 +398,8 @@ describe('PhysicalMeasurementSetComponent', () => {
         { name: 'height', value: 5, unit: 'cm' },
       ]);
       component.editMeasurement(1);
-      component.value.setValue(50);
-      component.unit.setValue('mm');
+      component.editedForm.value().value.set(50);
+      component.editedForm.unit().value.set('mm');
 
       component.saveMeasurement();
 
@@ -417,8 +419,8 @@ describe('PhysicalMeasurementSetComponent', () => {
       await fixture.whenStable();
 
       component.editMeasurement(0);
-      component.value.setValue(20);
-      component.unit.setValue('cm');
+      component.editedForm.value().value.set(20);
+      component.editedForm.unit().value.set('cm');
 
       component.saveMeasurement();
 
@@ -442,10 +444,10 @@ describe('PhysicalMeasurementSetComponent', () => {
 
       // add a brand-new measurement (editedIndex stays -1) whose name
       // collides with the existing 'width' entry
-      component.name.setValue('width');
+      component.form.name().value.set('width');
       component.addMeasurement();
-      component.value.setValue(999);
-      component.unit.setValue('in');
+      component.editedForm.value().value.set(999);
+      component.editedForm.unit().value.set('in');
 
       component.saveMeasurement();
 
@@ -465,10 +467,10 @@ describe('PhysicalMeasurementSetComponent', () => {
         { name: 'height', value: 5, unit: 'cm' },
       ]);
 
-      component.name.setValue('width');
+      component.form.name().value.set('width');
       component.addMeasurement();
-      component.value.setValue(999);
-      component.unit.setValue('in');
+      component.editedForm.value().value.set(999);
+      component.editedForm.unit().value.set('in');
 
       component.saveMeasurement();
 
@@ -482,7 +484,7 @@ describe('PhysicalMeasurementSetComponent', () => {
   //#region onDimensionChange
   describe('onDimensionChange', () => {
     it('should merge dimension changes into the edited measurement, keeping its name', () => {
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       component.addMeasurement();
 
       component.onDimensionChange({ value: 42, unit: 'mm', tag: 'x' });
@@ -553,15 +555,6 @@ describe('PhysicalMeasurementSetComponent', () => {
   });
   //#endregion
 
-  //#region ngOnDestroy
-  describe('ngOnDestroy', () => {
-    it('should unsubscribe from hasCustom changes', () => {
-      component.ngOnDestroy();
-      expect(() => component.hasCustom.setValue(true)).not.toThrow();
-    });
-  });
-  //#endregion
-
   //#region template
   describe('template', () => {
     it('should render a row per measurement', async () => {
@@ -596,7 +589,7 @@ describe('PhysicalMeasurementSetComponent', () => {
     });
 
     it('should show the editor panel once a measurement is being edited', async () => {
-      component.name.setValue('Diagonal');
+      component.form.name().value.set('Diagonal');
       component.addMeasurement();
       fixture.detectChanges();
       await fixture.whenStable();
