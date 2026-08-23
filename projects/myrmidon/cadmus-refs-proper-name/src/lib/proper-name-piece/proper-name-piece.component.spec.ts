@@ -26,9 +26,9 @@ describe('ProperNamePieceComponent', () => {
   });
 
   it('starts with an empty, invalid form when no piece is bound', () => {
-    expect(component.type.value).toBeNull();
-    expect(component.value.value).toBeNull();
-    expect(component.form.invalid).toBe(true);
+    expect(component.form.type().value()).toBeNull();
+    expect(component.form.value().value()).toBeNull();
+    expect(component.form().invalid()).toBe(true);
   });
 
   it('does not render the form when no piece is set', () => {
@@ -48,8 +48,8 @@ describe('ProperNamePieceComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.type.value).toBe('p');
-    expect(component.value.value).toBe('Publius');
+    expect(component.form.type().value()).toBe('p');
+    expect(component.form.value().value()).toBe('Publius');
     expect(component.typeValues()).toEqual([]);
   });
 
@@ -73,9 +73,9 @@ describe('ProperNamePieceComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.type.value).toEqual(types[0]);
+    expect(component.form.type().value()).toEqual(types[0]);
     expect(component.typeValues()).toEqual(types[0].values);
-    expect(component.value.value).toEqual(types[0].values![0]);
+    expect(component.form.value().value()).toEqual(types[0].values![0]);
   });
 
   it('falls back to a literal type/value when there is no matching thesaurus entry', async () => {
@@ -85,8 +85,8 @@ describe('ProperNamePieceComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.type.value).toBe('unknown');
-    expect(component.value.value).toBe('Italy');
+    expect(component.form.type().value()).toBe('unknown');
+    expect(component.form.value().value()).toBe('Italy');
   });
 
   it('resets the form when the piece is cleared', async () => {
@@ -98,8 +98,8 @@ describe('ProperNamePieceComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.type.value).toBeNull();
-    expect(component.value.value).toBeNull();
+    expect(component.form.type().value()).toBeNull();
+    expect(component.form.value().value()).toBeNull();
     expect(fixture.nativeElement.querySelector('form')).toBeNull();
   });
 
@@ -120,20 +120,20 @@ describe('ProperNamePieceComponent', () => {
     expect(component.typeValues()).toEqual([]);
 
     // let the debounced valueChanges triggered by updateForm's own
-    // type.setValue() settle first (and be swallowed by the
+    // type write settle first (and be swallowed by the
     // "_noNextValuesUpdate" guard), so it doesn't collapse with the
     // user-driven change below
     await new Promise((resolve) => setTimeout(resolve, 350));
 
     // simulate the user picking a different type from the select
-    component.type.setValue(types[0]);
+    component.form.type().value.set(types[0]);
     // wait past the 300ms debounce
     await new Promise((resolve) => setTimeout(resolve, 350));
 
     expect(component.typeValues()).toEqual(types[0].values);
     // the previous literal value ('Italy') is not among the new preset
     // values, so it must be reset
-    expect(component.value.value).toBeNull();
+    expect(component.form.value().value()).toBeNull();
   });
 
   it('keeps the current value when it is still valid for the newly selected type', async () => {
@@ -156,18 +156,18 @@ describe('ProperNamePieceComponent', () => {
     await fixture.whenStable();
 
     // let the debounced valueChanges triggered by updateForm's own
-    // type.setValue() settle first, so it doesn't collapse with the
+    // type write settle first, so it doesn't collapse with the
     // user-driven change below
     await new Promise((resolve) => setTimeout(resolve, 350));
 
-    const previousValue = component.value.value;
+    const previousValue = component.form.value().value();
 
     // re-set the same type: distinctUntilChanged means the debounced
     // callback should not even fire, and the value must be untouched
-    component.type.setValue(types[0]);
+    component.form.type().value.set(types[0]);
     await new Promise((resolve) => setTimeout(resolve, 350));
 
-    expect(component.value.value).toEqual(previousValue);
+    expect(component.form.value().value()).toEqual(previousValue);
   });
 
   it('emits editorClose when cancel is invoked', () => {
@@ -192,8 +192,8 @@ describe('ProperNamePieceComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    component.type.setValue('n');
-    component.value.setValue('Vergilius');
+    component.form.type().value.set('n');
+    component.form.value().value.set('Vergilius');
 
     component.save();
 

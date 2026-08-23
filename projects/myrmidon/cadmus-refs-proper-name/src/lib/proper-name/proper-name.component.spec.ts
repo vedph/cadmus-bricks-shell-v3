@@ -5,6 +5,13 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { ProperNameComponent, AssertedProperName } from './proper-name.component';
 import { ProperNamePiece } from '../models';
 
+// the signal-forms FieldTree tags each array-of-object item it adopts
+// with a hidden identity Symbol (see signal-forms-migration.md); strip it
+// via a JSON round-trip before comparing array-field reads with toEqual.
+function clean<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
+}
+
 describe('ProperNameComponent', () => {
   let component: ProperNameComponent;
   let fixture: ComponentFixture<ProperNameComponent>;
@@ -26,10 +33,10 @@ describe('ProperNameComponent', () => {
   });
 
   it('starts with an empty, invalid form', () => {
-    expect(component.language.value).toBeNull();
-    expect(component.tag.value).toBeNull();
-    expect(component.pieces.value).toEqual([]);
-    expect(component.form.invalid).toBe(true);
+    expect(component.form.language().value()).toBe('');
+    expect(component.form.tag().value()).toBe('');
+    expect(component.form.pieces().value()).toEqual([]);
+    expect(component.form().invalid()).toBe(true);
   });
 
   describe('name -> form sync', () => {
@@ -43,10 +50,10 @@ describe('ProperNameComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.language.value).toBe('lat');
-      expect(component.tag.value).toBe('classic');
-      expect(component.pieces.value).toEqual(name.pieces);
-      expect(component.form.pristine).toBe(true);
+      expect(component.form.language().value()).toBe('lat');
+      expect(component.form.tag().value()).toBe('classic');
+      expect(clean(component.form.pieces().value())).toEqual(name.pieces);
+      expect(component.form().dirty()).toBe(false);
     });
 
     it('resets the form when name is cleared', async () => {
@@ -61,8 +68,8 @@ describe('ProperNameComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.pieces.value).toEqual([]);
-      expect(component.language.value).toBeNull();
+      expect(component.form.pieces().value()).toEqual([]);
+      expect(component.form.language().value()).toBe('');
     });
 
     it('closes any open piece/assertion editor when name changes', async () => {
@@ -194,12 +201,14 @@ describe('ProperNameComponent', () => {
       component.addPiece();
       component.savePiece({ type: 'n', value: 'Vergilius' });
 
-      expect(component.pieces.value).toEqual([
+      expect(clean(component.form.pieces().value())).toEqual([
         { type: 'p', value: 'Publius' },
         { type: 'n', value: 'Vergilius' },
       ]);
       expect(component.editedPieceIndex()).toBe(-1);
-      expect(component.name()?.pieces).toEqual(component.pieces.value);
+      expect(clean(component.name()?.pieces)).toEqual(
+        clean(component.form.pieces().value())
+      );
     });
 
     it('replaces the piece at editedPieceIndex when editing an existing piece', async () => {
@@ -213,10 +222,10 @@ describe('ProperNameComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.editPiece(component.pieces.value[1], 1);
+      component.editPiece(component.form.pieces().value()[1], 1);
       component.savePiece({ type: 'n', value: 'Naso' });
 
-      expect(component.pieces.value).toEqual([
+      expect(clean(component.form.pieces().value())).toEqual([
         { type: 'p', value: 'Publius' },
         { type: 'n', value: 'Naso' },
       ]);
@@ -235,7 +244,7 @@ describe('ProperNameComponent', () => {
       component.addPiece();
       component.savePiece({ type: 'continent', value: 'Asia' });
 
-      expect(component.pieces.value).toEqual([
+      expect(clean(component.form.pieces().value())).toEqual([
         { type: 'continent', value: 'Asia' },
       ]);
     });
@@ -265,7 +274,7 @@ describe('ProperNameComponent', () => {
 
       // country (ordinal 2) must be inserted between continent (1) and
       // region (3)
-      expect(component.pieces.value).toEqual([
+      expect(clean(component.form.pieces().value())).toEqual([
         { type: 'continent', value: 'Europe' },
         { type: 'country', value: 'Italy' },
         { type: 'region', value: 'Veneto' },
@@ -289,7 +298,7 @@ describe('ProperNameComponent', () => {
       component.addPiece();
       component.savePiece({ type: 'country', value: 'Italy' });
 
-      expect(component.pieces.value).toEqual([
+      expect(clean(component.form.pieces().value())).toEqual([
         { type: 'continent', value: 'Europe' },
         { type: 'country', value: 'Italy' },
       ]);
@@ -310,10 +319,10 @@ describe('ProperNameComponent', () => {
 
       component.removePiece(0);
 
-      expect(component.pieces.value).toEqual([
+      expect(clean(component.form.pieces().value())).toEqual([
         { type: 'n', value: 'Vergilius' },
       ]);
-      expect(component.name()?.pieces).toEqual([
+      expect(clean(component.name()?.pieces)).toEqual([
         { type: 'n', value: 'Vergilius' },
       ]);
     });
@@ -326,7 +335,7 @@ describe('ProperNameComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.editPiece(component.pieces.value[0], 0);
+      component.editPiece(component.form.pieces().value()[0], 0);
       component.removePiece(0);
 
       expect(component.editedPieceIndex()).toBe(-1);
@@ -365,7 +374,7 @@ describe('ProperNameComponent', () => {
 
     it('moves a piece up', () => {
       component.movePieceUp(1);
-      expect(component.pieces.value.map((p) => p.value)).toEqual([
+      expect(component.form.pieces().value().map((p) => p.value)).toEqual([
         'B',
         'A',
         'C',
@@ -374,7 +383,7 @@ describe('ProperNameComponent', () => {
 
     it('does nothing when moving the first piece up', () => {
       component.movePieceUp(0);
-      expect(component.pieces.value.map((p) => p.value)).toEqual([
+      expect(component.form.pieces().value().map((p) => p.value)).toEqual([
         'A',
         'B',
         'C',
@@ -383,7 +392,7 @@ describe('ProperNameComponent', () => {
 
     it('moves a piece down', () => {
       component.movePieceDown(0);
-      expect(component.pieces.value.map((p) => p.value)).toEqual([
+      expect(component.form.pieces().value().map((p) => p.value)).toEqual([
         'B',
         'A',
         'C',
@@ -392,7 +401,7 @@ describe('ProperNameComponent', () => {
 
     it('does nothing when moving the last piece down', () => {
       component.movePieceDown(2);
-      expect(component.pieces.value.map((p) => p.value)).toEqual([
+      expect(component.form.pieces().value().map((p) => p.value)).toEqual([
         'A',
         'B',
         'C',
@@ -401,7 +410,7 @@ describe('ProperNameComponent', () => {
 
     it('clears all pieces and unsets name', () => {
       component.clearPieces();
-      expect(component.pieces.value).toEqual([]);
+      expect(component.form.pieces().value()).toEqual([]);
       expect(component.name()).toBeUndefined();
     });
   });
@@ -410,15 +419,18 @@ describe('ProperNameComponent', () => {
     it('sets and dirties the assertion control on onAssertionChange', () => {
       component.onAssertionChange({ rank: 1, note: 'sure' });
 
-      expect(component.assertion.value).toEqual({ rank: 1, note: 'sure' });
-      expect(component.assertion.dirty).toBe(true);
+      expect(component.form.assertion().value()).toEqual({
+        rank: 1,
+        note: 'sure',
+      });
+      expect(component.form.assertion().dirty()).toBe(true);
     });
 
     it('clears the assertion control when passed undefined', () => {
       component.onAssertionChange({ rank: 1 });
       component.onAssertionChange(undefined);
 
-      expect(component.assertion.value).toBeNull();
+      expect(component.form.assertion().value()).toBeNull();
     });
 
     it('saves the assertion into name and closes the editor', async () => {
@@ -447,7 +459,7 @@ describe('ProperNameComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.language.setValue('grc');
+      component.form.language().value.set('grc');
       await new Promise((resolve) => setTimeout(resolve, 350));
       fixture.detectChanges();
       await fixture.whenStable();
@@ -463,7 +475,7 @@ describe('ProperNameComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.tag.setValue('modern');
+      component.form.tag().value.set('modern');
       await new Promise((resolve) => setTimeout(resolve, 350));
       fixture.detectChanges();
       await fixture.whenStable();

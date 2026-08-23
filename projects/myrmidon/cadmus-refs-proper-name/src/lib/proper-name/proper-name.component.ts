@@ -5,19 +5,10 @@ import {
   effect,
   input,
   model,
-  OnDestroy,
-  OnInit,
   signal,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
+import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -27,7 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { FlatLookupPipe, NgxToolsValidators } from '@myrmidon/ngx-tools';
+import { FlatLookupPipe, NgxToolsSignalValidators } from '@myrmidon/ngx-tools';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
 import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
@@ -41,6 +32,17 @@ import { ProperNamePieceComponent } from '../proper-name-piece/proper-name-piece
  */
 export interface AssertedProperName extends ProperName {
   assertion?: Assertion;
+}
+
+interface ProperNameControls {
+  language: string;
+  tag: string;
+  pieces: ProperNamePiece[];
+  assertion: Assertion | null;
+}
+
+function makeDefaultDraft(): ProperNameControls {
+  return { language: '', tag: '', pieces: [], assertion: null };
 }
 
 /**
@@ -65,8 +67,7 @@ export interface AssertedProperName extends ProperName {
   templateUrl: './proper-name.component.html',
   styleUrls: ['./proper-name.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -79,16 +80,23 @@ export interface AssertedProperName extends ProperName {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProperNameComponent implements OnInit, OnDestroy {
-  private readonly _subs: Subscription[] = [];
-  private _typeEntries$: BehaviorSubject<ThesaurusEntry[] | undefined>;
-  private _name$: BehaviorSubject<AssertedProperName | undefined>;
-
+export class ProperNameComponent {
   public readonly pieceTypes = signal<TypeThesaurusEntry[]>([]);
   public readonly editedPieceIndex = signal<number>(-1);
   public readonly editedPiece = signal<ProperNamePiece | undefined>(undefined);
-  public readonly purgedTypeEntries = signal<ThesaurusEntry[] | undefined>(
-    undefined,
+  public readonly purgedTypeEntries = computed<ThesaurusEntry[] | undefined>(
+    () => {
+      const entries = this.typeEntries();
+      if (!entries) {
+        return undefined;
+      }
+      // copy all entries by removing last * from IDs if present
+      return entries.map((e) => {
+        return e.id[e.id.length - 1] === '*'
+          ? { ...e, id: e.id.substring(0, e.id.length - 1) }
+          : e;
+      });
+    },
   );
 
   /**
@@ -129,11 +137,13 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   public readonly hideAssertion = input<boolean>();
 
   // main form
-  public language: FormControl<string | null>;
-  public tag: FormControl<string | null>;
-  public pieces: FormControl<ProperNamePiece[]>;
-  public assertion: FormControl<Assertion | null>;
-  public form: FormGroup;
+  private readonly _draft = signal<ProperNameControls>(makeDefaultDraft());
+  public readonly form = form(this._draft, (path) => {
+    required(path.language);
+    maxLength(path.language, 50);
+    maxLength(path.tag, 50);
+    NgxToolsSignalValidators.strictMinLength(path.pieces, 1);
+  });
 
   // edited assertion
   public readonly assEdOpen = signal<boolean>(false);
@@ -144,92 +154,42 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     this._nameService.getValueEntries(this.pieceTypes()),
   );
 
-  constructor(
-    formBuilder: FormBuilder,
-    private _nameService: ProperNameService,
-  ) {
+  constructor(private _nameService: ProperNameService) {
     this.assEdOpen.set(false);
 
-    // main form
-    this.language = formBuilder.control(null, [
-      Validators.required,
-      Validators.maxLength(50),
-    ]);
-    this.tag = formBuilder.control(null, Validators.maxLength(50));
-    this.pieces = formBuilder.control([], {
-      validators: NgxToolsValidators.strictMinLengthValidator(1),
-      nonNullable: true,
-    });
-    this.assertion = formBuilder.control(null);
-    this.form = formBuilder.group({
-      language: this.language,
-      tag: this.tag,
-      pieces: this.pieces,
-      assertion: this.assertion,
-    });
-
-    // streams
-    this._typeEntries$ = new BehaviorSubject<ThesaurusEntry[] | undefined>(
-      undefined,
-    );
-    this._name$ = new BehaviorSubject<AssertedProperName | undefined>(
-      undefined,
-    );
-    // combine types and name together in updating form
-    combineLatest({
-      types: this._typeEntries$,
-      name: this._name$,
-    }).subscribe((tn) => {
-      this.updateForm(tn.name, tn.types);
-    });
-
-    // when name changes, update the stream
+    // when name or typeEntries change, update the form (native signal
+    // dependency tracking replaces the original's manual
+    // BehaviorSubject + combineLatest bridge)
     effect(() => {
-      this._name$.next(this.name());
+      const name = this.name();
+      const typeEntries = this.typeEntries();
+      this.updateForm(name, typeEntries);
     });
 
-    // when typeEntries change, update the stream
-    effect(() => {
-      this._typeEntries$.next(this.typeEntries());
-      this.updatePurgedTypeEntries();
-    });
+    // any change on language/tag emits event, once settled
+    toObservable(this.form.language().value)
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe(() => {
+        const next = this.getName();
+        if (!this.namesEqual(next, this.name())) {
+          this.name.set(next);
+        }
+      });
+    toObservable(this.form.tag().value)
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe(() => {
+        const next = this.getName();
+        if (!this.namesEqual(next, this.name())) {
+          this.name.set(next);
+        }
+      });
   }
 
-  public ngOnInit(): void {
-    // any change on name emits event
-    this._subs.push(
-      this.language.valueChanges
-        .pipe(debounceTime(300), distinctUntilChanged())
-        .subscribe((_) => {
-          this.name.set(this.getName());
-        }),
-    );
-    this._subs.push(
-      this.tag.valueChanges
-        .pipe(debounceTime(300), distinctUntilChanged())
-        .subscribe((_) => {
-          this.name.set(this.getName());
-        }),
-    );
-  }
-
-  public ngOnDestroy(): void {
-    this._subs.forEach((s) => s.unsubscribe());
-  }
-
-  private updatePurgedTypeEntries(): void {
-    if (this._typeEntries$.value) {
-      // copy all entries by removing last * from IDs if present
-      this.purgedTypeEntries.set(
-        this._typeEntries$.value.map((e) => {
-          return e.id[e.id.length - 1] === '*'
-            ? { ...e, id: e.id.substring(0, e.id.length - 1) }
-            : e;
-        }),
-      );
-    } else {
-      this.purgedTypeEntries.set(undefined);
-    }
+  private namesEqual(
+    a: AssertedProperName | undefined,
+    b?: AssertedProperName,
+  ): boolean {
+    return JSON.stringify(a) === JSON.stringify(b);
   }
 
   //#region Pieces
@@ -260,15 +220,14 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   }
 
   private updatePieces(pieces: ProperNamePiece[]): void {
-    this.pieces.setValue(pieces);
-    this.pieces.markAsDirty();
-    this.pieces.updateValueAndValidity();
+    this._draft.update((v) => ({ ...v, pieces }));
+    this.form.pieces().markAsDirty();
 
     this.name.set(this.getName());
   }
 
   public savePiece(piece?: ProperNamePiece): void {
-    const pieces = [...this.pieces.value];
+    const pieces = [...this._draft().pieces];
 
     // just replace if editing an existing piece
     if (this.editedPieceIndex() > -1) {
@@ -281,7 +240,7 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     // also replace a single piece if one is already present
     const type = this.pieceTypes().find((t) => t.id === piece!.type);
     if (type?.single) {
-      const i = this.pieces.value.findIndex((p) => p.type === piece!.type);
+      const i = pieces.findIndex((p) => p.type === piece!.type);
       if (i > -1) {
         pieces.splice(i, 1, piece!);
         this.updatePieces(pieces);
@@ -310,11 +269,10 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   }
 
   public removePiece(index: number): void {
-    const pieces = [...this.pieces.value];
+    const pieces = [...this._draft().pieces];
     pieces.splice(index, 1);
-    this.pieces.setValue(pieces);
-    this.pieces.markAsDirty();
-    this.pieces.updateValueAndValidity();
+    this._draft.update((v) => ({ ...v, pieces }));
+    this.form.pieces().markAsDirty();
 
     if (this.editedPieceIndex() === index) {
       this.closePiece();
@@ -327,30 +285,28 @@ export class ProperNameComponent implements OnInit, OnDestroy {
     if (index < 1) {
       return;
     }
-    const pieces = [...this.pieces.value];
+    const pieces = [...this._draft().pieces];
     const p = pieces.splice(index, 1)[0];
     pieces.splice(index - 1, 0, p);
-    this.pieces.setValue(pieces);
-    this.pieces.markAsDirty();
-    this.pieces.updateValueAndValidity();
+    this._draft.update((v) => ({ ...v, pieces }));
+    this.form.pieces().markAsDirty();
     this.name.set(this.getName());
   }
 
   public movePieceDown(index: number): void {
-    if (index + 1 >= this.pieces.value.length) {
+    if (index + 1 >= this._draft().pieces.length) {
       return;
     }
-    const pieces = [...this.pieces.value];
+    const pieces = [...this._draft().pieces];
     const p = pieces.splice(index, 1)[0];
     pieces.splice(index + 1, 0, p);
-    this.pieces.setValue(pieces);
-    this.pieces.markAsDirty();
-    this.pieces.updateValueAndValidity();
+    this._draft.update((v) => ({ ...v, pieces }));
+    this.form.pieces().markAsDirty();
     this.name.set(this.getName());
   }
 
   public clearPieces(): void {
-    this.pieces.setValue([]);
+    this._draft.update((v) => ({ ...v, pieces: [] }));
     this.name.set(this.getName());
   }
   //#endregion
@@ -361,29 +317,28 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   ): void {
     this.closePiece();
     this.assEdOpen.set(false);
-
-    // no name
-    if (!name) {
-      this.pieces.setValue([]);
-      this.form.reset();
-      this.pieceTypes.set(this._nameService.parseTypeEntries(typeEntries));
-      return;
-    }
-
-    // name
     this.pieceTypes.set(this._nameService.parseTypeEntries(typeEntries));
 
-    this.language.setValue(name.language, { emitEvent: false });
-    this.tag.setValue(name.tag || null, { emitEvent: false });
-    this.pieces.setValue(name.pieces);
-    this.assertion.setValue(name.assertion || null);
-    this.form.markAsPristine();
+    if (!name) {
+      this._draft.set(makeDefaultDraft());
+    } else {
+      this._draft.set({
+        language: name.language || '',
+        tag: name.tag || '',
+        // map into fresh objects rather than adopting the caller's own
+        // ProperNamePiece references directly - see
+        // signal-forms-migration.md (cadmus-refs-decorated-ids entry)
+        // for why.
+        pieces: name.pieces.map((p) => ({ type: p.type, value: p.value })),
+        assertion: name.assertion || null,
+      });
+    }
+    this.form().reset();
   }
 
   public onAssertionChange(assertion: Assertion | undefined): void {
-    this.assertion.setValue(assertion || null);
-    this.assertion.updateValueAndValidity();
-    this.assertion.markAsDirty();
+    this.form.assertion().value.set(assertion || null);
+    this.form.assertion().markAsDirty();
   }
 
   public saveAssertion(): void {
@@ -392,15 +347,16 @@ export class ProperNameComponent implements OnInit, OnDestroy {
   }
 
   private getName(): AssertedProperName | undefined {
-    if (!this.pieces.value?.length) {
+    const v = this._draft();
+    if (!v.pieces?.length) {
       return undefined;
     }
 
     return {
-      language: this.language.value || '',
-      tag: this.tag.value || undefined,
-      pieces: this.pieces.value,
-      assertion: this.assertion.value || undefined,
+      language: v.language || '',
+      tag: v.tag || undefined,
+      pieces: v.pieces.map((p) => ({ type: p.type, value: p.value })),
+      assertion: v.assertion || undefined,
     };
   }
 }

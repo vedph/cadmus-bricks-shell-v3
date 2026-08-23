@@ -4,26 +4,12 @@ import {
   effect,
   input,
   model,
-  OnDestroy,
-  OnInit,
   output,
   signal,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  BehaviorSubject,
-  combineLatest,
-  debounceTime,
-  distinctUntilChanged,
-  Subscription,
-} from 'rxjs';
+import { FieldTree, FormField, form, required } from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -36,6 +22,11 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
 import { ProperNamePiece, TypeThesaurusEntry } from '../models';
 
+interface ProperNamePieceControls {
+  type: TypeThesaurusEntry | string | null;
+  value: ThesaurusEntry | string | null;
+}
+
 /**
  * Proper name piece editor. This edits a single proper name's piece,
  * including a type and a value, where both can be either a literal
@@ -46,8 +37,7 @@ import { ProperNamePiece, TypeThesaurusEntry } from '../models';
   templateUrl: './proper-name-piece.component.html',
   styleUrls: ['./proper-name-piece.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -57,12 +47,8 @@ import { ProperNamePiece, TypeThesaurusEntry } from '../models';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProperNamePieceComponent implements OnInit, OnDestroy {
-  // input sources to be combined
-  private _typeSub?: Subscription;
+export class ProperNamePieceComponent {
   private _noNextValuesUpdate?: boolean;
-  private _piece$: BehaviorSubject<ProperNamePiece | undefined>;
-  private _types$: BehaviorSubject<TypeThesaurusEntry[] | undefined>;
 
   /**
    * The piece being edited.
@@ -80,56 +66,34 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
   public readonly editorClose = output();
 
   // form
-  public type: FormControl<TypeThesaurusEntry | string | null>;
-  public value: FormControl<ThesaurusEntry | string | null>;
-  public form: FormGroup;
+  private readonly _draft = signal<ProperNamePieceControls>({
+    type: null,
+    value: null,
+  });
+  public readonly form: FieldTree<ProperNamePieceControls>;
 
   // the preset values (if any) of the current type
   public readonly typeValues = signal<ThesaurusEntry[]>([]);
 
-  constructor(formBuilder: FormBuilder) {
-    this.type = formBuilder.control(null, Validators.required);
-    this.value = formBuilder.control<ThesaurusEntry | string | null>(
-      null,
-      Validators.required
-    );
-    this.form = formBuilder.group({
-      type: this.type,
-      value: this.value,
+  constructor() {
+    this.form = form(this._draft, (path) => {
+      required(path.type);
+      required(path.value);
     });
-    this._piece$ = new BehaviorSubject<ProperNamePiece | undefined>(undefined);
-    this._types$ = new BehaviorSubject<TypeThesaurusEntry[] | undefined>(
-      undefined
-    );
 
-    // when piece changes, update the stream
+    // when piece or types change, update the form (native signal
+    // dependency tracking replaces the original's manual
+    // BehaviorSubject + combineLatest bridge)
     effect(() => {
       const piece = this.piece();
-      console.log('piece set', piece);
-      this._piece$.next(piece);
-    });
-
-    // when types change, update the stream
-    effect(() => {
       const types = this.types();
-      console.log('types set', types);
-      this._types$.next(types);
-    });
-  }
-
-  public ngOnInit(): void {
-    // combine input changes before updating form
-    combineLatest({
-      piece: this._piece$,
-      types: this._types$,
-    }).subscribe((result) => {
-      this.updateForm(result.piece, result.types);
+      this.updateForm(piece, types);
     });
 
     // when type changes, type's values are updated
-    this._typeSub = this.type.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((_) => {
+    toObservable(this.form.type().value)
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe(() => {
         if (!this._noNextValuesUpdate) {
           this.updateTypeValues();
         } else {
@@ -138,17 +102,23 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
       });
   }
 
-  public ngOnDestroy(): void {
-    this._typeSub?.unsubscribe();
+  public onTypeInput(value: string): void {
+    this.form.type().value.set(value);
+    this.form.type().markAsDirty();
+  }
+
+  public onValueInput(value: string): void {
+    this.form.value().value.set(value);
+    this.form.value().markAsDirty();
   }
 
   private updateTypeValues(): void {
     // no preset values if no types
-    if (!this._types$.value?.length) {
+    if (!this.types()?.length) {
       this.typeValues.set([]);
     } else {
       // get type's values if any
-      const type = this.type.value as TypeThesaurusEntry;
+      const type = this.form.type().value() as TypeThesaurusEntry;
       if (type?.values?.length) {
         this.typeValues.set(type.values);
       } else {
@@ -157,10 +127,11 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
       // if we got values and there is an invalid value, reset it
       if (
         this.typeValues().length &&
-        this.value.value &&
-        this.typeValues().every((e) => e.id !== this.value.value)
+        this.form.value().value() &&
+        this.typeValues().every((e) => e.id !== this.form.value().value())
       ) {
-        this.value.reset();
+        this.form.value().value.set(null);
+        this.form.value().reset();
       }
     }
   }
@@ -170,22 +141,25 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
     types?: TypeThesaurusEntry[]
   ): void {
     if (!piece) {
-      this.form.reset();
+      this._draft.set({ type: null, value: null });
+      this.form().reset();
       return;
     }
 
     this._noNextValuesUpdate = true;
     // type: TypeThesaurusEntry or string
-    const typeEntity = types?.find((t) => t.id === piece!.type);
-    this.type.setValue(typeEntity || piece?.type || null);
+    const typeEntity = types?.find((t) => t.id === piece.type);
     this.typeValues.set(typeEntity?.values || []);
 
     // value: ThesaurusEntry or string
-    this.value.setValue(
-      typeEntity?.values?.find((e) => e.id === piece?.value) ||
-        piece?.value ||
-        null
-    );
+    this._draft.set({
+      type: typeEntity || piece.type || null,
+      value:
+        typeEntity?.values?.find((e) => e.id === piece.value) ||
+        piece.value ||
+        null,
+    });
+    this.form().reset();
   }
 
   public cancel(): void {
@@ -193,17 +167,14 @@ export class ProperNamePieceComponent implements OnInit, OnDestroy {
   }
 
   public save(): void {
-    if (this.form.invalid) {
+    if (this.form().invalid()) {
       return;
     }
-    this._piece$.next({
-      type:
-        (this.type.value as TypeThesaurusEntry)?.id ||
-        (this.type.value as string),
-      value:
-        (this.value.value as ThesaurusEntry)?.id ||
-        (this.value.value as string),
+    const typeVal = this.form.type().value();
+    const valueVal = this.form.value().value();
+    this.piece.set({
+      type: (typeVal as TypeThesaurusEntry)?.id || (typeVal as string),
+      value: (valueVal as ThesaurusEntry)?.id || (valueVal as string),
     });
-    this.piece.set(this._piece$.value!);
   }
 }

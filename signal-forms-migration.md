@@ -68,7 +68,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 17. `cadmus-refs-decorated-ids` — uses `NgxToolsValidators`
 - [x] 18. `cadmus-refs-assertion`
 - [x] 19. `cadmus-refs-external-ids` — has `FormArray`
-- [ ] 20. `cadmus-refs-proper-name` — uses `NgxToolsValidators`
+- [x] 20. `cadmus-refs-proper-name` — uses `NgxToolsValidators`
 - [ ] 21. `cadmus-refs-asserted-chronotope` — uses `NgxToolsValidators`
 - [ ] 22. `cadmus-refs-asserted-ids`
 - [ ] 23. `cadmus-text-ed-md`
@@ -623,3 +623,51 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   `toObservable()`-vs-synchronous-flag timing issues elsewhere in this
   migration, just applied to `QueryList.changes` instead of an
   Observable bridge.
+- **`cadmus-refs-proper-name`** (2 components) — second `NgxToolsValidators`
+  case.
+  - `proper-name-piece`: `type`/`value` fields can hold EITHER a plain
+    string OR a full thesaurus-entry object
+    (`TypeThesaurusEntry | ThesaurusEntry | string | null`), and are bound
+    to a `mat-select` in one template branch and a **plain, non-CVA**
+    `<input matInput>` in the other. This is a genuinely new situation:
+    `[formField]` on the native-input branch requires the field's static
+    type to be string-compatible (confirmed via a compile error), and a
+    union that includes a bare object type fails that check outright,
+    regardless of nullability - unlike `cadmus-refs-lookup`'s `any`-typed
+    `lookup` field, which got a pass specifically because
+    `MatAutocompleteTrigger` registers a CVA on that same native input.
+    No CVA exists here, so `[formField]` genuinely cannot bind the
+    free-text branch. **Fix**: keep `[formField]` on the `mat-select`
+    branch only (CVA tolerates any type); bind the free-text `<input>`
+    manually via `[value]`/`(input)`/`(blur)`, calling
+    `field().value.set(...)`, `field().markAsDirty()`, and
+    `field().markAsTouched()` by hand - `required()`/`getError()`/
+    `dirty()`/`touched()` all keep working normally on the field
+    regardless of which path wrote to it. Also simplified away the
+    original's manual `BehaviorSubject` + `combineLatest` bridge (used to
+    combine `piece()` and `types()` before calling `updateForm()`) into a
+    single `effect()` reading both signals directly - proven safe here
+    (and in the sibling `proper-name` component below) because
+    `updateForm()` never writes back to `piece`/`types`, so there is no
+    stomping or infinite-loop risk to guard against, unlike the
+    debounced-autosave components elsewhere in this migration where an
+    unconditional resync effect **would** stomp in-progress edits.
+  - `proper-name`: `pieces: ProperNamePiece[]` is a top-level array-of-
+    objects field (no `applyEach`, same shape as `decorated-ids`/
+    `assertion`), given the same map-in/map-out defense
+    (`updateForm()`/`getName()` both rebuild fresh `{type, value}`
+    objects rather than adopting/returning the live array). Also
+    collapsed the original's `combineLatest({typeEntries, name})` into a
+    single effect, and converted the imperative `updatePurgedTypeEntries()`
+    signal-setter into a plain `computed()` derived from `typeEntries()`
+    directly, removing an entire effect. **Two independent debounced
+    autosave watchers** (`language`, `tag`, matching the original's two
+    separate `valueChanges` subscriptions) both use a plain
+    content-equality check (`JSON.stringify` comparison against the
+    current `name()`) rather than `cadmus-refs-assertion`'s
+    `_lastSyncedDraft` snapshot technique - confirmed safe here because,
+    unlike `assertion`, `getName()` performs no transformation
+    (trimming, etc.) that isn't already reflected in what `updateForm()`
+    wrote, so "freshly computed output equals current model" is a
+    reliable proxy for "nothing changed since the last sync," with no
+    trim-asymmetry trap to fall into.
