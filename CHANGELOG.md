@@ -5,6 +5,7 @@
 - 2026-08-22:
   - ⚠️ updated packages fixing an API issue with maplibre in `geo-location-editor` where the zoom type has changed and configuring the library as described in <https://github.com/maplibre/ngx-maplibre-gl>.
   - implemented tests for all libraries except `cadmus-refs-*-lookup`, fixing some bugs.
+  - all libraries version release numbers bumped.
 - 2026-07-27: ⚠️ upgraded `maplibre-gl` 5→6 and `@maplibre/ngx-maplibre-gl` 21→22. MapLibre v6 dropped its UMD/CommonJS build and ships ESM-only, which breaks the worker script lookup under Angular's esbuild bundler (`import.meta.url` resolves to the bundled chunk, not to `maplibre-gl.mjs`, so the default worker URL 404s and any map using a real source silently hangs instead of firing `load`/`idle`). To fix, repeat in any workspace using MapLibre:
   - in `angular.json`, remove `"maplibre-gl"` from `allowedCommonJsDependencies` (no longer needed, v6 has no CommonJS build) and add an `assets` entry copying the worker + its dependency chunk as static files:
 
