@@ -1,9 +1,4 @@
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FieldTree, FormField, form } from '@angular/forms/signals';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,6 +7,7 @@ import {
   input,
   OnDestroy,
   output,
+  signal,
 } from '@angular/core';
 import {
   BehaviorSubject,
@@ -51,7 +47,7 @@ interface FlagViewModel extends Flag {
 @Component({
   selector: 'cadmus-ui-flag-set',
   imports: [
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -130,14 +126,10 @@ export class FlagSetComponent implements OnDestroy {
     return userFlags;
   });
 
-  public customFlag: FormControl<string | null>;
-  public customForm: FormGroup;
+  public readonly customForm: FieldTree<{ customFlag: string }>;
 
-  constructor(formBuilder: FormBuilder) {
-    this.customFlag = formBuilder.control(null);
-    this.customForm = formBuilder.group({
-      customFlag: this.customFlag,
-    });
+  constructor() {
+    this.customForm = form(signal({ customFlag: '' }));
 
     // whenever flags or checked IDs streams change, update user flags
     this._sub = combineLatest({
@@ -190,12 +182,12 @@ export class FlagSetComponent implements OnDestroy {
   }
 
   public addCustomFlag(): void {
-    if (this.customForm.invalid || !this.allowCustom()) {
+    if (this.customForm().invalid() || !this.allowCustom()) {
       return;
     }
 
     // trim the ID
-    const id = this.customFlag.value?.trim();
+    const id = this.customForm.customFlag().value()?.trim();
     if (!id) {
       return;
     }
@@ -215,7 +207,12 @@ export class FlagSetComponent implements OnDestroy {
     this._ids$.next([...this._ids$.value, flag.id]);
     this.checkedIdsChange.emit(this._ids$.value);
 
-    this.customFlag.reset();
+    this.customForm.customFlag().value.set('');
+  }
+
+  public onCustomFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.addCustomFlag();
   }
 
   public onFlagChecked(flag: FlagViewModel, checked: boolean): void {

@@ -26,13 +26,13 @@
   </button>
   <!-- custom -->
   @if (allowCustom()) {
-  <form [formGroup]="customForm" (submit)="addCustomFlag()">
+  <form (submit)="onCustomFormSubmit($event)">
     <mat-form-field>
       <mat-label>custom</mat-label>
-      <input matInput [formControl]="customFlag" />
+      <input matInput [formField]="customForm.customFlag" />
     </mat-form-field>
     <button
-      [disabled]="customForm.invalid"
+      [disabled]="customForm().invalid()"
       type="submit"
       mat-icon-button
       matTooltip="Add a new entry"

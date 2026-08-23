@@ -52,7 +52,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 1. `cadmus-mat-physical-grid`
 - [x] 2. `cadmus-refs-decorated-counts`
 - [x] 3. `cadmus-ui-custom-action-bar`
-- [ ] 4. `cadmus-ui-flag-set`
+- [x] 4. `cadmus-ui-flag-set`
 - [ ] 5. `cadmus-mat-physical-size`
 - [ ] 6. `cadmus-cod-location`
 - [ ] 7. `cadmus-geo-location`
@@ -116,3 +116,11 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   `FormsModule`/`ReactiveFormsModule` but never actually used any reactive-forms
   API (no `[formControl]`/`formGroup` anywhere). Just dropped the unused
   imports, no signal-forms conversion needed.
+- **`cadmus-ui-flag-set`**: single-field `customForm` (the "add custom flag"
+  text input) converted straightforwardly, no validators to port (none
+  existed). The `flags$`/`checkedIds$` `BehaviorSubject`/`combineLatest`
+  plumbing for `userFlags` is unrelated RxJS state, not reactive forms — left
+  untouched (out of scope). README's usage example shows a *consumer*
+  component storing `checkedIds` in a reactive-forms `FormControl` — that's
+  external/app-side code, not this library's own forms, so left as-is per the
+  libraries-only scope.

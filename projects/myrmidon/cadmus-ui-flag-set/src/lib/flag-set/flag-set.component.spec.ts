@@ -338,7 +338,7 @@ describe('FlagSetComponent', () => {
       fixture.componentRef.setInput('allowCustom', false);
       fixture.detectChanges();
 
-      component.customFlag.setValue('newid');
+      component.customForm.customFlag().value.set('newid');
       let emitted: string[] | undefined;
       component.checkedIdsChange.subscribe((ids) => (emitted = ids));
 
@@ -348,7 +348,7 @@ describe('FlagSetComponent', () => {
     });
 
     it('should not add a custom flag when the input is empty', () => {
-      component.customFlag.setValue('   ');
+      component.customForm.customFlag().value.set('   ');
       let emitted: string[] | undefined;
       component.checkedIdsChange.subscribe((ids) => (emitted = ids));
 
@@ -358,7 +358,7 @@ describe('FlagSetComponent', () => {
     });
 
     it('should not add a custom flag when the trimmed id already exists', () => {
-      component.customFlag.setValue('f1');
+      component.customForm.customFlag().value.set('f1');
       let emitted: string[] | undefined;
       component.checkedIdsChange.subscribe((ids) => (emitted = ids));
 
@@ -368,7 +368,7 @@ describe('FlagSetComponent', () => {
     });
 
     it('should add a trimmed custom flag id and emit the change', () => {
-      component.customFlag.setValue('  custom1  ');
+      component.customForm.customFlag().value.set('  custom1  ');
       let emitted: string[] | undefined;
       component.checkedIdsChange.subscribe((ids) => (emitted = ids));
 
@@ -378,14 +378,14 @@ describe('FlagSetComponent', () => {
     });
 
     it('should reset the custom flag control after adding', () => {
-      component.customFlag.setValue('custom2');
+      component.customForm.customFlag().value.set('custom2');
       component.addCustomFlag();
 
-      expect(component.customFlag.value).toBeNull();
+      expect(component.customForm.customFlag().value()).toBe('');
     });
 
     it('should add the custom flag via the form submit button', () => {
-      component.customFlag.setValue('custom3');
+      component.customForm.customFlag().value.set('custom3');
       fixture.detectChanges();
 
       let emitted: string[] | undefined;
