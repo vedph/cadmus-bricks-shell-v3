@@ -5,16 +5,18 @@ import {
   input,
   model,
   OnDestroy,
-  OnInit,
+  signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  FieldTree,
+  FormField,
+  form,
+  maxLength,
+  pattern,
+  required,
+  validate,
+} from '@angular/forms/signals';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
@@ -39,19 +41,11 @@ import {
   selector: 'cadmus-cod-location',
   templateUrl: './cod-location.component.html',
   styleUrls: ['./cod-location.component.css'],
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-  ],
+  imports: [FormField, MatFormFieldModule, MatIconModule, MatInputModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CodLocationComponent implements OnInit, OnDestroy {
+export class CodLocationComponent implements OnDestroy {
   private _sub?: Subscription;
-  private _changeFrozen: boolean | undefined;
-  private _updatingVals: boolean | undefined;
 
   /**
    * The label to display in the control (default="location").
@@ -76,19 +70,29 @@ export class CodLocationComponent implements OnInit, OnDestroy {
    */
   public readonly location = model<CodLocationRange[] | null>(null);
 
-  public text: FormControl<string | null>;
-  public form: FormGroup;
+  private readonly _draft = signal({ text: '' });
+  public readonly form: FieldTree<{ text: string }>;
 
-  constructor(formBuilder: FormBuilder) {
-    this.text = formBuilder.control(null);
-    this.form = formBuilder.group({
-      text: this.text,
-    });
-
-    // when required/single changes, update validators
-    effect(() => {
-      this.updateValidators(this.required(), this.single());
-      this.text.updateValueAndValidity();
+  constructor() {
+    this.form = form(this._draft, (path) => {
+      required(path.text, { when: () => !!this.required() });
+      maxLength(path.text, 500);
+      pattern(path.text, () =>
+        this.single() ? COD_LOCATION_PATTERN : COD_LOCATION_RANGES_PATTERN
+      );
+      // matches the semantics of parsing the text into ranges, regardless
+      // of whether it already fails the pattern validator above
+      validate(path.text, (ctx) => {
+        if (this.single()) {
+          return null;
+        }
+        const text = ctx.value();
+        if (!text.length || text.endsWith(' ') || text.endsWith('-')) {
+          return null;
+        }
+        const ranges = CodLocationParser.parseLocationRanges(text, true);
+        return ranges?.length ? null : { kind: 'invalidLocation' };
+      });
     });
 
     // when location changes, update text
@@ -97,39 +101,12 @@ export class CodLocationComponent implements OnInit, OnDestroy {
       console.log('location', location);
       this.updateForm(location);
     });
-  }
-
-  private updateValidators(required?: boolean, single?: boolean): void {
-    if (this._updatingVals) {
-      return;
-    }
-    this._updatingVals = true;
-    this.text.clearValidators();
-    // required
-    if (required) {
-      this.text.addValidators(Validators.required);
-    }
-    // single
-    if (single) {
-      this.text.addValidators(Validators.pattern(COD_LOCATION_PATTERN));
-    } else {
-      this.text.addValidators(Validators.pattern(COD_LOCATION_RANGES_PATTERN));
-    }
-    this._updatingVals = false;
-    this.text.updateValueAndValidity();
-  }
-
-  public ngOnInit(): void {
-    this.updateValidators();
-    this.text.setValue(CodLocationParser.rangesToString(this.location()));
 
     // when text changes, update location
-    this._sub = this.text.valueChanges
+    this._sub = toObservable(this._draft)
       .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((_) => {
-        if (!this._changeFrozen) {
-          this.saveLocation();
-        }
+      .subscribe(() => {
+        this.saveLocation();
       });
   }
 
@@ -138,24 +115,19 @@ export class CodLocationComponent implements OnInit, OnDestroy {
   }
 
   private updateForm(location: CodLocationRange[] | null): void {
-    this._changeFrozen = true;
-    if (location) {
-      this.text.setValue(CodLocationParser.rangesToString(location));
-    } else {
-      this.text.reset();
-    }
-    this._changeFrozen = false;
+    this.form.text().value.set(CodLocationParser.rangesToString(location) || '');
   }
 
   private saveLocation(): void {
+    const text = this.form.text().value();
     if (this.single()) {
-      const loc = this.text.valid
-        ? CodLocationParser.parseLocation(this.text.value)
+      const loc = this.form.text().valid()
+        ? CodLocationParser.parseLocation(text)
         : null;
       if (loc) {
         this.location.set([{ start: loc, end: loc }]);
       } else {
-        if (!this.required() && !this.text.value?.length) {
+        if (!this.required() && !text.length) {
           this.location.set(null);
         }
       }
@@ -164,24 +136,23 @@ export class CodLocationComponent implements OnInit, OnDestroy {
       // the user is still typing and we must wait for the next
       // range in the list; otherwise, we would parse a single
       // range and remove trailing spaces from what is being typed
-      if (this.text.value?.endsWith(' ') || this.text.value?.endsWith('-')) {
+      if (text.endsWith(' ') || text.endsWith('-')) {
         return;
       }
 
-      const ranges = this.text.valid
-        ? CodLocationParser.parseLocationRanges(this.text.value, true)
+      const ranges = this.form.text().valid()
+        ? CodLocationParser.parseLocationRanges(text, true)
         : null;
       if (ranges?.length) {
         this.location.set(ranges);
       } else {
-        if (!this.required() && !this.text.value?.length) {
+        if (!this.required() && !text.length) {
           this.location.set(null);
         } else {
-          // set error on text control
-          this.text.markAsTouched();
-          this.text.setErrors({
-            invalidLocation: true,
-          });
+          // the invalidLocation error is reported reactively by the
+          // validate() rule above; here we just mark the field touched
+          // so the template shows it
+          this.form.text().markAsTouched();
         }
       }
     }

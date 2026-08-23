@@ -48,8 +48,8 @@ describe('CodLocationComponent', () => {
     expect(component.location()).toBeNull();
   });
 
-  it('should initialize the text control to null when location is null', () => {
-    expect(component.text.value).toBeNull();
+  it('should initialize the text control to empty when location is null', () => {
+    expect(component.form.text().value()).toBe('');
   });
 
   it('should render the given label', async () => {
@@ -85,7 +85,7 @@ describe('CodLocationComponent', () => {
       fixture.componentRef.setInput('location', ranges);
       fixture.detectChanges();
       await fixture.whenStable();
-      expect(component.text.value).toBe('1r-3v');
+      expect(component.form.text().value()).toBe('1r-3v');
     });
 
     it('should populate text when location input is set to multiple ranges', async () => {
@@ -96,7 +96,7 @@ describe('CodLocationComponent', () => {
       fixture.componentRef.setInput('location', ranges);
       fixture.detectChanges();
       await fixture.whenStable();
-      expect(component.text.value).toBe('1r-3v 4r');
+      expect(component.form.text().value()).toBe('1r-3v 4r');
     });
 
     it('should reset text when location input is set back to null', async () => {
@@ -105,12 +105,12 @@ describe('CodLocationComponent', () => {
       ]);
       fixture.detectChanges();
       await fixture.whenStable();
-      expect(component.text.value).toBe('1');
+      expect(component.form.text().value()).toBe('1');
 
       fixture.componentRef.setInput('location', null);
       fixture.detectChanges();
       await fixture.whenStable();
-      expect(component.text.value).toBeNull();
+      expect(component.form.text().value()).toBe('');
     });
   });
   //#endregion
@@ -122,15 +122,15 @@ describe('CodLocationComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.text.setValue('');
-      component.text.markAsTouched();
-      expect(component.text.hasError('required')).toBe(true);
+      component.form.text().value.set('');
+      component.form.text().markAsTouched();
+      expect(component.form.text().getError('required')).toBeDefined();
     });
 
     it('should not require text when required is false/undefined', async () => {
-      component.text.setValue('');
-      component.text.markAsTouched();
-      expect(component.text.hasError('required')).toBe(false);
+      component.form.text().value.set('');
+      component.form.text().markAsTouched();
+      expect(component.form.text().getError('required')).toBeUndefined();
     });
 
     it('should apply the single-location pattern when single is true', async () => {
@@ -139,8 +139,8 @@ describe('CodLocationComponent', () => {
       await fixture.whenStable();
 
       // a multi-range string is not a valid single location
-      component.text.setValue('1r-3v 4r');
-      expect(component.text.hasError('pattern')).toBe(true);
+      component.form.text().value.set('1r-3v 4r');
+      expect(component.form.text().getError('pattern')).toBeDefined();
     });
 
     it('should accept a single sheet reference under the single pattern', async () => {
@@ -148,8 +148,8 @@ describe('CodLocationComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.text.setValue('12r');
-      expect(component.text.valid).toBe(true);
+      component.form.text().value.set('12r');
+      expect(component.form.text().valid()).toBe(true);
     });
 
     it('should apply the ranges pattern when single is false', async () => {
@@ -157,8 +157,8 @@ describe('CodLocationComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component.text.setValue('1r-3v 4r');
-      expect(component.text.valid).toBe(true);
+      component.form.text().value.set('1r-3v 4r');
+      expect(component.form.text().valid()).toBe(true);
     });
   });
   //#endregion
@@ -172,7 +172,7 @@ describe('CodLocationComponent', () => {
     });
 
     it('should update location after debounce when typing a valid single location', async () => {
-      component.text.setValue('12r');
+      component.form.text().value.set('12r');
       await advanceDebounce();
       expect(component.location()).toEqual([
         { start: { n: 12, v: false }, end: { n: 12, v: false } },
@@ -180,11 +180,11 @@ describe('CodLocationComponent', () => {
     });
 
     it('should not emit a new location while typing within the debounce window', async () => {
-      component.text.setValue('12');
+      component.form.text().value.set('12');
       // still well within the 300ms debounce window: no update yet
       await advanceDebounce(150);
       expect(component.location()).toBeNull();
-      component.text.setValue('12r');
+      component.form.text().value.set('12r');
       // now let the (reset) debounce elapse
       await advanceDebounce();
       expect(component.location()).toEqual([
@@ -193,22 +193,22 @@ describe('CodLocationComponent', () => {
     });
 
     it('should set location to null when text is cleared and not required', async () => {
-      component.text.setValue('12r');
+      component.form.text().value.set('12r');
       await advanceDebounce();
       expect(component.location()).toBeTruthy();
 
-      component.text.setValue('');
+      component.form.text().value.set('');
       await advanceDebounce();
       expect(component.location()).toBeNull();
     });
 
     it('should leave location unchanged when text becomes invalid and non-empty', async () => {
-      component.text.setValue('12r');
+      component.form.text().value.set('12r');
       await advanceDebounce();
       const before = component.location();
 
       // "12x" does not match the single-location pattern (x is not r/v/a-q)
-      component.text.setValue('12x');
+      component.form.text().value.set('12x');
       await advanceDebounce();
       expect(component.location()).toEqual(before);
     });
@@ -217,11 +217,11 @@ describe('CodLocationComponent', () => {
       fixture.componentRef.setInput('required', true);
       fixture.detectChanges();
 
-      component.text.setValue('12r');
+      component.form.text().value.set('12r');
       await advanceDebounce();
       const before = component.location();
 
-      component.text.setValue('');
+      component.form.text().value.set('');
       await advanceDebounce();
       expect(component.location()).toEqual(before);
     });
@@ -237,7 +237,7 @@ describe('CodLocationComponent', () => {
     });
 
     it('should update location after debounce with a single range', async () => {
-      component.text.setValue('1r-3v');
+      component.form.text().value.set('1r-3v');
       await advanceDebounce();
       expect(component.location()).toEqual([
         { start: { n: 1, v: false }, end: { n: 3, v: true } },
@@ -245,7 +245,7 @@ describe('CodLocationComponent', () => {
     });
 
     it('should update location after debounce with multiple ranges', async () => {
-      component.text.setValue('1r-3v 4r 7r-11v');
+      component.form.text().value.set('1r-3v 4r 7r-11v');
       await advanceDebounce();
       const loc = component.location();
       expect(loc?.length).toBe(3);
@@ -264,23 +264,23 @@ describe('CodLocationComponent', () => {
     });
 
     it('should not update location while text ends with a trailing space', async () => {
-      component.text.setValue('1r-3v ');
+      component.form.text().value.set('1r-3v ');
       await advanceDebounce();
       expect(component.location()).toBeNull();
     });
 
     it('should not update location while text ends with a trailing dash', async () => {
-      component.text.setValue('1r-3v 4r-');
+      component.form.text().value.set('1r-3v 4r-');
       await advanceDebounce();
       expect(component.location()).toBeNull();
     });
 
     it('should resume updating once a trailing dash is completed into a range', async () => {
-      component.text.setValue('1r-3v 4r-');
+      component.form.text().value.set('1r-3v 4r-');
       await advanceDebounce();
       expect(component.location()).toBeNull();
 
-      component.text.setValue('1r-3v 4r-6v');
+      component.form.text().value.set('1r-3v 4r-6v');
       await advanceDebounce();
       const loc = component.location();
       expect(loc?.length).toBe(2);
@@ -291,11 +291,11 @@ describe('CodLocationComponent', () => {
     });
 
     it('should set location to null when text is cleared and not required', async () => {
-      component.text.setValue('1r-3v');
+      component.form.text().value.set('1r-3v');
       await advanceDebounce();
       expect(component.location()).toBeTruthy();
 
-      component.text.setValue('');
+      component.form.text().value.set('');
       await advanceDebounce();
       expect(component.location()).toBeNull();
     });
@@ -303,11 +303,11 @@ describe('CodLocationComponent', () => {
     it('should mark the control touched with an invalidLocation error when the text cannot be parsed into any range', async () => {
       // a token with two dashes is not blank, does not end with a
       // trailing space/dash, and cannot be split into a valid A-B pair
-      component.text.setValue('1r-3v-5r');
+      component.form.text().value.set('1r-3v-5r');
       await advanceDebounce();
       expect(component.location()).toBeNull();
-      expect(component.text.touched).toBe(true);
-      expect(component.text.hasError('invalidLocation')).toBe(true);
+      expect(component.form.text().touched()).toBe(true);
+      expect(component.form.text().getError('invalidLocation')).toBeDefined();
     });
   });
   //#endregion
@@ -319,7 +319,7 @@ describe('CodLocationComponent', () => {
 
       component.ngOnDestroy();
 
-      component.text.setValue('12r');
+      component.form.text().value.set('12r');
       await advanceDebounce();
       // no subscription anymore, so location was never updated
       expect(component.location()).toBeNull();

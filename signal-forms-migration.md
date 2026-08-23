@@ -54,7 +54,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 3. `cadmus-ui-custom-action-bar`
 - [x] 4. `cadmus-ui-flag-set`
 - [x] 5. `cadmus-mat-physical-size`
-- [ ] 6. `cadmus-cod-location`
+- [x] 6. `cadmus-cod-location`
 - [ ] 7. `cadmus-geo-location`
 - [ ] 8. `cadmus-refs-citation`
 - [ ] 9. `cadmus-refs-historical-date`
@@ -164,3 +164,26 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
     flush synchronously or on a bare `setTimeout(...,0)` await in a test —
     the test must `fixture.detectChanges()`/`await fixture.whenStable()`
     after the field write for Angular to actually run the effect.
+- **`cadmus-cod-location`**: single-field form, but with two notable
+  patterns:
+  - Dynamic `required`/`pattern` validators toggled imperatively via
+    `clearValidators()`/`addValidators()` in the original became declarative:
+    `required(path.text, { when: () => !!this.required() })` and
+    `pattern(path.text, () => this.single() ? PATTERN_A : PATTERN_B)` — the
+    `pattern()`/`required()` validators accept a `LogicFn` in place of a
+    static value/condition, so no manual re-validation call (the old
+    `updateValueAndValidity()` effect) is needed at all.
+  - The original imperatively called `text.setErrors({invalidLocation: true})`
+    on parse failure — reactive forms' `setErrors()` *replaces* all of a
+    control's errors, which has no signal-forms equivalent (errors are always
+    the union of every declared `validate()`/`pattern()`/etc. rule for that
+    field, never imperatively cleared). Ported as a real `validate()` schema
+    rule that independently recomputes parseability, so `invalidLocation` is
+    now a live/reactive error rather than a one-shot imperative one; the
+    debounced handler still calls `markAsTouched()` itself so the template's
+    `dirty()||touched()` display guard still works. A `_changeFrozen` boolean
+    guard in the original never actually did anything (it was reset
+    synchronously, long before the 300ms-debounced RxJS callback it was meant
+    to gate could fire) — convergence in both the old and new code actually
+    comes from `distinctUntilChanged()` on the debounced pipeline; the
+    (equally inert) guard was dropped rather than ported.
