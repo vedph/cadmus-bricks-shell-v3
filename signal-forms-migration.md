@@ -65,7 +65,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 14. `cadmus-mat-physical-state`
 - [x] 15. `cadmus-refs-chronotope`
 - [x] 16. `cadmus-refs-lookup`
-- [ ] 17. `cadmus-refs-decorated-ids` — uses `NgxToolsValidators`
+- [x] 17. `cadmus-refs-decorated-ids` — uses `NgxToolsValidators`
 - [ ] 18. `cadmus-refs-assertion`
 - [ ] 19. `cadmus-refs-external-ids` — has `FormArray`
 - [ ] 20. `cadmus-refs-proper-name` — uses `NgxToolsValidators`
@@ -476,3 +476,51 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
     this isn't a wrong error-key typo, it's a validator that was simply
     never declared, so adding one would be a scope-creeping behavior
     change rather than a bugfix.
+- **`cadmus-refs-decorated-ids`** — first `NgxToolsValidators` case;
+  `NgxToolsSignalValidators.strictMinLength(path.editedIds, 1)` (from
+  `@myrmidon/ngx-tools`, already built/exported in the installed package)
+  is a schema-registering call, used exactly like `required`/`maxLength`
+  inside the `form(this._draft, (path) => {...})` callback — no different
+  from any other validator here. Two independent local forms: `idForm`
+  (single-item editor: id/rank/tag/sources) and `form` (wraps the whole
+  `editedIds` array with the strict-min-length rule). `idForm`'s
+  enable/disable toggle (open vs. closed editor) has no imperative
+  `.enable()`/`.disable()` equivalent in signal forms — confirmed
+  `disabled` is 100% derived from schema-declared `disabled(path, {when})`
+  logic (no settable state, unlike `dirty`/`touched`/`pristine` which
+  are genuinely mutable via `markAsDirty()` etc.), and a `disabled()` set
+  on a parent path cascades to every descendant field automatically (its
+  `disabledReasons` computed explicitly folds in the parent's). Modeled
+  the toggle as a `_idEditorOpen` signal read by `disabled(path, {when:
+  () => !this._idEditorOpen()})` at the form root.
+  **Major new finding, cost a second debug cycle**: assigning an
+  externally-owned array of plain objects directly into a signal-forms
+  draft (`this._draft.set({editedIds: incomingArray})`) causes the
+  FieldTree to tag each array item with a hidden identity Symbol -
+  **mutating the caller's own objects in place**, not just the
+  internally-stored copies, and not lazily on `.value()` read but as soon
+  as the array is adopted. Caught by a test that set `ids` from a literal
+  array and later found that same literal array's objects carrying an
+  extra `Symbol()` key. Two-sided fix, matching a pattern
+  `cadmus-refs-doc-references` had already established (its `toControls()`
+  on the way in, `getReferences()`'s `.map()` rebuild on the way out,
+  neither previously called out in this log): (1) in `updateForm()`,
+  `.map()` incoming array items into fresh plain objects before ever
+  calling `_draft.set()`, so only *our own* copies can be mutated, never
+  the caller's; (2) in every place data crosses back out to the `ids`
+  model (`save()`, the debounced autosave), read the plain `_draft()`
+  signal and `.map()` fresh objects again rather than reading
+  `this.form.editedIds().value()` directly. Internal array mutation
+  helpers (`moveIdUp`/`moveIdDown`/`deleteId`/`saveEditedId`) were also
+  switched from `this.form.editedIds().value.set(...)` to
+  `this._draft.update(...)`, mirroring `doc-references`' existing style,
+  since there's no reason to route purely-internal array bookkeeping
+  through the FieldTree accessor at all. Tests that still assert on
+  `component.form.editedIds().value()` directly (legitimate - they are
+  testing the field itself, not the emitted model) needed a
+  `JSON.parse(JSON.stringify(...))` round-trip helper to strip the
+  Symbol before `toEqual()`, since `toEqual` **does** include Symbol-keyed
+  own properties in its comparison. **General lesson for any future
+  array-of-objects field**: never adopt a caller-supplied object array
+  reference directly into a draft signal - always `.map()` it into fresh
+  objects first, both coming in and going back out.

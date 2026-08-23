@@ -3,6 +3,13 @@ import { render } from '@testing-library/angular';
 import { DecoratedIdsComponent } from './decorated-ids.component';
 import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
 
+// the signal-forms FieldTree tags each array-of-object item it adopts
+// with a hidden identity Symbol (see signal-forms-migration.md); strip it
+// via a JSON round-trip before comparing array-field reads with toEqual.
+function clean<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
+}
+
 describe('DecoratedIdsComponent', () => {
   it('should render', async () => {
     const { fixture } = await render(DecoratedIdsComponent);
@@ -12,12 +19,7 @@ describe('DecoratedIdsComponent', () => {
   it('should initialize form controls', async () => {
     const { fixture } = await render(DecoratedIdsComponent);
     const component = fixture.componentInstance;
-    expect(component.id).toBeDefined();
-    expect(component.rank).toBeDefined();
-    expect(component.tag).toBeDefined();
-    expect(component.sources).toBeDefined();
     expect(component.idForm).toBeDefined();
-    expect(component.editedIds).toBeDefined();
     expect(component.form).toBeDefined();
     expect(component.defaultPicker()).toBe('citation');
     expect(component.editedIndex()).toBe(-1);
@@ -32,8 +34,8 @@ describe('DecoratedIdsComponent', () => {
     component.ids.set(ids);
     fixture.detectChanges();
 
-    expect(component.editedIds.value).toEqual(ids);
-    expect(component.form.pristine).toBe(true);
+    expect(clean(component.form.editedIds().value())).toEqual(ids);
+    expect(component.form().dirty()).toBe(false);
   });
 
   it('should reset the form when ids is set to undefined', async () => {
@@ -46,7 +48,7 @@ describe('DecoratedIdsComponent', () => {
     component.ids.set(undefined);
     fixture.detectChanges();
 
-    expect(component.editedIds.value).toEqual([]);
+    expect(clean(component.form.editedIds().value())).toEqual([]);
   });
 
   it('should close any open editor when ids changes', async () => {
@@ -61,7 +63,7 @@ describe('DecoratedIdsComponent', () => {
 
     expect(component.edited()).toBeUndefined();
     expect(component.editedIndex()).toBe(-1);
-    expect(component.idForm.disabled).toBe(true);
+    expect(component.idForm().disabled()).toBe(true);
   });
 
   it('should open the editor for a new id via addId', async () => {
@@ -72,11 +74,11 @@ describe('DecoratedIdsComponent', () => {
 
     expect(component.editedIndex()).toBe(-1);
     expect(component.edited()).toEqual({ id: '' });
-    expect(component.idForm.enabled).toBe(true);
-    expect(component.id.value).toBe('');
-    expect(component.rank.value).toBe(0);
-    expect(component.tag.value).toBeNull();
-    expect(component.sources.value).toEqual([]);
+    expect(component.idForm().disabled()).toBe(false);
+    expect(component.idForm.id().value()).toBe('');
+    expect(component.idForm.rank().value()).toBe(0);
+    expect(component.idForm.tag().value()).toBe('');
+    expect(component.idForm.sources().value()).toEqual([]);
   });
 
   it('should open the editor for an existing id via editId', async () => {
@@ -98,13 +100,13 @@ describe('DecoratedIdsComponent', () => {
       tag: 'tag1',
       sources: refs,
     });
-    expect(component.id.value).toBe('id1');
-    expect(component.rank.value).toBe(2);
-    expect(component.tag.value).toBe('tag1');
-    expect(component.sources.value).toEqual(refs);
+    expect(component.idForm.id().value()).toBe('id1');
+    expect(component.idForm.rank().value()).toBe(2);
+    expect(component.idForm.tag().value()).toBe('tag1');
+    expect(component.idForm.sources().value()).toEqual(refs);
   });
 
-  it('should default rank to 0 and tag to null when editing an id without them', async () => {
+  it('should default rank to 0 and tag to empty when editing an id without them', async () => {
     const { fixture } = await render(DecoratedIdsComponent);
     const component = fixture.componentInstance;
     component.ids.set([{ id: 'id1' }]);
@@ -112,9 +114,9 @@ describe('DecoratedIdsComponent', () => {
 
     component.editId(0);
 
-    expect(component.rank.value).toBe(0);
-    expect(component.tag.value).toBeNull();
-    expect(component.sources.value).toEqual([]);
+    expect(component.idForm.rank().value()).toBe(0);
+    expect(component.idForm.tag().value()).toBe('');
+    expect(component.idForm.sources().value()).toEqual([]);
   });
 
   it('should close the id editor via closeEditedId', async () => {
@@ -126,7 +128,7 @@ describe('DecoratedIdsComponent', () => {
 
     expect(component.edited()).toBeUndefined();
     expect(component.editedIndex()).toBe(-1);
-    expect(component.idForm.disabled).toBe(true);
+    expect(component.idForm().disabled()).toBe(true);
   });
 
   it('should not save an invalid id (required field empty)', async () => {
@@ -137,7 +139,7 @@ describe('DecoratedIdsComponent', () => {
     // id is required and left empty
     component.saveEditedId();
 
-    expect(component.editedIds.value).toEqual([]);
+    expect(clean(component.form.editedIds().value())).toEqual([]);
     // editor remains open since save was rejected
     expect(component.edited()).toBeDefined();
   });
@@ -147,12 +149,12 @@ describe('DecoratedIdsComponent', () => {
     const component = fixture.componentInstance;
 
     component.addId();
-    component.id.setValue('  id1  ');
-    component.rank.setValue(3);
-    component.tag.setValue('  tag1  ');
+    component.idForm.id().value.set('  id1  ');
+    component.idForm.rank().value.set(3);
+    component.idForm.tag().value.set('  tag1  ');
     component.saveEditedId();
 
-    expect(component.editedIds.value).toEqual([
+    expect(clean(component.form.editedIds().value())).toEqual([
       { id: 'id1', rank: 3, tag: 'tag1', sources: undefined },
     ]);
     expect(component.edited()).toBeUndefined();
@@ -165,10 +167,10 @@ describe('DecoratedIdsComponent', () => {
     fixture.detectChanges();
 
     component.addId();
-    component.id.setValue('id1');
+    component.idForm.id().value.set('id1');
     component.saveEditedId();
 
-    expect(component.editedIds.value).toEqual([{ id: 'id1' }]);
+    expect(clean(component.form.editedIds().value())).toEqual([{ id: 'id1' }]);
   });
 
   it('should allow saving an edited id even if its id is unchanged (not a duplicate of itself)', async () => {
@@ -178,10 +180,10 @@ describe('DecoratedIdsComponent', () => {
     fixture.detectChanges();
 
     component.editId(0);
-    component.rank.setValue(9);
+    component.idForm.rank().value.set(9);
     component.saveEditedId();
 
-    expect(component.editedIds.value).toEqual([
+    expect(clean(component.form.editedIds().value())).toEqual([
       { id: 'id1', rank: 9, tag: undefined, sources: undefined },
     ]);
   });
@@ -193,10 +195,10 @@ describe('DecoratedIdsComponent', () => {
     fixture.detectChanges();
 
     component.editId(1);
-    component.id.setValue('id2-renamed');
+    component.idForm.id().value.set('id2-renamed');
     component.saveEditedId();
 
-    expect(component.editedIds.value).toEqual([
+    expect(clean(component.form.editedIds().value())).toEqual([
       { id: 'id1' },
       { id: 'id2-renamed', rank: 0, tag: undefined, sources: undefined },
     ]);
@@ -211,7 +213,7 @@ describe('DecoratedIdsComponent', () => {
     component.editId(0);
     component.deleteId(0);
 
-    expect(component.editedIds.value).toEqual([{ id: 'id2' }]);
+    expect(clean(component.form.editedIds().value())).toEqual([{ id: 'id2' }]);
     expect(component.edited()).toBeUndefined();
   });
 
@@ -223,7 +225,10 @@ describe('DecoratedIdsComponent', () => {
 
     component.moveIdUp(1);
 
-    expect(component.editedIds.value).toEqual([{ id: 'id2' }, { id: 'id1' }]);
+    expect(clean(component.form.editedIds().value())).toEqual([
+      { id: 'id2' },
+      { id: 'id1' },
+    ]);
   });
 
   it('should not move the first id up', async () => {
@@ -234,7 +239,10 @@ describe('DecoratedIdsComponent', () => {
 
     component.moveIdUp(0);
 
-    expect(component.editedIds.value).toEqual([{ id: 'id1' }, { id: 'id2' }]);
+    expect(clean(component.form.editedIds().value())).toEqual([
+      { id: 'id1' },
+      { id: 'id2' },
+    ]);
   });
 
   it('should move an id down', async () => {
@@ -245,7 +253,10 @@ describe('DecoratedIdsComponent', () => {
 
     component.moveIdDown(0);
 
-    expect(component.editedIds.value).toEqual([{ id: 'id2' }, { id: 'id1' }]);
+    expect(clean(component.form.editedIds().value())).toEqual([
+      { id: 'id2' },
+      { id: 'id1' },
+    ]);
   });
 
   it('should not move the last id down', async () => {
@@ -256,7 +267,10 @@ describe('DecoratedIdsComponent', () => {
 
     component.moveIdDown(1);
 
-    expect(component.editedIds.value).toEqual([{ id: 'id1' }, { id: 'id2' }]);
+    expect(clean(component.form.editedIds().value())).toEqual([
+      { id: 'id1' },
+      { id: 'id2' },
+    ]);
   });
 
   it('should update sources and mark the id form dirty on onSourcesChange', async () => {
@@ -267,31 +281,31 @@ describe('DecoratedIdsComponent', () => {
     component.addId();
     component.onSourcesChange(refs);
 
-    expect(component.sources.value).toEqual(refs);
-    expect(component.idForm.dirty).toBe(true);
+    expect(component.idForm.sources().value()).toEqual(refs);
+    expect(component.idForm().dirty()).toBe(true);
   });
 
   it('should propagate a valid non-empty list to the ids model via save', async () => {
     const { fixture } = await render(DecoratedIdsComponent);
     const component = fixture.componentInstance;
 
-    component.editedIds.setValue([{ id: 'id1' }]);
+    component.form.editedIds().value.set([{ id: 'id1' }]);
     component.save();
 
     expect(component.ids()).toEqual([{ id: 'id1' }]);
-    expect(component.form.pristine).toBe(true);
+    expect(component.form().dirty()).toBe(false);
   });
 
   it('should not mark the form pristine when save is called with pristine=false', async () => {
     const { fixture } = await render(DecoratedIdsComponent);
     const component = fixture.componentInstance;
 
-    component.editedIds.setValue([{ id: 'id1' }]);
-    component.editedIds.markAsDirty();
+    component.form.editedIds().value.set([{ id: 'id1' }]);
+    component.form.editedIds().markAsDirty();
     component.save(false);
 
     expect(component.ids()).toEqual([{ id: 'id1' }]);
-    expect(component.form.dirty).toBe(true);
+    expect(component.form().dirty()).toBe(true);
   });
 
   it('should refuse to save (and mark all as touched) when the list is empty, per the strict min-length validator', async () => {
@@ -299,11 +313,11 @@ describe('DecoratedIdsComponent', () => {
     const component = fixture.componentInstance;
 
     // starting ids is undefined; editedIds remains [] which fails the
-    // strictMinLengthValidator(1) applied to it
+    // strictMinLength(1) validator applied to it
     component.save();
 
-    expect(component.editedIds.invalid).toBe(true);
-    expect(component.editedIds.touched).toBe(true);
+    expect(component.form.editedIds().invalid()).toBe(true);
+    expect(component.form.editedIds().touched()).toBe(true);
     // ids model is untouched since save bailed out early
     expect(component.ids()).toBeUndefined();
   });
@@ -312,7 +326,7 @@ describe('DecoratedIdsComponent', () => {
     const { fixture } = await render(DecoratedIdsComponent);
     const component = fixture.componentInstance;
 
-    component.editedIds.setValue([{ id: 'id1' }]);
+    component.form.editedIds().value.set([{ id: 'id1' }]);
     await new Promise((resolve) => setTimeout(resolve, 600));
     fixture.detectChanges();
 
