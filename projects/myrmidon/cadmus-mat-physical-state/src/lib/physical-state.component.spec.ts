@@ -57,25 +57,18 @@ describe('PhysicalStateComponent', () => {
 
   //#region initial form state
   it('should initialize form controls with default values', () => {
-    expect(component.type.value).toBe('');
-    expect(component.features.value).toEqual([]);
-    expect(component.hasDate.value).toBe(false);
-    // note: the "date" control is constructed with new Date().toUTCString()
-    // as its initial value, but since `state` is undefined on init, the
-    // model->form sync effect immediately calls form.reset(), which nulls
-    // out the date control (FormControl.reset() with no args resets a
-    // nullable control to null, not to its original constructor value).
-    // So in practice the initial "default to today" value is never
-    // observable by the user.
-    expect(component.date.value).toBeNull();
-    expect(component.reporter.value).toBeNull();
-    expect(component.note.value).toBeNull();
+    expect(component.form.type().value()).toBe('');
+    expect(component.form.features().value()).toEqual([]);
+    expect(component.form.hasDate().value()).toBe(false);
+    expect(component.form.date().value()).toBeNull();
+    expect(component.form.reporter().value()).toBe('');
+    expect(component.form.note().value()).toBe('');
   });
 
   it('should be invalid initially because type and reporter are required', () => {
-    expect(component.form.invalid).toBe(true);
-    expect(component.type.errors?.['required']).toBeTruthy();
-    expect(component.reporter.errors?.['required']).toBeTruthy();
+    expect(component.form().invalid()).toBe(true);
+    expect(component.form.type().getError('required')).toBeTruthy();
+    expect(component.form.reporter().getError('required')).toBeTruthy();
   });
 
   it('should have flags computed as empty array when featEntries is not set', () => {
@@ -93,16 +86,16 @@ describe('PhysicalStateComponent', () => {
       reporter: 'jdoe',
     });
     fixture.detectChanges();
-    expect(component.type.value).toBe('good');
+    expect(component.form.type().value()).toBe('good');
 
     fixture.componentRef.setInput('state', undefined);
     fixture.detectChanges();
 
-    expect(component.type.value).toBe('');
-    expect(component.features.value).toEqual([]);
-    expect(component.hasDate.value).toBe(false);
-    expect(component.reporter.value).toBeNull();
-    expect(component.note.value).toBeNull();
+    expect(component.form.type().value()).toBe('');
+    expect(component.form.features().value()).toEqual([]);
+    expect(component.form.hasDate().value()).toBe(false);
+    expect(component.form.reporter().value()).toBe('');
+    expect(component.form.note().value()).toBe('');
   });
 
   it('should update the form when state is set with full data', () => {
@@ -117,14 +110,14 @@ describe('PhysicalStateComponent', () => {
     fixture.componentRef.setInput('state', state);
     fixture.detectChanges();
 
-    expect(component.type.value).toBe('good');
-    expect(component.features.value).toEqual(['torn', 'stained']);
-    expect(component.hasDate.value).toBe(true);
-    expect(component.date.value).toBe('2024-03-05');
-    expect(component.reporter.value).toBe('jdoe');
-    expect(component.note.value).toBe('a note');
+    expect(component.form.type().value()).toBe('good');
+    expect(component.form.features().value()).toEqual(['torn', 'stained']);
+    expect(component.form.hasDate().value()).toBe(true);
+    expect(component.form.date().value()).toBe('2024-03-05');
+    expect(component.form.reporter().value()).toBe('jdoe');
+    expect(component.form.note().value()).toBe('a note');
     // form should be pristine right after being synced from the model
-    expect(component.form.pristine).toBe(true);
+    expect(component.form().dirty()).toBe(false);
   });
 
   it('should update the form when state has no date/features/reporter/note', () => {
@@ -135,12 +128,12 @@ describe('PhysicalStateComponent', () => {
     fixture.componentRef.setInput('state', state);
     fixture.detectChanges();
 
-    expect(component.type.value).toBe('good');
-    expect(component.features.value).toEqual([]);
-    expect(component.hasDate.value).toBe(false);
-    expect(component.date.value).toBeNull();
-    expect(component.reporter.value).toBeNull();
-    expect(component.note.value).toBeNull();
+    expect(component.form.type().value()).toBe('good');
+    expect(component.form.features().value()).toEqual([]);
+    expect(component.form.hasDate().value()).toBe(false);
+    expect(component.form.date().value()).toBeNull();
+    expect(component.form.reporter().value()).toBe('');
+    expect(component.form.note().value()).toBe('');
   });
   //#endregion
 
@@ -217,8 +210,8 @@ describe('PhysicalStateComponent', () => {
   it('should update features control on onCheckedIdsChange', () => {
     component.onCheckedIdsChange(['torn']);
 
-    expect(component.features.value).toEqual(['torn']);
-    expect(component.features.dirty).toBe(true);
+    expect(component.form.features().value()).toEqual(['torn']);
+    expect(component.form.features().dirty()).toBe(true);
   });
   //#endregion
 
@@ -256,7 +249,7 @@ describe('PhysicalStateComponent', () => {
   });
 
   it('should render the date field when hasDate is true', () => {
-    component.hasDate.setValue(true);
+    component.form.hasDate().value.set(true);
     fixture.detectChanges();
 
     const dateField = fixture.debugElement.query(By.css('mat-form-field.date'));
@@ -268,51 +261,51 @@ describe('PhysicalStateComponent', () => {
 
   //#region validators
   it('should mark type as invalid when empty (required)', () => {
-    component.type.setValue('');
-    expect(component.type.valid).toBe(false);
-    expect(component.type.errors?.['required']).toBeTruthy();
+    component.form.type().value.set('');
+    expect(component.form.type().valid()).toBe(false);
+    expect(component.form.type().getError('required')).toBeTruthy();
   });
 
   it('should mark type as invalid when exceeding max length', () => {
-    component.type.setValue('a'.repeat(101));
-    expect(component.type.valid).toBe(false);
-    expect(component.type.errors?.['maxlength']).toBeTruthy();
+    component.form.type().value.set('a'.repeat(101));
+    expect(component.form.type().valid()).toBe(false);
+    expect(component.form.type().getError('maxLength')).toBeTruthy();
   });
 
   it('should mark type as valid with a proper value', () => {
-    component.type.setValue('good');
-    expect(component.type.valid).toBe(true);
+    component.form.type().value.set('good');
+    expect(component.form.type().valid()).toBe(true);
   });
 
-  it('should mark reporter as invalid when null (required)', () => {
-    expect(component.reporter.valid).toBe(false);
-    expect(component.reporter.errors?.['required']).toBeTruthy();
+  it('should mark reporter as invalid when empty (required)', () => {
+    expect(component.form.reporter().valid()).toBe(false);
+    expect(component.form.reporter().getError('required')).toBeTruthy();
   });
 
   it('should mark reporter as invalid when exceeding max length', () => {
-    component.reporter.setValue('a'.repeat(101));
-    expect(component.reporter.valid).toBe(false);
-    expect(component.reporter.errors?.['maxlength']).toBeTruthy();
+    component.form.reporter().value.set('a'.repeat(101));
+    expect(component.form.reporter().valid()).toBe(false);
+    expect(component.form.reporter().getError('maxLength')).toBeTruthy();
   });
 
   it('should mark reporter as valid with a proper value', () => {
-    component.reporter.setValue('jdoe');
-    expect(component.reporter.valid).toBe(true);
+    component.form.reporter().value.set('jdoe');
+    expect(component.form.reporter().valid()).toBe(true);
   });
 
   it('should mark note as valid when empty (optional)', () => {
-    expect(component.note.valid).toBe(true);
+    expect(component.form.note().valid()).toBe(true);
   });
 
   it('should mark note as invalid when exceeding max length', () => {
-    component.note.setValue('a'.repeat(5001));
-    expect(component.note.valid).toBe(false);
-    expect(component.note.errors?.['maxlength']).toBeTruthy();
+    component.form.note().value.set('a'.repeat(5001));
+    expect(component.form.note().valid()).toBe(false);
+    expect(component.form.note().getError('maxLength')).toBeTruthy();
   });
 
   it('should mark note as valid at the max length boundary', () => {
-    component.note.setValue('a'.repeat(5000));
-    expect(component.note.valid).toBe(true);
+    component.form.note().value.set('a'.repeat(5000));
+    expect(component.form.note().valid()).toBe(true);
   });
   //#endregion
 
@@ -327,11 +320,12 @@ describe('PhysicalStateComponent', () => {
 
   it('should keep the submit button disabled while the form is pristine even if valid', () => {
     // make it valid without marking dirty
-    component.type.setValue('good', { emitEvent: false });
-    component.reporter.setValue('jdoe', { emitEvent: false });
+    component.form.type().value.set('good');
+    component.form.reporter().value.set('jdoe');
+    component.form().reset();
     fixture.detectChanges();
 
-    expect(component.form.pristine).toBe(true);
+    expect(component.form().dirty()).toBe(false);
     const submitBtn = fixture.debugElement.query(
       By.css('button[type="submit"]')
     );
@@ -339,16 +333,17 @@ describe('PhysicalStateComponent', () => {
   });
 
   it('should enable the submit button when the form is valid and dirty', () => {
-    // setValue() alone does not mark a control dirty (only real user
+    // value.set() alone does not mark a field dirty (only real user
     // interaction, or an explicit markAsDirty() call, does); mark it
     // explicitly to simulate that the user has actually edited the form.
-    component.type.setValue('good');
-    component.reporter.setValue('jdoe');
-    component.form.markAsDirty();
+    component.form.type().value.set('good');
+    component.form.reporter().value.set('jdoe');
+    component.form.type().markAsDirty();
+    component.form.reporter().markAsDirty();
     fixture.detectChanges();
 
-    expect(component.form.valid).toBe(true);
-    expect(component.form.dirty).toBe(true);
+    expect(component.form().valid()).toBe(true);
+    expect(component.form().dirty()).toBe(true);
     const submitBtn = fixture.debugElement.query(
       By.css('button[type="submit"]')
     );
@@ -381,9 +376,9 @@ describe('PhysicalStateComponent', () => {
 
   //#region save / getState via the state model
   it('should set state with trimmed type/reporter/note and no features/date when not provided', () => {
-    component.type.setValue('  good  ');
-    component.reporter.setValue('  jdoe  ');
-    component.note.setValue('  a note  ');
+    component.form.type().value.set('  good  ');
+    component.form.reporter().value.set('  jdoe  ');
+    component.form.note().value.set('  a note  ');
 
     component.save();
 
@@ -397,8 +392,8 @@ describe('PhysicalStateComponent', () => {
   });
 
   it('should include features in state when at least one is checked', () => {
-    component.type.setValue('good');
-    component.reporter.setValue('jdoe');
+    component.form.type().value.set('good');
+    component.form.reporter().value.set('jdoe');
     component.onCheckedIdsChange(['torn', 'stained']);
 
     component.save();
@@ -407,10 +402,10 @@ describe('PhysicalStateComponent', () => {
   });
 
   it('should not include date in state when hasDate is false, even if date has a value', () => {
-    component.type.setValue('good');
-    component.reporter.setValue('jdoe');
-    component.hasDate.setValue(false);
-    component.date.setValue('2024-03-05T00:00:00.000Z');
+    component.form.type().value.set('good');
+    component.form.reporter().value.set('jdoe');
+    component.form.hasDate().value.set(false);
+    component.form.date().value.set('2024-03-05T00:00:00.000Z');
 
     component.save();
 
@@ -418,10 +413,10 @@ describe('PhysicalStateComponent', () => {
   });
 
   it('should not include date in state when hasDate is true but date has no value', () => {
-    component.type.setValue('good');
-    component.reporter.setValue('jdoe');
-    component.hasDate.setValue(true);
-    component.date.setValue(null);
+    component.form.type().value.set('good');
+    component.form.reporter().value.set('jdoe');
+    component.form.hasDate().value.set(true);
+    component.form.date().value.set(null);
 
     component.save();
 
@@ -430,10 +425,10 @@ describe('PhysicalStateComponent', () => {
 
   it('should include a YYYY-MM-DD formatted date in state when hasDate is true and date has a value', () => {
     const raw = '2024-03-05T10:20:30.000Z';
-    component.type.setValue('good');
-    component.reporter.setValue('jdoe');
-    component.hasDate.setValue(true);
-    component.date.setValue(raw);
+    component.form.type().value.set('good');
+    component.form.reporter().value.set('jdoe');
+    component.form.hasDate().value.set(true);
+    component.form.date().value.set(raw);
 
     component.save();
 
@@ -441,8 +436,8 @@ describe('PhysicalStateComponent', () => {
   });
 
   it('should set state via form submit event', () => {
-    component.type.setValue('good');
-    component.reporter.setValue('jdoe');
+    component.form.type().value.set('good');
+    component.form.reporter().value.set('jdoe');
     fixture.detectChanges();
 
     const form = fixture.debugElement.query(By.css('form'));
@@ -452,10 +447,10 @@ describe('PhysicalStateComponent', () => {
     expect(component.state()?.reporter).toBe('jdoe');
   });
 
-  it('should reflect reporter/note as undefined in state when they are empty/null', () => {
-    component.type.setValue('good');
-    component.reporter.setValue('jdoe');
-    component.note.setValue(null);
+  it('should reflect reporter/note as undefined in state when they are empty', () => {
+    component.form.type().value.set('good');
+    component.form.reporter().value.set('jdoe');
+    component.form.note().value.set('');
 
     component.save();
 

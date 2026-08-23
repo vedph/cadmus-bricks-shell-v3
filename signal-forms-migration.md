@@ -62,7 +62,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 11. `cadmus-text-block-view`
 - [x] 12. `cadmus-ui-note-set`
 - [x] 13. `cadmus-text-ed-txt`
-- [ ] 14. `cadmus-mat-physical-state`
+- [x] 14. `cadmus-mat-physical-state`
 - [ ] 15. `cadmus-refs-chronotope`
 - [ ] 16. `cadmus-refs-lookup`
 - [ ] 17. `cadmus-refs-decorated-ids` — uses `NgxToolsValidators`
@@ -369,3 +369,32 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   removed `[formGroup]` wrapper's implicit submit handling with an explicit
   `(submit)="onFormSubmit($event)"` calling `event.preventDefault()` then
   picking the first matching emoji, matching the established idiom.
+- **`cadmus-mat-physical-state`**: `PhysicalStateComponent`'s 6-field form
+  (`type`/`features`/`hasDate`/`date`/`reporter`/`note`), no debounced
+  autosave, save is only explicit (button/submit), so no last-processed
+  guard was needed. Confirmed `[matDatepicker]` on a native `<input>` still
+  goes through the CVA path (`MatDatepickerInput` registers
+  `NG_VALUE_ACCESSOR`), so the `date` field could stay `string | null`
+  despite being a native `<input>` tag — the "native input needs
+  non-nullable string" rule is actually about whether a `ControlValueAccessor`
+  is registered on the element, not about the tag name. By contrast
+  `reporter`/`note` bind to plain `matInput` (no CVA) in their free-text
+  branches, so both were widened to non-nullable `string` with `''` as the
+  empty sentinel, same as `type` already was. **Correctness nuance**:
+  widening `reporter`/`note` from `string | null` to `string` silently
+  changes `getState()`'s `?.trim()` behavior — `null?.trim()` short-circuits
+  to `undefined` via optional chaining, but `''.trim()` evaluates to `''`
+  (a defined empty string), so `?.trim()` alone no longer reproduces
+  "empty means absent from the saved model" once the field can't be null;
+  fixed by explicitly falling back with `.trim() || undefined` for the two
+  fields that used to rely on `null` for that behavior (not needed for
+  `type`, which was always non-nullable and never had that behavior).
+  Adopted the `cadmus-geo-location` idiom for model→form sync: overwrite
+  the whole draft object via `this._draft.set({...})` and then call
+  `this.form().reset()` afterward purely to clear dirty/touched state —
+  `reset()` does not restore values (those come from the draft signal
+  itself), only pristine/untouched flags. **Test-writing gotcha,
+  reconfirmed**: `field().value.set(x)` alone does not mark a field dirty,
+  same as reactive forms' `setValue()` — a test asserting "valid and dirty"
+  behavior needs an explicit `field().markAsDirty()` call alongside the
+  `value.set()`, or it will observe `dirty() === false`.

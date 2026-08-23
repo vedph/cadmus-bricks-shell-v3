@@ -7,14 +7,9 @@ import {
   input,
   model,
   output,
+  signal,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { form, FormField, maxLength, required } from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -47,11 +42,31 @@ export interface PhysicalState {
   note?: string;
 }
 
+interface PhysicalStateDraft {
+  type: string;
+  features: string[];
+  hasDate: boolean;
+  date: string | null;
+  reporter: string;
+  note: string;
+}
+
+function makeDefaultDraft(): PhysicalStateDraft {
+  return {
+    type: '',
+    features: [],
+    hasDate: false,
+    date: null,
+    reporter: '',
+    note: '',
+  };
+}
+
 @Component({
   selector: 'cadmus-mat-physical-state',
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatCheckboxModule,
     MatDatepickerModule,
@@ -67,13 +82,14 @@ export interface PhysicalState {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PhysicalStateComponent {
-  public type: FormControl<string>;
-  public features: FormControl<string[]>;
-  public hasDate: FormControl<boolean>;
-  public date: FormControl<string | null>;
-  public reporter: FormControl<string | null>;
-  public note: FormControl<string | null>;
-  public form: FormGroup;
+  private readonly _draft = signal<PhysicalStateDraft>(makeDefaultDraft());
+  public readonly form = form(this._draft, (path) => {
+    required(path.type);
+    maxLength(path.type, 100);
+    required(path.reporter);
+    maxLength(path.reporter, 100);
+    maxLength(path.note, 5000);
+  });
 
   /**
    * The state being edited.
@@ -107,27 +123,7 @@ export class PhysicalStateComponent {
    */
   public readonly stateCancel = output();
 
-  constructor(formBuilder: FormBuilder) {
-    this.type = formBuilder.control('', {
-      validators: [Validators.required, Validators.maxLength(100)],
-      nonNullable: true,
-    });
-    this.features = formBuilder.control([], { nonNullable: true });
-    this.hasDate = formBuilder.control(false, { nonNullable: true });
-    this.date = formBuilder.control(new Date().toUTCString(), {});
-    this.reporter = formBuilder.control(null, {
-      validators: [Validators.required, Validators.maxLength(100)],
-    });
-    this.note = formBuilder.control(null, Validators.maxLength(5000));
-    this.form = formBuilder.group({
-      type: this.type,
-      features: this.features,
-      hasDate: this.hasDate,
-      date: this.date,
-      reporter: this.reporter,
-      note: this.note,
-    });
-
+  constructor() {
     // when state changes, update form
     effect(() => {
       this.updateForm(this.state());
@@ -136,22 +132,23 @@ export class PhysicalStateComponent {
 
   private updateForm(state?: PhysicalState): void {
     if (!state) {
-      this.form.reset();
-      return;
+      this._draft.set(makeDefaultDraft());
+    } else {
+      this._draft.set({
+        type: state.type,
+        features: state.features || [],
+        hasDate: !!state.date,
+        date: state.date || null,
+        reporter: state.reporter || '',
+        note: state.note || '',
+      });
     }
-    this.type.setValue(state.type);
-    this.features.setValue(state.features || []);
-    this.hasDate.setValue(!!state.date);
-    this.date.setValue(state.date || null);
-    this.reporter.setValue(state.reporter || null);
-    this.note.setValue(state.note || null);
-    this.form.markAsPristine();
+    this.form().reset();
   }
 
   public onCheckedIdsChange(ids: string[]): void {
-    this.features.setValue(ids);
-    this.features.markAsDirty();
-    this.features.updateValueAndValidity();
+    this.form.features().value.set(ids);
+    this.form.features().markAsDirty();
   }
 
   private dateToYmd(date: string | null): string | undefined {
@@ -167,14 +164,16 @@ export class PhysicalStateComponent {
 
   private getState(): PhysicalState {
     return {
-      type: this.type.value?.trim(),
-      features: this.features.value?.length ? this.features.value : undefined,
+      type: this.form.type().value().trim(),
+      features: this.form.features().value().length
+        ? this.form.features().value()
+        : undefined,
       date:
-        this.hasDate.value && this.date.value
-          ? this.dateToYmd(this.date.value)
+        this.form.hasDate().value() && this.form.date().value()
+          ? this.dateToYmd(this.form.date().value())
           : undefined,
-      reporter: this.reporter.value?.trim(),
-      note: this.note.value?.trim(),
+      reporter: this.form.reporter().value().trim() || undefined,
+      note: this.form.note().value().trim() || undefined,
     };
   }
 
