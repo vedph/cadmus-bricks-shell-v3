@@ -2,22 +2,19 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  effect,
   input,
   model,
-  OnDestroy,
-  OnInit,
   signal,
   ViewChild,
 } from '@angular/core';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { Subscription } from 'rxjs';
+  FieldTree,
+  FormField,
+  disabled,
+  form,
+  maxLength,
+} from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -43,6 +40,25 @@ export interface DecoratedCount {
 }
 
 /**
+ * The controls used to add a new count.
+ */
+interface AddCountControls {
+  id: string;
+  hasCustom: boolean;
+  custom: string;
+  batch: string;
+}
+
+/**
+ * The controls used to edit an existing (or new) count.
+ */
+interface EditedCountControls {
+  tag: string;
+  value: number;
+  note: string;
+}
+
+/**
  * Decorated counts editor component.
  */
 @Component({
@@ -50,8 +66,7 @@ export interface DecoratedCount {
   templateUrl: './decorated-counts.component.html',
   styleUrls: ['./decorated-counts.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -64,9 +79,7 @@ export interface DecoratedCount {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DecoratedCountsComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
-
+export class DecoratedCountsComponent {
   /**
    * The decorated counts.
    */
@@ -95,58 +108,40 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
   @ViewChild('valn', { static: false })
   public valueCtl?: ElementRef;
 
-  public id: FormControl<string | null>;
-  public hasCustom: FormControl<boolean>;
-  public custom: FormControl<string | null>;
-  public batch: FormControl<string | null>;
-  public form: FormGroup;
-
-  public tag: FormControl<string | null>;
-  public value: FormControl<number>;
-  public note: FormControl<string | null>;
-  public editedForm: FormGroup;
+  // add count form
+  public readonly form: FieldTree<AddCountControls>;
+  // edited count form
+  public readonly editedForm: FieldTree<EditedCountControls>;
 
   public readonly editedIndex = signal<number>(-1);
   public readonly edited = signal<DecoratedCount | undefined>(undefined);
 
-  constructor(formBuilder: FormBuilder) {
-    // add count form
-    this.id = formBuilder.control(null);
-    this.hasCustom = formBuilder.control(false, { nonNullable: true });
-    this.custom = formBuilder.control(null);
-    this.batch = formBuilder.control(null);
-    this.form = formBuilder.group({
-      id: this.id,
-      hasCustom: this.hasCustom,
-      custom: this.custom,
-      batch: this.batch,
-    });
-    // edited count form
-    this.tag = formBuilder.control(null);
-    this.value = formBuilder.control(0, { nonNullable: true });
-    this.note = formBuilder.control(null, Validators.maxLength(1000));
-    this.editedForm = formBuilder.group({
-      tag: this.tag,
-      value: this.value,
-      note: this.note,
-    });
-  }
-
-  public ngOnInit(): void {
-    this._sub = this.hasCustom.valueChanges.subscribe((value) => {
-      if (value) {
-        this.id.disable();
-      } else {
-        this.id.enable();
+  constructor() {
+    this.form = form(
+      signal<AddCountControls>({
+        id: '',
+        hasCustom: false,
+        custom: '',
+        batch: '',
+      }),
+      (path) => {
+        disabled(path.id, { when: (ctx) => ctx.valueOf(path.hasCustom) });
       }
-      if (value && this.customCtl) {
+    );
+    this.editedForm = form(
+      signal<EditedCountControls>({ tag: '', value: 0, note: '' }),
+      (path) => {
+        maxLength(path.note, 1000);
+      }
+    );
+
+    // when hasCustom becomes true, focus the custom ID input
+    effect(() => {
+      const hasCustom = this.form.hasCustom().value();
+      if (hasCustom && this.customCtl) {
         setTimeout(() => this.customCtl!.nativeElement.focus(), 0);
       }
     });
-  }
-
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
   }
 
   private areCountsEqual(a: DecoratedCount, b: DecoratedCount): boolean {
@@ -169,14 +164,21 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
     }
   }
 
+  private resetEditedForm(): void {
+    this.editedForm().value.set({ tag: '', value: 0, note: '' });
+    this.editedForm().reset();
+  }
+
   public editCount(index: number): void {
     this.editedIndex.set(index);
     this.edited.set(this.counts()![index]);
 
-    this.value.setValue(this.edited()!.value, { emitEvent: false });
-    this.tag.setValue(this.edited()!.tag || null, { emitEvent: false });
-    this.note.setValue(this.edited()!.note || null, { emitEvent: false });
-    this.editedForm.markAsPristine();
+    this.editedForm().value.set({
+      tag: this.edited()!.tag || '',
+      value: this.edited()!.value,
+      note: this.edited()!.note || '',
+    });
+    this.editedForm().reset();
 
     this.focusCount();
   }
@@ -186,23 +188,23 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
     }
-    if (!this.custom.value) {
+    if (!this.form.custom().value()) {
       return;
     }
 
     this.editedIndex.set(-1);
     this.edited.set({
-      id: this.custom.value,
+      id: this.form.custom().value(),
       value: 0,
     } as DecoratedCount);
-    this.editedForm.reset();
+    this.resetEditedForm();
 
-    this.custom.reset();
+    this.form.custom().value.set('');
     this.focusCount();
   }
 
   public addCount(event?: Event): void {
-    if (this.hasCustom.value) {
+    if (this.form.hasCustom().value()) {
       this.addCustomCount(event);
       return;
     }
@@ -210,26 +212,28 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
     }
-    if (!this.id.value) {
+    if (!this.form.id().value()) {
       return;
     }
 
     this.editedIndex.set(-1);
     this.edited.set({
-      id: this.id.value,
+      id: this.form.id().value(),
       value: 0,
     } as DecoratedCount);
-    this.editedForm.reset();
+    this.resetEditedForm();
 
     if (!this.idEntries?.length) {
-      this.id.reset();
+      this.form.id().value.set('');
     }
     this.focusCount();
   }
 
   public addBatchCounts(): void {
     // parse from batch.value with form "ID=value [tag] (note);..."
-    const entries = this.batch.value
+    const entries = this.form
+      .batch()
+      .value()
       ?.split(';')
       .map((e) => e.trim())
       .filter((e) => e.length > 0);
@@ -267,16 +271,17 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
   }
 
   public saveCount(): void {
-    if (!this.edited || !this.editedForm.valid) {
+    if (!this.edited || !this.editedForm().valid()) {
       return;
     }
 
     // create the new count
+    const editedValue = this.editedForm().value();
     const count: DecoratedCount = {
       id: this.edited()!.id,
-      value: this.value.value,
-      tag: this.tag.value ? this.tag.value?.trim() : undefined,
-      note: this.note.value ? this.note.value?.trim() : undefined,
+      value: editedValue.value,
+      tag: editedValue.tag ? editedValue.tag.trim() : undefined,
+      note: editedValue.note ? editedValue.note?.trim() : undefined,
     };
 
     // create a copy of the existing counts
@@ -314,6 +319,11 @@ export class DecoratedCountsComponent implements OnInit, OnDestroy {
 
     // close the editor
     this.closeCount();
+  }
+
+  public onEditedFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.saveCount();
   }
 
   public moveCountUp(index: number): void {

@@ -12,20 +12,20 @@ describe('DecoratedCountsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize form controls', async () => {
+  it('should initialize the forms', async () => {
     const { fixture } = await render(DecoratedCountsComponent, {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    expect(component.id).toBeDefined();
-    expect(component.hasCustom).toBeDefined();
-    expect(component.custom).toBeDefined();
-    expect(component.batch).toBeDefined();
     expect(component.form).toBeDefined();
-    expect(component.tag).toBeDefined();
-    expect(component.value).toBeDefined();
-    expect(component.note).toBeDefined();
+    expect(component.form.id).toBeDefined();
+    expect(component.form.hasCustom).toBeDefined();
+    expect(component.form.custom).toBeDefined();
+    expect(component.form.batch).toBeDefined();
     expect(component.editedForm).toBeDefined();
+    expect(component.editedForm.tag).toBeDefined();
+    expect(component.editedForm.value).toBeDefined();
+    expect(component.editedForm.note).toBeDefined();
   });
 
   it('should disable id control when hasCustom is true', async () => {
@@ -33,8 +33,8 @@ describe('DecoratedCountsComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    component.hasCustom.setValue(true);
-    expect(component.id.disabled).toBeTruthy();
+    component.form.hasCustom().value.set(true);
+    expect(component.form.id().disabled()).toBeTruthy();
   });
 
   it('should enable id control when hasCustom is false', async () => {
@@ -42,8 +42,8 @@ describe('DecoratedCountsComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    component.hasCustom.setValue(false);
-    expect(component.id.enabled).toBeTruthy();
+    component.form.hasCustom().value.set(false);
+    expect(component.form.id().disabled()).toBeFalsy();
   });
 
   it('should add a custom count', async () => {
@@ -51,7 +51,7 @@ describe('DecoratedCountsComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    component.custom.setValue('custom-id');
+    component.form.custom().value.set('custom-id');
     component.addCustomCount();
     expect(component.edited()).toEqual({ id: 'custom-id', value: 0 });
   });
@@ -61,7 +61,7 @@ describe('DecoratedCountsComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    component.id.setValue('test-id');
+    component.form.id().value.set('test-id');
     component.addCount();
     expect(component.edited()).toEqual({ id: 'test-id', value: 0 });
   });
@@ -72,9 +72,9 @@ describe('DecoratedCountsComponent', () => {
     });
     const component = fixture.componentInstance;
     component.edited.set({ id: 'test-id', value: 0 });
-    component.value.setValue(10);
-    component.tag.setValue('test-tag');
-    component.note.setValue('test-note');
+    component.editedForm.value().value.set(10);
+    component.editedForm.tag().value.set('test-tag');
+    component.editedForm.note().value.set('test-note');
     component.saveCount();
     expect(component.counts()).toContainEqual({
       id: 'test-id',
@@ -163,7 +163,7 @@ describe('DecoratedCountsComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    component.id.setValue(null);
+    component.form.id().value.set('');
     component.addCount();
     expect(component.edited()).toBeUndefined();
   });
@@ -173,7 +173,7 @@ describe('DecoratedCountsComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    component.custom.setValue(null);
+    component.form.custom().value.set('');
     component.addCustomCount();
     expect(component.edited()).toBeUndefined();
   });
@@ -183,8 +183,8 @@ describe('DecoratedCountsComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    component.hasCustom.setValue(true);
-    component.custom.setValue('custom-id');
+    component.form.hasCustom().value.set(true);
+    component.form.custom().value.set('custom-id');
     component.addCount();
     expect(component.edited()).toEqual({ id: 'custom-id', value: 0 });
   });
@@ -205,9 +205,9 @@ describe('DecoratedCountsComponent', () => {
       tag: 'tag1',
       note: 'note1',
     });
-    expect(component.value.value).toBe(10);
-    expect(component.tag.value).toBe('tag1');
-    expect(component.note.value).toBe('note1');
+    expect(component.editedForm.value().value()).toBe(10);
+    expect(component.editedForm.tag().value()).toBe('tag1');
+    expect(component.editedForm.note().value()).toBe('note1');
   });
 
   it('should close the edited count', async () => {
@@ -229,7 +229,7 @@ describe('DecoratedCountsComponent', () => {
     const component = fixture.componentInstance;
     component.counts.set([{ id: 'id1', value: 10 }]);
     component.editCount(0);
-    component.value.setValue(99);
+    component.editedForm.value().value.set(99);
     component.saveCount();
     expect(component.counts()).toEqual([{ id: 'id1', value: 99 }]);
     // editor is closed after saving
@@ -248,7 +248,7 @@ describe('DecoratedCountsComponent', () => {
     // trying to save a new count that exactly duplicates the existing id1 entry
     component.edited.set({ id: 'id1', value: 0 });
     component.editedIndex.set(-1);
-    component.value.setValue(10);
+    component.editedForm.value().value.set(10);
     component.saveCount();
     // count should remain unchanged (2 items), since {id1,10} already exists
     expect(component.counts()).toEqual([
@@ -263,9 +263,9 @@ describe('DecoratedCountsComponent', () => {
     });
     const component = fixture.componentInstance;
     component.edited.set({ id: 'id1', value: 0 });
-    component.value.setValue(5);
-    component.tag.setValue('  spaced-tag  ');
-    component.note.setValue('');
+    component.editedForm.value().value.set(5);
+    component.editedForm.tag().value.set('  spaced-tag  ');
+    component.editedForm.note().value.set('');
     component.saveCount();
     expect(component.counts()).toEqual([
       { id: 'id1', value: 5, tag: 'spaced-tag', note: undefined },
@@ -282,7 +282,7 @@ describe('DecoratedCountsComponent', () => {
     // add a new count (not editing an existing index) with the same id
     component.edited.set({ id: 'id1', value: 0 });
     component.editedIndex.set(-1);
-    component.value.setValue(50);
+    component.editedForm.value().value.set(50);
     component.saveCount();
     // only the new value should remain, old one removed because distinct
     expect(component.counts()).toEqual([{ id: 'id1', value: 50 }]);
@@ -293,7 +293,7 @@ describe('DecoratedCountsComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    component.batch.setValue('id1=10 [tag1] (note1); id2=20');
+    component.form.batch().value.set('id1=10 [tag1] (note1); id2=20');
     component.addBatchCounts();
     expect(component.counts()).toEqual([
       { id: 'id1', value: 10, tag: 'tag1', note: 'note1' },
@@ -306,7 +306,7 @@ describe('DecoratedCountsComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    component.batch.setValue('   ');
+    component.form.batch().value.set('   ');
     component.addBatchCounts();
     expect(component.counts()).toBeUndefined();
   });
@@ -318,7 +318,7 @@ describe('DecoratedCountsComponent', () => {
     });
     const component = fixture.componentInstance;
     component.counts.set([{ id: 'id1', value: 1 }]);
-    component.batch.setValue('id1=99');
+    component.form.batch().value.set('id1=99');
     component.addBatchCounts();
     expect(component.counts()).toEqual([{ id: 'id1', value: 99 }]);
   });
@@ -340,7 +340,7 @@ describe('DecoratedCountsComponent', () => {
     expect(component.allowCustomId()).toBe(false);
   });
 
-  it('should unsubscribe on destroy without throwing', async () => {
+  it('should not throw on destroy', async () => {
     const { fixture } = await render(DecoratedCountsComponent, {
       providers: [provideNoopAnimations()],
     });

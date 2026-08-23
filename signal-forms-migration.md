@@ -50,7 +50,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 ## Library checklist (dependency order)
 
 - [x] 1. `cadmus-mat-physical-grid`
-- [ ] 2. `cadmus-refs-decorated-counts`
+- [x] 2. `cadmus-refs-decorated-counts`
 - [ ] 3. `cadmus-ui-custom-action-bar`
 - [ ] 4. `cadmus-ui-flag-set`
 - [ ] 5. `cadmus-mat-physical-size`
@@ -91,3 +91,24 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   any helper method that used to read plain `FormControl.value` (untracked)
   now reads a signal once ported, so it can silently become an effect
   dependency unless wrapped in `untracked()`.
+- **`cadmus-refs-decorated-counts`**: two independent local forms
+  (add-count controls, edited-count controls) built from two `signal()` +
+  `form()` pairs. `disabled(path.id, { when: (ctx) => ctx.valueOf(path.hasCustom) })`
+  replaces the old `hasCustom.valueChanges` subscription calling
+  `id.disable()`/`id.enable()` — sibling-field-driven `disabled`/`readonly`/
+  `hidden` logic belongs in the schema via `ctx.valueOf(otherPath)`, not in a
+  component `effect()`. **Gotcha**: native `<input [formField]="...">` requires
+  the field's value type to be non-nullable `string` (or `number | null` for
+  numeric inputs) — a `string | null` field type errors at template
+  type-check time. Fields bound to plain text inputs must use `''` as their
+  "empty" sentinel, not `null` (already the case for `text` in
+  `cadmus-mat-physical-grid`; here it meant widening `id`/`custom`/`batch`/
+  `tag`/`note` from `string | null` to `string`). This restriction does not
+  apply to fields bound to CVA-based Material controls (`mat-select`,
+  `mat-checkbox`), which still interop fine with `null`. Also: removed the
+  outer `[formGroup]="form"` wrapper (signal-forms `[formField]` bindings
+  don't need a container directive) and replaced the inner
+  `[formGroup]="editedForm" (submit)="saveCount()"` with a plain
+  `(submit)="onEditedFormSubmit($event)"` handler that calls
+  `event.preventDefault()` itself, since `ReactiveFormsModule`'s
+  `FormGroupDirective` was silently doing that `preventDefault()` before.
