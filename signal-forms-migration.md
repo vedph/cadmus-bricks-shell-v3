@@ -55,7 +55,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 4. `cadmus-ui-flag-set`
 - [x] 5. `cadmus-mat-physical-size`
 - [x] 6. `cadmus-cod-location`
-- [ ] 7. `cadmus-geo-location`
+- [x] 7. `cadmus-geo-location`
 - [ ] 8. `cadmus-refs-citation`
 - [ ] 9. `cadmus-refs-historical-date`
 - [ ] 10. `cadmus-refs-doc-references` — has `FormArray`
@@ -187,3 +187,39 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
     to gate could fire) — convergence in both the old and new code actually
     comes from `distinctUntilChanged()` on the debounced pipeline; the
     (equally inert) guard was dropped rather than ported.
+- **`cadmus-geo-location`**: largest/most complex conversion so far
+  (`GeoLocationEditor`, 8-field form + MapLibre map integration, ~90-test
+  spec). Key points:
+  - Reactive forms' `setValue()` never marks a control dirty by itself; this
+    was already known, but this component leans on it heavily —
+    `handlePointClick`/`onMarkerDragEnd`/`setPointFromGeometry`/`locateUser`/
+    `clearDrawing`/`toggleDrawingMode` all call `.markAsDirty()` explicitly
+    right after `.value.set()` so the save button's `!form().dirty()` check
+    reflects programmatic (map-driven) edits, not just typing. Confirmed
+    (via the full test run) that marking a **child** field dirty does
+    propagate up to the root `form().dirty()`, same as `FormGroup`.
+  - The original combined `filter(() => !this._updatingForm)` +
+    `debounceTime(600)` on `form.valueChanges` to suppress a debounced
+    map-overlay-refresh effect during programmatic (non-user) form updates —
+    this relies on reactive-forms' `valueChanges` emitting *synchronously*
+    inside each `setValue()` call, so the filter's synchronous flag check is
+    still accurate at emission time. `toObservable()` bridges signals to
+    RxJS via a deferred internal `effect()`, so the same flag would already
+    be reset by the time it's checked — an unreliable port, not just a
+    simplification. Investigated what the flag actually protected: only one
+    of the four synced side effects (`syncMapCenter`) had a real,
+    documented risk ("avoid a duplicate flyTo that interrupts the
+    animation"); the other three are harmless to recompute redundantly.
+    Fixed at the output instead of the source: `syncMapCenter()` now skips
+    `mapCenter.set(...)` if the computed `[lng, lat]` already equals the
+    current value, which prevents the duplicate flyTo regardless of *why*
+    the debounced sync fired. `_updatingForm` itself was removed entirely.
+  - Test setup gotcha: this spec uses `TestBed.overrideComponent(..., {set:
+    {imports: TEST_IMPORTS}})` to swap in fake MapLibre stub components for
+    jsdom. `overrideComponent` **replaces** the imports array rather than
+    merging with it, so the original `TEST_IMPORTS` array had to list
+    `ReactiveFormsModule` itself for `[formControl]` to resolve — easy to
+    miss that the signal-forms port needs `FormField` added to that same
+    array (all 71 component-level tests fail with a single
+    `NG0303: Can't bind to 'formField'` error otherwise, which does not
+    point at the fixed array in the stack trace).

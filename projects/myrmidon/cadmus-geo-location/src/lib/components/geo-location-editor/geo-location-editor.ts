@@ -6,18 +6,21 @@ import {
   inject,
   input,
   model,
+  OnDestroy,
   output,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { debounceTime, filter, take } from 'rxjs';
+  FieldTree,
+  FormField,
+  form,
+  max,
+  maxLength,
+  min,
+  required,
+} from '@angular/forms/signals';
+import { debounceTime, Subscription, take } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -72,6 +75,20 @@ export enum GeoLocationDrawingTool {
 }
 
 /**
+ * The editable controls backing a GeoLocation.
+ */
+interface GeoLocationControls {
+  eid: string;
+  label: string;
+  latitude: number | null;
+  longitude: number | null;
+  altitude: number | null;
+  radius: number | null;
+  geometry: string;
+  note: string;
+}
+
+/**
  * A component for editing a GeoLocation, including its coordinates, geometry,
  * and other properties. It features an interactive map for visualizing and drawing
  * geometries.
@@ -79,7 +96,7 @@ export enum GeoLocationDrawingTool {
 @Component({
   selector: 'cadmus-geo-location-editor',
   imports: [
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatButtonToggleModule,
     MatFormFieldModule,
@@ -100,9 +117,9 @@ export enum GeoLocationDrawingTool {
   styleUrl: './geo-location-editor.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GeoLocationEditor {
+export class GeoLocationEditor implements OnDestroy {
   private readonly _wktService = inject(WktService);
-  private _updatingForm = false;
+  private _sub?: Subscription;
 
   // #region Inputs/Outputs
   /**
@@ -133,16 +150,11 @@ export class GeoLocationEditor {
   public readonly mapStyle = input<string>(DEFAULT_MAP_STYLE);
   // #endregion
 
-  // #region Form controls
-  public eid: FormControl<string | null>;
-  public label: FormControl<string | null>;
-  public latitude: FormControl<number | null>;
-  public longitude: FormControl<number | null>;
-  public altitude: FormControl<number | null>;
-  public radius: FormControl<number | null>;
-  public geometry: FormControl<string | null>;
-  public note: FormControl<string | null>;
-  public form: FormGroup;
+  // #region Form
+  private readonly _draft = signal<GeoLocationControls>(
+    this.makeDefaultControls(),
+  );
+  public readonly form: FieldTree<GeoLocationControls>;
   // #endregion
 
   // #region Map state signals
@@ -222,85 +234,78 @@ export class GeoLocationEditor {
   private _drawnGeometry: GeoJSON.Geometry | null = null;
   // #endregion
 
-  constructor(
-    private _dialogService: DialogService,
-    formBuilder: FormBuilder,
-  ) {
-    this.eid = formBuilder.control(null, Validators.maxLength(100));
-    this.label = formBuilder.control(null, [
-      Validators.required,
-      Validators.maxLength(200),
-    ]);
-    this.latitude = formBuilder.control(null, [
-      Validators.required,
-      Validators.min(-90),
-      Validators.max(90),
-    ]);
-    this.longitude = formBuilder.control(null, [
-      Validators.required,
-      Validators.min(-180),
-      Validators.max(180),
-    ]);
-    this.altitude = formBuilder.control(null);
-    this.radius = formBuilder.control(null, Validators.min(0));
-    this.geometry = formBuilder.control(null, Validators.maxLength(50000));
-    this.note = formBuilder.control(null, Validators.maxLength(1000));
-    this.form = formBuilder.group({
-      eid: this.eid,
-      label: this.label,
-      latitude: this.latitude,
-      longitude: this.longitude,
-      altitude: this.altitude,
-      radius: this.radius,
-      geometry: this.geometry,
-      note: this.note,
+  constructor(private _dialogService: DialogService) {
+    this.form = form(this._draft, (path) => {
+      maxLength(path.eid, 100);
+      required(path.label);
+      maxLength(path.label, 200);
+      required(path.latitude);
+      min(path.latitude, -90);
+      max(path.latitude, 90);
+      required(path.longitude);
+      min(path.longitude, -180);
+      max(path.longitude, 180);
+      min(path.radius, 0);
+      maxLength(path.geometry, 50000);
+      maxLength(path.note, 1000);
     });
 
     effect(() => {
       this.updateForm(this.location());
     });
 
-    // Convert debounced form valueChanges to a signal for more efficient
-    // change detection with OnPush strategy. Using toSignal() ensures better
-    // performance than subscription-based approach when nested in components.
-    const _formValueChanges = toSignal(
-      this.form.valueChanges.pipe(
-        filter(() => !this._updatingForm),
-        debounceTime(600),
-      ),
-      { initialValue: undefined },
-    );
+    // Debounced draft -> map overlays sync. Unlike the location model sync
+    // above, this never writes back to `_draft`/`location`, so there is no
+    // feedback loop to guard against here (see signal-forms-migration.md).
+    this._sub = toObservable(this._draft)
+      .pipe(debounceTime(600))
+      .subscribe(() => {
+        this.syncLatLngSignals();
+        this.updateGeometryOverlays();
+        this.updateRadiusOverlay();
+        this.updateLabelOverlay();
+        this.syncMapCenter();
+      });
+  }
 
-    effect(() => {
-      // Trigger when form changes (signal notifies of debounced changes)
-      _formValueChanges();
-      this.syncLatLngSignals();
-      this.updateGeometryOverlays();
-      this.updateRadiusOverlay();
-      this.updateLabelOverlay();
-      this.syncMapCenter();
-    });
+  public ngOnDestroy(): void {
+    this._sub?.unsubscribe();
   }
 
   // #region Form <-> Model
+  private makeDefaultControls(): GeoLocationControls {
+    return {
+      eid: '',
+      label: '',
+      latitude: null,
+      longitude: null,
+      altitude: null,
+      radius: null,
+      geometry: '',
+      note: '',
+    };
+  }
+
   private updateForm(loc: GeoLocation | undefined): void {
-    this._updatingForm = true;
     if (!loc) {
-      this.form.reset();
+      this._draft.set(this.makeDefaultControls());
+      this.form().reset();
       this._latSignal.set(null);
       this._lngSignal.set(null);
       this.geometryGeoJSON.set({ ...EMPTY_FC });
       this.radiusGeoJSON.set({ ...EMPTY_FC });
     } else {
-      this.eid.setValue(loc.eid || null, { emitEvent: false });
-      this.label.setValue(loc.label, { emitEvent: false });
-      this.latitude.setValue(loc.latitude, { emitEvent: false });
-      this.longitude.setValue(loc.longitude, { emitEvent: false });
-      this.altitude.setValue(loc.altitude ?? null, { emitEvent: false });
-      this.radius.setValue(loc.radius ?? null, { emitEvent: false });
-      this.geometry.setValue(loc.geometry || null, { emitEvent: false });
-      this.note.setValue(loc.note || null, { emitEvent: false });
-      this.form.markAsPristine();
+      this._draft.set({
+        eid: loc.eid || '',
+        label: loc.label,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        altitude: loc.altitude ?? null,
+        radius: loc.radius ?? null,
+        geometry: loc.geometry || '',
+        note: loc.note || '',
+      });
+      this.form().reset();
 
       this._latSignal.set(loc.latitude);
       this._lngSignal.set(loc.longitude);
@@ -311,32 +316,32 @@ export class GeoLocationEditor {
       this.updateRadiusOverlay();
       this.updateLabelOverlay();
     }
-    this._updatingForm = false;
   }
 
   private getLocation(): GeoLocation {
+    const v = this._draft();
     return {
-      eid: this.eid.value?.trim() || undefined,
-      label: this.label.value?.trim() || '',
-      latitude: this.latitude.value ?? 0,
-      longitude: this.longitude.value ?? 0,
-      altitude: this.altitude.value ?? undefined,
-      radius: this.radius.value ?? undefined,
-      geometry: this.geometry.value?.trim() || undefined,
-      note: this.note.value?.trim() || undefined,
+      eid: v.eid.trim() || undefined,
+      label: v.label.trim() || '',
+      latitude: v.latitude ?? 0,
+      longitude: v.longitude ?? 0,
+      altitude: v.altitude ?? undefined,
+      radius: v.radius ?? undefined,
+      geometry: v.geometry.trim() || undefined,
+      note: v.note.trim() || undefined,
     };
   }
   // #endregion
 
   // #region Sync helpers
   private syncLatLngSignals(): void {
-    this._latSignal.set(this.latitude.value);
-    this._lngSignal.set(this.longitude.value);
+    this._latSignal.set(this.form.latitude().value());
+    this._lngSignal.set(this.form.longitude().value());
   }
 
   private updateGeometryOverlays(): void {
     const geom = this._wktService.toGeoJSON(
-      this.geometry.value,
+      this.form.geometry().value(),
       this.geometryFormat(),
     );
     if (geom) {
@@ -350,9 +355,9 @@ export class GeoLocationEditor {
   }
 
   private updateRadiusOverlay(): void {
-    const r = this.radius.value;
-    const lat = this.latitude.value;
-    const lng = this.longitude.value;
+    const r = this.form.radius().value();
+    const lat = this.form.latitude().value();
+    const lng = this.form.longitude().value();
     if (r && r > 0 && lat != null && lng != null) {
       const circle = createCirclePolygon([lng, lat], r);
       this.radiusGeoJSON.set({
@@ -365,9 +370,9 @@ export class GeoLocationEditor {
   }
 
   private updateLabelOverlay(): void {
-    const lat = this.latitude.value;
-    const lng = this.longitude.value;
-    const lbl = this.label.value?.trim();
+    const lat = this.form.latitude().value();
+    const lng = this.form.longitude().value();
+    const lbl = this.form.label().value().trim();
     if (lat != null && lng != null && lbl) {
       this.labelPointGeoJSON.set({
         type: 'FeatureCollection',
@@ -385,15 +390,25 @@ export class GeoLocationEditor {
   }
 
   private syncMapCenter(): void {
-    const lat = this.latitude.value;
-    const lng = this.longitude.value;
+    const lat = this.form.latitude().value();
+    const lng = this.form.longitude().value();
     if (
       lat != null &&
       lng != null &&
-      !this.latitude.errors &&
-      !this.longitude.errors
+      !this.form.latitude().errors().length &&
+      !this.form.longitude().errors().length
     ) {
-      this.mapCenter.set([lng, lat]);
+      // avoid a duplicate map flyTo when this debounced sync recomputes the
+      // same center that was already set synchronously elsewhere (e.g. by
+      // updateForm() or setPointFromGeometry())
+      const current = this.mapCenter();
+      if (
+        !Array.isArray(current) ||
+        current[0] !== lng ||
+        current[1] !== lat
+      ) {
+        this.mapCenter.set([lng, lat]);
+      }
     }
   }
   // #endregion
@@ -467,10 +482,10 @@ export class GeoLocationEditor {
 
   // #region Drawing tool handlers
   private handlePointClick(lngLat: [number, number]): void {
-    this.latitude.setValue(parseFloat(lngLat[1].toFixed(6)));
-    this.longitude.setValue(parseFloat(lngLat[0].toFixed(6)));
-    this.latitude.markAsDirty();
-    this.longitude.markAsDirty();
+    this.form.latitude().value.set(parseFloat(lngLat[1].toFixed(6)));
+    this.form.longitude().value.set(parseFloat(lngLat[0].toFixed(6)));
+    this.form.latitude().markAsDirty();
+    this.form.longitude().markAsDirty();
     this.syncLatLngSignals();
   }
 
@@ -575,8 +590,8 @@ export class GeoLocationEditor {
           this._drawnGeometry,
           this.geometryFormat(),
         );
-        this.geometry.setValue(text);
-        this.geometry.markAsDirty();
+        this.form.geometry().value.set(text || '');
+        this.form.geometry().markAsDirty();
         this._drawnGeometry = null;
         this.updateGeometryOverlays();
       }
@@ -607,13 +622,13 @@ export class GeoLocationEditor {
           this.resetDrawingState();
 
           // Also clear existing point, geometry, and radius so users start fresh
-          this.latitude.setValue(null);
-          this.longitude.setValue(null);
-          this.geometry.setValue(null);
-          this.radius.setValue(null);
-          this.latitude.markAsDirty();
-          this.longitude.markAsDirty();
-          this.geometry.markAsDirty();
+          this.form.latitude().value.set(null);
+          this.form.longitude().value.set(null);
+          this.form.geometry().value.set('');
+          this.form.radius().value.set(null);
+          this.form.latitude().markAsDirty();
+          this.form.longitude().markAsDirty();
+          this.form.geometry().markAsDirty();
           this._latSignal.set(null);
           this._lngSignal.set(null);
           this.geometryGeoJSON.set({ ...EMPTY_FC });
@@ -626,7 +641,7 @@ export class GeoLocationEditor {
   // #region Map actions
   public setPointFromGeometry(): void {
     const geom = this._wktService.toGeoJSON(
-      this.geometry.value,
+      this.form.geometry().value(),
       this.geometryFormat(),
     );
     if (!geom) {
@@ -636,21 +651,18 @@ export class GeoLocationEditor {
     if (!center) {
       return;
     }
-    // Suppress debounced syncMapCenter to avoid duplicate flyTo.
-    this._updatingForm = true;
-    this.latitude.setValue(parseFloat(center[1].toFixed(6)));
-    this.longitude.setValue(parseFloat(center[0].toFixed(6)));
-    this.latitude.markAsDirty();
-    this.longitude.markAsDirty();
-    this._updatingForm = false;
+    this.form.latitude().value.set(parseFloat(center[1].toFixed(6)));
+    this.form.longitude().value.set(parseFloat(center[0].toFixed(6)));
+    this.form.latitude().markAsDirty();
+    this.form.longitude().markAsDirty();
 
     this.syncLatLngSignals();
     this.mapCenter.set(center);
   }
 
   public recenterMap(): void {
-    const lat = this.latitude.value;
-    const lng = this.longitude.value;
+    const lat = this.form.latitude().value();
+    const lng = this.form.longitude().value();
     if (lat != null && lng != null) {
       this.mapCenter.set([lng, lat]);
       this.mapZoom.set(14);
@@ -670,22 +682,20 @@ export class GeoLocationEditor {
         this.locating.set(false);
         this.locationAccuracy.set(pos.coords.accuracy);
 
-        // Suppress form.valueChanges so the debounced syncMapCenter()
-        // doesn't fire a duplicate flyTo that interrupts the animation.
-        this._updatingForm = true;
-
         // Clear previous geometry and radius so we start fresh
-        this.geometry.setValue(null);
-        this.radius.setValue(null);
+        this.form.geometry().value.set('');
+        this.form.radius().value.set(null);
         this.geometryGeoJSON.set({ ...EMPTY_FC });
         this.radiusGeoJSON.set({ ...EMPTY_FC });
 
-        this.latitude.setValue(parseFloat(pos.coords.latitude.toFixed(6)));
-        this.longitude.setValue(parseFloat(pos.coords.longitude.toFixed(6)));
-        this.latitude.markAsDirty();
-        this.longitude.markAsDirty();
-
-        this._updatingForm = false;
+        this.form
+          .latitude()
+          .value.set(parseFloat(pos.coords.latitude.toFixed(6)));
+        this.form
+          .longitude()
+          .value.set(parseFloat(pos.coords.longitude.toFixed(6)));
+        this.form.latitude().markAsDirty();
+        this.form.longitude().markAsDirty();
 
         this.syncLatLngSignals();
         this.updateLabelOverlay();
@@ -704,10 +714,10 @@ export class GeoLocationEditor {
   // #region Marker drag
   public onMarkerDragEnd(marker: Marker): void {
     const lngLat = marker.getLngLat();
-    this.latitude.setValue(parseFloat(lngLat.lat.toFixed(6)));
-    this.longitude.setValue(parseFloat(lngLat.lng.toFixed(6)));
-    this.latitude.markAsDirty();
-    this.longitude.markAsDirty();
+    this.form.latitude().value.set(parseFloat(lngLat.lat.toFixed(6)));
+    this.form.longitude().value.set(parseFloat(lngLat.lng.toFixed(6)));
+    this.form.latitude().markAsDirty();
+    this.form.longitude().markAsDirty();
     this.syncLatLngSignals();
     this.updateRadiusOverlay();
   }
@@ -719,12 +729,17 @@ export class GeoLocationEditor {
   }
 
   public save(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    if (this.form().invalid()) {
+      this.form().markAsTouched();
       return;
     }
     this.location.set(this.getLocation());
-    this.form.markAsPristine();
+    this.form().reset();
+  }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
   }
   // #endregion
 }

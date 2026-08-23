@@ -1,4 +1,4 @@
-<form [formGroup]="form" (submit)="save()">
+<form (submit)="onFormSubmit($event)">
   <div class="editor-grid">
     <!-- LEFT COLUMN: Form controls -->
     <div class="form-column">
@@ -6,19 +6,21 @@
       <div class="form-row">
         <mat-form-field>
           <mat-label>eid</mat-label>
-          <input matInput [formControl]="eid" />
-          @if ($any(eid.errors)?.maxlength && (eid.dirty || eid.touched)) {
+          <input matInput [formField]="form.eid" />
+          @if (form.eid().getError('maxLength') && (form.eid().dirty() ||
+          form.eid().touched())) {
           <mat-error>eid too long</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field class="flex-grow">
           <mat-label>label</mat-label>
-          <input matInput [formControl]="label" />
-          @if ($any(label.errors)?.required && (label.dirty || label.touched)) {
+          <input matInput [formField]="form.label" />
+          @if (form.label().getError('required') && (form.label().dirty() ||
+          form.label().touched())) {
           <mat-error>label required</mat-error>
-          } @if ($any(label.errors)?.maxlength && (label.dirty ||
-          label.touched)) {
+          } @if (form.label().getError('maxLength') && (form.label().dirty()
+          || form.label().touched())) {
           <mat-error>label too long</mat-error>
           }
         </mat-form-field>
@@ -28,37 +30,40 @@
       <div class="form-row">
         <mat-form-field class="number-field">
           <mat-label>latitude</mat-label>
-          <input matInput type="number" step="any" [formControl]="latitude" />
-          @if ($any(latitude.errors)?.required && (latitude.dirty ||
-          latitude.touched)) {
+          <input matInput type="number" step="any" [formField]="form.latitude" />
+          @if (form.latitude().getError('required') &&
+          (form.latitude().dirty() || form.latitude().touched())) {
           <mat-error>required</mat-error>
-          } @if (($any(latitude.errors)?.min || $any(latitude.errors)?.max) &&
-          (latitude.dirty || latitude.touched)) {
+          } @if ((form.latitude().getError('min') ||
+          form.latitude().getError('max')) && (form.latitude().dirty() ||
+          form.latitude().touched())) {
           <mat-error>-90 to 90</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field class="number-field">
           <mat-label>longitude</mat-label>
-          <input matInput type="number" step="any" [formControl]="longitude" />
-          @if ($any(longitude.errors)?.required && (longitude.dirty ||
-          longitude.touched)) {
+          <input matInput type="number" step="any" [formField]="form.longitude" />
+          @if (form.longitude().getError('required') &&
+          (form.longitude().dirty() || form.longitude().touched())) {
           <mat-error>required</mat-error>
-          } @if (($any(longitude.errors)?.min || $any(longitude.errors)?.max) &&
-          (longitude.dirty || longitude.touched)) {
+          } @if ((form.longitude().getError('min') ||
+          form.longitude().getError('max')) && (form.longitude().dirty() ||
+          form.longitude().touched())) {
           <mat-error>-180 to 180</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field class="number-field">
           <mat-label>altitude (m)</mat-label>
-          <input matInput type="number" step="any" [formControl]="altitude" />
+          <input matInput type="number" step="any" [formField]="form.altitude" />
         </mat-form-field>
 
         <mat-form-field class="number-field">
           <mat-label>radius (m)</mat-label>
-          <input matInput type="number" step="any" [formControl]="radius" />
-          @if ($any(radius.errors)?.min && (radius.dirty || radius.touched)) {
+          <input matInput type="number" step="any" [formField]="form.radius" />
+          @if (form.radius().getError('min') && (form.radius().dirty() ||
+          form.radius().touched())) {
           <mat-error>must be &gt;= 0</mat-error>
           }
         </mat-form-field>
@@ -90,9 +95,9 @@
       <!-- geometry -->
       <mat-form-field class="full-width">
         <mat-label>geometry ({{ geometryFormat() }})</mat-label>
-        <textarea matInput [formControl]="geometry" rows="3"></textarea>
-        @if ($any(geometry.errors)?.maxlength && (geometry.dirty ||
-        geometry.touched)) {
+        <textarea matInput [formField]="form.geometry" rows="3"></textarea>
+        @if (form.geometry().getError('maxLength') &&
+        (form.geometry().dirty() || form.geometry().touched())) {
         <mat-error>geometry too long</mat-error>
         }
       </mat-form-field>
@@ -100,8 +105,9 @@
       <!-- note -->
       <mat-form-field class="full-width">
         <mat-label>note</mat-label>
-        <textarea matInput [formControl]="note" rows="2"></textarea>
-        @if ($any(note.errors)?.maxlength && (note.dirty || note.touched)) {
+        <textarea matInput [formField]="form.note" rows="2"></textarea>
+        @if (form.note().getError('maxLength') && (form.note().dirty() ||
+        form.note().touched())) {
         <mat-error>note too long</mat-error>
         }
       </mat-form-field>
@@ -120,7 +126,7 @@
           type="submit"
           mat-icon-button
           matTooltip="Accept changes"
-          [disabled]="form.invalid || form.pristine"
+          [disabled]="form().invalid() || !form().dirty()"
         >
           <mat-icon class="mat-primary">check_circle</mat-icon>
         </button>
@@ -144,7 +150,7 @@
           type="button"
           mat-icon-button
           matTooltip="Set point from geometry centroid"
-          [disabled]="!geometry.value"
+          [disabled]="!form.geometry().value()"
           (click)="setPointFromGeometry()"
         >
           <mat-icon>filter_center_focus</mat-icon>
@@ -223,13 +229,13 @@
         </mgl-marker>
 
         <!-- Popup at marker position (shows label + note) -->
-        @if (mapReady() && (label.value || note.value)) {
+        @if (mapReady() && (form.label().value() || form.note().value())) {
         <mgl-popup [lngLat]="pos" [closeButton]="true" [closeOnClick]="false">
           <div class="popup-content">
-            @if (label.value) {
-            <strong>{{ label.value }}</strong>
-            } @if (note.value) {
-            <p>{{ note.value }}</p>
+            @if (form.label().value()) {
+            <strong>{{ form.label().value() }}</strong>
+            } @if (form.note().value()) {
+            <p>{{ form.note().value() }}</p>
             }
           </div>
         </mgl-popup>

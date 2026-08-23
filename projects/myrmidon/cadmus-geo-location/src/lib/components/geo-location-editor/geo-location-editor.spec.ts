@@ -11,7 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ReactiveFormsModule } from '@angular/forms';
+
+import { FormField } from '@angular/forms/signals';
 
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 
@@ -110,7 +111,7 @@ class FakeLayerComponent {
 // #endregion
 
 const TEST_IMPORTS = [
-  ReactiveFormsModule,
+  FormField,
   MatButtonModule,
   MatButtonToggleModule,
   MatFormFieldModule,
@@ -137,7 +138,7 @@ async function flush(fixture: ComponentFixture<GeoLocationEditor>) {
   await fixture.whenStable();
 }
 
-/** Waits past the 600ms form.valueChanges debounce and settles the fixture. */
+/** Waits past the 600ms debounced draft -> map overlay sync. */
 async function waitForDebounce(fixture: ComponentFixture<GeoLocationEditor>) {
   await new Promise((resolve) => setTimeout(resolve, 650));
   await fixture.whenStable();
@@ -201,7 +202,7 @@ describe('GeoLocationEditor', () => {
     });
 
     it('starts with an empty/invalid form and no marker', () => {
-      expect(component.form.valid).toBe(false);
+      expect(component.form().valid()).toBe(false);
       expect(component.markerLngLat()).toBeNull();
       expect(component.drawingMode()).toBe(false);
       expect(component.activeTool()).toBeNull();
@@ -215,22 +216,22 @@ describe('GeoLocationEditor', () => {
       fixture.componentRef.setInput('location', sampleLocation);
       await flush(fixture);
 
-      expect(component.eid.value).toBe('place-123');
-      expect(component.label.value).toBe('Ancient Settlement X');
-      expect(component.latitude.value).toBe(41.8902);
-      expect(component.longitude.value).toBe(12.4922);
-      expect(component.altitude.value).toBe(35);
-      expect(component.radius.value).toBe(100);
-      expect(component.geometry.value).toBe(sampleLocation.geometry);
-      expect(component.note.value).toBe('a note');
-      expect(component.form.pristine).toBe(true);
+      expect(component.form.eid().value()).toBe('place-123');
+      expect(component.form.label().value()).toBe('Ancient Settlement X');
+      expect(component.form.latitude().value()).toBe(41.8902);
+      expect(component.form.longitude().value()).toBe(12.4922);
+      expect(component.form.altitude().value()).toBe(35);
+      expect(component.form.radius().value()).toBe(100);
+      expect(component.form.geometry().value()).toBe(sampleLocation.geometry);
+      expect(component.form.note().value()).toBe('a note');
+      expect(component.form().dirty()).toBe(false);
 
       expect(component.markerLngLat()).toEqual([12.4922, 41.8902]);
       expect(component.mapCenter()).toEqual([12.4922, 41.8902]);
       expect(component.mapZoom()).toBe(12);
     });
 
-    it('sets optional fields to null when absent from the input location', async () => {
+    it('sets optional fields to empty/null when absent from the input location', async () => {
       fixture.componentRef.setInput('location', {
         label: 'Rome',
         latitude: 41.9028,
@@ -238,11 +239,11 @@ describe('GeoLocationEditor', () => {
       } as GeoLocation);
       await flush(fixture);
 
-      expect(component.eid.value).toBeNull();
-      expect(component.altitude.value).toBeNull();
-      expect(component.radius.value).toBeNull();
-      expect(component.geometry.value).toBeNull();
-      expect(component.note.value).toBeNull();
+      expect(component.form.eid().value()).toBe('');
+      expect(component.form.altitude().value()).toBeNull();
+      expect(component.form.radius().value()).toBeNull();
+      expect(component.form.geometry().value()).toBe('');
+      expect(component.form.note().value()).toBe('');
     });
 
     it('resets the form and overlays when location is cleared', async () => {
@@ -252,7 +253,7 @@ describe('GeoLocationEditor', () => {
       fixture.componentRef.setInput('location', undefined);
       await flush(fixture);
 
-      expect(component.form.value.label).toBeFalsy();
+      expect(component.form.label().value()).toBeFalsy();
       expect(component.markerLngLat()).toBeNull();
       expect(component.geometryGeoJSON().features).toHaveLength(0);
       expect(component.radiusGeoJSON().features).toHaveLength(0);
@@ -277,15 +278,15 @@ describe('GeoLocationEditor', () => {
     it('does not update the location model when the form is invalid', () => {
       component.save();
       expect(component.location()).toBeUndefined();
-      expect(component.label.touched).toBe(true);
+      expect(component.form.label().touched()).toBe(true);
     });
 
     it('updates the location model with trimmed values on save when valid', () => {
-      component.eid.setValue('  abc  ');
-      component.label.setValue('  Rome  ');
-      component.latitude.setValue(41.9);
-      component.longitude.setValue(12.5);
-      component.note.setValue('  hi  ');
+      component.form.eid().value.set('  abc  ');
+      component.form.label().value.set('  Rome  ');
+      component.form.latitude().value.set(41.9);
+      component.form.longitude().value.set(12.5);
+      component.form.note().value.set('  hi  ');
 
       component.save();
 
@@ -299,15 +300,15 @@ describe('GeoLocationEditor', () => {
         geometry: undefined,
         note: 'hi',
       });
-      expect(component.form.pristine).toBe(true);
+      expect(component.form().dirty()).toBe(false);
     });
 
     it('falls back eid/geometry/note/altitude/radius to undefined when blank', () => {
-      component.eid.setValue('   ');
-      component.label.setValue('Rome');
-      component.latitude.setValue(41.9);
-      component.longitude.setValue(12.5);
-      component.geometry.setValue('   ');
+      component.form.eid().value.set('   ');
+      component.form.label().value.set('Rome');
+      component.form.latitude().value.set(41.9);
+      component.form.longitude().value.set(12.5);
+      component.form.geometry().value.set('   ');
 
       component.save();
 
@@ -320,12 +321,9 @@ describe('GeoLocationEditor', () => {
     });
 
     it('defaults latitude/longitude to 0 when null (defensive getLocation branch)', () => {
-      // Force save() to run getLocation() with null lat/lng by bypassing
-      // validity via a direct call - simulate through valid required fields
-      // then clearing without validators re-running (still invalid though).
-      component.label.setValue('Rome');
-      component.latitude.setValue(0);
-      component.longitude.setValue(0);
+      component.form.label().value.set('Rome');
+      component.form.latitude().value.set(0);
+      component.form.longitude().value.set(0);
       component.save();
       expect(component.location()?.latitude).toBe(0);
       expect(component.location()?.longitude).toBe(0);
@@ -343,7 +341,7 @@ describe('GeoLocationEditor', () => {
   // #region Form validation via the template
   describe('form validation errors in the template', () => {
     it('shows "label required" once the label control is touched and empty', async () => {
-      component.label.markAsTouched();
+      component.form.label().markAsTouched();
       fixture.detectChanges();
       await flush(fixture);
       fixture.detectChanges();
@@ -352,8 +350,8 @@ describe('GeoLocationEditor', () => {
     });
 
     it('shows latitude range error when out of bounds and touched', async () => {
-      component.latitude.setValue(200);
-      component.latitude.markAsTouched();
+      component.form.latitude().value.set(200);
+      component.form.latitude().markAsTouched();
       fixture.detectChanges();
       await flush(fixture);
       fixture.detectChanges();
@@ -362,8 +360,8 @@ describe('GeoLocationEditor', () => {
     });
 
     it('shows longitude range error when out of bounds and touched', async () => {
-      component.longitude.setValue(-200);
-      component.longitude.markAsTouched();
+      component.form.longitude().value.set(-200);
+      component.form.longitude().markAsTouched();
       fixture.detectChanges();
       await flush(fixture);
       fixture.detectChanges();
@@ -372,8 +370,8 @@ describe('GeoLocationEditor', () => {
     });
 
     it('shows radius min error when negative and touched', async () => {
-      component.radius.setValue(-5);
-      component.radius.markAsTouched();
+      component.form.radius().value.set(-5);
+      component.form.radius().markAsTouched();
       fixture.detectChanges();
       await flush(fixture);
       fixture.detectChanges();
@@ -382,19 +380,19 @@ describe('GeoLocationEditor', () => {
     });
 
     // Note: the template's own `@if` guards these <mat-error> blocks on
-    // `(control.dirty || control.touched)`, but Angular Material's default
-    // ErrorStateMatcher (@angular/material 22) only flips a control's
-    // mat-form-field `errorState` - which gates whether the form field's
-    // subscript wrapper renders the error slot at all - on `touched` (or
-    // form submission), not on `dirty`. In practice this means a
-    // dirty-but-not-touched control's projected <mat-error> is never
-    // actually shown by mat-form-field, even though the app's own @if
-    // condition is satisfied. We mark the controls touched here (as a real
-    // user would on blur) to reflect what is actually rendered.
+    // `(control.dirty() || control.touched())`, but Angular Material's
+    // default ErrorStateMatcher (@angular/material 22) only flips a
+    // control's mat-form-field `errorState` - which gates whether the form
+    // field's subscript wrapper renders the error slot at all - on
+    // `touched` (or form submission), not on `dirty`. In practice this
+    // means a dirty-but-not-touched control's projected <mat-error> is
+    // never actually shown by mat-form-field, even though the app's own
+    // @if condition is satisfied. We mark the controls touched here (as a
+    // real user would on blur) to reflect what is actually rendered.
     it('shows eid maxlength error once dirty and touched', async () => {
-      component.eid.setValue('x'.repeat(101));
-      component.eid.markAsDirty();
-      component.eid.markAsTouched();
+      component.form.eid().value.set('x'.repeat(101));
+      component.form.eid().markAsDirty();
+      component.form.eid().markAsTouched();
       fixture.detectChanges();
       await flush(fixture);
       fixture.detectChanges();
@@ -403,9 +401,9 @@ describe('GeoLocationEditor', () => {
     });
 
     it('shows geometry maxlength error once dirty and touched', async () => {
-      component.geometry.setValue('x'.repeat(50001));
-      component.geometry.markAsDirty();
-      component.geometry.markAsTouched();
+      component.form.geometry().value.set('x'.repeat(50001));
+      component.form.geometry().markAsDirty();
+      component.form.geometry().markAsTouched();
       fixture.detectChanges();
       await flush(fixture);
       fixture.detectChanges();
@@ -414,9 +412,9 @@ describe('GeoLocationEditor', () => {
     });
 
     it('shows note maxlength error once dirty and touched', async () => {
-      component.note.setValue('x'.repeat(1001));
-      component.note.markAsDirty();
-      component.note.markAsTouched();
+      component.form.note().value.set('x'.repeat(1001));
+      component.form.note().markAsDirty();
+      component.form.note().markAsTouched();
       fixture.detectChanges();
       await flush(fixture);
       fixture.detectChanges();
@@ -427,11 +425,11 @@ describe('GeoLocationEditor', () => {
     it("computes the eid maxlength error via the component's own @if condition even when only dirty (not touched)", () => {
       // This documents the underlying app-level condition in isolation from
       // mat-form-field's own display gating covered above.
-      component.eid.setValue('x'.repeat(101));
-      component.eid.markAsDirty();
-      expect(component.eid.errors?.['maxlength']).toBeTruthy();
-      expect(component.eid.dirty).toBe(true);
-      expect(component.eid.touched).toBe(false);
+      component.form.eid().value.set('x'.repeat(101));
+      component.form.eid().markAsDirty();
+      expect(component.form.eid().getError('maxLength')).toBeDefined();
+      expect(component.form.eid().dirty()).toBe(true);
+      expect(component.form.eid().touched()).toBe(false);
     });
 
     it('disables the submit button while the form is invalid or pristine', () => {
@@ -443,10 +441,10 @@ describe('GeoLocationEditor', () => {
     });
 
     it('enables the submit button once the form is valid and dirty', () => {
-      component.label.setValue('Rome');
-      component.label.markAsDirty();
-      component.latitude.setValue(41.9);
-      component.longitude.setValue(12.5);
+      component.form.label().value.set('Rome');
+      component.form.label().markAsDirty();
+      component.form.latitude().value.set(41.9);
+      component.form.longitude().value.set(12.5);
       fixture.detectChanges();
       const submitBtn = fixture.debugElement.query(
         By.css('button[type="submit"]'),
@@ -465,7 +463,7 @@ describe('GeoLocationEditor', () => {
       labelInput.value = 'Typed Label';
       labelInput.dispatchEvent(new Event('input'));
       fixture.detectChanges();
-      expect(component.label.value).toBe('Typed Label');
+      expect(component.form.label().value()).toBe('Typed Label');
     });
 
     it('calls cancel() when the discard button is clicked', () => {
@@ -544,7 +542,7 @@ describe('GeoLocationEditor', () => {
     });
 
     it('enables the centroid button once a geometry value is present', () => {
-      component.geometry.setValue('POINT(1 1)');
+      component.form.geometry().value.set('POINT(1 1)');
       fixture.detectChanges();
       const btn = fixture.debugElement.query(
         By.css('button[matTooltip="Set point from geometry centroid"]'),
@@ -557,7 +555,7 @@ describe('GeoLocationEditor', () => {
   // #region Debounced form -> map sync
   describe('debounced form -> map overlay sync', () => {
     it('updates the geometry overlay 600ms after typing a valid geometry', async () => {
-      component.geometry.setValue('POINT(5 6)');
+      component.form.geometry().value.set('POINT(5 6)');
       await waitForDebounce(fixture);
 
       expect(component.geometryGeoJSON().features).toHaveLength(1);
@@ -568,19 +566,19 @@ describe('GeoLocationEditor', () => {
     });
 
     it('clears the geometry overlay when the geometry becomes invalid', async () => {
-      component.geometry.setValue('POINT(5 6)');
+      component.form.geometry().value.set('POINT(5 6)');
       await waitForDebounce(fixture);
       expect(component.geometryGeoJSON().features).toHaveLength(1);
 
-      component.geometry.setValue('not a valid geometry (((');
+      component.form.geometry().value.set('not a valid geometry (((');
       await waitForDebounce(fixture);
       expect(component.geometryGeoJSON().features).toHaveLength(0);
     });
 
     it('updates the radius overlay once radius and coordinates are valid', async () => {
-      component.latitude.setValue(41.9);
-      component.longitude.setValue(12.5);
-      component.radius.setValue(500);
+      component.form.latitude().value.set(41.9);
+      component.form.longitude().value.set(12.5);
+      component.form.radius().value.set(500);
       await waitForDebounce(fixture);
 
       expect(component.radiusGeoJSON().features).toHaveLength(1);
@@ -590,18 +588,18 @@ describe('GeoLocationEditor', () => {
     });
 
     it('clears the radius overlay when radius is 0', async () => {
-      component.latitude.setValue(41.9);
-      component.longitude.setValue(12.5);
-      component.radius.setValue(0);
+      component.form.latitude().value.set(41.9);
+      component.form.longitude().value.set(12.5);
+      component.form.radius().value.set(0);
       await waitForDebounce(fixture);
 
       expect(component.radiusGeoJSON().features).toHaveLength(0);
     });
 
     it('updates the label overlay once label and coordinates are set', async () => {
-      component.latitude.setValue(41.9);
-      component.longitude.setValue(12.5);
-      component.label.setValue('Rome');
+      component.form.latitude().value.set(41.9);
+      component.form.longitude().value.set(12.5);
+      component.form.label().value.set('Rome');
       await waitForDebounce(fixture);
 
       expect(component.labelPointGeoJSON().features).toHaveLength(1);
@@ -611,17 +609,17 @@ describe('GeoLocationEditor', () => {
     });
 
     it('clears the label overlay when the label is blank', async () => {
-      component.latitude.setValue(41.9);
-      component.longitude.setValue(12.5);
-      component.label.setValue('   ');
+      component.form.latitude().value.set(41.9);
+      component.form.longitude().value.set(12.5);
+      component.form.label().value.set('   ');
       await waitForDebounce(fixture);
 
       expect(component.labelPointGeoJSON().features).toHaveLength(0);
     });
 
     it('syncs the map center when lat/lng are valid', async () => {
-      component.latitude.setValue(10);
-      component.longitude.setValue(20);
+      component.form.latitude().value.set(10);
+      component.form.longitude().value.set(20);
       await waitForDebounce(fixture);
 
       expect(component.mapCenter()).toEqual([20, 10]);
@@ -629,8 +627,8 @@ describe('GeoLocationEditor', () => {
 
     it('does not sync the map center when latitude is out of range', async () => {
       const before = component.mapCenter();
-      component.latitude.setValue(999);
-      component.longitude.setValue(20);
+      component.form.latitude().value.set(999);
+      component.form.longitude().value.set(20);
       await waitForDebounce(fixture);
 
       expect(component.mapCenter()).toEqual(before);
@@ -654,7 +652,7 @@ describe('GeoLocationEditor', () => {
 
     it('ignores map clicks when not in drawing mode', () => {
       clickAt(1, 2);
-      expect(component.latitude.value).toBeNull();
+      expect(component.form.latitude().value()).toBeNull();
       expect(component.drawingPreviewGeoJSON().features).toHaveLength(0);
     });
 
@@ -669,13 +667,13 @@ describe('GeoLocationEditor', () => {
       component.selectTool(GeoLocationDrawingTool.Point);
       clickAt(12.123456789, 41.987654321);
 
-      expect(component.longitude.value).toBeCloseTo(12.123457, 6);
-      expect(component.latitude.value).toBeCloseTo(41.987654, 6);
-      expect(component.longitude.dirty).toBe(true);
-      expect(component.latitude.dirty).toBe(true);
+      expect(component.form.longitude().value()).toBeCloseTo(12.123457, 6);
+      expect(component.form.latitude().value()).toBeCloseTo(41.987654, 6);
+      expect(component.form.longitude().dirty()).toBe(true);
+      expect(component.form.latitude().dirty()).toBe(true);
       expect(component.markerLngLat()).toEqual([
-        component.longitude.value,
-        component.latitude.value,
+        component.form.longitude().value(),
+        component.form.latitude().value(),
       ]);
     });
 
@@ -755,7 +753,7 @@ describe('GeoLocationEditor', () => {
       } as unknown as MapMouseEvent);
 
       // still just the line preview from the 2 clicks, no commit
-      expect(component.geometry.dirty).toBe(false);
+      expect(component.form.geometry().dirty()).toBe(false);
     });
 
     it('finishes a polygon on double-click once 3+ vertices exist', () => {
@@ -794,8 +792,8 @@ describe('GeoLocationEditor', () => {
       component.toggleDrawingMode(); // exit -> commit
 
       expect(component.drawingMode()).toBe(false);
-      expect(component.geometry.dirty).toBe(true);
-      expect(component.geometry.value).toContain('POLYGON');
+      expect(component.form.geometry().dirty()).toBe(true);
+      expect(component.form.geometry().value()).toContain('POLYGON');
       expect(component.activeTool()).toBeNull();
       expect(component.drawingPreviewGeoJSON().features).toHaveLength(0);
       // committed geometry is reflected in the geometry overlay too
@@ -805,8 +803,8 @@ describe('GeoLocationEditor', () => {
     it('does not touch the geometry control when exiting drawing mode without drawing anything', () => {
       component.toggleDrawingMode();
       component.toggleDrawingMode();
-      expect(component.geometry.dirty).toBe(false);
-      expect(component.geometry.value).toBeNull();
+      expect(component.form.geometry().dirty()).toBe(false);
+      expect(component.form.geometry().value()).toBe('');
     });
 
     it('serializes the drawn geometry as GeoJSON when geometryFormat is GeoJSON', () => {
@@ -822,8 +820,10 @@ describe('GeoLocationEditor', () => {
       clickAt(1, 1);
       component.toggleDrawingMode();
 
-      expect(() => JSON.parse(component.geometry.value as string)).not.toThrow();
-      const parsed = JSON.parse(component.geometry.value as string);
+      expect(() =>
+        JSON.parse(component.form.geometry().value()),
+      ).not.toThrow();
+      const parsed = JSON.parse(component.form.geometry().value());
       expect(parsed.type).toBe('Polygon');
     });
 
@@ -863,10 +863,10 @@ describe('GeoLocationEditor', () => {
   // #region clearDrawing
   describe('clearDrawing', () => {
     it('clears point, geometry and radius when confirmed', () => {
-      component.latitude.setValue(41.9);
-      component.longitude.setValue(12.5);
-      component.geometry.setValue('POINT(1 1)');
-      component.radius.setValue(100);
+      component.form.latitude().value.set(41.9);
+      component.form.longitude().value.set(12.5);
+      component.form.geometry().value.set('POINT(1 1)');
+      component.form.radius().value.set(100);
 
       dialogService.confirmResult = true;
       component.clearDrawing();
@@ -875,27 +875,27 @@ describe('GeoLocationEditor', () => {
         'Confirmation',
         'Clear location?',
       );
-      expect(component.latitude.value).toBeNull();
-      expect(component.longitude.value).toBeNull();
-      expect(component.geometry.value).toBeNull();
-      expect(component.radius.value).toBeNull();
-      expect(component.latitude.dirty).toBe(true);
-      expect(component.longitude.dirty).toBe(true);
-      expect(component.geometry.dirty).toBe(true);
+      expect(component.form.latitude().value()).toBeNull();
+      expect(component.form.longitude().value()).toBeNull();
+      expect(component.form.geometry().value()).toBe('');
+      expect(component.form.radius().value()).toBeNull();
+      expect(component.form.latitude().dirty()).toBe(true);
+      expect(component.form.longitude().dirty()).toBe(true);
+      expect(component.form.geometry().dirty()).toBe(true);
       expect(component.markerLngLat()).toBeNull();
       expect(component.geometryGeoJSON().features).toHaveLength(0);
       expect(component.radiusGeoJSON().features).toHaveLength(0);
     });
 
     it('does nothing when not confirmed', () => {
-      component.latitude.setValue(41.9);
-      component.longitude.setValue(12.5);
+      component.form.latitude().value.set(41.9);
+      component.form.longitude().value.set(12.5);
 
       dialogService.confirmResult = false;
       component.clearDrawing();
 
-      expect(component.latitude.value).toBe(41.9);
-      expect(component.longitude.value).toBe(12.5);
+      expect(component.form.latitude().value()).toBe(41.9);
+      expect(component.form.longitude().value()).toBe(12.5);
     });
   });
   // #endregion
@@ -906,29 +906,29 @@ describe('GeoLocationEditor', () => {
       const before = component.mapCenter();
       component.setPointFromGeometry();
       expect(component.mapCenter()).toEqual(before);
-      expect(component.latitude.dirty).toBe(false);
+      expect(component.form.latitude().dirty()).toBe(false);
     });
 
     it('does nothing when geometry is invalid', () => {
-      component.geometry.setValue('garbage(((');
+      component.form.geometry().value.set('garbage(((');
       const before = component.mapCenter();
       component.setPointFromGeometry();
       expect(component.mapCenter()).toEqual(before);
     });
 
     it('sets latitude/longitude from the geometry centroid when valid', () => {
-      component.geometry.setValue(
-        'POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))',
-      );
+      component.form
+        .geometry()
+        .value.set('POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))');
       component.setPointFromGeometry();
 
-      expect(component.latitude.value).toBeCloseTo(0.8, 6);
-      expect(component.longitude.value).toBeCloseTo(0.8, 6);
-      expect(component.latitude.dirty).toBe(true);
-      expect(component.longitude.dirty).toBe(true);
+      expect(component.form.latitude().value()).toBeCloseTo(0.8, 6);
+      expect(component.form.longitude().value()).toBeCloseTo(0.8, 6);
+      expect(component.form.latitude().dirty()).toBe(true);
+      expect(component.form.longitude().dirty()).toBe(true);
       expect(component.mapCenter()).toEqual([
-        component.longitude.value,
-        component.latitude.value,
+        component.form.longitude().value(),
+        component.form.latitude().value(),
       ]);
     });
   });
@@ -937,8 +937,8 @@ describe('GeoLocationEditor', () => {
   // #region recenterMap
   describe('recenterMap', () => {
     it('recenters and zooms when lat/lng are set', () => {
-      component.latitude.setValue(10);
-      component.longitude.setValue(20);
+      component.form.latitude().value.set(10);
+      component.form.longitude().value.set(20);
       component.recenterMap();
       expect(component.mapCenter()).toEqual([20, 10]);
       expect(component.mapZoom()).toBe(14);
@@ -957,19 +957,19 @@ describe('GeoLocationEditor', () => {
   // #region onMarkerDragEnd
   describe('onMarkerDragEnd', () => {
     it('updates lat/lng from the marker position and refreshes the radius overlay', () => {
-      component.latitude.setValue(0);
-      component.longitude.setValue(0);
-      component.radius.setValue(50);
+      component.form.latitude().value.set(0);
+      component.form.longitude().value.set(0);
+      component.form.radius().value.set(50);
 
       const marker = {
         getLngLat: () => ({ lat: 12.3456789, lng: 45.6789123 }),
       } as unknown as Marker;
       component.onMarkerDragEnd(marker);
 
-      expect(component.latitude.value).toBeCloseTo(12.345679, 6);
-      expect(component.longitude.value).toBeCloseTo(45.678912, 6);
-      expect(component.latitude.dirty).toBe(true);
-      expect(component.longitude.dirty).toBe(true);
+      expect(component.form.latitude().value()).toBeCloseTo(12.345679, 6);
+      expect(component.form.longitude().value()).toBeCloseTo(45.678912, 6);
+      expect(component.form.latitude().dirty()).toBe(true);
+      expect(component.form.longitude().dirty()).toBe(true);
       expect(component.radiusGeoJSON().features).toHaveLength(1);
     });
   });
@@ -1025,18 +1025,18 @@ describe('GeoLocationEditor', () => {
         configurable: true,
       });
 
-      component.geometry.setValue('POINT(1 1)');
-      component.radius.setValue(50);
+      component.form.geometry().value.set('POINT(1 1)');
+      component.form.radius().value.set(50);
 
       component.locateUser();
 
       expect(getCurrentPosition).toHaveBeenCalled();
       expect(component.locating()).toBe(false);
       expect(component.locationAccuracy()).toBe(15);
-      expect(component.latitude.value).toBeCloseTo(41.891, 6);
-      expect(component.longitude.value).toBeCloseTo(12.492, 6);
-      expect(component.geometry.value).toBeNull();
-      expect(component.radius.value).toBeNull();
+      expect(component.form.latitude().value()).toBeCloseTo(41.891, 6);
+      expect(component.form.longitude().value()).toBeCloseTo(12.492, 6);
+      expect(component.form.geometry().value()).toBe('');
+      expect(component.form.radius().value()).toBeNull();
       expect(component.mapZoom()).toBe(14);
       expect(component.mapCenter()).toEqual([12.492, 41.891]);
     });
@@ -1147,9 +1147,9 @@ describe('GeoLocationEditor via host two-way binding', () => {
   });
 
   it('propagates the saved location back to the host via [(location)]', async () => {
-    editor.label.setValue('Rome');
-    editor.latitude.setValue(41.9);
-    editor.longitude.setValue(12.5);
+    editor.form.label().value.set('Rome');
+    editor.form.latitude().value.set(41.9);
+    editor.form.longitude().value.set(12.5);
     editor.save();
     await hostFixture.whenStable();
 
