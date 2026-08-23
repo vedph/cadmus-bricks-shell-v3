@@ -9,8 +9,6 @@ import {
   output,
 } from '@angular/core';
 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -42,8 +40,6 @@ export interface LinkEditorComponentData {
 @Component({
   selector: 'cadmus-link-editor',
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,

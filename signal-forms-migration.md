@@ -71,7 +71,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 20. `cadmus-refs-proper-name` — uses `NgxToolsValidators`
 - [x] 21. `cadmus-refs-asserted-chronotope` — uses `NgxToolsValidators`
 - [x] 22. `cadmus-refs-asserted-ids`
-- [ ] 23. `cadmus-text-ed-md`
+- [x] 23. `cadmus-text-ed-md`
 
 ## Notes log
 
@@ -820,3 +820,20 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   component, including two full-library reruns after the infinite-loop
   fix (once standalone, once again after `asserted-composite-id`) to
   confirm the fix held and wasn't reintroduced.
+- **`cadmus-text-ed-md`** — final library, false positive: `LinkEditorComponent`
+  only imported `FormsModule`/`ReactiveFormsModule` without using any
+  reactive-forms API — it just hosts a nested `AssertedCompositeIdComponent`
+  (already migrated as part of `cadmus-refs-asserted-ids`) via plain
+  `[id]`/`(idChange)` bindings. Dropped the unused imports; no signal-forms
+  conversion needed, same category as `cadmus-ui-custom-action-bar` and
+  `asserted-ids`/`asserted-composite-ids` earlier in this migration. All 57
+  tests passed. **This completes the 23-library migration** — every
+  library under `projects/myrmidon/` is now free of reactive-forms usage
+  (confirmed by a workspace-wide grep for `ReactiveFormsModule|FormBuilder|
+  FormGroup|FormControl` returning zero matches under `projects/myrmidon`),
+  and `pnpm run test:lib` is green across the whole workspace. `src/app`
+  (the demo/playground app) remains on reactive forms by design — its
+  tests were already broken before this migration and it was explicitly
+  out of scope throughout; the libraries' public `model()`/`input()`/
+  `output()` signatures are unchanged, so the app still compiles against
+  them.
