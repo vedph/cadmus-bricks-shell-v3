@@ -69,12 +69,12 @@ describe('RefLookupSetComponent', () => {
 
   it('should auto-select the first config on init', async () => {
     await setup([CONFIG_A, CONFIG_B]);
-    expect(component.config.value).toBe(CONFIG_A);
+    expect(component.form.config().value()).toBe(CONFIG_A);
   });
 
   it('should leave the config unset when there are no configs', async () => {
     await setup([]);
-    expect(component.config.value).toBeNull();
+    expect(component.form.config().value()).toBeNull();
   });
 
   it('should emit configChange after debounce when the config selection changes', async () => {
@@ -82,7 +82,7 @@ describe('RefLookupSetComponent', () => {
     const emitted: RefLookupConfig[] = [];
     component.configChange.subscribe((c) => emitted.push(c));
 
-    component.config.setValue(CONFIG_B);
+    component.form.config().value.set(CONFIG_B);
     await advanceDebounce();
 
     expect(emitted).toEqual([CONFIG_B]);
@@ -93,7 +93,7 @@ describe('RefLookupSetComponent', () => {
     const emitted: RefLookupConfig[] = [];
     component.configChange.subscribe((c) => emitted.push(c));
 
-    component.config.setValue(null);
+    component.form.config().value.set(null);
     await advanceDebounce();
 
     expect(emitted).toEqual([]);

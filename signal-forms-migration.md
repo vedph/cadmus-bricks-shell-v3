@@ -64,7 +64,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 13. `cadmus-text-ed-txt`
 - [x] 14. `cadmus-mat-physical-state`
 - [x] 15. `cadmus-refs-chronotope`
-- [ ] 16. `cadmus-refs-lookup`
+- [x] 16. `cadmus-refs-lookup`
 - [ ] 17. `cadmus-refs-decorated-ids` — uses `NgxToolsValidators`
 - [ ] 18. `cadmus-refs-assertion`
 - [ ] 19. `cadmus-refs-external-ids` — has `FormArray`
@@ -423,3 +423,56 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   which now genuinely displays the error — a behavior change from the
   original, but a bugfix in the same spirit as the `citation.component.ts`
   latent-bug fix earlier in this migration.
+- **`cadmus-refs-lookup`** (4 components; `ref-lookup-doc-references` was a
+  false positive, unused `FormsModule`/`ReactiveFormsModule` imports
+  removed). The other 3 all use signal forms now.
+  - `ref-lookup`: the trickiest field type so far — `lookup` holds `any`
+    (a typed string while the user is searching, OR a full picked-item
+    object once selected, OR `null` when cleared), bound to a plain native
+    `<input matInput [matAutocomplete]="lookupAuto">`. Confirmed
+    `MatAutocompleteTrigger` itself registers `NG_VALUE_ACCESSOR`, so this
+    native `<input>` goes through the CVA path despite `matInput` alone
+    having no CVA — same "CVA presence, not tag name" rule found in
+    `cadmus-mat-physical-state`'s `matDatepicker` case. **Major new
+    finding, cost a debug cycle**: setting a signal-forms leaf field's
+    value to `undefined` (`field().value.set(undefined)`) silently
+    unmaps that field's `FieldTree` accessor — the *next* read of
+    `this.form.someField` throws `TypeError: ... is not a function`,
+    even though the exact same expression worked fine moments earlier.
+    Reproduced by porting `item.set(undefined)` / `lookup.reset()`
+    (which reactive forms treats as "clear to null/undefined"
+    interchangeably) too literally. **Fix: always use `null`, never
+    `undefined`, as the "empty" sentinel for a signal-forms field's
+    value** — matches the sentinel convention already used everywhere
+    else in this migration (`''` for strings, `null` for nullable
+    objects), now confirmed load-bearing rather than just a style
+    preference. `toObservable(this.form.lookup().value)` replaced
+    `this.lookup.valueChanges` directly with no guard needed — unlike
+    the debounced-autosave components elsewhere in this migration, this
+    field's debounce pipeline (`items$`) never writes back to any model
+    signal, so there's no model↔form echo loop to guard against.
+  - `ref-lookup-set`: single `config: RefLookupConfig | null` field
+    (a plain object value, bound only to a CVA `mat-select`, never to a
+    native input) — confirmed object-valued leaf fields work fine
+    (only `undefined` is the hazard, not "object" per se). `ngOnInit()`
+    needed `toObservable(..., { injector })` (the citation.component.ts
+    fix) since it's not the constructor; swapped the manual
+    `Subscription`/`ngOnDestroy` for `takeUntilDestroyed(destroyRef)` —
+    note `takeUntilDestroyed()` wants a `DestroyRef`, not the `Injector`
+    already on hand for `toObservable()`, so both had to be injected
+    separately.
+  - `ref-lookup-doc-reference`: two independent local forms in one
+    component (the 4-field `type`/`tag`/`citation`/`note` form, and a
+    standalone single-field `pickerType` form) — kept them as two
+    separate `signal()`+`form()` pairs rather than merging `pickerType`
+    into the main draft, specifically so that `form().reset()` (called
+    whenever the `reference` model resyncs) cannot cascade and clear
+    `pickerType`'s independent dirty/touched state, matching the
+    original's two-separate-`FormControl`s behavior exactly. Preserved
+    (did not fix) a pre-existing latent bug: `tag` never actually had a
+    `required` validator in the original, only `maxLength`, so the
+    template's "tag required" error check was always-dead code before
+    and remains always-dead code now — unlike the `chronotope` typo case,
+    this isn't a wrong error-key typo, it's a validator that was simply
+    never declared, so adding one would be a scope-creeping behavior
+    change rather than a bugfix.

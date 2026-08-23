@@ -5,7 +5,6 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -29,8 +28,6 @@ import { LookupProviderOptions } from '../ref-lookup/ref-lookup.component';
 @Component({
   selector: 'cadmus-refs-lookup-doc-references',
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,

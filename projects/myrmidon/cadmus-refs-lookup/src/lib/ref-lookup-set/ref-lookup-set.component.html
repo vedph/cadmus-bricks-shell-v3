@@ -3,7 +3,7 @@
   @if (configs().length) {
     <mat-form-field>
       <mat-label>provider</mat-label>
-      <mat-select [formControl]="config">
+      <mat-select [formField]="form.config">
         @for (c of configs(); track c.name) {
           <mat-option [value]="c">
             <div class="form-row">
@@ -20,25 +20,26 @@
           </mat-option>
         }
       </mat-select>
-      <mat-hint>{{ config.value?.description }}</mat-hint>
-      @if ($any(config).errors?.required && (config.dirty || config.touched)) {
+      <mat-hint>{{ form.config().value()?.description }}</mat-hint>
+      @if (form.config().getError('required') && (form.config().dirty() ||
+      form.config().touched())) {
         <mat-error>config required</mat-error>
       }
     </mat-form-field>
   }
 
   <!-- lookup -->
-  @if (config.value) {
+  @if (form.config().value(); as config) {
     <cadmus-refs-lookup
-      [service]="config.value.service!"
-      [item]="config.value.item"
-      [itemId]="getResolvedItemId(config.value!)"
-      [required]="config.value.required"
-      [hasMore]="config.value.hasMore"
-      [optDialog]="config.value.optDialog"
-      [options]="config.value.options"
-      [linkTemplate]="config.value.linkTemplate"
-      [label]="config.value.label"
+      [service]="config.service!"
+      [item]="config.item"
+      [itemId]="getResolvedItemId(config)"
+      [required]="config.required"
+      [hasMore]="config.hasMore"
+      [optDialog]="config.optDialog"
+      [options]="config.options"
+      [linkTemplate]="config.linkTemplate"
+      [label]="config.label"
       [lookupProviderOptions]="lookupProviderOptions()"
       (itemChange)="onItemChange($event)"
       (moreRequest)="onMoreRequest($event)"

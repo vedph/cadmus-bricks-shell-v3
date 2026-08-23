@@ -169,8 +169,8 @@ describe('LookupDocReferenceComponent', () => {
   describe('form updates from reference', () => {
     it('should reset the form when reference is undefined', async () => {
       await setup({});
-      expect(component.type.value).toBeNull();
-      expect(component.citation.value).toBe('');
+      expect(component.form.type().value()).toBe('');
+      expect(component.form.citation().value()).toBe('');
     });
 
     it('should populate the form from an input reference', async () => {
@@ -182,11 +182,11 @@ describe('LookupDocReferenceComponent', () => {
       };
       await setup({ inputs: { reference } });
 
-      expect(component.type.value).toBe('book');
-      expect(component.tag.value).toBe('primary');
-      expect(component.citation.value).toBe('α 12');
-      expect(component.note.value).toBe('a note');
-      expect(component.form.pristine).toBe(true);
+      expect(component.form.type().value()).toBe('book');
+      expect(component.form.tag().value()).toBe('primary');
+      expect(component.form.citation().value()).toBe('α 12');
+      expect(component.form.note().value()).toBe('a note');
+      expect(component.form().dirty()).toBe(false);
     });
   });
 
@@ -201,7 +201,7 @@ describe('LookupDocReferenceComponent', () => {
       await setup({
         inputs: { reference: { citation: 'α 12' } as DocReference },
       });
-      expect(component.pickerType.value).toBe('citation');
+      expect(component.pickerForm.pickerType().value()).toBe('citation');
 
       component.togglePicker();
 
@@ -245,8 +245,8 @@ describe('LookupDocReferenceComponent', () => {
 
       component.onLookupItemChange(item);
 
-      expect(component.citation.value).toBe('α 12');
-      expect(component.citation.dirty).toBe(true);
+      expect(component.form.citation().value()).toBe('α 12');
+      expect(component.form.citation().dirty()).toBe(true);
       expect(component.pickedItem()).toEqual(item);
     });
 
@@ -270,9 +270,9 @@ describe('LookupDocReferenceComponent', () => {
 
     it('should do nothing when the item has no itemId', async () => {
       await setup({});
-      const before = component.citation.value;
+      const before = component.form.citation().value();
       component.onLookupItemChange({ name: 'No id' } as any);
-      expect(component.citation.value).toBe(before);
+      expect(component.form.citation().value()).toBe(before);
     });
   });
 
@@ -280,7 +280,7 @@ describe('LookupDocReferenceComponent', () => {
     it('should update citation text when picker is expanded on citation type', async () => {
       await setup({});
       component.pickerExpanded.set(true);
-      component.pickerType.setValue('citation');
+      component.pickerForm.pickerType().value.set('citation');
 
       component.onCitationChange({
         schemeId: 'od',
@@ -292,36 +292,36 @@ describe('LookupDocReferenceComponent', () => {
 
       // by default CitSchemeService.toString() prefixes the rendered text
       // with the scheme ID (@od:), unless CitSchemeSet.noSchemePrefix is set
-      expect(component.citation.value).toBe('@od:α 12');
-      expect(component.citation.dirty).toBe(true);
+      expect(component.form.citation().value()).toBe('@od:α 12');
+      expect(component.form.citation().dirty()).toBe(true);
     });
 
     it('should ignore citation changes when the picker is not expanded', async () => {
       await setup({});
-      const before = component.citation.value;
+      const before = component.form.citation().value();
       component.onCitationChange({
         schemeId: 'od',
         steps: [{ stepId: 'book', value: 'α', n: 1 }],
       });
-      expect(component.citation.value).toBe(before);
+      expect(component.form.citation().value()).toBe(before);
     });
 
     it('should ignore an undefined citation', async () => {
       await setup({});
       component.pickerExpanded.set(true);
-      const before = component.citation.value;
+      const before = component.form.citation().value();
       component.onCitationChange(undefined);
-      expect(component.citation.value).toBe(before);
+      expect(component.form.citation().value()).toBe(before);
     });
   });
 
   describe('save/close', () => {
     it('save should set the reference model with trimmed values', async () => {
       await setup({});
-      component.type.setValue('  book  ');
-      component.tag.setValue('  primary  ');
-      component.citation.setValue('  α 12  ');
-      component.note.setValue('  hello  ');
+      component.form.type().value.set('  book  ');
+      component.form.tag().value.set('  primary  ');
+      component.form.citation().value.set('  α 12  ');
+      component.form.note().value.set('  hello  ');
 
       component.save();
 
@@ -350,7 +350,7 @@ describe('LookupDocReferenceComponent', () => {
       });
       // only 'citation' available since there are no lookup configs
       expect(component.pickers()).toEqual(['citation']);
-      expect(component.pickerType.value).toBe('citation');
+      expect(component.pickerForm.pickerType().value()).toBe('citation');
     });
   });
 });

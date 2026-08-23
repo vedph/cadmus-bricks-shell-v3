@@ -1,4 +1,4 @@
-<form [formGroup]="form">
+<form>
   <div class="form-row">
     <mat-autocomplete
       #lookupAuto="matAutocomplete"
@@ -18,7 +18,7 @@
           matInput
           type="text"
           [placeholder]="label() || 'lookup'"
-          [formControl]="lookup"
+          [formField]="form.lookup"
           [matAutocomplete]="lookupAuto"
           cadmusAutoFocus
         />

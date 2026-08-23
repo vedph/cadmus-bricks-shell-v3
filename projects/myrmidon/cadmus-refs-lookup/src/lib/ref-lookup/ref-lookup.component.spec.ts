@@ -105,7 +105,7 @@ describe('RefLookupComponent', () => {
     let results: FakeItem[] | undefined;
     component.items$.subscribe((v) => (results = v));
 
-    component.lookup.setValue('alp');
+    component.form.lookup().value.set('alp');
     await advanceDebounce();
 
     expect(service.lastFilter.text).toBe('alp');
@@ -118,7 +118,7 @@ describe('RefLookupComponent', () => {
     fixture.detectChanges();
 
     component.items$.subscribe(() => {});
-    component.lookup.setValue('be');
+    component.form.lookup().value.set('be');
     await advanceDebounce();
 
     expect(service.lastFilter.scope).toBe('test');
@@ -128,7 +128,7 @@ describe('RefLookupComponent', () => {
   it('should toggle the loading signal true while the lookup is pending, then false', async () => {
     service.delayMs = 150;
     component.items$.subscribe(() => {});
-    component.lookup.setValue('a');
+    component.form.lookup().value.set('a');
 
     // still within the 300ms debounce window: lookup not even started yet
     expect(component.loading()).toBe(false);
@@ -147,7 +147,7 @@ describe('RefLookupComponent', () => {
     component.items$.subscribe((v) => (results = v));
 
     const item: FakeItem = { id: '1', name: 'Alpha' };
-    component.lookup.setValue(item);
+    component.form.lookup().value.set(item);
     await advanceDebounce();
 
     expect(results).toEqual([item]);
@@ -160,7 +160,7 @@ describe('RefLookupComponent', () => {
     component.clear();
 
     expect(component.item()).toBeUndefined();
-    expect(component.lookup.value).toBeFalsy();
+    expect(component.form.lookup().value()).toBeFalsy();
     expect(component.lookupActive()).toBe(false);
   });
 

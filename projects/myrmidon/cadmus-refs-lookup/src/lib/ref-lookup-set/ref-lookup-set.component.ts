@@ -1,17 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  inject,
   input,
-  OnDestroy,
+  Injector,
   OnInit,
   output,
+  signal,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FieldTree, FormField, form } from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -21,7 +21,6 @@ import {
   RefLookupComponent,
   RefLookupService,
 } from '../ref-lookup/ref-lookup.component';
-import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 
 /**
  * The configuration for each lookup in a lookup set.
@@ -168,18 +167,22 @@ export interface RefLookupSetEvent {
   templateUrl: './ref-lookup-set.component.html',
   styleUrls: ['./ref-lookup-set.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatFormFieldModule,
     MatSelectModule,
     RefLookupComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RefLookupSetComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
+export class RefLookupSetComponent implements OnInit {
+  private readonly _injector = inject(Injector);
+  private readonly _destroyRef = inject(DestroyRef);
 
-  public config: FormControl<RefLookupConfig | null>;
+  private readonly _draft = signal<{ config: RefLookupConfig | null }>({
+    config: null,
+  });
+  public readonly form: FieldTree<{ config: RefLookupConfig | null }> =
+    form(this._draft);
 
   /**
    * Configuration for each lookup.
@@ -213,13 +216,13 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
    */
   public readonly moreRequest = output<RefLookupSetEvent>();
 
-  constructor(formBuilder: FormBuilder) {
-    this.config = formBuilder.control(null);
-  }
-
   public ngOnInit(): void {
-    this._sub = this.config.valueChanges
-      .pipe(distinctUntilChanged(), debounceTime(200))
+    toObservable(this.form.config().value, { injector: this._injector })
+      .pipe(
+        distinctUntilChanged(),
+        debounceTime(200),
+        takeUntilDestroyed(this._destroyRef)
+      )
       .subscribe((config) => {
         if (config) {
           this.configChange.emit(config);
@@ -228,30 +231,27 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
 
     // set the first config as the current one if any
     if (this.configs()?.length) {
-      this.config.setValue(this.configs()[0]);
+      this.form.config().value.set(this.configs()[0]);
     }
   }
 
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
-  }
-
   private itemToEvent(item: any): RefLookupSetEvent {
+    const config = this.form.config().value()!;
     return {
       configs: this.configs(),
-      config: this.config.value!,
+      config,
       item: item,
-      itemId: this.config.value!.itemIdGetter
-        ? this.config.value!.itemIdGetter(item) || (item as string)
+      itemId: config.itemIdGetter
+        ? config.itemIdGetter(item) || (item as string)
         : (item as string),
-      itemLabel: this.config.value!.itemLabelGetter
-        ? this.config.value!.itemLabelGetter(item) || (item as string)
+      itemLabel: config.itemLabelGetter
+        ? config.itemLabelGetter(item) || (item as string)
         : (item as string),
     };
   }
 
   public onItemChange(item: any): void {
-    if (!this.config.value) {
+    if (!this.form.config().value()) {
       return;
     }
     const event = this.itemToEvent(item);
@@ -270,7 +270,7 @@ export class RefLookupSetComponent implements OnInit, OnDestroy {
   }
 
   public onMoreRequest(item: any): void {
-    if (!this.config.value) {
+    if (!this.form.config().value()) {
       return;
     }
     const event = this.itemToEvent(item);

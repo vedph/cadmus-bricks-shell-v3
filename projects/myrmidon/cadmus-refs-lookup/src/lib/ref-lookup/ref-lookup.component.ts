@@ -9,13 +9,8 @@ import {
   output,
   signal,
 } from '@angular/core';
-import {
-  FormsModule,
-  ReactiveFormsModule,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-} from '@angular/forms';
+import { FieldTree, FormField, form } from '@angular/forms/signals';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
   debounceTime,
@@ -150,8 +145,7 @@ export interface LookupScopeEntry {
   styleUrls: ['./ref-lookup.component.css'],
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     // material
     MatAutocompleteModule,
     MatButtonModule,
@@ -284,18 +278,14 @@ export class RefLookupComponent {
     return entries;
   });
 
-  public form: FormGroup;
-  public lookup: FormControl;
+  private readonly _draft = signal<{ lookup: any }>({ lookup: null });
+  public readonly form: FieldTree<{ lookup: any }> = form(this._draft);
   public items$: Observable<any[]>;
 
-  constructor(formBuilder: FormBuilder, private _dialog: MatDialog) {
+  constructor(private _dialog: MatDialog) {
     this.invalid$ = new BehaviorSubject<boolean>(false);
-    this.lookup = formBuilder.control(null);
-    this.form = formBuilder.group({
-      lookup: this.lookup,
-    });
 
-    this.items$ = this.lookup.valueChanges.pipe(
+    this.items$ = toObservable(this.form.lookup().value).pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((value: any | string) => {
@@ -335,7 +325,8 @@ export class RefLookupComponent {
     effect(() => {
       const item = this.item();
       this.updateValidity();
-      this.lookup.setValue(item);
+      // null, not undefined - see clear() for why.
+      this.form.lookup().value.set(item ?? null);
     });
 
     // when required changes, update validity
@@ -377,7 +368,11 @@ export class RefLookupComponent {
 
   public clear(): void {
     this.item.set(undefined);
-    this.lookup.reset();
+    // null, not undefined: setting a signal-forms leaf field's value to
+    // undefined unmaps its FieldTree accessor (breaks this.form.lookup()
+    // on the next read) - see signal-forms-migration.md.
+    this.form.lookup().value.set(null);
+    this.form.lookup().reset();
     this.lookupActive.set(false);
   }
 

@@ -5,11 +5,12 @@ import {
   effect,
   input,
   model,
-  OnDestroy,
   output,
   signal,
 } from '@angular/core';
-import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
+import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -28,14 +29,6 @@ import {
 import { RamStorageService } from '@myrmidon/ngx-tools';
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
 import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
 import { ObjectViewComponent } from '@myrmidon/cadmus-ui-object-view';
 
@@ -57,8 +50,7 @@ export const LOOKUP_CONFIGS_KEY = 'cadmus-refs-lookup.configs';
 @Component({
   selector: 'cadmus-refs-lookup-doc-reference',
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -74,9 +66,8 @@ export const LOOKUP_CONFIGS_KEY = 'cadmus-refs-lookup.configs';
   styleUrl: './ref-lookup-doc-reference.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LookupDocReferenceComponent implements OnDestroy {
+export class LookupDocReferenceComponent {
   private _lookupConfig?: RefLookupConfig;
-  private _sub?: Subscription;
 
   /**
    * The list of thesaurus entries for doc-reference-types.
@@ -172,36 +163,29 @@ export class LookupDocReferenceComponent implements OnDestroy {
   public readonly lookupConfigs = signal<RefLookupConfig[]>([]);
   public readonly parsedCitation = signal<Citation | undefined>(undefined);
 
-  public type: FormControl<string | null>;
-  public tag: FormControl<string | null>;
-  public citation: FormControl<string>;
-  public note: FormControl<string | null>;
-  public form: FormGroup;
+  private readonly _draft = signal({
+    type: '',
+    tag: '',
+    citation: '',
+    note: '',
+  });
+  public readonly form = form(this._draft, (path) => {
+    maxLength(path.type, 50);
+    maxLength(path.tag, 50);
+    required(path.citation);
+    maxLength(path.citation, 300);
+    maxLength(path.note, 500);
+  });
 
-  public pickerType: FormControl<string>;
+  private readonly _pickerDraft = signal<{ pickerType: string }>({
+    pickerType: this.defaultPicker(),
+  });
+  public readonly pickerForm = form(this._pickerDraft);
 
   constructor(
     private _schemeService: CitSchemeService,
-    settings: RamStorageService,
-    formBuilder: FormBuilder
+    settings: RamStorageService
   ) {
-    this.type = formBuilder.control(null, Validators.maxLength(50));
-    this.tag = formBuilder.control(null, Validators.maxLength(50));
-    this.citation = formBuilder.control('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(300)],
-    });
-    this.note = formBuilder.control(null, Validators.maxLength(500));
-    this.form = formBuilder.group({
-      type: this.type,
-      tag: this.tag,
-      citation: this.citation,
-      note: this.note,
-    });
-    this.pickerType = formBuilder.control(this.defaultPicker(), {
-      nonNullable: true,
-    });
-
     this.lookupConfigs.set(
       settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || []
     );
@@ -212,15 +196,14 @@ export class LookupDocReferenceComponent implements OnDestroy {
     // when reference changes, update form
     effect(() => {
       const reference = this.reference();
-      console.log('Input reference', reference);
       this.updateForm(reference);
     });
 
     // when picker type changes, parse citation if it's citation
-    this._sub = this.pickerType.valueChanges
-      .pipe(distinctUntilChanged(), debounceTime(300))
+    toObservable(this.pickerForm.pickerType().value)
+      .pipe(distinctUntilChanged(), debounceTime(300), takeUntilDestroyed())
       .subscribe((value) => {
-        if (value === 'citation' && this.citation.value) {
+        if (value === 'citation' && this.form.citation().value()) {
           this.parseCitation();
         }
       });
@@ -228,19 +211,15 @@ export class LookupDocReferenceComponent implements OnDestroy {
     // ensure picker type is valid when available pickers change
     effect(() => {
       const availablePickers = this.pickers();
-      const currentPickerType = this.pickerType.value;
+      const currentPickerType = this.pickerForm.pickerType().value();
 
       if (
         availablePickers.length > 0 &&
         !availablePickers.includes(currentPickerType)
       ) {
-        this.pickerType.setValue(availablePickers[0]);
+        this.pickerForm.pickerType().value.set(availablePickers[0]);
       }
     });
-  }
-
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
   }
 
   public onLookupConfigChange(config: RefLookupConfig): void {
@@ -250,7 +229,7 @@ export class LookupDocReferenceComponent implements OnDestroy {
 
   private parseCitation(): void {
     const citation = this._schemeService.parse(
-      this.citation.value,
+      this.form.citation().value(),
       this._schemeService.getSchemes()[0].id,
       true // we want empty slots so we can fill them
     );
@@ -270,8 +249,8 @@ export class LookupDocReferenceComponent implements OnDestroy {
     // if expanded and picker is citation, parse citation into it
     if (
       this.pickerExpanded() &&
-      this.pickerType.value === 'citation' &&
-      this.citation.value
+      this.pickerForm.pickerType().value() === 'citation' &&
+      this.form.citation().value()
     ) {
       this.parseCitation();
     }
@@ -279,9 +258,8 @@ export class LookupDocReferenceComponent implements OnDestroy {
 
   public onLookupItemChange(item: any): void {
     if (item?.itemId) {
-      this.citation.setValue(item.itemId);
-      this.citation.markAsDirty();
-      this.citation.updateValueAndValidity();
+      this.form.citation().value.set(item.itemId);
+      this.form.citation().markAsDirty();
       this.pickedItem.set(item);
       if (this.autoCloseOnPick()) {
         this.pickerExpanded.set(false);
@@ -293,34 +271,34 @@ export class LookupDocReferenceComponent implements OnDestroy {
     if (
       !citation ||
       !this.pickerExpanded() ||
-      this.pickerType.value !== 'citation'
+      this.pickerForm.pickerType().value() !== 'citation'
     ) {
       return;
     }
-    this.citation.setValue(this._schemeService.toString(citation));
-    this.citation.markAsDirty();
-    this.citation.updateValueAndValidity();
+    this.form.citation().value.set(this._schemeService.toString(citation));
+    this.form.citation().markAsDirty();
   }
 
   private updateForm(reference?: DocReference): void {
     if (!reference) {
-      this.form.reset();
-      return;
+      this._draft.set({ type: '', tag: '', citation: '', note: '' });
+    } else {
+      this._draft.set({
+        type: reference.type || '',
+        tag: reference.tag || '',
+        citation: reference.citation,
+        note: reference.note || '',
+      });
     }
-
-    this.type.setValue(reference.type || null);
-    this.tag.setValue(reference.tag || null);
-    this.citation.setValue(reference.citation);
-    this.note.setValue(reference.note || null);
-    this.form.markAsPristine();
+    this.form().reset();
   }
 
   private getReference(): DocReference {
     return {
-      type: this.type.value?.trim(),
-      tag: this.tag.value?.trim(),
-      citation: this.citation.value?.trim(),
-      note: this.note.value?.trim(),
+      type: this.form.type().value().trim() || undefined,
+      tag: this.form.tag().value().trim() || undefined,
+      citation: this.form.citation().value().trim(),
+      note: this.form.note().value().trim() || undefined,
     };
   }
 

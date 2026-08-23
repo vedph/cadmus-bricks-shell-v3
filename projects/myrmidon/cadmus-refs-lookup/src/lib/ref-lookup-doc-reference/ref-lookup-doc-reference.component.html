@@ -1,11 +1,11 @@
-<form [formGroup]="form" (submit)="save()">
+<form (submit)="save()">
   <div class="form-row">
     <!-- type -->
     <!-- type (bound) -->
     @if (typeEntries()?.length) {
     <mat-form-field>
       <mat-label>type</mat-label>
-      <mat-select [formControl]="type">
+      <mat-select [formField]="form.type">
         @for (e of typeEntries(); track e) {
         <mat-option [value]="e.id">{{ e.value }}</mat-option>
         }
@@ -15,8 +15,9 @@
     <!-- type (free) -->
     <mat-form-field>
       <mat-label>type</mat-label>
-      <input matInput [formControl]="type" />
-      @if ($any(type).errors?.maxLength && (type.dirty || type.touched)) {
+      <input matInput [formField]="form.type" />
+      @if (form.type().getError('maxLength') && (form.type().dirty() ||
+      form.type().touched())) {
       <mat-error>type too long</mat-error>
       }
     </mat-form-field>
@@ -27,12 +28,13 @@
     @if (tagEntries()?.length) {
     <mat-form-field>
       <mat-label>tag</mat-label>
-      <mat-select [formControl]="tag">
+      <mat-select [formField]="form.tag">
         @for (e of tagEntries(); track e) {
         <mat-option [value]="e.id">{{ e.value }}</mat-option>
         }
       </mat-select>
-      @if ($any(tag).errors?.required && (tag.dirty || tag.touched)) {
+      @if (form.tag().getError('required') && (form.tag().dirty() ||
+      form.tag().touched())) {
       <mat-error>tag required</mat-error>
       }
     </mat-form-field>
@@ -40,10 +42,12 @@
     <!-- tag (free) -->
     <mat-form-field>
       <mat-label>tag</mat-label>
-      <input matInput [formControl]="tag" />
-      @if ($any(tag).errors?.required && (tag.dirty || tag.touched)) {
+      <input matInput [formField]="form.tag" />
+      @if (form.tag().getError('required') && (form.tag().dirty() ||
+      form.tag().touched())) {
       <mat-error>tag required</mat-error>
-      } @if ($any(tag).errors?.maxLength && (tag.dirty || tag.touched)) {
+      } @if (form.tag().getError('maxLength') && (form.tag().dirty() ||
+      form.tag().touched())) {
       <mat-error>tag too long</mat-error>
       }
     </mat-form-field>
@@ -51,12 +55,12 @@
     <!-- citation -->
     <mat-form-field>
       <mat-label>citation</mat-label>
-      <input matInput [formControl]="citation" />
-      @if ($any(citation).errors?.required && (citation.dirty ||
-      citation.touched)) {
+      <input matInput [formField]="form.citation" />
+      @if (form.citation().getError('required') && (form.citation().dirty()
+      || form.citation().touched())) {
       <mat-error>citation required</mat-error>
-      } @if ($any(citation).errors?.maxLength && (citation.dirty ||
-      citation.touched)) {
+      } @if (form.citation().getError('maxLength') && (form.citation().dirty()
+      || form.citation().touched())) {
       <mat-error>citation too long</mat-error>
       }
     </mat-form-field>
@@ -80,7 +84,7 @@
     @if (pickers().length) {
     <mat-form-field class="picker-type">
       <mat-label>picker type</mat-label>
-      <mat-select [formControl]="pickerType">
+      <mat-select [formField]="pickerForm.pickerType">
         @for (id of pickers(); track id) {
         <mat-option [value]="id">{{ id }}</mat-option>
         }
@@ -96,7 +100,7 @@
   >
     <fieldset>
       <legend>picker</legend>
-      @switch (pickerType.value) {
+      @switch (pickerForm.pickerType().value()) {
       <!-- lookup -->
       @case ("lookup") {
       <cadmus-refs-lookup-set
@@ -123,8 +127,9 @@
   <div>
     <mat-form-field class="long-text">
       <mat-label>note</mat-label>
-      <textarea matInput [formControl]="note"></textarea>
-      @if ($any(note).errors?.maxLength && (note.dirty || note.touched)) {
+      <textarea matInput [formField]="form.note"></textarea>
+      @if (form.note().getError('maxLength') && (form.note().dirty() ||
+      form.note().touched())) {
       <mat-error>note too long</mat-error>
       }
     </mat-form-field>
@@ -144,7 +149,7 @@
       type="submit"
       mat-icon-button
       matTooltip="Accept changes"
-      [disabled]="form.invalid || form.pristine"
+      [disabled]="form().invalid() || !form().dirty()"
     >
       <mat-icon class="mat-primary">check_circle</mat-icon>
     </button>
