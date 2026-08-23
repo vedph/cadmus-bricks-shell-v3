@@ -7,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 
-import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,7 +25,6 @@ import { CompactCitationComponent } from '../compact-citation/compact-citation.c
 @Component({
   selector: 'cadmus-refs-citation-set',
   imports: [
-    ReactiveFormsModule,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,

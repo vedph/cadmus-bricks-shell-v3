@@ -23,7 +23,7 @@
           }
         }
         <!-- toggler -->
-        @if (allowFreeMode() && scheme.value.textOptions) {
+        @if (allowFreeMode() && schemeForm.scheme().value().textOptions) {
           <button
             type="button"
             mat-icon-button
@@ -36,18 +36,18 @@
       </div>
     } @else {
       <!-- free text editor -->
-      <form [formGroup]="textForm" (submit)="setFreeMode(false)">
+      <form (submit)="onFreeFormSubmit($event)">
         <mat-form-field id="free-text-field">
           <mat-label>free text</mat-label>
-          <input matInput [formControl]="text" #free />
-          @if ($any(text).errors?.required && (text.dirty || text.touched)) {
+          <input matInput [formField]="textForm.text" #free />
+          @if (textForm.text().getError('required') && (textForm.text().dirty() || textForm.text().touched())) {
             <mat-error>text required</mat-error>
           }
-          @if ($any(text).errors?.maxLength && (text.dirty || text.touched)) {
+          @if (textForm.text().getError('maxLength') && (textForm.text().dirty() || textForm.text().touched())) {
             <mat-error>text too long</mat-error>
           }
           <mat-hint>{{
-            scheme.value.textOptions!.hint || "type citation"
+            schemeForm.scheme().value().textOptions!.hint || "type citation"
           }}</mat-hint>
           <button
             type="button"
@@ -71,11 +71,11 @@
       <!-- scheme selector -->
       @if (schemes().length > 1) {
         <mat-form-field
-          [style.border-top]="'2px solid ' + scheme.value.color"
+          [style.border-top]="'2px solid ' + schemeForm.scheme().value().color"
           id="scheme-field"
         >
           <mat-label>scheme</mat-label>
-          <mat-select [formControl]="scheme">
+          <mat-select [formField]="schemeForm.scheme">
             @for (s of schemes(); track s.id) {
               <mat-option [value]="s">
                 @if (s.color) {
@@ -85,11 +85,6 @@
               </mat-option>
             }
           </mat-select>
-          @if (
-            $any(scheme).errors?.required && (scheme.dirty || scheme.touched)
-          ) {
-            <mat-error>scheme required</mat-error>
-          }
           <mat-hint>schemes: {{ schemes().length }}</mat-hint>
         </mat-form-field>
       }
@@ -97,8 +92,8 @@
       @if (allowPartial()) {
         <mat-form-field class="step">
           <mat-label>last step</mat-label>
-          <mat-select [formControl]="lastStep">
-            @for (p of scheme.value.path; track p) {
+          <mat-select [formField]="schemeForm.lastStep">
+            @for (p of schemeForm.scheme().value().path; track p) {
               <mat-option [value]="p">{{ p }}</mat-option>
             }
           </mat-select>
@@ -119,21 +114,20 @@
         <!-- set mode -->
         @case ("set") {
           <form
-            [formGroup]="setEditorForm"
             class="form-row"
-            (submit)="saveSetStep()"
+            (submit)="onSetFormSubmit($event)"
           >
             <!-- set item -->
             <mat-form-field>
               <mat-label>set</mat-label>
-              <mat-select [formControl]="setEditorItem" id="set-field">
+              <mat-select [formField]="setEditorForm.item" id="set-field">
                 @for (item of setEditorItems(); track item) {
                   <mat-option [value]="item">{{ item }}</mat-option>
                 }
               </mat-select>
               @if (
-                $any(setEditorItem).errors?.required &&
-                (setEditorItem.dirty || setEditorItem.touched)
+                setEditorForm.item().getError('required') &&
+                (setEditorForm.item().dirty() || setEditorForm.item().touched())
               ) {
                 <mat-error>item required</mat-error>
               }
@@ -151,7 +145,7 @@
               type="submit"
               mat-icon-button
               matTooltip="Save step"
-              [disabled]="setEditorForm.invalid"
+              [disabled]="setEditorForm().invalid()"
             >
               <mat-icon class="mat-primary">check_circle</mat-icon>
             </button>
@@ -160,9 +154,8 @@
         <!-- number mode -->
         @case ("number") {
           <form
-            [formGroup]="nrEditorForm"
             class="form-row"
-            (submit)="saveNumberStep()"
+            (submit)="onNumberFormSubmit($event)"
           >
             <!-- number -->
             <mat-form-field class="nr">
@@ -171,25 +164,23 @@
                 id="nr-field"
                 matInput
                 type="number"
-                [formControl]="nrEditorValue"
-                [min]="minNrValue() || null"
-                [max]="maxNrValue() || null"
+                [formField]="nrEditorForm.value"
               />
               @if (
-                $any(nrEditorValue).errors?.required &&
-                (nrEditorValue.dirty || nrEditorValue.touched)
+                nrEditorForm.value().getError('required') &&
+                (nrEditorForm.value().dirty() || nrEditorForm.value().touched())
               ) {
                 <mat-error>number required</mat-error>
               }
               @if (
-                $any(nrEditorValue).errors?.min &&
-                (nrEditorValue.dirty || nrEditorValue.touched)
+                nrEditorForm.value().getError('min') &&
+                (nrEditorForm.value().dirty() || nrEditorForm.value().touched())
               ) {
                 <mat-error>min {{ minNrValue() }}</mat-error>
               }
               @if (
-                $any(nrEditorValue).errors?.max &&
-                (nrEditorValue.dirty || nrEditorValue.touched)
+                nrEditorForm.value().getError('max') &&
+                (nrEditorForm.value().dirty() || nrEditorForm.value().touched())
               ) {
                 <mat-error>max {{ maxNrValue() }}</mat-error>
               }
@@ -201,10 +192,10 @@
             @if (hasSuffix()) {
               <mat-form-field class="nr">
                 <mat-label>suffix</mat-label>
-                <input matInput [formControl]="nrEditorSuffix" />
+                <input matInput [formField]="nrEditorForm.suffix" />
                 @if (
-                  $any(nrEditorSuffix).errors?.pattern &&
-                  (nrEditorSuffix.dirty || nrEditorSuffix.touched)
+                  nrEditorForm.suffix().getError('pattern') &&
+                  (nrEditorForm.suffix().dirty() || nrEditorForm.suffix().touched())
                 ) {
                   <mat-error>invalid suffix</mat-error>
                 }
@@ -223,7 +214,7 @@
               type="submit"
               mat-icon-button
               matTooltip="Save step"
-              [disabled]="nrEditorForm.invalid"
+              [disabled]="nrEditorForm().invalid()"
             >
               <mat-icon class="mat-primary">check_circle</mat-icon>
             </button>
@@ -232,23 +223,22 @@
         <!-- string/masked string mode -->
         @default {
           <form
-            [formGroup]="strEditorForm"
             class="form-row"
-            (submit)="saveStringStep()"
+            (submit)="onStringFormSubmit($event)"
           >
             <!-- string -->
             <mat-form-field>
               <mat-label>string</mat-label>
-              <input matInput [formControl]="strEditorValue" id="str-field" />
+              <input matInput [formField]="strEditorForm.value" id="str-field" />
               @if (
-                $any(strEditorValue).errors?.required &&
-                (strEditorValue.dirty || strEditorValue.touched)
+                strEditorForm.value().getError('required') &&
+                (strEditorForm.value().dirty() || strEditorForm.value().touched())
               ) {
                 <mat-error>string required</mat-error>
               }
               @if (
-                $any(strEditorValue).errors?.pattern &&
-                (strEditorValue.dirty || strEditorValue.touched)
+                strEditorForm.value().getError('pattern') &&
+                (strEditorForm.value().dirty() || strEditorForm.value().touched())
               ) {
                 <mat-error>invalid string</mat-error>
               }
@@ -266,7 +256,7 @@
               type="submit"
               mat-icon-button
               matTooltip="Save step"
-              [disabled]="strEditorForm.invalid"
+              [disabled]="strEditorForm().invalid()"
             >
               <mat-icon class="mat-primary">check_circle</mat-icon>
             </button>

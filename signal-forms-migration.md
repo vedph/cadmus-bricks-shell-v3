@@ -56,7 +56,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 5. `cadmus-mat-physical-size`
 - [x] 6. `cadmus-cod-location`
 - [x] 7. `cadmus-geo-location`
-- [ ] 8. `cadmus-refs-citation`
+- [x] 8. `cadmus-refs-citation`
 - [ ] 9. `cadmus-refs-historical-date`
 - [ ] 10. `cadmus-refs-doc-references` — has `FormArray`
 - [ ] 11. `cadmus-text-block-view`
@@ -223,3 +223,54 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
     array (all 71 component-level tests fail with a single
     `NG0303: Can't bind to 'formField'` error otherwise, which does not
     point at the fixed array in the stack trace).
+- **`cadmus-refs-citation`** (3 components using forms; `citation-set` was a
+  false positive, just an unused `ReactiveFormsModule` import removed).
+  - `citation`: 5 independent local forms (scheme+lastStep, free-text,
+    set-editor, number-editor, string-editor). The number/string editors'
+    validators (min/max range, suffix pattern, mask pattern) are resolved
+    **at runtime** per edited step (looked up from the citation scheme), not
+    known statically — originally done by imperatively calling
+    `setValidators()`/`clearValidators()`/`updateValueAndValidity()` inside
+    `editStep()`. Ported to declarative `min(path, () => this.minNrValue())`
+    / `pattern(path, () => this._maskPattern())` schema rules that read
+    signals `editStep()` updates — the signal read makes the validator
+    reactive without any imperative re-validation call needed. **Found and
+    fixed a latent bug** doing this: the original only pushed
+    `Validators.min`/`Validators.max` when `stepDef.domain.range` was
+    truthy, leaving `minNrValue`/`maxNrValue` signals *stale* from a
+    previous step when it wasn't (harmless there, since the validators array
+    simply excluded them that time) — the signal-forms port had to
+    explicitly reset those signals to `undefined` when `!stepDef.domain.range`,
+    since the new validators are always-live LogicFns that would otherwise
+    keep enforcing the stale range. `toObservable()` was called inside
+    `ngOnInit()` (not the constructor) for the scheme/lastStep watchers —
+    `NG0203: toObservable() can only be used within an injection context`;
+    fixed by injecting `Injector` in the constructor and passing
+    `{ injector: this._injector }` explicitly.
+  - `compact-citation`: single-field `range` toggle form. **Important,
+    generalizable finding**, found by debugging two failing tests: an
+    `effect()` reading a signal can be **re-invoked with the exact same
+    (reference-equal) tracked value** — confirmed empirically here (logged
+    `citation() === lastSeenCitation` and saw `true` on a second,
+    unexplained re-run) — apparently whenever other signal writes happen in
+    the same view/CD cycle. `citation.component.ts` already guarded against
+    this with a `_lastParentCitation` reference check (inherited from before
+    this migration); `compact-citation` lacked the equivalent guard, and
+    without `{emitEvent:false}` to mask it, the spurious re-run's
+    model-driven `updateAB()` call clobbered a just-made interactive change
+    to `range`. **The general lesson: any `effect()` whose body has
+    non-idempotent side effects (not just "recompute the same derived
+    value") needs a `last-processed-value !== current` guard, even when the
+    tracked signal is a plain object/model reference that "shouldn't" have
+    changed.** Beyond that guard, reactively *watching* a field's value to
+    react to "the user toggled this" (as the original did via
+    `valueChanges`, relying on `{emitEvent:false}` to ignore programmatic
+    writes) doesn't have a clean signal-forms equivalent — the fix was to
+    stop watching reactively and instead handle the toggle's own `(change)`
+    DOM event explicitly (`onRangeToggle($event.checked)`), which by
+    construction only fires for genuine user interaction. This is the same
+    "explicit event handler instead of implicit reactive watch" idiom used
+    for `RefLookupComponent.onScopeChange` and the various `onXFormSubmit`
+    handlers elsewhere in this migration — worth reaching for by default
+    whenever a value-watching effect exists only to react to *user*
+    changes, not model-driven ones.

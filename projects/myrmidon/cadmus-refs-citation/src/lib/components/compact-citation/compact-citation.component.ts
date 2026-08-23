@@ -5,11 +5,9 @@ import {
   effect,
   input,
   model,
-  OnDestroy,
   signal,
 } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { distinctUntilChanged, Subscription } from 'rxjs';
+import { FieldTree, FormField, form } from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -33,7 +31,7 @@ import { CitSchemeService } from '../../services/cit-scheme.service';
 @Component({
   selector: 'cadmus-refs-compact-citation',
   imports: [
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -46,9 +44,9 @@ import { CitSchemeService } from '../../services/cit-scheme.service';
   styleUrl: './compact-citation.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CompactCitationComponent implements OnDestroy {
+export class CompactCitationComponent {
   private _dropNextUpdate = false;
-  private _sub?: Subscription;
+  private _lastCitation: Citation | CitationSpan | undefined = undefined;
 
   /**
    * The scheme keys to use in this component. The full list of schemes is
@@ -104,40 +102,47 @@ export class CompactCitationComponent implements OnDestroy {
   public readonly a = signal<Citation | undefined>(undefined);
   public readonly b = signal<Citation | undefined>(undefined);
 
-  public readonly range = new FormControl<boolean>(false, {
-    nonNullable: true,
-  });
+  private readonly _rangeDraft = signal({ range: false });
+  public readonly form: FieldTree<{ range: boolean }>;
 
   constructor(private _schemeService: CitSchemeService) {
-    this._sub = this.range.valueChanges
-      .pipe(distinctUntilChanged())
-      .subscribe((v) => {
-        this.closeCitation();
-
-        // if the range was set to true, add and edit B if missing
-        if (v && !this.b()) {
-          this.b.set(deepCopy(this.a()));
-          this.editB();
-        }
-        // if the range was set to false, remove B and save
-        if (!v && this.b()) {
-          this.b.set(undefined);
-          this.save();
-        }
-      });
+    this.form = form(this._rangeDraft);
 
     // when citation changes, update the form
     effect(() => {
+      const c = this.citation();
+      // only process if the citation actually changed from the last one we
+      // processed - effects can be re-invoked with an unchanged tracked
+      // value (e.g. interleaved with other signal writes in the same view),
+      // and re-deriving a/b/range from a stale citation would stomp on a
+      // subsequent interactive change to range
+      if (this._lastCitation === c) {
+        return;
+      }
+      this._lastCitation = c;
+
       if (this._dropNextUpdate) {
         this._dropNextUpdate = false;
         return;
       }
-      this.updateAB(this.citation());
+      this.updateAB(c);
     });
   }
 
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
+  public onRangeToggle(v: boolean): void {
+    this.form.range().value.set(v);
+    this.closeCitation();
+
+    // if the range was set to true, add and edit B if missing
+    if (v && !this.b()) {
+      this.b.set(deepCopy(this.a()));
+      this.editB();
+    }
+    // if the range was set to false, remove B and save
+    if (!v && this.b()) {
+      this.b.set(undefined);
+      this.save();
+    }
   }
 
   public onCitClick(b: boolean): void {
@@ -150,7 +155,7 @@ export class CompactCitationComponent implements OnDestroy {
 
   private updateAB(citation?: Citation | CitationSpan) {
     if (!citation) {
-      this.range.reset();
+      this._rangeDraft.set({ range: false });
       this.a.set(undefined);
       this.b.set(undefined);
       return;
@@ -160,7 +165,7 @@ export class CompactCitationComponent implements OnDestroy {
     const isSpan = !!span.a;
     this.a.set(isSpan ? (span as CitationSpan).a : (citation as Citation));
     this.b.set(isSpan ? (span as CitationSpan).b : undefined);
-    this.range.setValue(isSpan, { emitEvent: false });
+    this._rangeDraft.set({ range: isSpan });
 
     this.validate();
   }
@@ -180,7 +185,7 @@ export class CompactCitationComponent implements OnDestroy {
   }
 
   private validate(): boolean {
-    if (this.range.value) {
+    if (this.form.range().value()) {
       // in range mode, A must be set and B must be after A
       if (!this.a() || !this.b()) {
         this.formError.set('A and B are required');
@@ -228,7 +233,7 @@ export class CompactCitationComponent implements OnDestroy {
   }
 
   private save(): void {
-    if (this.range.value) {
+    if (this.form.range().value()) {
       this.citation.set(deepCopy({ a: this.a(), b: this.b() }));
     } else {
       this.citation.set(deepCopy(this.a()));

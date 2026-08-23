@@ -102,7 +102,7 @@ describe('CompactCitationComponent', () => {
     const { fixture } = await setup({ citation: CIT_A });
     expect(fixture.componentInstance.a()).toEqual(CIT_A);
     expect(fixture.componentInstance.b()).toBeUndefined();
-    expect(fixture.componentInstance.range.value).toBe(false);
+    expect(fixture.componentInstance.form.range().value()).toBe(false);
   });
 
   it('should update a/b signals and range control from an initial span citation', async () => {
@@ -110,7 +110,7 @@ describe('CompactCitationComponent', () => {
     const { fixture } = await setup({ citation: span });
     expect(fixture.componentInstance.a()).toEqual(CIT_A);
     expect(fixture.componentInstance.b()).toEqual(CIT_B);
-    expect(fixture.componentInstance.range.value).toBe(true);
+    expect(fixture.componentInstance.form.range().value()).toBe(true);
   });
 
   it('should compute defaultSchemeId from a single citation', async () => {
@@ -174,7 +174,7 @@ describe('CompactCitationComponent', () => {
 
   it('should add B and open its editor when range is toggled on', async () => {
     const { fixture } = await setup({ citation: CIT_A });
-    fixture.componentInstance.range.setValue(true);
+    fixture.componentInstance.onRangeToggle(true);
     fixture.detectChanges();
     expect(fixture.componentInstance.b()).toBeTruthy();
     expect(fixture.componentInstance.editedIndex()).toBe(1);
@@ -183,7 +183,7 @@ describe('CompactCitationComponent', () => {
   it('should remove B and save when range is toggled off', async () => {
     const span: CitationSpan = { a: CIT_A, b: CIT_B };
     const { fixture } = await setup({ citation: span });
-    fixture.componentInstance.range.setValue(false);
+    fixture.componentInstance.onRangeToggle(false);
     fixture.detectChanges();
     expect(fixture.componentInstance.b()).toBeUndefined();
     expect(fixture.componentInstance.citation()).toEqual(CIT_A);
@@ -212,7 +212,7 @@ describe('CompactCitationComponent', () => {
     // passing a span-shaped citation with only "a" makes isSpan true,
     // range true, and b undefined, which should trigger validation
     const { fixture } = await setup({ citation: { a: CIT_A } as CitationSpan });
-    expect(fixture.componentInstance.range.value).toBe(true);
+    expect(fixture.componentInstance.form.range().value()).toBe(true);
     expect(fixture.componentInstance.b()).toBeUndefined();
     expect(fixture.componentInstance.formError()).toBe('A and B are required');
   });
@@ -225,7 +225,7 @@ describe('CompactCitationComponent', () => {
 
   it('should save a valid span in range mode via onCitationChange for B', async () => {
     const { fixture } = await setup({ citation: CIT_A });
-    fixture.componentInstance.range.setValue(true);
+    fixture.componentInstance.onRangeToggle(true);
     fixture.detectChanges();
     // editedIndex should now be 1 (editing B)
     fixture.componentInstance.onCitationChange(CIT_B);

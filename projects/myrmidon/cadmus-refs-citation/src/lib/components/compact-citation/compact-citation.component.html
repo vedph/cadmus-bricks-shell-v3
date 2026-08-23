@@ -17,7 +17,11 @@
     />
     <!-- range -->
     @if (citation()) {
-    <mat-slide-toggle [formControl]="range">A-B</mat-slide-toggle>
+    <mat-slide-toggle
+      [formField]="form.range"
+      (change)="onRangeToggle($event.checked)"
+      >A-B</mat-slide-toggle
+    >
     }
   </div>
 
@@ -29,7 +33,7 @@
   >
     <fieldset>
       <!-- label -->
-      <legend>{{ !range.value || editedIndex() === 0 ? "A" : "B" }}</legend>
+      <legend>{{ !form.range().value() || editedIndex() === 0 ? "A" : "B" }}</legend>
       <!-- editor -->
       <cadmus-refs-citation
         [schemeKeys]="abSchemeKeys()"
