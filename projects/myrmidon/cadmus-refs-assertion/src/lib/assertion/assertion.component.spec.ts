@@ -4,6 +4,13 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { AssertionComponent } from './assertion.component';
 import { DocReference } from '@myrmidon/cadmus-refs-doc-references';
 
+// the signal-forms FieldTree tags each array-of-object item it adopts
+// with a hidden identity Symbol (see signal-forms-migration.md); strip it
+// via a JSON round-trip before comparing array-field reads with toEqual.
+function clean<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value));
+}
+
 describe('AssertionComponent', () => {
   it('should render', async () => {
     const { fixture } = await render(AssertionComponent, {
@@ -17,10 +24,10 @@ describe('AssertionComponent', () => {
       providers: [provideNoopAnimations()],
     });
     const component = fixture.componentInstance;
-    expect(component.tag.value).toBeNull();
-    expect(component.rank.value).toBe(0);
-    expect(component.note.value).toBeNull();
-    expect(component.references.value).toEqual([]);
+    expect(component.form.tag().value()).toBe('');
+    expect(component.form.rank().value()).toBe(0);
+    expect(component.form.note().value()).toBe('');
+    expect(component.form.references().value()).toEqual([]);
     expect(component.defaultPicker()).toBe('citation');
     expect(component.visualExpanded()).toBe(false);
   });
@@ -35,10 +42,10 @@ describe('AssertionComponent', () => {
     component.assertion.set({ tag: 'tag1', rank: 3, note: 'note1', references: refs });
     fixture.detectChanges();
 
-    expect(component.tag.value).toBe('tag1');
-    expect(component.rank.value).toBe(3);
-    expect(component.note.value).toBe('note1');
-    expect(component.references.value).toEqual(refs);
+    expect(component.form.tag().value()).toBe('tag1');
+    expect(component.form.rank().value()).toBe(3);
+    expect(component.form.note().value()).toBe('note1');
+    expect(clean(component.form.references().value())).toEqual(refs);
   });
 
   it('should reset the form when the assertion is set to undefined', async () => {
@@ -53,13 +60,13 @@ describe('AssertionComponent', () => {
     component.assertion.set(undefined);
     fixture.detectChanges();
 
-    expect(component.tag.value).toBeNull();
-    expect(component.rank.value).toBe(0);
-    expect(component.note.value).toBeNull();
-    expect(component.references.value).toEqual([]);
+    expect(component.form.tag().value()).toBe('');
+    expect(component.form.rank().value()).toBe(0);
+    expect(component.form.note().value()).toBe('');
+    expect(component.form.references().value()).toEqual([]);
   });
 
-  it('should treat missing tag/note in the assertion as null form values', async () => {
+  it('should treat missing tag/note in the assertion as empty form values', async () => {
     const { fixture } = await render(AssertionComponent, {
       providers: [provideNoopAnimations()],
     });
@@ -68,9 +75,9 @@ describe('AssertionComponent', () => {
     component.assertion.set({ rank: 1 });
     fixture.detectChanges();
 
-    expect(component.tag.value).toBeNull();
-    expect(component.note.value).toBeNull();
-    expect(component.references.value).toEqual([]);
+    expect(component.form.tag().value()).toBe('');
+    expect(component.form.note().value()).toBe('');
+    expect(component.form.references().value()).toEqual([]);
   });
 
   it('should build and set the assertion from form values on saveAssertion', async () => {
@@ -79,9 +86,9 @@ describe('AssertionComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    component.tag.setValue('  t1  ');
-    component.rank.setValue(2);
-    component.note.setValue('  n1  ');
+    component.form.tag().value.set('  t1  ');
+    component.form.rank().value.set(2);
+    component.form.note().value.set('  n1  ');
     component.saveAssertion();
 
     expect(component.assertion()).toEqual({
@@ -98,8 +105,8 @@ describe('AssertionComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    component.tag.setValue('  spaced  ');
-    component.rank.setValue(1);
+    component.form.tag().value.set('  spaced  ');
+    component.form.rank().value.set(1);
     component.saveAssertion();
 
     expect(component.assertion()?.tag).toBe('spaced');
@@ -123,7 +130,7 @@ describe('AssertionComponent', () => {
     const component = fixture.componentInstance;
     const refs: DocReference[] = [{ citation: 'c1' }];
 
-    component.references.setValue(refs);
+    component.form.references().value.set(refs);
     component.saveAssertion();
 
     expect(component.assertion()).toEqual({
@@ -141,10 +148,10 @@ describe('AssertionComponent', () => {
     const component = fixture.componentInstance;
     const refs: DocReference[] = [{ citation: 'c1' }, { citation: 'c2' }];
 
-    component.tag.setValue('t');
+    component.form.tag().value.set('t');
     component.onReferencesChange(refs);
 
-    expect(component.references.value).toEqual(refs);
+    expect(clean(component.form.references().value())).toEqual(refs);
     expect(component.assertion()?.references).toEqual(refs);
   });
 
@@ -154,7 +161,7 @@ describe('AssertionComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    component.tag.setValue('user-typed');
+    component.form.tag().value.set('user-typed');
     // wait past the 300ms debounce
     await new Promise((resolve) => setTimeout(resolve, 400));
     fixture.detectChanges();

@@ -66,7 +66,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 15. `cadmus-refs-chronotope`
 - [x] 16. `cadmus-refs-lookup`
 - [x] 17. `cadmus-refs-decorated-ids` — uses `NgxToolsValidators`
-- [ ] 18. `cadmus-refs-assertion`
+- [x] 18. `cadmus-refs-assertion`
 - [ ] 19. `cadmus-refs-external-ids` — has `FormArray`
 - [ ] 20. `cadmus-refs-proper-name` — uses `NgxToolsValidators`
 - [ ] 21. `cadmus-refs-asserted-chronotope` — uses `NgxToolsValidators`
@@ -523,4 +523,52 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   own properties in its comparison. **General lesson for any future
   array-of-objects field**: never adopt a caller-supplied object array
   reference directly into a draft signal - always `.map()` it into fresh
+  objects first, both coming in and going back out.
+  **Post-migration audit**: dispatched a research pass over all 16
+  previously-migrated libraries specifically checking for this same
+  array-of-objects-adopted-by-reference hazard - none found (every other
+  array-of-object field either lives only on the external model, never
+  entering a draft signal, or `cadmus-refs-doc-references`, which already
+  had the map-in/map-out defense independently, just not previously
+  called out in this log). One adjacent, narrower-scope finding flagged
+  but not fixed: `cadmus-refs-lookup`'s `ref-lookup-set.component.ts`
+  passes a single external `RefLookupConfig` object (not an array) by
+  reference into its draft field - unconfirmed whether the same
+  Symbol-tagging mutation applies to single-object (non-array) fields;
+  worth a follow-up look if it ever causes a visible issue, but no test
+  currently exercises it and single-object identity tracking has no
+  obvious reason to need the same reordering-support machinery arrays do.
+- **`cadmus-refs-assertion`**: 4-field form (`tag`/`rank`/`note`/
+  `references`) with both a debounced autosave AND a `references` array
+  managed by the same map-in/map-out defense as `decorated-ids`.
+  **Real correctness subtlety, caught by an existing test** (`should not
+  autosave a debounced no-op after an externally set assertion`): this
+  component trims `tag`/`note` on the way OUT (`getAssertion()`) but not
+  on the way IN (`updateForm()`), so a content-equality guard comparing
+  "freshly computed output" against "current model" (the pattern that
+  worked fine for `datation`/`chronotope`) does NOT work here - an
+  external `assertion.set({tag: '  untrimmed  ', ...})` produces a
+  draft whose computed output (`'untrimmed'`, trimmed) genuinely differs
+  from the current model (`'  untrimmed  '`, untrimmed), so a naive
+  equality check would wrongly treat the post-sync debounce firing as a
+  real edit and stomp the untrimmed model value. The original reactive-
+  forms code solved this with an `_updatingForm` boolean checked via
+  `filter()` placed before `debounceTime()` in the pipe - reactive
+  forms' `valueChanges` fires synchronously inside `setValue()`, so the
+  flag is still `true` at the moment the filter checks it, even though
+  it's reset to `false` immediately afterward. Porting that flag naively
+  to `toObservable()` fails exactly as documented in the
+  `cadmus-geo-location` entry above: `toObservable()`'s emission is
+  deferred through its own internal `effect()`, so by the time the
+  debounced subscriber's callback runs, a synchronously-cleared flag has
+  long since flipped back to `false`. **Fix**: replace the flag with a
+  `_lastSyncedDraft` JSON snapshot, captured whenever `updateForm()`
+  writes the draft (both from an external sync and, redundantly but
+  harmlessly, at the end of `saveAssertion()`) and compared against the
+  current draft's JSON at the moment the debounce fires - if they
+  match, nothing has genuinely changed since the last sync/save, so skip;
+  this sidesteps the trim-asymmetry entirely because it compares the raw
+  draft against its own prior raw snapshot, never against the
+  differently-shaped (trimmed) output. Combined with the usual effect-side
+  `_lastAssertion`/`_hasLastAssertion` reference guard on the model.
   objects first, both coming in and going back out.

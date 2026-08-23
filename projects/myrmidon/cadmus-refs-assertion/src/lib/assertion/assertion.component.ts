@@ -1,23 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  input,
-  model,
-  OnDestroy,
-  OnInit,
-  signal,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { debounceTime, filter } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import { ChangeDetectionStrategy, Component, effect, input, model, signal } from '@angular/core';
+import { FormField, form, maxLength, min } from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs';
 
 // material
 import { MatBadgeModule } from '@angular/material/badge';
@@ -48,6 +32,17 @@ export interface Assertion {
   references?: DocReference[];
 }
 
+interface AssertionControls {
+  tag: string;
+  rank: number;
+  note: string;
+  references: DocReference[];
+}
+
+function makeDefaultDraft(): AssertionControls {
+  return { tag: '', rank: 0, note: '', references: [] };
+}
+
 /**
  * Editor for an assertion with optional references.
  */
@@ -56,8 +51,7 @@ export interface Assertion {
   templateUrl: './assertion.component.html',
   styleUrls: ['./assertion.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     // material
     MatBadgeModule,
     MatButtonModule,
@@ -71,16 +65,29 @@ export interface Assertion {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AssertionComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
-  private _updatingForm?: boolean;
-  private _dropNextInput?: boolean;
+export class AssertionComponent {
+  // set synchronously wherever `assertion` is written (not inside the
+  // effect below), paired with _hasLastAssertion since undefined is both
+  // "never saved yet" and a legitimate real value - see
+  // signal-forms-migration.md.
+  private _lastAssertion: Assertion | undefined = undefined;
+  private _hasLastAssertion = false;
+  // a JSON snapshot of the draft as of the last updateForm() sync,
+  // recorded so the debounced autosave can tell "the draft changed only
+  // because updateForm() just wrote it" apart from a real user edit,
+  // without relying on a synchronous flag - toObservable()'s emission is
+  // deferred (its own internal effect), so a flag set-then-cleared
+  // synchronously inside updateForm() would always read back false by
+  // the time the debounced subscriber saw it (the same hazard found
+  // while porting cadmus-geo-location).
+  private _lastSyncedDraft = '';
 
-  public tag: FormControl<string | null>;
-  public rank: FormControl<number>;
-  public note: FormControl<string | null>;
-  public references: FormControl<DocReference[]>;
-  public form: FormGroup;
+  private readonly _draft = signal<AssertionControls>(makeDefaultDraft());
+  public readonly form = form(this._draft, (path) => {
+    maxLength(path.tag, 50);
+    maxLength(path.note, 500);
+    min(path.rank, 0);
+  });
 
   // assertion-tags
   public readonly assTagEntries = input<ThesaurusEntry[]>();
@@ -117,74 +124,58 @@ export class AssertionComponent implements OnInit, OnDestroy {
 
   public readonly visualExpanded = signal<boolean>(false);
 
-  constructor(formBuilder: FormBuilder) {
-    this.tag = formBuilder.control(null, Validators.maxLength(50));
-    this.rank = formBuilder.control(0, { nonNullable: true });
-    this.note = formBuilder.control(null, Validators.maxLength(500));
-    this.references = formBuilder.control([], { nonNullable: true });
-    this.form = formBuilder.group({
-      tag: this.tag,
-      rank: this.rank,
-      note: this.note,
-      references: this.references,
-    });
-
+  constructor() {
     // when assertion changes, update form
     effect(() => {
-      if (this._dropNextInput) {
-        this._dropNextInput = false;
+      const assertion = this.assertion();
+      if (this._hasLastAssertion && this._lastAssertion === assertion) {
         return;
       }
-      this.updateForm(this.assertion());
+      this._lastAssertion = assertion;
+      this._hasLastAssertion = true;
+      this.updateForm(assertion);
     });
-  }
 
-  public ngOnInit(): void {
-    this._sub = this.form.valueChanges
-      .pipe(
-        // react only on user changes, i.e. those not caused by updateForm
-        // reacting to an externally set assertion. This check must happen
-        // before debounceTime, as _updatingForm is reset synchronously right
-        // after updateForm's setValue calls, well before any debounced
-        // emission would reach a check placed after debounceTime.
-        filter(() => !this._updatingForm),
-        debounceTime(300)
-      )
-      .subscribe((_) => {
+    // autosave
+    toObservable(this._draft)
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe(() => {
+        if (JSON.stringify(this._draft()) === this._lastSyncedDraft) {
+          return;
+        }
         this.saveAssertion();
       });
   }
 
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
-  }
-
   public onReferencesChange(references: DocReference[]): void {
-    this.references.setValue(references, { emitEvent: false });
+    this.form
+      .references()
+      .value.set(references.map((r) => ({ ...r })));
     this.saveAssertion();
   }
 
   private updateForm(value: Assertion | undefined): void {
-    this._updatingForm = true;
-    if (!value) {
-      this.form.reset();
-    } else {
-      this.tag.setValue(value.tag || null);
-      this.rank.setValue(value.rank);
-      this.note.setValue(value.note || null);
-      this.references.setValue(value.references || []);
-      this.form.markAsPristine();
-    }
-    this._updatingForm = false;
+    const draft = !value
+      ? makeDefaultDraft()
+      : {
+          tag: value.tag || '',
+          rank: value.rank,
+          note: value.note || '',
+          references: (value.references || []).map((r) => ({ ...r })),
+        };
+    this._draft.set(draft);
+    this._lastSyncedDraft = JSON.stringify(draft);
+    this.form().reset();
   }
 
   private getAssertion(): Assertion | undefined {
-    const assertion = {
-      tag: this.tag.value?.trim(),
-      rank: this.rank.value,
-      note: this.note.value?.trim(),
-      references: this.references.value?.length
-        ? this.references.value
+    const v = this._draft();
+    const assertion: Assertion = {
+      tag: v.tag.trim() || undefined,
+      rank: v.rank,
+      note: v.note.trim() || undefined,
+      references: v.references.length
+        ? v.references.map((r) => ({ ...r }))
         : undefined,
     };
     if (
@@ -199,7 +190,10 @@ export class AssertionComponent implements OnInit, OnDestroy {
   }
 
   public saveAssertion(): void {
-    this._dropNextInput = true;
-    this.assertion.set(this.getAssertion());
+    const next = this.getAssertion();
+    this._lastAssertion = next;
+    this._hasLastAssertion = true;
+    this._lastSyncedDraft = JSON.stringify(this._draft());
+    this.assertion.set(next);
   }
 }
