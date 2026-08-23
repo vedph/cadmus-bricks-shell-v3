@@ -1,5 +1,5 @@
-<form [formGroup]="form">
-  <div formArrayName="refsArr">
+<form>
+  <div>
     <!-- add -->
     <div>
       <button
@@ -12,11 +12,11 @@
       </button>
     </div>
     <!-- list -->
-    @for ( item of refsArr.controls; track item; let i = $index; let first =
+    @for ( item of form.references; track $index; let i = $index; let first =
     $first; let last = $last) {
     <div>
       <!-- child form -->
-      <div [formGroupName]="i" class="form-row">
+      <div class="form-row">
         <!-- child actions -->
         <div class="button-row">
           <span class="nr">{{ i + 1 }}.</span>
@@ -53,7 +53,7 @@
           @if (typeEntries()) {
           <mat-form-field>
             <mat-label>type</mat-label>
-            <mat-select formControlName="type">
+            <mat-select [formField]="item.type">
               @for (e of typeEntries(); track e) {
               <mat-option [value]="e.id">
                 {{ e.value }}
@@ -66,10 +66,9 @@
           @else {
           <mat-form-field>
             <mat-label>type</mat-label>
-            <input matInput formControlName="type" />
-            @if ( $any(item)['controls'].type.hasError('max-length') &&
-            ($any(item)['controls'].type.dirty ||
-            $any(item)['controls'].type.touched) ) {
+            <input matInput [formField]="item.type" />
+            @if ( item.type().getError('maxLength') && (item.type().dirty()
+            || item.type().touched()) ) {
             <mat-error>type too long </mat-error>
             }
           </mat-form-field>
@@ -80,7 +79,7 @@
           @if (tagEntries()) {
           <mat-form-field>
             <mat-label>tag</mat-label>
-            <mat-select formControlName="tag">
+            <mat-select [formField]="item.tag">
               @for (e of tagEntries(); track e) {
               <mat-option [value]="e.id">
                 {{ e.value }}
@@ -93,10 +92,9 @@
           @else {
           <mat-form-field>
             <mat-label>tag</mat-label>
-            <input matInput formControlName="tag" />
-            @if ( $any(item)['controls'].tag.hasError('max-length') &&
-            ($any(item)['controls'].tag.dirty ||
-            $any(item)['controls'].tag.touched) ) {
+            <input matInput [formField]="item.tag" />
+            @if ( item.tag().getError('maxLength') && (item.tag().dirty()
+            || item.tag().touched()) ) {
             <mat-error>tag too long </mat-error>
             }
           </mat-form-field>
@@ -105,20 +103,18 @@
         <!-- citation -->
         <mat-form-field style="flex: 1 0 1fr">
           <mat-label>citation</mat-label>
-          <input matInput formControlName="citation" #author />
-          @if ( $any(item)['controls'].citation.hasError('max-length') &&
-          ($any(item)['controls'].citation.dirty ||
-          $any(item)['controls'].citation.touched) ) {
+          <input matInput [formField]="item.citation" #author />
+          @if ( item.citation().getError('maxLength') &&
+          (item.citation().dirty() || item.citation().touched()) ) {
           <mat-error>citation too long </mat-error>
           }
         </mat-form-field>
         <!-- note -->
         <mat-form-field style="flex: 1 0 1fr">
           <mat-label>note</mat-label>
-          <input matInput formControlName="note" />
-          @if ( $any(item)['controls'].note.hasError('max-length') &&
-          ($any(item)['controls'].note.dirty ||
-          $any(item)['controls'].note.touched) ) {
+          <input matInput [formField]="item.note" />
+          @if ( item.note().getError('maxLength') && (item.note().dirty()
+          || item.note().touched()) ) {
           <mat-error>note too long </mat-error>
           }
         </mat-form-field>

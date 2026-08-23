@@ -7,16 +7,18 @@ import {
   model,
   OnDestroy,
   QueryList,
+  signal,
   ViewChildren,
 } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  applyEach,
+  FieldTree,
+  FormField,
+  form,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
 import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -36,6 +38,16 @@ export interface DocReference {
   tag?: string;
   citation: string;
   note?: string;
+}
+
+/**
+ * The editable controls for a single reference row.
+ */
+interface DocReferenceControls {
+  type: string;
+  tag: string;
+  citation: string;
+  note: string;
 }
 
 /**
@@ -59,8 +71,7 @@ export interface DocReference {
   templateUrl: './doc-references.component.html',
   styleUrls: ['./doc-references.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -70,10 +81,10 @@ export interface DocReference {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocReferencesComponent implements AfterViewInit, OnDestroy {
-  private _updatingForm: boolean | undefined;
-  private _dropNextInput?: boolean;
+  private _lastReferences: DocReference[] | undefined = undefined;
+  private _hasLastReferences = false;
+  private _suppressAuthorFocus = false;
   private _authorSubscription: Subscription | undefined;
-  private _subs: Subscription[];
 
   @ViewChildren('author') authorQueryList: QueryList<any> | undefined;
 
@@ -87,25 +98,45 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
   // doc-reference-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
 
-  public refsArr: FormArray;
-  public form: FormGroup;
+  private readonly _draft = signal<{ references: DocReferenceControls[] }>({
+    references: [],
+  });
+  public readonly form: FieldTree<{ references: DocReferenceControls[] }>;
 
-  constructor(private _formBuilder: FormBuilder) {
-    this._subs = [];
-    // form
-    this.refsArr = _formBuilder.array([]);
-    this.form = _formBuilder.group({
-      refsArr: this.refsArr,
+  constructor() {
+    this.form = form(this._draft, (path) => {
+      applyEach(path.references, (item) => {
+        maxLength(item.type, 50);
+        maxLength(item.tag, 50);
+        required(item.citation);
+        maxLength(item.citation, 100);
+        maxLength(item.note, 300);
+      });
     });
 
-    // when references change, update form
+    // when references change, update form. `_lastReferences` is set
+    // synchronously by saveReferences() at the moment it writes `references`
+    // (see below), so this guard recognizes "this is an echo of our own
+    // save" purely by reference, regardless of how much the draft may have
+    // moved on by the time this effect actually runs (effects are
+    // deferred, so further draft edits can legitimately happen first) - a
+    // content-based comparison against the *current* draft would get this
+    // wrong, since it would see the stale echoed value as "different from
+    // the current draft" and stomp the newer edit trying to "fix" it.
     effect(() => {
-      if (this._dropNextInput) {
-        this._dropNextInput = false;
+      const refs = this.references();
+      if (this._hasLastReferences && this._lastReferences === refs) {
         return;
       }
-      this.updateForm(this.references());
+      this.updateForm(refs || []);
     });
+
+    // autosave on any row edit (add/remove/move already save synchronously)
+    toObservable(this._draft)
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe(() => {
+        this.saveReferences();
+      });
   }
 
   public ngAfterViewInit(): void {
@@ -113,145 +144,112 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
     this._authorSubscription = this.authorQueryList?.changes
       .pipe(debounceTime(300))
       .subscribe((lst: QueryList<any>) => {
-        if (!this._updatingForm && lst.length > 0) {
+        const suppress = this._suppressAuthorFocus;
+        this._suppressAuthorFocus = false;
+        if (!suppress && lst.length > 0) {
           lst.last.nativeElement.focus();
         }
       });
   }
 
-  private unsubscribeIds(): void {
-    for (let i = 0; i < this._subs.length; i++) {
-      this._subs[i].unsubscribe();
-    }
-  }
-
   public ngOnDestroy(): void {
-    this.unsubscribeIds();
     this._authorSubscription?.unsubscribe();
   }
 
   // #region Authors
-  private getReferenceGroup(reference?: DocReference): FormGroup {
-    return this._formBuilder.group({
-      type: this._formBuilder.control(
-        reference?.type,
-        Validators.maxLength(50)
-      ),
-      tag: this._formBuilder.control(reference?.tag, [
-        Validators.maxLength(50),
-      ]),
-      citation: this._formBuilder.control(reference?.citation, [
-        Validators.required,
-        Validators.maxLength(100),
-      ]),
-      note: this._formBuilder.control(reference?.note, [
-        Validators.maxLength(300),
-      ]),
-    });
+  private toControls(reference?: DocReference): DocReferenceControls {
+    return {
+      type: reference?.type || '',
+      tag: reference?.tag || '',
+      citation: reference?.citation || '',
+      note: reference?.note || '',
+    };
   }
 
   public addReference(reference?: DocReference): void {
-    const g = this.getReferenceGroup(reference);
-    this._subs.push(
-      g.valueChanges.pipe(debounceTime(300)).subscribe((_) => {
-        this.saveReferences();
-      })
-    );
-    this.refsArr.push(g);
-
-    if (!this._updatingForm) {
-      this.saveReferences();
-    }
-  }
-
-  public removeReference(index: number): void {
-    this._subs[index].unsubscribe();
-    this._subs.splice(index, 1);
-    this.refsArr.removeAt(index);
+    this._draft.update((v) => ({
+      references: [...v.references, this.toControls(reference)],
+    }));
     this.saveReferences();
   }
 
-  private swapArrElems(a: any[], i: number, j: number): void {
-    if (i === j) {
-      return;
-    }
-    const t = a[i];
-    a[i] = a[j];
-    a[j] = t;
+  public removeReference(index: number): void {
+    this._draft.update((v) => ({
+      references: v.references.filter((_, i) => i !== index),
+    }));
+    this.saveReferences();
   }
 
   public moveReferenceUp(index: number): void {
     if (index < 1) {
       return;
     }
-    const ctl = this.refsArr.controls[index];
-    this.refsArr.removeAt(index);
-    this.refsArr.insert(index - 1, ctl);
-
-    this.swapArrElems(this._subs, index, index - 1);
-
+    this._draft.update((v) => {
+      const references = [...v.references];
+      const item = references[index];
+      references.splice(index, 1);
+      references.splice(index - 1, 0, item);
+      return { references };
+    });
     this.saveReferences();
   }
 
   public moveReferenceDown(index: number): void {
-    if (index + 1 >= this.refsArr.length) {
+    if (index + 1 >= this._draft().references.length) {
       return;
     }
-    const ctl = this.refsArr.controls[index];
-    this.refsArr.removeAt(index);
-    this.refsArr.insert(index + 1, ctl);
-
-    this.swapArrElems(this._subs, index, index + 1);
-
+    this._draft.update((v) => {
+      const references = [...v.references];
+      const item = references[index];
+      references.splice(index, 1);
+      references.splice(index + 1, 0, item);
+      return { references };
+    });
     this.saveReferences();
   }
 
   public clearReferences(): void {
-    this.refsArr.clear();
-    this.unsubscribeIds();
-    this._subs = [];
-    if (!this._updatingForm) {
-      this.saveReferences();
-    }
+    this._draft.set({ references: [] });
+    this.saveReferences();
   }
   // #endregion
 
   protected updateForm(value: DocReference[]): void {
-    if (!this.refsArr) {
-      return;
-    }
-    this._updatingForm = true;
-    this.clearReferences();
-
-    if (!value) {
-      this.form.reset();
-    } else {
-      for (const r of value) {
-        this.addReference(r);
-      }
-      this.form.markAsPristine();
-    }
-    this._updatingForm = false;
+    this._suppressAuthorFocus = true;
+    this._draft.set({
+      references: (value || []).map((r) => this.toControls(r)),
+    });
+    this.form().reset();
   }
 
   protected getReferences(): DocReference[] {
-    const references: DocReference[] = [];
+    return this._draft().references.map((r) => ({
+      type: r.type ? r.type.trim() : undefined,
+      tag: r.tag ? r.tag.trim() : undefined,
+      citation: r.citation ? r.citation.trim() : undefined,
+      note: r.note ? r.note.trim() : undefined,
+    })) as DocReference[];
+  }
 
-    for (let i = 0; i < this.refsArr.length; i++) {
-      const g = this.refsArr.controls[i] as FormGroup;
-      references.push({
-        type: g.controls['type'].value?.trim(),
-        tag: g.controls['tag'].value?.trim(),
-        citation: g.controls['citation']?.value?.trim(),
-        note: g.controls['note'].value?.trim(),
-      });
+  private referencesEqual(a: DocReference[], b?: DocReference[]): boolean {
+    if (!b || a.length !== b.length) {
+      return false;
     }
-
-    return references;
+    return a.every(
+      (r, i) =>
+        r.type === b[i].type &&
+        r.tag === b[i].tag &&
+        r.citation === b[i].citation &&
+        r.note === b[i].note,
+    );
   }
 
   public saveReferences(): void {
-    this._dropNextInput = true;
-    this.references.set(this.getReferences());
+    const next = this.getReferences();
+    if (!this.referencesEqual(next, this.references())) {
+      this._lastReferences = next;
+      this._hasLastReferences = true;
+      this.references.set(next);
+    }
   }
 }

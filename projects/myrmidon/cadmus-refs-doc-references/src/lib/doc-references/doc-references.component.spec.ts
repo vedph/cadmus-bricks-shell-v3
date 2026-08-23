@@ -12,7 +12,7 @@ describe('DocReferencesComponent', () => {
     const { fixture } = await render(DocReferencesComponent);
     const component = fixture.componentInstance;
     expect(component.references()).toEqual([]);
-    expect(component.refsArr.length).toBe(0);
+    expect(component.form.references.length).toBe(0);
   });
 
   it('should populate the form when references are set externally', async () => {
@@ -26,20 +26,20 @@ describe('DocReferencesComponent', () => {
     component.references.set(refs);
     fixture.detectChanges();
 
-    expect(component.refsArr.length).toBe(2);
-    expect(component.refsArr.at(0).value).toEqual({
+    expect(component.form.references.length).toBe(2);
+    expect(component.form.references[0]().value()).toMatchObject({
       type: 't1',
       tag: 'g1',
       citation: 'c1',
       note: 'n1',
     });
-    expect(component.refsArr.at(1).value).toEqual({
-      type: null,
-      tag: null,
+    expect(component.form.references[1]().value()).toMatchObject({
+      type: '',
+      tag: '',
       citation: 'c2',
-      note: null,
+      note: '',
     });
-    expect(component.form.pristine).toBe(true);
+    expect(component.form().dirty()).toBe(false);
   });
 
   it('should reset the form when references is set to a falsy value', async () => {
@@ -52,7 +52,7 @@ describe('DocReferencesComponent', () => {
     component.references.set(undefined as unknown as DocReference[]);
     fixture.detectChanges();
 
-    expect(component.refsArr.length).toBe(0);
+    expect(component.form.references.length).toBe(0);
   });
 
   it('should add an empty reference row via addReference() with no argument', async () => {
@@ -61,7 +61,7 @@ describe('DocReferencesComponent', () => {
 
     component.addReference();
 
-    expect(component.refsArr.length).toBe(1);
+    expect(component.form.references.length).toBe(1);
     expect(component.references()).toEqual([
       { type: undefined, tag: undefined, citation: undefined, note: undefined },
     ]);
@@ -90,7 +90,7 @@ describe('DocReferencesComponent', () => {
     component.addReference({ citation: 'c1' });
     fixture.detectChanges();
 
-    expect(component.refsArr.length).toBe(1);
+    expect(component.form.references.length).toBe(1);
   });
 
   it('should remove a reference and save', async () => {
@@ -101,7 +101,7 @@ describe('DocReferencesComponent', () => {
 
     component.removeReference(0);
 
-    expect(component.refsArr.length).toBe(1);
+    expect(component.form.references.length).toBe(1);
     expect(component.references()).toEqual([
       { type: undefined, tag: undefined, citation: 'c2', note: undefined },
     ]);
@@ -163,7 +163,7 @@ describe('DocReferencesComponent', () => {
     ]);
   });
 
-  it('should keep row subscriptions aligned with their row after reordering (edits still autosave)', async () => {
+  it('should keep row identity aligned after reordering (edits still autosave)', async () => {
     const { fixture } = await render(DocReferencesComponent);
     const component = fixture.componentInstance;
     component.references.set([{ citation: 'c1' }, { citation: 'c2' }]);
@@ -171,8 +171,7 @@ describe('DocReferencesComponent', () => {
 
     component.moveReferenceUp(1); // now order is c2, c1
 
-    const g = component.refsArr.at(0) as any;
-    g.controls['citation'].setValue('c2-edited');
+    component.form.references[0].citation().value.set('c2-edited');
 
     await new Promise((resolve) => setTimeout(resolve, 400));
     fixture.detectChanges();
@@ -191,7 +190,7 @@ describe('DocReferencesComponent', () => {
 
     component.clearReferences();
 
-    expect(component.refsArr.length).toBe(0);
+    expect(component.form.references.length).toBe(0);
     expect(component.references()).toEqual([]);
   });
 
@@ -201,8 +200,7 @@ describe('DocReferencesComponent', () => {
     component.addReference({ citation: 'c1' });
     fixture.detectChanges();
 
-    const g = component.refsArr.at(0) as any;
-    g.controls['note'].setValue('edited note');
+    component.form.references[0].note().value.set('edited note');
 
     await new Promise((resolve) => setTimeout(resolve, 400));
     fixture.detectChanges();
@@ -212,7 +210,7 @@ describe('DocReferencesComponent', () => {
     ]);
   });
 
-  it('should unsubscribe row and author subscriptions on destroy without throwing', async () => {
+  it('should unsubscribe author subscription on destroy without throwing', async () => {
     const { fixture } = await render(DocReferencesComponent);
     const component = fixture.componentInstance;
     component.addReference({ citation: 'c1' });

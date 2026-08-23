@@ -58,7 +58,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 7. `cadmus-geo-location`
 - [x] 8. `cadmus-refs-citation`
 - [x] 9. `cadmus-refs-historical-date`
-- [ ] 10. `cadmus-refs-doc-references` — has `FormArray`
+- [x] 10. `cadmus-refs-doc-references` — has `FormArray`
 - [ ] 11. `cadmus-text-block-view`
 - [ ] 12. `cadmus-ui-note-set`
 - [ ] 13. `cadmus-text-ed-txt`
@@ -286,3 +286,41 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   `historical-date` itself has no debounced watcher (only two fields,
   `dateText`/`range`, driven by explicit method calls), so it needed
   neither. `asserted-historical-date`'s spec is a smoke test only.
+- **`cadmus-refs-doc-references`** — first `FormArray` case, and where the
+  "last-processed" guard pattern was finally nailed down correctly.
+  `FormArray`-of-`FormGroup`s (dynamically built rows, each with its own
+  debounced `valueChanges` subscription + manual subscription-realignment
+  on reorder) becomes a single array-valued field, `applyEach()` for
+  per-row validators, and ONE `toObservable(draft).pipe(debounceTime())`
+  autosave for the whole array — the entire per-row-subscription apparatus
+  (`_subs`, `swapArrElems`, `unsubscribeIds`) disappears, since reordering
+  a plain array needs no subscription bookkeeping. A `FieldTree` over an
+  array type is itself array-like (`length`, numeric indexing, iterable),
+  so `@for (item of form.someArrayField; track $index)` works directly and
+  each `item` is the per-row `FieldTree`.
+  **The "last-processed" guard, done right** (found via two more failing
+  tests after the array conversion itself already worked): earlier
+  libraries (`datation`, `asserted-historical-date`, `compact-citation`)
+  set their `_lastX` guard *inside* the model-sync `effect()`, right before
+  calling `updateForm()`. That is too late — the effect is deferred, so a
+  synchronous save can legitimately be followed by *further* draft edits
+  before the effect ever runs, and the guard is being compared against a
+  value that is now stale relative to the draft. Comparing against the
+  *current* draft content instead (via `getReferences()`) doesn't work
+  either: reading the draft inside the effect makes the draft itself a
+  tracked dependency (the untracked() hazard from `cadmus-mat-physical-grid`,
+  recurring), so the effect re-fires on every keystroke and reverts each
+  one to the last-saved snapshot. **The fix that actually works**: set the
+  guard *synchronously inside the save function itself*, at the exact
+  moment it calls `.set()` on the model (not inside the effect that reacts
+  to the model) — then the effect's reference check is comparing against a
+  value that was captured at the true source of truth, immune to whatever
+  happens afterward. Also needed a separate `_hasLastX` boolean alongside
+  the guard, since `undefined` is both "never saved anything yet" and a
+  legitimate real value (e.g. "references reset to `undefined`"), and a
+  bare `_lastX === undefined` collides the two.
+  **Action item**: `datation`, `asserted-historical-date`, and
+  `compact-citation` (and by extension anything using the same
+  effect-internal-guard shape) should be revisited to move their guard
+  into the save/emit call site the same way, since they carry the same
+  latent race even though their current tests don't happen to exercise it.
