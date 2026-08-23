@@ -1,13 +1,12 @@
 <form
-  [formGroup]="form"
   [style.margin]="inDialog ? '16px' : '0'"
-  (submit)="pickEmoji(emojis()[0])"
+  (submit)="onFormSubmit($event)"
 >
   <!-- name -->
   <div>
     <mat-form-field>
       <mat-label>name</mat-label>
-      <input #nameInput matInput placeholder="name" [formControl]="name" />
+      <input #nameInput matInput placeholder="name" [formField]="form.name" />
     </mat-form-field>
   </div>
   <!-- list -->

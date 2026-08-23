@@ -38,7 +38,7 @@ describe('EmojiImeComponent', () => {
     const { fixture } = await render(EmojiImeComponent, {
       providers: [provideNoopAnimations()],
     });
-    expect(fixture.componentInstance.name.value).toBeNull();
+    expect(fixture.componentInstance.form.name().value()).toBe('');
   });
 
   it('should be in dialog mode and read data from MAT_DIALOG_DATA when a MatDialogRef is provided', async () => {
@@ -57,7 +57,7 @@ describe('EmojiImeComponent', () => {
     });
     const component = fixture.componentInstance;
     expect(component.inDialog).toBe(true);
-    expect(component.name.value).toBe('dog');
+    expect(component.form.name().value()).toBe('dog');
     expect(component.size()).toBe(64);
     expect(component.autoPick()).toBe(true);
   });
@@ -137,7 +137,7 @@ describe('EmojiImeComponent', () => {
       });
       fixture.componentInstance.emojiPick.subscribe((e) => picked.push(e));
 
-      fixture.componentInstance.name.setValue('octocat');
+      fixture.componentInstance.form.name().value.set('octocat');
       await vi.advanceTimersByTimeAsync(350);
 
       expect(fixture.componentInstance.emojis().length).toBe(1);
@@ -155,7 +155,7 @@ describe('EmojiImeComponent', () => {
         providers: [provideNoopAnimations()],
       });
       const component = fixture.componentInstance;
-      component.name.setValue('dog');
+      component.form.name().value.set('dog');
       await vi.advanceTimersByTimeAsync(350);
       expect(component.emojis().length).toBeGreaterThan(0);
       expect(component.emojis().every((e) => e.name.includes('dog'))).toBe(
@@ -175,11 +175,11 @@ describe('EmojiImeComponent', () => {
       const component = fixture.componentInstance;
       const spy = vi.spyOn(component as any, 'lookupEmoji');
 
-      component.name.setValue('dog');
+      component.form.name().value.set('dog');
       await vi.advanceTimersByTimeAsync(350);
       const callsAfterFirst = spy.mock.calls.length;
 
-      component.name.setValue('dog');
+      component.form.name().value.set('dog');
       await vi.advanceTimersByTimeAsync(350);
       expect(spy.mock.calls.length).toBe(callsAfterFirst);
     } finally {
@@ -194,11 +194,11 @@ describe('EmojiImeComponent', () => {
         providers: [provideNoopAnimations()],
       });
       const component = fixture.componentInstance;
-      component.name.setValue('dog');
+      component.form.name().value.set('dog');
       await vi.advanceTimersByTimeAsync(350);
       expect(component.emojis().length).toBeGreaterThan(0);
 
-      component.name.setValue('');
+      component.form.name().value.set('');
       await vi.advanceTimersByTimeAsync(350);
       // lookupEmoji only runs the lookup branch when name.value is truthy,
       // so the emojis signal keeps its last value instead of being cleared.

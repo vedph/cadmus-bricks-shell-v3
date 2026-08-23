@@ -6,20 +6,15 @@ import {
   Inject,
   model,
   OnDestroy,
-  OnInit,
   Optional,
   output,
   signal,
   ViewChild,
+  WritableSignal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { FieldTree, FormField, form } from '@angular/forms/signals';
 import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -45,8 +40,7 @@ export interface EmojiImeComponentData {
   selector: 'cadmus-emoji-ime',
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
@@ -58,14 +52,14 @@ export interface EmojiImeComponentData {
   styleUrl: './emoji-ime.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EmojiImeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EmojiImeComponent implements AfterViewInit, OnDestroy {
   private _sub?: Subscription;
 
   @ViewChild('nameInput')
   public inputCtl?: ElementRef;
 
-  public name: FormControl<string | null>;
-  public form: FormGroup;
+  private readonly _draft: WritableSignal<{ name: string }>;
+  public readonly form: FieldTree<{ name: string }>;
 
   public readonly emojis = signal<UnicodeEmoji[]>([]);
   public readonly inDialog;
@@ -93,17 +87,14 @@ export class EmojiImeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private _emojiService: EmojiService,
-    formBuilder: FormBuilder,
     @Optional()
     public dialogRef?: MatDialogRef<EmojiImeComponent>,
     @Optional()
     @Inject(MAT_DIALOG_DATA)
     public data?: EmojiImeComponentData
   ) {
-    this.name = formBuilder.control(data?.name || null);
-    this.form = formBuilder.group({
-      name: this.name,
-    });
+    this._draft = signal({ name: data?.name || '' });
+    this.form = form(this._draft);
 
     if (data?.size) {
       this.size.set(data.size);
@@ -112,32 +103,31 @@ export class EmojiImeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.autoPick.set(data.autoPick);
     }
     this.inDialog = !!dialogRef;
-  }
 
-  private lookupEmoji(): void {
-    if (this.name.value) {
-      this.emojis.set(this._emojiService.lookupEmoji(this.name.value));
-      if (this.autoPick() && this.emojis().length === 1) {
-        this.pickEmoji(this.emojis()[0]);
-      }
-    }
-  }
-
-  public ngOnInit(): void {
     this.lookupEmoji();
 
-    this._sub = this.name.valueChanges
+    this._sub = toObservable(this.form.name().value)
       .pipe(distinctUntilChanged(), debounceTime(300))
       .subscribe((_) => {
         this.lookupEmoji();
       });
   }
 
+  private lookupEmoji(): void {
+    const name = this.form.name().value();
+    if (name) {
+      this.emojis.set(this._emojiService.lookupEmoji(name));
+      if (this.autoPick() && this.emojis().length === 1) {
+        this.pickEmoji(this.emojis()[0]);
+      }
+    }
+  }
+
   public ngAfterViewInit(): void {
     if (this.inputCtl) {
       setTimeout(() => {
         this.inputCtl!.nativeElement.focus();
-        if (this.name.value) {
+        if (this.form.name().value()) {
           this.inputCtl!.nativeElement.select();
         }
       });
@@ -146,6 +136,11 @@ export class EmojiImeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public ngOnDestroy(): void {
     this._sub?.unsubscribe();
+  }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.pickEmoji(this.emojis()[0]);
   }
 
   public close(): void {
