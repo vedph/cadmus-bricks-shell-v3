@@ -63,7 +63,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 12. `cadmus-ui-note-set`
 - [x] 13. `cadmus-text-ed-txt`
 - [x] 14. `cadmus-mat-physical-state`
-- [ ] 15. `cadmus-refs-chronotope`
+- [x] 15. `cadmus-refs-chronotope`
 - [ ] 16. `cadmus-refs-lookup`
 - [ ] 17. `cadmus-refs-decorated-ids` — uses `NgxToolsValidators`
 - [ ] 18. `cadmus-refs-assertion`
@@ -398,3 +398,28 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   same as reactive forms' `setValue()` — a test asserting "valid and dirty"
   behavior needs an explicit `field().markAsDirty()` call alongside the
   `value.set()`, or it will observe `dirty() === false`.
+- **`cadmus-refs-chronotope`**: `ChronotopeComponent`'s 4-field form
+  (`tag`/`place`/`hasDate`/`date`), debounced autosave shape — applied the
+  `datation`-style combined guard proactively (effect-side reference
+  guard + save-site guard on the `chronotope` model, plus a
+  `chronotopesEqual()` content check before the debounced handler writes)
+  and all 33 tests passed on the first run. `date` holds a
+  `HistoricalDateModel | null` object but is never bound via `[formField]`
+  (it's passed to the nested `HistoricalDateComponent` through plain
+  `[date]`/`(dateChange)` bindings instead), so it was exempt from the
+  native-input non-nullable-string rule entirely. **Newly confirmed
+  API**: the root `FieldState` (`this.form()`) exposes `markAsTouched()`,
+  `markAsDirty()`, and `markAsPristine()` directly — and critically,
+  `markAsTouched()` called with no options **cascades to every descendant
+  field** by default (only `{ skipDescendants: true }` stops it), making
+  `this.form().markAsTouched()` the exact equivalent of reactive forms'
+  `FormGroup.markAllAsTouched()`. **Found and fixed another latent bug**
+  while porting the template: the original error checks used
+  `tag.hasError('max-length')`/`place.hasError('max-length')`, but
+  `Validators.maxLength`'s actual error key is `'maxlength'` — a typo that
+  silently meant the "too long" error messages never rendered in the
+  original component. Ported to the correct `getError('maxLength')` (the
+  signal-forms key, confirmed camelCase from `cadmus-mat-physical-state`),
+  which now genuinely displays the error — a behavior change from the
+  original, but a bugfix in the same spirit as the `citation.component.ts`
+  latent-bug fix earlier in this migration.

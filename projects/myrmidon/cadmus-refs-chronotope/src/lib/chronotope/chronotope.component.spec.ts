@@ -22,10 +22,10 @@ describe('ChronotopeComponent', () => {
   });
 
   it('should have a pristine, empty form by default', () => {
-    expect(component.tag.value).toBeNull();
-    expect(component.place.value).toBeNull();
-    expect(component.date.value).toBeNull();
-    expect(component.hasDate.value).toBe(false);
+    expect(component.form.tag().value()).toBe('');
+    expect(component.form.place().value()).toBe('');
+    expect(component.form.date().value()).toBeNull();
+    expect(component.form.hasDate().value()).toBe(false);
   });
 
   it('should update the form when the chronotope model changes', () => {
@@ -36,11 +36,11 @@ describe('ChronotopeComponent', () => {
     });
     fixture.detectChanges();
 
-    expect(component.tag.value).toBe('birth');
-    expect(component.place.value).toBe('Rome');
-    expect(component.date.value).toEqual({ a: { value: 45 } });
-    expect(component.hasDate.value).toBe(true);
-    expect(component.form.pristine).toBe(true);
+    expect(component.form.tag().value()).toBe('birth');
+    expect(component.form.place().value()).toBe('Rome');
+    expect(component.form.date().value()).toEqual({ a: { value: 45 } });
+    expect(component.form.hasDate().value()).toBe(true);
+    expect(component.form().dirty()).toBe(false);
   });
 
   it('should reset the form when the chronotope model is set to undefined', () => {
@@ -50,15 +50,15 @@ describe('ChronotopeComponent', () => {
     component.chronotope.set(undefined);
     fixture.detectChanges();
 
-    expect(component.tag.value).toBeNull();
-    expect(component.place.value).toBeNull();
+    expect(component.form.tag().value()).toBe('');
+    expect(component.form.place().value()).toBe('');
   });
 
   it('should set hasDate to false when chronotope has no date', () => {
     component.chronotope.set({ place: 'Rome' });
     fixture.detectChanges();
 
-    expect(component.hasDate.value).toBe(false);
+    expect(component.form.hasDate().value()).toBe(false);
   });
 
   it('should show a free-text tag input when no tag entries are provided', () => {
@@ -85,7 +85,7 @@ describe('ChronotopeComponent', () => {
     );
     expect(dateEl).toBeNull();
 
-    component.hasDate.setValue(true);
+    component.form.hasDate().value.set(true);
     fixture.detectChanges();
 
     dateEl = fixture.debugElement.query(By.css('cadmus-refs-historical-date'));
@@ -94,33 +94,31 @@ describe('ChronotopeComponent', () => {
 
   it('should update the date control when onDateChange is called', () => {
     component.onDateChange({ a: { value: 100 } });
-    expect(component.date.value).toEqual({ a: { value: 100 } });
+    expect(component.form.date().value()).toEqual({ a: { value: 100 } });
   });
 
   it('should set the date control to null when onDateChange is called without a date', () => {
     component.onDateChange({ a: { value: 100 } });
     component.onDateChange(undefined);
-    expect(component.date.value).toBeNull();
+    expect(component.form.date().value()).toBeNull();
   });
 
   it('should mark tag control invalid when exceeding max length', () => {
-    component.tag.setValue('x'.repeat(51));
-    component.tag.updateValueAndValidity();
-    expect(component.tag.valid).toBe(false);
-    expect(component.tag.hasError('maxlength')).toBe(true);
+    component.form.tag().value.set('x'.repeat(51));
+    expect(component.form.tag().valid()).toBe(false);
+    expect(component.form.tag().getError('maxLength')).toBeTruthy();
   });
 
   it('should mark place control invalid when exceeding max length', () => {
-    component.place.setValue('x'.repeat(51));
-    component.place.updateValueAndValidity();
-    expect(component.place.valid).toBe(false);
-    expect(component.place.hasError('maxlength')).toBe(true);
+    component.form.place().value.set('x'.repeat(51));
+    expect(component.form.place().valid()).toBe(false);
+    expect(component.form.place().getError('maxLength')).toBeTruthy();
   });
 
   describe('save()', () => {
     it('should emit the chronotope model when the form is valid and hasDate is false', () => {
-      component.tag.setValue('birth');
-      component.place.setValue('Rome');
+      component.form.tag().value.set('birth');
+      component.form.place().value.set('Rome');
       component.save();
 
       expect(component.chronotope()).toEqual({
@@ -131,30 +129,30 @@ describe('ChronotopeComponent', () => {
     });
 
     it('should mark the form as pristine after saving by default', () => {
-      component.tag.setValue('birth');
-      component.form.markAsDirty();
+      component.form.tag().value.set('birth');
+      component.form().markAsDirty();
       component.save();
-      expect(component.form.pristine).toBe(true);
+      expect(component.form().dirty()).toBe(false);
     });
 
     it('should not mark the form as pristine when pristine=false is passed', () => {
-      component.tag.setValue('birth');
-      component.form.markAsDirty();
+      component.form.tag().value.set('birth');
+      component.form().markAsDirty();
       component.save(false);
-      expect(component.form.pristine).toBe(false);
+      expect(component.form().dirty()).toBe(true);
     });
 
     it('should not emit and mark all as touched when hasDate is true but no date is set', () => {
-      component.hasDate.setValue(true);
+      component.form.hasDate().value.set(true);
       component.save();
 
       expect(component.chronotope()).toBeUndefined();
-      expect(component.date.touched).toBe(true);
+      expect(component.form.date().touched()).toBe(true);
     });
 
     it('should emit including the date when hasDate is true and date is set', () => {
-      component.hasDate.setValue(true);
-      component.date.setValue({ a: { value: 45 } });
+      component.form.hasDate().value.set(true);
+      component.form.date().value.set({ a: { value: 45 } });
       component.save();
 
       expect(component.chronotope()).toEqual({
@@ -165,14 +163,14 @@ describe('ChronotopeComponent', () => {
     });
 
     it('should not emit when the form is invalid', () => {
-      component.tag.setValue('x'.repeat(51));
+      component.form.tag().value.set('x'.repeat(51));
       component.save();
       expect(component.chronotope()).toBeUndefined();
     });
 
     it('should trim tag and place values', () => {
-      component.tag.setValue('  birth  ');
-      component.place.setValue('  Rome  ');
+      component.form.tag().value.set('  birth  ');
+      component.form.place().value.set('  Rome  ');
       component.save();
 
       expect(component.chronotope()?.tag).toBe('birth');
@@ -182,7 +180,7 @@ describe('ChronotopeComponent', () => {
 
   describe('autosave on form changes', () => {
     it('should emit chronotopeChange after debounce when a valid change is made', async () => {
-      component.tag.setValue('birth');
+      component.form.tag().value.set('birth');
       // wait for the debounceTime(500) to elapse
       await new Promise((resolve) => setTimeout(resolve, 600));
 
@@ -200,7 +198,7 @@ describe('ChronotopeComponent', () => {
     });
 
     it('should not autosave when hasDate is true but date is empty', async () => {
-      component.hasDate.setValue(true);
+      component.form.hasDate().value.set(true);
       await new Promise((resolve) => setTimeout(resolve, 600));
 
       expect(component.chronotope()).toBeUndefined();

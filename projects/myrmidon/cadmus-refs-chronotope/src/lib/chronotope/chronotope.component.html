@@ -1,10 +1,10 @@
-<form [formGroup]="form">
+<form>
   <div class="form-row">
     <!-- tag (bound) -->
     @if (ctTagEntries()) {
     <mat-form-field>
       <mat-label>tag</mat-label>
-      <mat-select [formControl]="tag">
+      <mat-select [formField]="form.tag">
         @for (e of ctTagEntries(); track e) {
         <mat-option [value]="e.id">{{ e.value }}</mat-option>
         }
@@ -15,8 +15,9 @@
     @else {
     <mat-form-field>
       <mat-label>tag</mat-label>
-      <input matInput [formControl]="tag" />
-      @if (tag.hasError('max-length') && (tag.dirty || tag.touched)) {
+      <input matInput [formField]="form.tag" />
+      @if (form.tag().getError('maxLength') && (form.tag().dirty() ||
+      form.tag().touched())) {
       <mat-error>tag too long</mat-error>
       }
     </mat-form-field>
@@ -25,21 +26,22 @@
     <!-- place -->
     <mat-form-field>
       <mat-label>place</mat-label>
-      <input matInput [formControl]="place" />
-      @if (place.hasError('max-length') && (place.dirty || place.touched)) {
+      <input matInput [formField]="form.place" />
+      @if (form.place().getError('maxLength') && (form.place().dirty() ||
+      form.place().touched())) {
       <mat-error>place too long</mat-error>
       }
     </mat-form-field>
 
     <!-- has date -->
-    <mat-checkbox [formControl]="hasDate">has date</mat-checkbox>
+    <mat-checkbox [formField]="form.hasDate">has date</mat-checkbox>
   </div>
 
   <!-- date -->
-  @if (hasDate.value) {
+  @if (form.hasDate().value()) {
   <div>
     <cadmus-refs-historical-date
-      [date]="date.value || undefined"
+      [date]="form.date().value() || undefined"
       (dateChange)="onDateChange($event)"
     />
   </div>
