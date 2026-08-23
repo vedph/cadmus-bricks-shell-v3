@@ -134,62 +134,64 @@ describe('NoteSetComponent', () => {
     });
 
     it('should load the note text and definition when a key is selected', async () => {
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
       fixture.detectChanges();
 
       expect(component.currentDef()?.key).toBe('summary');
-      expect(component.text.value).toBe('Hello world');
+      expect(component.form.text().value()).toBe('Hello world');
     });
 
     it('should apply required and maxLength validators based on the definition', async () => {
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
 
-      expect(component.text.valid).toBe(true);
+      expect(component.form.text().valid()).toBe(true);
 
-      component.text.setValue('');
-      expect(component.text.hasError('required')).toBe(true);
+      component.form.text().value.set('');
+      expect(component.form.text().getError('required')).toBeDefined();
 
-      component.text.setValue('this text is definitely longer than 20 chars');
-      expect(component.text.hasError('maxlength')).toBe(true);
+      component.form
+        .text()
+        .value.set('this text is definitely longer than 20 chars');
+      expect(component.form.text().getError('maxLength')).toBeDefined();
     });
 
     it('should not apply any validators for a note without required/maxLength', async () => {
-      component.key.setValue('comments');
+      component.form.key().value.set('comments');
       await wait(30);
 
       expect(component.currentDef()?.key).toBe('comments');
-      component.text.setValue('');
-      expect(component.text.valid).toBe(true);
+      component.form.text().value.set('');
+      expect(component.form.text().valid()).toBe(true);
     });
 
     it('should reset current definition and text when key is cleared', async () => {
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
 
-      component.key.setValue(null);
+      component.form.key().value.set(null);
       await wait(30);
 
       expect(component.currentDef()).toBeUndefined();
-      expect(component.text.value).toBeNull();
+      expect(component.form.text().value()).toBe('');
     });
 
     it('should update currentLen after typing, debounced', async () => {
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
 
-      component.text.setValue('12345');
+      component.form.text().value.set('12345');
       expect(component.currentLen()).toBe(0); // not yet updated (debounced)
       await wait(80);
       expect(component.currentLen()).toBe(5);
     });
 
     it('should update the markdown preview from the note text', async () => {
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
 
-      component.text.setValue('# Title');
+      component.form.text().value.set('# Title');
       await wait(80);
       fixture.detectChanges();
 
@@ -199,9 +201,9 @@ describe('NoteSetComponent', () => {
     });
 
     it('should not render a markdown preview for non-markdown notes', async () => {
-      component.key.setValue('comments');
+      component.form.key().value.set('comments');
       await wait(30);
-      component.text.setValue('plain text');
+      component.form.text().value.set('plain text');
       await wait(80);
       fixture.detectChanges();
 
@@ -215,12 +217,12 @@ describe('NoteSetComponent', () => {
       fixture.componentRef.setInput('set', sampleSet);
       fixture.detectChanges();
       await fixture.whenStable();
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
     });
 
     it('should do nothing when the text is invalid', () => {
-      component.text.setValue('');
+      component.form.text().value.set('');
       let noteChanged = false;
       component.noteChange.subscribe(() => (noteChanged = true));
 
@@ -230,7 +232,7 @@ describe('NoteSetComponent', () => {
     });
 
     it('should save the trimmed note text and emit noteChange', () => {
-      component.text.setValue('  updated value  ');
+      component.form.text().value.set('  updated value  ');
 
       let changed: { key: string; value: string | null } | undefined;
       component.noteChange.subscribe((n) => (changed = n));
@@ -242,16 +244,16 @@ describe('NoteSetComponent', () => {
     });
 
     it('should mark the text control as pristine after saving', () => {
-      component.text.setValue('new content');
-      component.text.markAsDirty();
+      component.form.text().value.set('new content');
+      component.form.text().markAsDirty();
 
       component.save();
 
-      expect(component.text.pristine).toBe(true);
+      expect(component.form.text().dirty()).toBe(false);
     });
 
     it('should do nothing when there is no current definition', async () => {
-      component.key.setValue(null);
+      component.form.key().value.set(null);
       await wait(30);
       let noteChanged = false;
       component.noteChange.subscribe(() => (noteChanged = true));
@@ -264,7 +266,7 @@ describe('NoteSetComponent', () => {
       let emittedSet: NoteSet | undefined;
       component.set.subscribe((s) => (emittedSet = s));
 
-      component.text.setValue('new content');
+      component.form.text().value.set('new content');
       component.save();
 
       expect(emittedSet?.notes?.['summary']).toBe('new content');
@@ -276,21 +278,21 @@ describe('NoteSetComponent', () => {
       fixture.componentRef.setInput('set', sampleSet);
       fixture.detectChanges();
       await fixture.whenStable();
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
     });
 
     it('should discard unsaved edits and restore the stored value', () => {
-      component.text.setValue('unsaved change');
-      expect(component.text.value).toBe('unsaved change');
+      component.form.text().value.set('unsaved change');
+      expect(component.form.text().value()).toBe('unsaved change');
 
       component.revertNote();
 
-      expect(component.text.value).toBe('Hello world');
+      expect(component.form.text().value()).toBe('Hello world');
     });
 
     it('should do nothing when there is no current definition', () => {
-      component.key.setValue(null);
+      component.form.key().value.set(null);
       expect(() => component.revertNote()).not.toThrow();
     });
   });
@@ -300,12 +302,12 @@ describe('NoteSetComponent', () => {
       fixture.componentRef.setInput('set', sampleSet);
       fixture.detectChanges();
       await fixture.whenStable();
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
     });
 
     it('should do nothing when there is no current definition', async () => {
-      component.key.setValue(null);
+      component.form.key().value.set(null);
       await wait(30);
       expect(() => component.clear()).not.toThrow();
       expect(confirmMock).not.toHaveBeenCalled();
@@ -409,7 +411,7 @@ describe('NoteSetComponent', () => {
       fixture.componentRef.setInput('set', sampleSet);
       fixture.detectChanges();
       await fixture.whenStable();
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
       expect(component.currentDef()?.key).toBe('summary');
 
@@ -421,8 +423,8 @@ describe('NoteSetComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      expect(component.key.value).toBeNull();
-      expect(component.text.value).toBeNull();
+      expect(component.form.key().value()).toBeNull();
+      expect(component.form.text().value()).toBe('');
       expect(component.currentDef()).toBeUndefined();
     });
   });
@@ -446,7 +448,7 @@ describe('NoteSetComponent', () => {
       fixture.componentRef.setInput('set', sampleSet);
       fixture.detectChanges();
       await fixture.whenStable();
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
       fixture.detectChanges();
 
@@ -458,9 +460,9 @@ describe('NoteSetComponent', () => {
       fixture.componentRef.setInput('set', sampleSet);
       fixture.detectChanges();
       await fixture.whenStable();
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
-      component.text.setValue('');
+      component.form.text().value.set('');
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -474,7 +476,7 @@ describe('NoteSetComponent', () => {
       fixture.componentRef.setInput('set', sampleSet);
       fixture.detectChanges();
       await fixture.whenStable();
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
       fixture.detectChanges();
       await fixture.whenStable();
@@ -500,13 +502,13 @@ describe('NoteSetComponent', () => {
       fixture.componentRef.setInput('set', sampleSet);
       fixture.detectChanges();
       await fixture.whenStable();
-      component.key.setValue('summary');
+      component.form.key().value.set('summary');
       await wait(30);
       fixture.detectChanges();
 
       // drive the change through the native textarea, like a real user
       // typing, so mat-form-field's own error-state tracking (which is
-      // wired to the control's DOM events, not to direct FormControl API
+      // wired to the control's DOM events, not to direct field API
       // calls) picks it up
       const textarea = fixture.debugElement.query(
         By.css('textarea'),
@@ -518,7 +520,7 @@ describe('NoteSetComponent', () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component.text.hasError('maxlength')).toBe(true);
+      expect(component.form.text().getError('maxLength')).toBeDefined();
       const errors = fixture.debugElement.queryAll(By.css('mat-error'));
       const texts = errors.map((e) => e.nativeElement.textContent.trim());
       expect(texts).toContain('too long');

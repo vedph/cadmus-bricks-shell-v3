@@ -60,7 +60,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 9. `cadmus-refs-historical-date`
 - [x] 10. `cadmus-refs-doc-references` — has `FormArray`
 - [x] 11. `cadmus-text-block-view`
-- [ ] 12. `cadmus-ui-note-set`
+- [x] 12. `cadmus-ui-note-set`
 - [ ] 13. `cadmus-text-ed-txt`
 - [ ] 14. `cadmus-mat-physical-state`
 - [ ] 15. `cadmus-refs-chronotope`
@@ -341,3 +341,19 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   required alongside `_lastX` in every case, since `undefined`/`null` is
   usually both "nothing saved yet" and a legitimate real value. All 6
   retrofitted libraries' full test suites stayed green throughout.
+- **`cadmus-ui-note-set`**: applied the by-now-established patterns
+  proactively (combined effect+save-site guard on the `set` model sync) —
+  all 36 tests passed on the first run. Notable simplification: the
+  per-note-definition `required`/`maxLength` validators, previously applied
+  imperatively (`setValidators`/`clearValidators`/`updateValueAndValidity`
+  inside `editNote()`) every time the selected key changed, became pure
+  declarative schema rules reading the `currentDef()` signal
+  (`required(path.text, {when: () => !!this.currentDef()?.required})`,
+  `maxLength(path.text, () => this.currentDef()?.maxLength)`) — `editNote()`
+  no longer needs to touch validators at all, it just updates `currentDef`
+  and the schema reactively re-validates. The vestigial, never-read
+  `reqNotes` control (a `Validators.requiredTrue`-guarded field with no
+  template binding and no internal reader, likely meant for an external
+  consumer checking overall `form.valid`) was preserved via a `validate()`
+  rule for behavioral fidelity even though nothing in this codebase
+  exercises it.

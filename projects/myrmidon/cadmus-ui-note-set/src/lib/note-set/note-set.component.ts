@@ -1,7 +1,6 @@
 import { KeyValue } from '@angular/common';
 import {
   Component,
-  OnInit,
   output,
   effect,
   model,
@@ -9,15 +8,15 @@ import {
   computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+  FieldTree,
+  FormField,
+  form,
+  maxLength,
+  required,
+  validate,
+} from '@angular/forms/signals';
 import { debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -60,6 +59,15 @@ export interface NoteSet {
 }
 
 /**
+ * The editable controls backing the note editor.
+ */
+interface NoteFormControls {
+  key: string | null;
+  text: string;
+  reqNotes: boolean;
+}
+
+/**
  * A set of editable notes, either plain text or Markdown.
  * Each note has a key, a label, and some metadata for its format
  * and validation. Whenever the user saves his changes to a note,
@@ -72,20 +80,24 @@ export interface NoteSet {
   templateUrl: './note-set.component.html',
   styleUrls: ['./note-set.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatSelectModule,
-    MatTooltipModule
-],
+    MatTooltipModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NoteSetComponent implements OnInit {
-  private _updating = false;
+export class NoteSetComponent {
+  // set synchronously at every site that writes `set` (not inside the
+  // model-sync effect below), paired with _hasLastSet since undefined is
+  // both "never saved yet" and a legitimate real value - see
+  // signal-forms-migration.md
+  private _lastSet: NoteSet | undefined = undefined;
+  private _hasLastSet = false;
   // cache the previous set for comparison during updates
   private _previousSet: NoteSet | null = null;
 
@@ -100,10 +112,10 @@ export class NoteSetComponent implements OnInit {
    */
   public readonly noteChange = output<KeyValue<string, string | null>>();
 
-  public form: FormGroup;
-  public key: FormControl<string | null>;
-  public text: FormControl<string | null>;
-  public reqNotes: FormControl<boolean>;
+  private readonly _draft = signal<NoteFormControls>(
+    this.makeDefaultControls(),
+  );
+  public readonly form: FieldTree<NoteFormControls>;
 
   public readonly keys = signal<KeyValue<string, string>[]>([]);
   public readonly currentDef = signal<NoteSetDefinition | undefined>(undefined);
@@ -132,51 +144,68 @@ export class NoteSetComponent implements OnInit {
   });
 
   constructor(
-    formBuilder: FormBuilder,
     private _dialogService: DialogService,
     private _sanitizer: DomSanitizer
   ) {
-    // form
-    this.text = formBuilder.control(null);
-    this.key = formBuilder.control(null);
-    this.reqNotes = formBuilder.control(true, {
-      validators: Validators.requiredTrue,
-      nonNullable: true,
-    });
-    this.form = formBuilder.group({
-      note: this.key,
-      text: this.text,
-      reqNotes: this.reqNotes,
+    this.form = form(this._draft, (path) => {
+      required(path.text, { when: () => !!this.currentDef()?.required });
+      maxLength(path.text, () => this.currentDef()?.maxLength);
+      validate(path.reqNotes, (ctx) =>
+        ctx.value() ? null : { kind: 'required' }
+      );
     });
 
     effect(() => {
-      // prevent recursive updates
-      if (this._updating) {
+      const newSet = this.set();
+      if (this._hasLastSet && this._lastSet === newSet) {
         return;
       }
+      this._lastSet = newSet;
+      this._hasLastSet = true;
 
-      const newSet = this.set();
-      this._updating = true;
+      // preserve existing notes during set updates
+      if (this._previousSet) {
+        this.preserveExistingNotes(this._previousSet, newSet);
+      }
 
-      try {
-        // preserve existing notes during set updates
-        if (this._previousSet) {
-          this.preserveExistingNotes(this._previousSet, newSet);
-        }
+      // update the form with the potentially modified set
+      this.updateForm(newSet);
 
-        // update the form with the potentially modified set
-        this.updateForm(newSet);
-
-        // cache the current set for next time
-        this._previousSet = { ...newSet };
-        if (newSet.notes) {
-          this._previousSet.notes = { ...newSet.notes };
-        }
-      } finally {
-        // always reset flag even if an error occurs
-        this._updating = false;
+      // cache the current set for next time
+      this._previousSet = { ...newSet };
+      if (newSet.notes) {
+        this._previousSet.notes = { ...newSet.notes };
       }
     });
+
+    // when a key changes, edit its note
+    toObservable(this.form.key().value)
+      .pipe(distinctUntilChanged(), debounceTime(10))
+      .subscribe((k) => {
+        this.editNote(k);
+      });
+
+    // show text length when typing
+    toObservable(this.form.text().value)
+      .pipe(
+        map((text) => text?.length || 0),
+        distinctUntilChanged(),
+        debounceTime(50)
+      )
+      .subscribe((n) => {
+        this.currentLen.set(n);
+      });
+
+    // update the markdown preview when typing
+    toObservable(this.form.text().value)
+      .pipe(debounceTime(50))
+      .subscribe(() => {
+        this.updatePreview();
+      });
+  }
+
+  private makeDefaultControls(): NoteFormControls {
+    return { key: null, text: '', reqNotes: true };
   }
 
   /**
@@ -222,44 +251,20 @@ export class NoteSetComponent implements OnInit {
     newSet.notes = { ...preservedNotes };
   }
 
-  public ngOnInit(): void {
-    // when a key changes, edit its note
-    this.key.valueChanges
-      .pipe(distinctUntilChanged(), debounceTime(10))
-      .subscribe((k: string | null) => {
-        this.editNote(k);
-      });
-
-    // show text length when typing
-    this.text.valueChanges
-      .pipe(
-        map((text) => {
-          return text?.length || 0;
-        }),
-        distinctUntilChanged(),
-        debounceTime(50)
-      )
-      .subscribe((n) => {
-        this.currentLen.set(n);
-      });
-
-    // update the markdown preview when typing
-    this.text.valueChanges.pipe(debounceTime(50)).subscribe(() => {
-      this.updatePreview();
-    });
-  }
-
   /**
    * Renders the current text as sanitized HTML for the Markdown preview.
    */
   private updatePreview(): void {
-    const html = marked.parse(this.text.value || '', { async: false }) as string;
+    const html = marked.parse(this.form.text().value() || '', {
+      async: false,
+    }) as string;
     this.previewHtml.set(this._sanitizer.bypassSecurityTrustHtml(html));
   }
 
   private updateForm(set?: NoteSet): void {
     if (!set?.definitions.length) {
-      this.form.reset();
+      this._draft.set(this.makeDefaultControls());
+      this.form().reset();
       this.keys.set([]);
       return;
     }
@@ -281,22 +286,21 @@ export class NoteSetComponent implements OnInit {
     );
 
     // if a key is currently selected, ensure it's still valid
-    if (this.key.value) {
-      const keyExists = safeSet.definitions.some(
-        (d) => d.key === this.key.value
-      );
+    const currentKey = this.form.key().value();
+    if (currentKey) {
+      const keyExists = safeSet.definitions.some((d) => d.key === currentKey);
       if (!keyExists) {
-        this.key.setValue(null);
-        this.text.setValue(null);
+        this.form.key().value.set(null);
+        this.form.text().value.set('');
         this.currentDef.set(undefined);
       } else if (this.currentDef()) {
         // if still valid, refresh the text value in case it changed
-        this.text.setValue(safeSet.notes[this.key.value] || null);
+        this.form.text().value.set(safeSet.notes[currentKey] || '');
       }
     }
 
     // update notes count
-    this.reqNotes.setValue(this.missing()?.length ? false : true);
+    this.form.reqNotes().value.set(this.missing()?.length ? false : true);
   }
 
   /**
@@ -305,9 +309,7 @@ export class NoteSetComponent implements OnInit {
   private editNote(key: string | null): void {
     if (!key) {
       this.currentDef.set(undefined);
-      this.text.setValue(null);
-      this.text.clearValidators();
-      this.text.updateValueAndValidity();
+      this.form.text().value.set('');
       return;
     }
 
@@ -317,24 +319,15 @@ export class NoteSetComponent implements OnInit {
       set.notes = {};
     }
 
-    this.text.clearValidators();
-    this.text.setValue(set.notes[key] || null);
+    this.form.text().value.set(set.notes[key] || '');
 
-    // update text validators
+    // required/maxLength validators are driven reactively by currentDef()
+    // in the schema, no imperative re-validation needed
     this.currentDef.set(set.definitions.find((d) => d.key === key));
     if (!this.currentDef()) {
       return;
     }
-    const validators: ValidatorFn[] = [];
-    if (this.currentDef()!.required) {
-      validators.push(Validators.required);
-    }
-    if (this.currentDef()!.maxLength) {
-      validators.push(Validators.maxLength(this.currentDef()!.maxLength!));
-    }
-    this.text.setValidators(validators);
-    this.text.updateValueAndValidity();
-    this.text.markAsPristine();
+    this.form.text().reset();
   }
 
   public revertNote(): void {
@@ -361,37 +354,37 @@ export class NoteSetComponent implements OnInit {
       });
     }
 
-    // use the updating flag to prevent an infinite loop
-    this._updating = true;
-    try {
-      // cache the current set before updating
-      this._previousSet = { ...this.set() };
-      if (this._previousSet.notes) {
-        this._previousSet.notes = { ...this._previousSet.notes };
-      }
-
-      // update set
-      this.set.set(set);
-
-      // update UI
-      this.text.markAsPristine();
-      this.reqNotes.setValue(this.missing()?.length ? false : true);
-    } finally {
-      this._updating = false;
+    // cache the current set before updating
+    this._previousSet = { ...this.set() };
+    if (this._previousSet.notes) {
+      this._previousSet.notes = { ...this._previousSet.notes };
     }
+
+    this._lastSet = set;
+    this._hasLastSet = true;
+    this.set.set(set);
+
+    // update UI
+    this.form.text().reset();
+    this.form.reqNotes().value.set(this.missing()?.length ? false : true);
   }
 
   /**
    * Save the currently edited note.
    */
   public save(): void {
-    if (!this.currentDef() || this.text.invalid) {
+    if (!this.currentDef() || this.form.text().invalid()) {
       return;
     }
     this.saveNote({
       key: this.currentDef()!.key,
-      value: this.text.value?.trim() || '',
+      value: this.form.text().value().trim() || '',
     });
+  }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
   }
 
   /**
@@ -406,7 +399,7 @@ export class NoteSetComponent implements OnInit {
       .pipe(take(1))
       .subscribe((yes) => {
         if (yes) {
-          this.text.reset();
+          this.form.text().value.set('');
           this.saveNote({
             key: this.currentDef()!.key,
             value: null,

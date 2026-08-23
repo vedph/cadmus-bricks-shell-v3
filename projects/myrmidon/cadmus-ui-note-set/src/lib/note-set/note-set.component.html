@@ -1,11 +1,11 @@
-<form [formGroup]="form" (submit)="save()">
+<form (submit)="onFormSubmit($event)">
   <!-- bar -->
   <div class="toolbar-row">
     <!-- keys -->
     @if (keys().length) {
     <mat-form-field>
       <mat-label>note</mat-label>
-      <mat-select [formControl]="key">
+      <mat-select [formField]="form.key">
         @for (k of keys(); track k.key) {
         <mat-option [value]="k.key">{{ k.value }}</mat-option>
         }
@@ -66,10 +66,10 @@
   @if (currentDef()) {
   <div>
     <mat-form-field class="long-text">
-      <textarea rows="3" matInput [formControl]="text"></textarea>
-      @if ($any(text).errors?.required && (text.touched || text.dirty)) {
+      <textarea rows="3" matInput [formField]="form.text"></textarea>
+      @if (form.text().getError('required') && (form.text().touched() || form.text().dirty())) {
       <mat-error>required</mat-error>
-      } @if ($any(text).errors?.maxlength) {
+      } @if (form.text().getError('maxLength')) {
       <mat-error>too long</mat-error>
       }
     </mat-form-field>
@@ -85,7 +85,7 @@
       </button>
       <button
         type="submit"
-        [disabled]="text.invalid"
+        [disabled]="form.text().invalid()"
         mat-icon-button
         matTooltip="Save this note"
       >
