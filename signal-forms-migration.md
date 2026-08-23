@@ -51,7 +51,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 
 - [x] 1. `cadmus-mat-physical-grid`
 - [x] 2. `cadmus-refs-decorated-counts`
-- [ ] 3. `cadmus-ui-custom-action-bar`
+- [x] 3. `cadmus-ui-custom-action-bar`
 - [ ] 4. `cadmus-ui-flag-set`
 - [ ] 5. `cadmus-mat-physical-size`
 - [ ] 6. `cadmus-cod-location`
@@ -112,3 +112,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   `(submit)="onEditedFormSubmit($event)"` handler that calls
   `event.preventDefault()` itself, since `ReactiveFormsModule`'s
   `FormGroupDirective` was silently doing that `preventDefault()` before.
+- **`cadmus-ui-custom-action-bar`**: false positive — imported
+  `FormsModule`/`ReactiveFormsModule` but never actually used any reactive-forms
+  API (no `[formControl]`/`formGroup` anywhere). Just dropped the unused
+  imports, no signal-forms conversion needed.

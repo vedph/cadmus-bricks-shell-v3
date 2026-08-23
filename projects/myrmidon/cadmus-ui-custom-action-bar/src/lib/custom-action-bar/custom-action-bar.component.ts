@@ -1,6 +1,5 @@
 
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,13 +37,7 @@ export interface BarCustomActionRequest {
   selector: 'cadmus-custom-action-bar',
   templateUrl: './custom-action-bar.component.html',
   styleUrls: ['./custom-action-bar.component.css'],
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule
-],
+  imports: [MatButtonModule, MatIconModule, MatTooltipModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomActionBarComponent {
