@@ -46,12 +46,12 @@ describe('PinTargetLookupComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    expect(component.item.value).toBeNull();
-    expect(component.itemPart.value).toBeNull();
-    expect(component.gid.value).toBeNull();
-    expect(component.label.value).toBeNull();
-    expect(component.byTypeMode.value).toBe(false);
-    expect(component.external.value).toBe(false);
+    expect(component.form.item().value()).toBeNull();
+    expect(component.form.itemPart().value()).toBeNull();
+    expect(component.form.gid().value()).toBe('');
+    expect(component.form.label().value()).toBe('');
+    expect(component.form.byTypeMode().value()).toBe(false);
+    expect(component.form.external().value()).toBe(false);
   });
 
   it('close should emit editorClose', async () => {
@@ -101,11 +101,11 @@ describe('PinTargetLookupComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    // gid/label are required and left empty
+    // gid is required and left empty
     component.save();
 
-    expect(component.gid.touched).toBe(true);
-    expect(component.label.touched).toBe(true);
+    expect(component.form.gid().touched()).toBe(true);
+    expect(component.form.label().touched()).toBe(true);
     expect(component.target()).toBeUndefined();
   });
 
@@ -114,9 +114,9 @@ describe('PinTargetLookupComponent', () => {
       providers: getProviders(),
     });
     const component = fixture.componentInstance;
-    component.external.setValue(true);
-    component.gid.setValue('g1');
-    component.label.setValue('l1');
+    component.form.external().value.set(true);
+    component.form.gid().value.set('g1');
+    component.form.label().value.set('l1');
 
     component.save();
 
@@ -132,7 +132,7 @@ describe('PinTargetLookupComponent', () => {
 
     component.onItemLookupChange(null);
 
-    expect(component.itemPart.value).toBeNull();
+    expect(component.form.itemPart().value()).toBeNull();
     expect(component.itemParts()).toEqual([]);
   });
 });

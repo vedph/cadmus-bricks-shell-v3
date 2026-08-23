@@ -47,12 +47,12 @@ describe('AssertedCompositeIdComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    expect(component.target.value).toBeNull();
-    expect(component.scope.value).toBeNull();
-    expect(component.tag.value).toBeNull();
-    expect(component.features.value).toEqual([]);
-    expect(component.note.value).toBeNull();
-    expect(component.assertion.value).toBeNull();
+    expect(component.form.target().value()).toBeNull();
+    expect(component.form.scope().value()).toBe('');
+    expect(component.form.tag().value()).toBe('');
+    expect(component.form.features().value()).toEqual([]);
+    expect(component.form.note().value()).toBe('');
+    expect(component.form.assertion().value()).toBeNull();
     expect(component.targetMode()).toBe('internal');
   });
 
@@ -87,7 +87,7 @@ describe('AssertedCompositeIdComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    component.target.setValue({ gid: 'g1', label: 'l1' });
+    component.form.target().value.set({ gid: 'g1', label: 'l1' });
     component.save();
 
     expect(component.id()).toEqual({
@@ -107,10 +107,10 @@ describe('AssertedCompositeIdComponent', () => {
     const component = fixture.componentInstance;
 
     component.onAssertionChange({ rank: 2 } as any);
-    expect(component.assertion.value).toEqual({ rank: 2 });
+    expect(component.form.assertion().value()).toEqual({ rank: 2 });
 
     component.onAssertionChange(undefined);
-    expect(component.assertion.value).toBeNull();
+    expect(component.form.assertion().value()).toBeNull();
   });
 
   it('onEntriesChange should update the features control with entry ids', async () => {
@@ -124,8 +124,8 @@ describe('AssertedCompositeIdComponent', () => {
       { id: 'f2', value: 'Feature 2' } as any,
     ]);
 
-    expect(component.features.value).toEqual(['f1', 'f2']);
-    expect(component.features.dirty).toBe(true);
+    expect(component.form.features().value()).toEqual(['f1', 'f2']);
+    expect(component.form.features().dirty()).toBe(true);
   });
 
   it('onTargetChange should update the target control and collapse the panel when valid', async () => {
@@ -137,7 +137,7 @@ describe('AssertedCompositeIdComponent', () => {
 
     component.onTargetChange({ gid: 'g1', label: 'l1' });
 
-    expect(component.target.value).toEqual({ gid: 'g1', label: 'l1' });
+    expect(component.form.target().value()).toEqual({ gid: 'g1', label: 'l1' });
     expect(component.targetExpanded()).toBe(false);
   });
 

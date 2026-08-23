@@ -1,14 +1,14 @@
-<form [formGroup]="form" (submit)="save()">
+<form (submit)="save()">
   <div class="form-row">
     <!-- external -->
     @if (!hideTargetSelector()) {
-    <mat-checkbox [formControl]="external">external</mat-checkbox>
+    <mat-checkbox [formField]="form.external">external</mat-checkbox>
     }
     <!-- mode switcher -->
-    @if (!external.value) {
+    @if (!form.external().value()) {
     <div>
       @if (canSwitchMode()) {
-      <mat-checkbox [formControl]="byTypeMode"> by type</mat-checkbox>
+      <mat-checkbox [formField]="form.byTypeMode"> by type</mat-checkbox>
       }
     </div>
     }
@@ -17,44 +17,47 @@
   <div class="form-row">
     <!-- label -->
     <div>
-      @if (external.value || canEditTarget()) {
+      @if (form.external().value() || canEditTarget()) {
       <mat-form-field>
         <mat-label>label</mat-label>
-        <input matInput [formControl]="label" />
-        @if ($any(label).errors?.required && (label.dirty || label.touched)) {
+        <input matInput [formField]="form.label" />
+        @if (form.label().getError('required') && (form.label().dirty() ||
+        form.label().touched())) {
         <mat-error>label required</mat-error>
-        } @if ( $any(label).errors?.maxLength && (label.dirty || label.touched)
-        ) {
+        } @if (form.label().getError('maxLength') && (form.label().dirty() ||
+        form.label().touched())) {
         <mat-error>label too long</mat-error>
         }
       </mat-form-field>
-      } @if (!external.value && !canEditTarget() && label.value) {
-      <div class="info"><span class="label">label</span>{{ label.value }}</div>
+      } @if (!form.external().value() && !canEditTarget() && form.label().value()) {
+      <div class="info"><span class="label">label</span>{{ form.label().value() }}</div>
       }
     </div>
 
     <!-- gid -->
     <div id="gid-container">
-      @if (external.value || canEditTarget()) {
+      @if (form.external().value() || canEditTarget()) {
       <mat-form-field>
         <mat-label>GID</mat-label>
-        <input matInput [formControl]="gid" />
-        @if ($any(gid).errors?.required && (gid.dirty || gid.touched)) {
+        <input matInput [formField]="form.gid" />
+        @if (form.gid().getError('required') && (form.gid().dirty() ||
+        form.gid().touched())) {
         <mat-error>GID required</mat-error>
-        } @if ($any(gid).errors?.maxLength && (gid.dirty || gid.touched)) {
+        } @if (form.gid().getError('maxLength') && (form.gid().dirty() ||
+        form.gid().touched())) {
         <mat-error>GID too long</mat-error>
         }
       </mat-form-field>
-      } @if (!external.value && !canEditTarget() && gid.value) {
+      } @if (!form.external().value() && !canEditTarget() && form.gid().value()) {
       <div class="info">
-        <span class="label">GID</span> <span class="gid">{{ gid.value }}</span>
+        <span class="label">GID</span> <span class="gid">{{ form.gid().value() }}</span>
       </div>
       }
     </div>
   </div>
 
   <!-- external lookup set -->
-  @if (external.value && extLookupConfigs().length) {
+  @if (form.external().value() && extLookupConfigs().length) {
   <fieldset>
     <legend>external lookup</legend>
     <cadmus-refs-lookup-set
@@ -68,11 +71,11 @@
   }
 
   <!-- BY ITEM -->
-  @if (!external.value) {
+  @if (!form.external().value()) {
   <fieldset>
     <legend>internal lookup</legend>
     <div class="form-row">
-      @if (!byTypeMode.value) {
+      @if (!form.byTypeMode().value()) {
       <fieldset class="form-row">
         <legend>pin filters</legend>
         <!-- item filter -->
@@ -85,7 +88,7 @@
         @if (itemParts().length) {
         <mat-form-field>
           <mat-label>part</mat-label>
-          <mat-select [formControl]="itemPart">
+          <mat-select [formField]="form.itemPart">
             <mat-option [value]="null">(any)</mat-option>
             @for (p of itemParts(); track p) {
             <mat-option [value]="p">{{
@@ -99,13 +102,13 @@
       </fieldset>
       }
       <!-- BY TYPE -->
-      @if (byTypeMode.value) {
+      @if (form.byTypeMode().value()) {
       <div>
         <!-- part type filter -->
         @if (partTypeKeys().length) {
         <mat-form-field>
           <mat-label>part type</mat-label>
-          <mat-select [formControl]="partTypeKey">
+          <mat-select [formField]="form.partTypeKey">
             @for (k of partTypeKeys(); track k) {
             <mat-option [value]="k">{{ k }}</mat-option>
             }
@@ -115,7 +118,7 @@
       </div>
       }
       <!-- PIN -->
-      @if (partTypeKey.value) {
+      @if (form.partTypeKey().value()) {
       <div>
         <!-- pin lookup -->
         <cadmus-refs-lookup
@@ -291,7 +294,7 @@
     <button mat-icon-button type="button" (click)="close()">
       <mat-icon class="mat-warn">close</mat-icon>
     </button>
-    <button mat-flat-button type="submit" [disabled]="form.invalid">
+    <button mat-flat-button type="submit" [disabled]="form().invalid()">
       <mat-icon>check_circle</mat-icon>
       target
     </button>

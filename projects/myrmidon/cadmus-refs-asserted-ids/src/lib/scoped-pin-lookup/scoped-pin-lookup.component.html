@@ -1,17 +1,18 @@
 <div>
   <!-- lookup -->
   <div>
-    <form [formGroup]="keyForm" class="form-row">
+    <form class="form-row">
       <!-- key -->
       @if (keys().length > 1) {
         <mat-form-field>
           <mat-label>type</mat-label>
-          <mat-select [formControl]="key">
+          <mat-select [formField]="keyForm.key">
             @for (k of keys(); track k) {
               <mat-option [value]="k">{{ k }}</mat-option>
             }
           </mat-select>
-          @if ($any(key).errors?.required && (key.dirty || key.touched)) {
+          @if (keyForm.key().getError('required') && (keyForm.key().dirty() ||
+          keyForm.key().touched())) {
             <mat-error>type required</mat-error>
           }
         </mat-form-field>
@@ -19,7 +20,7 @@
       <cadmus-refs-lookup
         [service]="lookupService"
         label="pin"
-        [options]="key.value ? lookupDefs[key.value] : undefined"
+        [options]="keyForm.key().value() ? lookupDefs[keyForm.key().value()!] : undefined"
         [lookupProviderOptions]="lookupProviderOptions()"
         (itemChange)="onItemChange($event)"
       />
@@ -32,13 +33,15 @@
       <mat-expansion-panel-header>ID builder</mat-expansion-panel-header>
       <!-- ID -->
       <div>
-        <form [formGroup]="idForm" (submit)="pickId()">
+        <form (submit)="pickId()">
           <mat-form-field style="width: 100%">
-            <input matInput [formControl]="id" />
-            @if ($any(id).errors?.required && (id.dirty || id.touched)) {
+            <input matInput [formField]="idForm.id" />
+            @if (idForm.id().getError('required') && (idForm.id().dirty() ||
+            idForm.id().touched())) {
               <mat-error>ID required</mat-error>
             }
-            @if ($any(id).errors?.maxLength && (id.dirty || id.touched)) {
+            @if (idForm.id().getError('maxLength') && (idForm.id().dirty() ||
+            idForm.id().touched())) {
               <mat-error>ID too long</mat-error>
             }
             <button
@@ -46,7 +49,7 @@
               type="button"
               matSuffix
               (click)="resetId()"
-              [disabled]="!id.value"
+              [disabled]="!idForm.id().value()"
             >
               <mat-icon class="mat-warn">close</mat-icon>
             </button>
@@ -55,7 +58,7 @@
               type="button"
               matSuffix
               (click)="pickId()"
-              [disabled]="idForm.invalid"
+              [disabled]="idForm().invalid()"
             >
               <mat-icon class="mat-primary">check_circle</mat-icon>
             </button>

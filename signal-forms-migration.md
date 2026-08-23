@@ -70,7 +70,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 19. `cadmus-refs-external-ids` — has `FormArray`
 - [x] 20. `cadmus-refs-proper-name` — uses `NgxToolsValidators`
 - [x] 21. `cadmus-refs-asserted-chronotope` — uses `NgxToolsValidators`
-- [ ] 22. `cadmus-refs-asserted-ids`
+- [x] 22. `cadmus-refs-asserted-ids`
 - [ ] 23. `cadmus-text-ed-md`
 
 ## Notes log
@@ -711,3 +711,112 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
     constructor's model-sync `effect()`, which runs once on init
     regardless), matching the "no OnInit/OnDestroy needed" simplification
     already applied to several other components in this migration.
+- **`cadmus-refs-asserted-ids`** (6 components) — final complex library
+  before `cadmus-text-ed-md`, and the source of the most significant
+  finding of the whole migration: a genuine **infinite synchronous loop**,
+  not just a stomping risk.
+  - `scoped-pin-lookup`: two independent trivial forms (`keyForm: {key:
+    string | null}`, `idForm: {id: string}` with `required`+
+    `maxLength(300)`). Simplified by moving "pre-select the unique key"
+    logic from `ngOnInit()` into the constructor, since the `keys()`
+    signal it depends on was already built there — removed the need for
+    `OnInit` entirely, matching the by-now-standard simplification applied
+    throughout this migration.
+  - `pin-target-lookup` — the largest/most complex component in this
+    migration. Three debounced `toObservable()` watchers (`item`,
+    `itemPart`, `partTypeKey`) all needed `inject(Injector)`/
+    `inject(DestroyRef)` in the constructor, passed explicitly
+    (`{ injector: this._injector }`, `takeUntilDestroyed(this._destroyRef)`)
+    since they're set up in `ngOnInit()`. `required(path.label, {when:
+    (ctx) => ctx.valueOf(path.external)})` replaced an imperative
+    `setValidators()`/`updateValueAndValidity()` dance driven by a
+    (deleted) debounced `external` watcher. A `_suppressItemPartWatch`
+    consume-once flag replaced `{emitEvent:false}` on the original's
+    `itemPart.setValue(null)` inside the `item`-changed watcher, same
+    "consume-once, not synchronously-reset" idiom as `external-ids`'
+    `_suppressFocus`.
+    **THE INFINITE LOOP**: `updateForm()`'s "no target" branch originally
+    read `this._draft()` directly *while already running inside* the
+    "target changed" `effect()`, then called `_draft.set(...)` in that
+    same call — a tracked self-dependency that re-triggers the effect on
+    its own write, forever. This is a **sharper, more dangerous variant**
+    of the `cadmus-mat-physical-grid` `untracked()` hazard documented at
+    the top of this log: that one caused values to be silently stomped;
+    this one hangs the process — `ng test` ran for 3+ minutes producing
+    zero output (confirmed via two separate background-task runs) versus
+    ~8-12s for a normal (even a failing) run. **Root cause**: any signal
+    read inside an `effect()` that *also writes to that same signal*
+    (directly, or via a helper the effect calls) becomes a tracked
+    dependency of that effect — reading `_draft()` then calling
+    `_draft.set()` in the same execution path is the write re-triggering
+    its own read. **Fix**: switch to `.update(currentValue => ...)` —
+    the callback parameter is not a tracked read, so no self-dependency
+    forms:
+    ```ts
+    this._draft.update((v) => ({
+      item: null, itemPart: null, partTypeKey: v.partTypeKey,
+      gid: '', label: '', byTypeMode: v.byTypeMode, external: v.external,
+    }));
+    ```
+    Then proactively grepped the whole file for `this\._draft()\.` and
+    found two more latent instances of the identical hazard in
+    `updateTarget()`/`updateTargetFromData()` (both callable synchronously
+    from inside the same effect's call graph) — fixed by wrapping those
+    reads in `untracked(() => this._draft().external)` rather than
+    switching to `.update()`, since those call sites needed the value
+    read-out, not a full draft rewrite. **General rule going forward,
+    stronger than the earlier `untracked()` guidance**: any `_draft()`
+    read reachable from inside an effect that writes `_draft` is a
+    potential infinite loop, not just a potential stomp — prefer
+    `.update((v) => ...)` over `.set()` whenever the new value depends on
+    the current one, and audit every remaining direct read via grep after
+    any effect-based rewrite, not just the one that failed a test (the
+    other two instances here had no failing test pointing at them; they
+    were caught by inspection alone, after the first one's fix, before
+    they could bite).
+  - `asserted-id`: debounced autosave with a trim asymmetry
+    (`getId()` trims, `updateForm()` doesn't) — used the
+    `_lastSyncedDraft` JSON-snapshot technique from `cadmus-refs-
+    assertion` rather than a plain content-equality check. Confirmed
+    convention: `save()` does **not** update `_lastId`/`_lastSyncedDraft`
+    itself (mirroring the original, which always resynced the form after
+    any `id` write including from `save()`) — only the model-sync effect
+    and `emitIdChange()` update those two.
+  - `asserted-composite-id`: same `_lastId`/`_hasLastId`/
+    `_lastSyncedDraft` shape as `asserted-id`. `features: string[]` is a
+    primitive array, so no array-of-objects hazard. Proactively wrapped
+    every `_draft()` read reachable from a tracked effect context
+    (`onTargetModeChange`, `onTaxoConfigChange`, `onExtLookupConfigChange`)
+    in `untracked()`, and rewrote `resetTarget()` to use `.update()` with
+    a captured-result variable instead of a direct read-then-`.set()`:
+    ```ts
+    private resetTarget(): void {
+      let draft!: AssertedCompositeIdControls;
+      this._draft.update((v) => {
+        draft = { ...v, target: { gid: '', label: '' } };
+        return draft;
+      });
+      this._lastSyncedDraft = JSON.stringify(draft);
+      this.form.target().markAsDirty();
+    }
+    ```
+    **Found and fixed a genuine latent bug**, not just ported: the
+    original `idFeatures` computed read `this.features.value` — a plain
+    reactive-forms `FormControl.value`, not itself a signal — so it never
+    actually re-ran when `features` changed in isolation (only when
+    `featureEntries()` also changed, dragging the whole computed along).
+    Ported as `this.form.features().value()`, a genuine tracked signal
+    read, which is now correctly reactive — the same category of
+    "declarative validator/computed becomes genuinely reactive" fix as
+    `chronotope`'s `maxLength`/`max-length` error-key typo earlier in
+    this migration.
+  - `asserted-ids` / `asserted-composite-ids`: both false positives — pure
+    list-manager wrapper components (add/edit/delete/move rows, open a
+    nested editor) that only imported `FormsModule`/`ReactiveFormsModule`
+    without ever using any reactive-forms API. Dropped the unused
+    imports; no signal-forms conversion needed, same category as
+    `cadmus-ui-custom-action-bar` earlier in this migration.
+  All 96 tests across the library's 8 spec files passed after every
+  component, including two full-library reruns after the infinite-loop
+  fix (once standalone, once again after `asserted-composite-id`) to
+  confirm the fix held and wasn't reintroduced.

@@ -42,11 +42,11 @@ describe('AssertedIdComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    expect(component.tag.value).toBeNull();
-    expect(component.value.value).toBeNull();
-    expect(component.label.value).toBeNull();
-    expect(component.scope.value).toBeNull();
-    expect(component.assertion.value).toBeNull();
+    expect(component.form.tag().value()).toBe('');
+    expect(component.form.value().value()).toBe('');
+    expect(component.form.label().value()).toBe('');
+    expect(component.form.scope().value()).toBe('');
+    expect(component.form.assertion().value()).toBeNull();
     expect(component.lookupExpanded()).toBe(false);
   });
 
@@ -60,11 +60,11 @@ describe('AssertedIdComponent', () => {
     component.id.set(id);
     fixture.detectChanges();
 
-    expect(component.value.value).toBe('v1');
-    expect(component.scope.value).toBe('s1');
-    expect(component.tag.value).toBe('t1');
-    expect(component.label.value).toBe('l1');
-    expect(component.form.pristine).toBe(true);
+    expect(component.form.value().value()).toBe('v1');
+    expect(component.form.scope().value()).toBe('s1');
+    expect(component.form.tag().value()).toBe('t1');
+    expect(component.form.label().value()).toBe('l1');
+    expect(component.form().dirty()).toBe(false);
   });
 
   it('should reset the form when id is set to undefined', async () => {
@@ -79,8 +79,8 @@ describe('AssertedIdComponent', () => {
     component.id.set(undefined);
     fixture.detectChanges();
 
-    expect(component.value.value).toBeNull();
-    expect(component.scope.value).toBeNull();
+    expect(component.form.value().value()).toBe('');
+    expect(component.form.scope().value()).toBe('');
   });
 
   it('cancel should emit editorClose', async () => {
@@ -114,8 +114,8 @@ describe('AssertedIdComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    component.value.setValue('  v1  ');
-    component.scope.setValue('  s1  ');
+    component.form.value().value.set('  v1  ');
+    component.form.scope().value.set('  s1  ');
     component.save();
 
     expect(component.id()).toEqual({
@@ -134,10 +134,10 @@ describe('AssertedIdComponent', () => {
     const component = fixture.componentInstance;
 
     component.onAssertionChange({ rank: 1 } as any);
-    expect(component.assertion.value).toEqual({ rank: 1 });
+    expect(component.form.assertion().value()).toEqual({ rank: 1 });
 
     component.onAssertionChange(undefined);
-    expect(component.assertion.value).toBeNull();
+    expect(component.form.assertion().value()).toBeNull();
   });
 
   it('onIdPick should set the value control and collapse the lookup panel', async () => {
@@ -149,8 +149,8 @@ describe('AssertedIdComponent', () => {
 
     component.onIdPick('picked-id');
 
-    expect(component.value.value).toBe('picked-id');
-    expect(component.value.dirty).toBe(true);
+    expect(component.form.value().value()).toBe('picked-id');
+    expect(component.form.value().dirty()).toBe(true);
     expect(component.lookupExpanded()).toBe(false);
   });
 });

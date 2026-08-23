@@ -8,16 +8,11 @@ import {
   model,
   output,
   signal,
+  untracked,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { debounceTime, filter } from 'rxjs/operators';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import { debounceTime } from 'rxjs/operators';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 // material
 import { MatButtonModule } from '@angular/material/button';
@@ -115,6 +110,26 @@ export interface AssertedCompositeId {
   assertion?: Assertion;
 }
 
+interface AssertedCompositeIdControls {
+  target: PinTarget | null;
+  scope: string;
+  tag: string;
+  features: string[];
+  note: string;
+  assertion: Assertion | null;
+}
+
+function makeDefaultDraft(): AssertedCompositeIdControls {
+  return {
+    target: null,
+    scope: '',
+    tag: '',
+    features: [],
+    note: '',
+    assertion: null,
+  };
+}
+
 /**
  * An asserted composite ID editor. This allows the user to edit an asserted
  * composite ID, which can be an external ID, a lookup ID or a taxonomy ID.
@@ -124,7 +139,7 @@ export interface AssertedCompositeId {
   templateUrl: './asserted-composite-id.component.html',
   styleUrls: ['./asserted-composite-id.component.css'],
   imports: [
-    ReactiveFormsModule,
+    FormField,
     // material
     MatButtonModule,
     MatExpansionModule,
@@ -147,6 +162,17 @@ export interface AssertedCompositeId {
 export class AssertedCompositeIdComponent {
   private _updatingForm: boolean | undefined;
   private _lookupConfigDirty = true;
+  // set synchronously wherever `id` is written (not inside the effect
+  // below), paired with _hasLastId since undefined is both "never saved
+  // yet" and a legitimate real value - see signal-forms-migration.md.
+  private _lastId: AssertedCompositeId | undefined = undefined;
+  private _hasLastId = false;
+  // a JSON snapshot of the draft as of the last external sync or emitted
+  // save/target-reset, used by the debounced autosave to tell "the draft
+  // changed only because of a sync/reset we already accounted for" apart
+  // from a real user edit - see the cadmus-refs-assertion entry in
+  // signal-forms-migration.md.
+  private _lastSyncedDraft = '';
 
   public readonly extLookupConfigs = signal<RefLookupConfig[]>([]);
   public readonly targetExpanded = signal<boolean>(false);
@@ -180,13 +206,15 @@ export class AssertedCompositeIdComponent {
   >(undefined);
 
   // form
-  public target: FormControl<PinTarget | null>;
-  public scope: FormControl<string | null>;
-  public tag: FormControl<string | null>;
-  public features: FormControl<string[]>;
-  public note: FormControl<string | null>;
-  public assertion: FormControl<Assertion | null>;
-  public form: FormGroup;
+  private readonly _draft = signal<AssertedCompositeIdControls>(
+    makeDefaultDraft(),
+  );
+  public readonly form = form(this._draft, (path) => {
+    required(path.target);
+    maxLength(path.scope, 500);
+    maxLength(path.tag, 50);
+    maxLength(path.note, 1000);
+  });
 
   // asserted-id-scopes
   public readonly idScopeEntries = input<ThesaurusEntry[]>();
@@ -264,7 +292,7 @@ export class AssertedCompositeIdComponent {
    * any of the current features.
    */
   public readonly idFeatures = computed<ThesaurusEntry[]>(() => {
-    const features = this.features.value;
+    const features = this.form.features().value();
     const entries = this.featureEntries();
     if (!features || features.length === 0 || !entries) {
       return [];
@@ -273,28 +301,11 @@ export class AssertedCompositeIdComponent {
   });
 
   constructor(
-    formBuilder: FormBuilder,
     public lookupService: PinRefLookupService,
     @Inject('indexLookupDefinitions')
     public lookupDefs: IndexLookupDefinitions,
     settings: RamStorageService,
   ) {
-    // form
-    this.target = formBuilder.control(null, Validators.required);
-    this.scope = formBuilder.control(null, Validators.maxLength(500));
-    this.tag = formBuilder.control(null, Validators.maxLength(50));
-    this.features = formBuilder.control([], { nonNullable: true });
-    this.note = formBuilder.control(null, Validators.maxLength(1000));
-    this.assertion = formBuilder.control(null);
-    this.form = formBuilder.group({
-      target: this.target,
-      scope: this.scope,
-      tag: this.tag,
-      features: this.features,
-      note: this.note,
-      assertion: this.assertion,
-    });
-
     // external lookup configs
     this.extLookupConfigs.set(
       settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || [],
@@ -310,38 +321,42 @@ export class AssertedCompositeIdComponent {
     // when id changes, update form
     effect(() => {
       const id = this.id();
+      if (this._hasLastId && this._lastId === id) {
+        return;
+      }
+      this._lastId = id;
+      this._hasLastId = true;
       this.updateForm(id);
     });
 
     // when form changes, emit id change
-    this.form.valueChanges
-      .pipe(
-        // react only on user changes, when form is valid
-        filter(() => !this._updatingForm && this.form.valid),
-        debounceTime(300),
-        takeUntilDestroyed(),
-      )
-      .subscribe((_) => {
+    toObservable(this._draft)
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe(() => {
+        if (this._updatingForm || this.form().invalid()) {
+          return;
+        }
+        if (JSON.stringify(this._draft()) === this._lastSyncedDraft) {
+          return;
+        }
         this.emitIdChange();
       });
   }
 
   public onEntriesChange(entries: ThesaurusEntry[]): void {
     const ids = entries.map((e) => e.id);
-    this.features.setValue(ids);
-    this.features.markAsDirty();
-    this.features.updateValueAndValidity();
+    this._draft.update((v) => ({ ...v, features: ids }));
+    this.form.features().markAsDirty();
   }
 
   public onAssertionChange(assertion: Assertion | undefined): void {
-    this.assertion.setValue(assertion || null);
+    this._draft.update((v) => ({ ...v, assertion: assertion || null }));
   }
 
   public onTargetChange(target?: PinTarget): void {
-    this.target.setValue(target!);
-    this.target.markAsDirty();
-    this.target.updateValueAndValidity();
-    if (this.form.valid) {
+    this._draft.update((v) => ({ ...v, target: target! }));
+    this.form.target().markAsDirty();
+    if (this.form().valid()) {
       this.targetExpanded.set(false);
     }
   }
@@ -350,30 +365,40 @@ export class AssertedCompositeIdComponent {
    * Reset the target to an empty value without collapsing the target
    * panel. This is used when switching source mode, as opposed to
    * onTargetChange, which is used when the user has actually picked a
-   * target and the panel can be collapsed.
+   * target and the panel can be collapsed. Never called from within a
+   * tracked effect, so reading _draft() directly here is safe.
    */
   private resetTarget(): void {
-    this.target.setValue({ gid: '', label: '' }, { emitEvent: false });
-    this.target.markAsDirty();
-    this.target.updateValueAndValidity({ emitEvent: false });
+    let draft!: AssertedCompositeIdControls;
+    this._draft.update((v) => {
+      draft = { ...v, target: { gid: '', label: '' } };
+      return draft;
+    });
+    this._lastSyncedDraft = JSON.stringify(draft);
+    this.form.target().markAsDirty();
   }
 
   private updateForm(id: AssertedCompositeId | undefined): void {
     this._updatingForm = true;
+    let draft: AssertedCompositeIdControls;
     if (!id) {
-      this.form.reset();
+      draft = makeDefaultDraft();
       this.targetMode.set('internal');
       this.selectedTaxoConfig.set(undefined);
     } else {
-      this.target.setValue(id.target, { emitEvent: false });
-      this.scope.setValue(id.scope || null, { emitEvent: false });
-      this.tag.setValue(id.tag || null, { emitEvent: false });
-      this.features.setValue(id.features || [], { emitEvent: false });
-      this.note.setValue(id.note || null, { emitEvent: false });
-      this.assertion.setValue(id.assertion || null, { emitEvent: false });
-      this.form.markAsPristine();
+      draft = {
+        target: id.target,
+        scope: id.scope || '',
+        tag: id.tag || '',
+        features: id.features || [],
+        note: id.note || '',
+        assertion: id.assertion || null,
+      };
       this.updateTargetMode(id.target);
     }
+    this._draft.set(draft);
+    this._lastSyncedDraft = JSON.stringify(draft);
+    this.form().reset();
     this._updatingForm = false;
   }
 
@@ -422,13 +447,13 @@ export class AssertedCompositeIdComponent {
         this.selectedTaxoConfig.set(this.taxoLookupConfigs()[0]);
       }
       // a target from another mode is not a taxonomy target: reset it
-      if (!this.target.value?.gid?.startsWith(TAXONOMY_GID_PREFIX)) {
+      if (!untracked(() => this._draft().target?.gid?.startsWith(TAXONOMY_GID_PREFIX))) {
         this.resetTarget();
       }
     } else {
       this.selectedTaxoConfig.set(undefined);
       // a taxonomy target is not valid for internal/external mode: reset it
-      if (this.target.value?.gid?.startsWith(TAXONOMY_GID_PREFIX)) {
+      if (untracked(() => this._draft().target?.gid?.startsWith(TAXONOMY_GID_PREFIX))) {
         this.resetTarget();
       }
     }
@@ -443,7 +468,7 @@ export class AssertedCompositeIdComponent {
     }
     this.selectedTaxoConfig.set(config);
     // the previously picked node belongs to another tree: reset target
-    if (this.target.value?.gid?.startsWith(TAXONOMY_GID_PREFIX)) {
+    if (untracked(() => this._draft().target?.gid?.startsWith(TAXONOMY_GID_PREFIX))) {
       this.resetTarget();
     }
   }
@@ -467,8 +492,9 @@ export class AssertedCompositeIdComponent {
   }
 
   private getId(): AssertedCompositeId {
-    const external = !this.target.value?.name;
-    const target = this.target.value;
+    const v = this._draft();
+    const external = !v.target?.name;
+    const target = v.target;
     return {
       target: external
         ? {
@@ -476,17 +502,21 @@ export class AssertedCompositeIdComponent {
             label: target?.label || target?.gid || '',
           }
         : target!,
-      scope: this.scope.value?.trim() || '',
-      tag: this.tag.value?.trim(),
-      features: this.features.value?.length ? this.features.value : undefined,
-      note: this.note.value?.trim() || undefined,
-      assertion: this.assertion.value || undefined,
+      scope: v.scope.trim() || '',
+      tag: v.tag.trim() || undefined,
+      features: v.features?.length ? v.features : undefined,
+      note: v.note.trim() || undefined,
+      assertion: v.assertion || undefined,
     };
   }
 
   public emitIdChange(): void {
     if (!this.hasSubmit()) {
-      this.id.set(this.getId());
+      const id = this.getId();
+      this._lastId = id;
+      this._hasLastId = true;
+      this._lastSyncedDraft = JSON.stringify(this._draft());
+      this.id.set(id);
     }
   }
 
@@ -504,18 +534,19 @@ export class AssertedCompositeIdComponent {
       return;
     }
 
-    // update scope if external lookup config is selected
-    const external = !this.target.value?.name;
+    // update scope if external lookup config is selected - untracked():
+    // this method is wired to a child component output, but is reached
+    // indirectly enough from change detection that it's cheap insurance
+    // against the same tracked-read-plus-write hazard documented for
+    // updateForm()/resetTarget() above.
+    const v = untracked(() => this._draft());
+    const external = !v.target?.name;
     if (this._updatingForm || !external) {
       return;
     }
-    if (
-      !this.scope.value ||
-      this.extLookupConfigs().some((c) => c.name === this.scope.value)
-    ) {
-      this.scope.setValue(config.service!.id || null);
-      this.scope.markAsDirty();
-      this.scope.updateValueAndValidity();
+    if (!v.scope || this.extLookupConfigs().some((c) => c.name === v.scope)) {
+      this._draft.update((d) => ({ ...d, scope: config.service!.id || '' }));
+      this.form.scope().markAsDirty();
     }
   }
 
@@ -524,7 +555,7 @@ export class AssertedCompositeIdComponent {
   }
 
   public save(): void {
-    if (this.form.valid) {
+    if (this.form().valid()) {
       this.id.set(this.getId());
     }
   }

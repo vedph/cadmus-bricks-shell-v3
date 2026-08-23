@@ -5,7 +5,6 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { take } from 'rxjs';
 
 // material
@@ -36,8 +35,6 @@ import {
   templateUrl: './asserted-ids.component.html',
   styleUrls: ['./asserted-ids.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
     // material
     MatButtonModule,
     MatExpansionModule,

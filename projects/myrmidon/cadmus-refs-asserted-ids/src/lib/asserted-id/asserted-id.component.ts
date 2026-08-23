@@ -5,21 +5,12 @@ import {
   Inject,
   input,
   model,
-  OnDestroy,
-  OnInit,
   output,
   signal,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs';
 
 // material
 import { MatButtonModule } from '@angular/material/button';
@@ -51,6 +42,18 @@ export interface AssertedId {
   assertion?: Assertion;
 }
 
+interface AssertedIdControls {
+  tag: string;
+  value: string;
+  label: string;
+  scope: string;
+  assertion: Assertion | null;
+}
+
+function makeDefaultDraft(): AssertedIdControls {
+  return { tag: '', value: '', label: '', scope: '', assertion: null };
+}
+
 /**
  * Asserted ID editor component.
  */
@@ -59,8 +62,7 @@ export interface AssertedId {
   templateUrl: './asserted-id.component.html',
   styleUrls: ['./asserted-id.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     // material
     MatButtonModule,
     MatExpansionModule,
@@ -74,16 +76,27 @@ export interface AssertedId {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AssertedIdComponent implements OnInit, OnDestroy {
-  private _sub?: Subscription;
-  private _updatingForm: boolean | undefined;
+export class AssertedIdComponent {
+  // set synchronously wherever `id` is written (not inside the effect
+  // below), paired with _hasLastId since undefined is both "never saved
+  // yet" and a legitimate real value - see signal-forms-migration.md.
+  private _lastId: AssertedId | undefined = undefined;
+  private _hasLastId = false;
+  // a JSON snapshot of the draft as of the last external sync or emitted
+  // save - see the cadmus-refs-assertion entry in
+  // signal-forms-migration.md for why this, not a synchronous flag, is
+  // needed to tell "the draft changed only because of a sync we already
+  // accounted for" apart from a real user edit.
+  private _lastSyncedDraft = '';
 
-  public tag: FormControl<string | null>;
-  public value: FormControl<string | null>;
-  public label: FormControl<string | null>;
-  public scope: FormControl<string | null>;
-  public assertion: FormControl<Assertion | null>;
-  public form: FormGroup;
+  private readonly _draft = signal<AssertedIdControls>(makeDefaultDraft());
+  public readonly form = form(this._draft, (path) => {
+    maxLength(path.tag, 50);
+    required(path.value);
+    maxLength(path.value, 500);
+    maxLength(path.label, 500);
+    maxLength(path.scope, 500);
+  });
 
   public readonly lookupExpanded = signal<boolean>(false);
 
@@ -125,86 +138,75 @@ export class AssertedIdComponent implements OnInit, OnDestroy {
   public readonly editorClose = output();
 
   constructor(
-    formBuilder: FormBuilder,
     public lookupService: PinRefLookupService,
     @Inject('indexLookupDefinitions')
     public lookupDefs: IndexLookupDefinitions
   ) {
-    this.tag = formBuilder.control(null, Validators.maxLength(50));
-    this.value = formBuilder.control(null, [
-      Validators.required,
-      Validators.maxLength(500),
-    ]);
-    this.label = formBuilder.control(null, Validators.maxLength(500));
-    this.scope = formBuilder.control(null, Validators.maxLength(500));
-    this.assertion = formBuilder.control(null);
-    this.form = formBuilder.group({
-      tag: this.tag,
-      value: this.value,
-      label: this.label,
-      scope: this.scope,
-      assertion: this.assertion,
-    });
-
     // when id changes, update form
     effect(() => {
-      this.updateForm(this.id());
+      const id = this.id();
+      if (this._hasLastId && this._lastId === id) {
+        return;
+      }
+      this._lastId = id;
+      this._hasLastId = true;
+      this.updateForm(id);
     });
-  }
 
-  public ngOnInit(): void {
-    this._sub = this.form.valueChanges
-      .pipe(debounceTime(300))
-      .subscribe((_) => {
-        if (!this._updatingForm) {
-          this.emitIdChange();
+    // autosave
+    toObservable(this._draft)
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe(() => {
+        if (JSON.stringify(this._draft()) === this._lastSyncedDraft) {
+          return;
         }
+        this.emitIdChange();
       });
   }
 
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
-  }
-
   public onAssertionChange(assertion: Assertion | undefined): void {
-    this.assertion.setValue(assertion || null);
+    this._draft.update((v) => ({ ...v, assertion: assertion || null }));
   }
 
   public onIdPick(id: string): void {
-    this.value.setValue(id);
-    this.value.markAsDirty();
-    this.value.updateValueAndValidity();
+    this._draft.update((v) => ({ ...v, value: id }));
+    this.form.value().markAsDirty();
     this.lookupExpanded.set(false);
   }
 
   private updateForm(value: AssertedId | undefined): void {
-    this._updatingForm = true;
-    if (!value) {
-      this.form.reset();
-    } else {
-      this.tag.setValue(value.tag || null);
-      this.value.setValue(value.value);
-      this.label.setValue(value.label || null);
-      this.scope.setValue(value.scope);
-      this.assertion.setValue(value.assertion || null);
-      this.form.markAsPristine();
-    }
-    this._updatingForm = false;
+    const draft = !value
+      ? makeDefaultDraft()
+      : {
+          tag: value.tag || '',
+          value: value.value,
+          label: value.label || '',
+          scope: value.scope,
+          assertion: value.assertion || null,
+        };
+    this._draft.set(draft);
+    this._lastSyncedDraft = JSON.stringify(draft);
+    this.form().reset();
   }
 
   private getId(): AssertedId {
+    const v = this._draft();
     return {
-      tag: this.tag.value?.trim(),
-      value: this.value.value?.trim() || '',
-      label: this.label.value?.trim() || undefined,
-      scope: this.scope.value?.trim() || '',
-      assertion: this.assertion.value || undefined,
+      tag: v.tag.trim() || undefined,
+      value: v.value.trim() || '',
+      label: v.label.trim() || undefined,
+      scope: v.scope.trim() || '',
+      assertion: v.assertion || undefined,
     };
   }
 
   public emitIdChange(): void {
     if (!this.hasSubmit()) {
-      this.id.set(this.getId());
+      const id = this.getId();
+      this._lastId = id;
+      this._hasLastId = true;
+      this._lastSyncedDraft = JSON.stringify(this._draft());
+      this.id.set(id);
     }
   }
 
@@ -213,7 +215,7 @@ export class AssertedIdComponent implements OnInit, OnDestroy {
   }
 
   public save(): void {
-    if (this.form.valid) {
+    if (this.form().valid()) {
       this.id.set(this.getId());
     }
   }

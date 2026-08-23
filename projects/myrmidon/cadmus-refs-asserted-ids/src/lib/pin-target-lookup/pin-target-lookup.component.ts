@@ -1,30 +1,21 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   effect,
+  inject,
   Inject,
   input,
+  Injector,
   model,
-  OnDestroy,
   OnInit,
   output,
   signal,
+  untracked,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import {
-  Subscription,
-  debounceTime,
-  distinctUntilChanged,
-  forkJoin,
-  take,
-} from 'rxjs';
+import { FieldTree, FormField, form, maxLength, required } from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, forkJoin, take } from 'rxjs';
 
 // material
 import { ClipboardModule } from '@angular/cdk/clipboard';
@@ -104,6 +95,16 @@ export interface PinTarget {
   value?: string;
 }
 
+interface PinTargetControls {
+  item: Item | null;
+  itemPart: Part | null;
+  partTypeKey: string | null;
+  gid: string;
+  label: string;
+  byTypeMode: boolean;
+  external: boolean;
+}
+
 /*
  * Scoped pin-based lookup component. This component provides a list
  * of pin-based searches, with a lookup control. Whenever the user
@@ -116,8 +117,7 @@ export interface PinTarget {
   templateUrl: './pin-target-lookup.component.html',
   styleUrls: ['./pin-target-lookup.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     // material
     ClipboardModule,
     MatButtonModule,
@@ -136,8 +136,7 @@ export interface PinTarget {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PinTargetLookupComponent implements OnInit, OnDestroy {
-  private readonly _subs: Subscription[] = [];
+export class PinTargetLookupComponent implements OnInit {
   private _updatingForm = false;
   private _startWithByTypeMode?: boolean;
 
@@ -230,17 +229,26 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   // by item
   public readonly itemParts = signal<Part[]>([]);
 
-  // form - by item
-  public item: FormControl<Item | null>;
-  public itemPart: FormControl<Part | null>;
-  // form - by type
-  public partTypeKey: FormControl<string | null>;
-  // form - both
-  public gid: FormControl<string | null>;
-  public label: FormControl<string | null>;
-  public byTypeMode: FormControl<boolean>;
-  public external: FormControl<boolean>;
-  public form: FormGroup;
+  // form
+  private readonly _draft = signal<PinTargetControls>({
+    item: null,
+    itemPart: null,
+    partTypeKey: null,
+    gid: '',
+    label: '',
+    byTypeMode: false,
+    external: false,
+  });
+  public readonly form: FieldTree<PinTargetControls>;
+  // set by the item-changed watcher right before it silently resets
+  // itemPart, and consumed (cleared) the next time the itemPart watcher
+  // fires - itemPart becoming null this way (item changed) must not be
+  // confused with the user explicitly picking "(any)" (also null); see
+  // signal-forms-migration.md for why a synchronous flag can't do this
+  // job once toObservable()'s deferred emission is involved.
+  private _suppressItemPartWatch = false;
+  private readonly _injector = inject(Injector);
+  private readonly _destroyRef = inject(DestroyRef);
 
   constructor(
     @Inject('indexLookupDefinitions')
@@ -249,43 +257,30 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     public pinLookupService: PinRefLookupService,
     private _itemService: ItemService,
     private _thesService: ThesaurusService,
-    private _snackbar: MatSnackBar,
-    formBuilder: FormBuilder
+    private _snackbar: MatSnackBar
   ) {
-    // form
-    this.item = formBuilder.control(null);
-    this.itemPart = formBuilder.control(null);
-    this.partTypeKey = formBuilder.control(null);
-    this.gid = formBuilder.control(null, [
-      Validators.required,
-      Validators.maxLength(300),
-    ]);
-    this.label = formBuilder.control(null, [
-      Validators.required,
-      Validators.maxLength(300),
-    ]);
-    this.byTypeMode = formBuilder.control(false, { nonNullable: true });
-    this.external = formBuilder.control(false, { nonNullable: true });
-    this.form = formBuilder.group({
-      item: this.item,
-      itemPart: this.itemPart,
-      partTypeKey: this.partTypeKey,
-      gid: this.gid,
-      label: this.label,
-      byTypeMode: this.byTypeMode,
-      external: this.external,
+    this.form = form(this._draft, (path) => {
+      required(path.gid);
+      maxLength(path.gid, 300);
+      // required only when external - replaces the imperative
+      // setValidators()/updateValueAndValidity() dance the original ran
+      // from a debounced `external` watcher; this is always reactively
+      // live instead.
+      required(path.label, { when: (ctx) => ctx.valueOf(path.external) });
+      maxLength(path.label, 300);
     });
 
     // when pinByTypeMode changes, adjust form
     effect(() => {
+      const pinByTypeMode = this.pinByTypeMode();
       if (!this._updatingForm) {
-        if (!this.byTypeMode.value) {
-          this._startWithByTypeMode = this.pinByTypeMode();
+        if (!untracked(() => this._draft().byTypeMode)) {
+          this._startWithByTypeMode = pinByTypeMode;
         } else {
-          this.byTypeMode.setValue(this.pinByTypeMode() || false, {
-            emitEvent: false,
-          });
-          this.byTypeMode.updateValueAndValidity();
+          this._draft.update((v) => ({
+            ...v,
+            byTypeMode: pinByTypeMode || false,
+          }));
         }
       }
     });
@@ -300,9 +295,12 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     // external form control
     effect(() => {
       const externalMode = this.externalMode();
-      if (externalMode !== undefined && this.external.value !== externalMode) {
-        this.external.setValue(externalMode);
-        this.external.markAsDirty();
+      if (
+        externalMode !== undefined &&
+        untracked(() => this._draft().external) !== externalMode
+      ) {
+        this._draft.update((v) => ({ ...v, external: externalMode }));
+        this.form.external().markAsDirty();
       }
     });
   }
@@ -349,77 +347,60 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       this.forceByItem();
     } else {
       // set default key
-      this.partTypeKey.setValue(
-        this.defaultPartTypeKey() || this.partTypeKeys()[0]
-      );
+      this._draft.update((v) => ({
+        ...v,
+        partTypeKey: this.defaultPartTypeKey() || this.partTypeKeys()[0],
+      }));
     }
   }
 
   public ngOnInit(): void {
     // set start mode if required
     if (this._startWithByTypeMode) {
-      this.byTypeMode.setValue(true);
+      this._draft.update((v) => ({ ...v, byTypeMode: true }));
     }
 
     // whenever item changes (by lookup), update item's parts and filter
-    this._subs.push(
-      this.item.valueChanges
-        .pipe(distinctUntilChanged(), debounceTime(300))
-        .subscribe((item) => {
-          this.itemPart.setValue(null, { emitEvent: false });
-          this.itemParts.set(item?.parts || []);
-          this.filter.set({
-            ...this.filter(),
-            itemId: item?.id,
-          });
-        })
-    );
+    toObservable(this.form.item().value, { injector: this._injector })
+      .pipe(distinctUntilChanged(), debounceTime(300), takeUntilDestroyed(this._destroyRef))
+      .subscribe((item) => {
+        this._suppressItemPartWatch = true;
+        this._draft.update((v) => ({ ...v, itemPart: null }));
+        this.itemParts.set(item?.parts || []);
+        this.filter.set({
+          ...this.filter(),
+          itemId: item?.id,
+        });
+      });
 
     // whenever itemPart changes (by user selection), update target and
     // eventually gid
-    this._subs.push(
-      this.itemPart.valueChanges
-        .pipe(distinctUntilChanged(), debounceTime(300))
-        .subscribe((part) => {
-          if (!this.gid.value || this.gid.pristine) {
-            this.gid.setValue(this.buildGid());
-          }
-          this.filter.set({
-            ...this.filter(),
-            partId: part?.id,
-          });
-          this.updateTarget(true);
-        })
-    );
+    toObservable(this.form.itemPart().value, { injector: this._injector })
+      .pipe(distinctUntilChanged(), debounceTime(300), takeUntilDestroyed(this._destroyRef))
+      .subscribe((part) => {
+        const suppress = this._suppressItemPartWatch;
+        this._suppressItemPartWatch = false;
+        if (suppress) {
+          return;
+        }
+        if (!this.form.gid().value() || !this.form.gid().dirty()) {
+          this._draft.update((v) => ({ ...v, gid: this.buildGid() || '' }));
+        }
+        this.filter.set({
+          ...this.filter(),
+          partId: part?.id,
+        });
+        this.updateTarget(true);
+      });
 
     // whenever partTypeKey changes, update filter's options
-    this._subs.push(
-      this.partTypeKey.valueChanges
-        .pipe(distinctUntilChanged(), debounceTime(300))
-        .subscribe((key) => {
-          this.pinFilterOptions.set(
-            key ? this.lookupDefinitions()![key] : undefined
-          );
-        })
-    );
-
-    // whenever external changes, set required validator in label
-    // (true for external, false for internal)
-    this._subs.push(
-      this.external.valueChanges
-        .pipe(distinctUntilChanged(), debounceTime(300))
-        .subscribe((external) => {
-          if (external) {
-            this.label.setValidators([
-              Validators.required,
-              Validators.maxLength(300),
-            ]);
-          } else {
-            this.label.setValidators([Validators.maxLength(300)]);
-          }
-          this.label.updateValueAndValidity();
-        })
-    );
+    toObservable(this.form.partTypeKey().value, { injector: this._injector })
+      .pipe(distinctUntilChanged(), debounceTime(300), takeUntilDestroyed(this._destroyRef))
+      .subscribe((key) => {
+        this.pinFilterOptions.set(
+          key ? this.lookupDefinitions()![key] : undefined
+        );
+      });
 
     // load model-types thesaurus entries
     this._thesService.getThesaurus('model-types', true).subscribe({
@@ -435,12 +416,6 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         this.forceByItem();
       },
     });
-  }
-
-  public ngOnDestroy(): void {
-    for (let i = 0; i < this._subs.length; i++) {
-      this._subs[i].unsubscribe();
-    }
   }
 
   private buildGid(): string | null {
@@ -483,16 +458,17 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   }
 
   private getTarget(): PinTarget {
-    if (this.external.value) {
+    const v = this._draft();
+    if (v.external) {
       return {
-        gid: this.gid.value || '',
-        label: this.label.value || '',
+        gid: v.gid || '',
+        label: v.label || '',
       };
     } else {
       const pin = this.lookupData()?.pin;
       return {
-        gid: this.gid.value || '',
-        label: this.label.value || '',
+        gid: v.gid || '',
+        label: v.label || '',
         itemId: pin?.itemId || '',
         partId: pin?.partId || '',
         partTypeId: pin?.partTypeId || '',
@@ -503,20 +479,22 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     }
   }
 
-  private emitChange(): void {
-    this.target.set(this.getTarget());
-  }
-
   private updateTarget(suppressEmit = false): void {
     this._updatingForm = true;
 
-    if (!this.external.value) {
-      this.gid.setValue(this.buildGid());
-      this.gid.updateValueAndValidity();
-      this.gid.markAsDirty();
-      this.label.setValue(this.buildLabel());
-      this.label.updateValueAndValidity();
-      this.label.markAsDirty();
+    // untracked(): this can run inside the "target changed" effect's own
+    // call stack (via updateForm() -> updateTargetFromData(), or directly
+    // from an RxJS callback) - a tracked read here plus the .update()
+    // write below would make that effect depend on its own write and
+    // re-run indefinitely, same hazard as updateForm()'s reset branch.
+    if (!untracked(() => this._draft().external)) {
+      this._draft.update((v) => ({
+        ...v,
+        gid: this.buildGid() || '',
+        label: this.buildLabel() || '',
+      }));
+      this.form.gid().markAsDirty();
+      this.form.label().markAsDirty();
     }
 
     this._updatingForm = false;
@@ -527,12 +505,14 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   }
 
   private updateTargetFromData(): void {
-    // Update GID and label without emitting changes
-    if (!this.external.value) {
-      this.gid.setValue(this.buildGid(), { emitEvent: false });
-      this.gid.updateValueAndValidity();
-      this.label.setValue(this.buildLabel(), { emitEvent: false });
-      this.label.updateValueAndValidity();
+    // Update GID and label without emitting changes - untracked(): see
+    // updateTarget() above for why.
+    if (!untracked(() => this._draft().external)) {
+      this._draft.update((v) => ({
+        ...v,
+        gid: this.buildGid() || '',
+        label: this.buildLabel() || '',
+      }));
     }
   }
 
@@ -543,16 +523,30 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
       // reset if no target
       if (!target) {
         this.lookupData.set(undefined);
-        this.item.reset();
-        this.itemPart.reset();
-        this.gid.reset();
-        this.label.reset();
+        // .update(), not a tracked _draft() read + .set(): this method
+        // runs inside the "target changed" effect, and reading _draft()
+        // directly here would make the effect depend on its own write,
+        // causing it to re-run indefinitely (the untracked() hazard
+        // documented in signal-forms-migration.md).
+        this._draft.update((v) => ({
+          item: null,
+          itemPart: null,
+          partTypeKey: v.partTypeKey,
+          gid: '',
+          label: '',
+          byTypeMode: v.byTypeMode,
+          external: v.external,
+        }));
+        this.form().reset();
         return;
       }
 
       // set gid and label
-      this.gid.setValue(target.gid || '', { emitEvent: false });
-      this.label.setValue(target.label || '', { emitEvent: false });
+      this._draft.update((v) => ({
+        ...v,
+        gid: target.gid || '',
+        label: target.label || '',
+      }));
       // reset lookup
       this.lookupData.set({
         pin: {
@@ -570,10 +564,10 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
         this._itemService.getItem(target.itemId, true, true).subscribe({
           next: (item) => {
             this._updatingForm = true;
-            this.item.setValue(item, { emitEvent: false });
-            this.form.markAsPristine();
+            this._draft.update((v) => ({ ...v, item }));
+            this.form().reset();
             if (this.externalMode() === undefined) {
-              this.external.setValue(false, { emitEvent: false });
+              this._draft.update((v) => ({ ...v, external: false }));
             }
             this.updateTargetFromData();
             this._updatingForm = false;
@@ -584,16 +578,14 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
             }
             this._updatingForm = true;
             if (this.externalMode() === undefined) {
-              this.external.setValue(false, { emitEvent: false });
+              this._draft.update((v) => ({ ...v, external: false }));
             }
             this._updatingForm = false;
           },
         });
       } else {
         if (this.externalMode() === undefined) {
-          this.external.setValue(true, {
-            emitEvent: false,
-          });
+          this._draft.update((v) => ({ ...v, external: true }));
         }
         this.updateTargetFromData();
       }
@@ -613,7 +605,7 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
    */
   public onItemLookupChange(item: unknown): void {
     if (!item) {
-      this.itemPart.setValue(null);
+      this._draft.update((v) => ({ ...v, itemPart: null }));
       this.itemParts.set([]);
       return;
     }
@@ -621,14 +613,14 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     this._itemService.getItem((item as Item)!.id, true, true).subscribe({
       next: (i) => {
         // setting the item will trigger its parts update
-        this.item.setValue(i);
+        this._draft.update((v) => ({ ...v, item: i }));
         this.updateTarget(true); // suppress emit to avoid double emission
       },
       error: (error) => {
         if (error) {
           console.error('Error getting item', error);
         }
-        this.itemPart.setValue(null);
+        this._draft.update((v) => ({ ...v, itemPart: null }));
         this.itemParts.set([]);
         this.updateTarget(true); // suppress emit to avoid double emission
       },
@@ -682,13 +674,13 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
     if (event.item) {
       this._updatingForm = true;
       setTimeout(() => {
-        this.gid.setValue(event.itemId, { emitEvent: false });
-        this.gid.updateValueAndValidity();
-        this.gid.markAsDirty();
-
-        this.label.setValue(event.itemLabel, { emitEvent: false });
-        this.label.updateValueAndValidity();
-        this.label.markAsDirty();
+        this._draft.update((v) => ({
+          ...v,
+          gid: event.itemId,
+          label: event.itemLabel,
+        }));
+        this.form.gid().markAsDirty();
+        this.form.label().markAsDirty();
 
         this._updatingForm = false;
       });
@@ -714,8 +706,8 @@ export class PinTargetLookupComponent implements OnInit, OnDestroy {
   }
 
   public save(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    if (this.form().invalid()) {
+      this.form().markAsTouched();
       return;
     }
     this.emitTargetChange();

@@ -48,10 +48,8 @@ describe('ScopedPinLookupComponent', () => {
     });
     const component = fixture.componentInstance;
 
-    component.ngOnInit();
-
-    expect(component.key.value).toBe('item_eid');
-    expect(component.key.dirty).toBe(true);
+    expect(component.keyForm.key().value()).toBe('item_eid');
+    expect(component.keyForm.key().dirty()).toBe(true);
   });
 
   describe('appendIdComponent', () => {
@@ -66,8 +64,8 @@ describe('ScopedPinLookupComponent', () => {
 
       component.appendIdComponent('pin');
 
-      expect(component.id.value).toBe('pinval');
-      expect(component.id.dirty).toBe(true);
+      expect(component.idForm.id().value()).toBe('pinval');
+      expect(component.idForm.id().dirty()).toBe(true);
     });
 
     it('should append the item id', async () => {
@@ -82,7 +80,7 @@ describe('ScopedPinLookupComponent', () => {
 
       component.appendIdComponent('itemId');
 
-      expect(component.id.value).toBe('item1');
+      expect(component.idForm.id().value()).toBe('item1');
     });
 
     it('should append the part id, type id and role id', async () => {
@@ -99,7 +97,7 @@ describe('ScopedPinLookupComponent', () => {
       component.appendIdComponent('partTypeId');
       component.appendIdComponent('partRoleId');
 
-      expect(component.id.value).toBe('part1type1role1');
+      expect(component.idForm.id().value()).toBe('part1type1role1');
     });
 
     it('should append a metadata entry value by index', async () => {
@@ -116,7 +114,7 @@ describe('ScopedPinLookupComponent', () => {
 
       component.appendIdComponent('metadata', 0);
 
-      expect(component.id.value).toBe('meta-val');
+      expect(component.idForm.id().value()).toBe('meta-val');
     });
 
     it('should append onto the existing id value', async () => {
@@ -124,7 +122,7 @@ describe('ScopedPinLookupComponent', () => {
         providers: getProviders(),
       });
       const component = fixture.componentInstance;
-      component.id.setValue('prefix-');
+      component.idForm.id().value.set('prefix-');
       component.info.set({
         pin: {} as any,
         item: { id: 'item1' } as any,
@@ -132,7 +130,7 @@ describe('ScopedPinLookupComponent', () => {
 
       component.appendIdComponent('itemId');
 
-      expect(component.id.value).toBe('prefix-item1');
+      expect(component.idForm.id().value()).toBe('prefix-item1');
     });
   });
 
@@ -158,7 +156,7 @@ describe('ScopedPinLookupComponent', () => {
       const component = fixture.componentInstance;
       const spy = vi.fn();
       component.idPick.subscribe(spy);
-      component.id.setValue('final-id');
+      component.idForm.id().value.set('final-id');
       component.info.set({ pin: {} as any });
 
       component.pickId();
@@ -174,12 +172,12 @@ describe('ScopedPinLookupComponent', () => {
         providers: getProviders(),
       });
       const component = fixture.componentInstance;
-      component.id.setValue('some-id');
+      component.idForm.id().value.set('some-id');
 
       component.resetId();
 
-      expect(component.id.value).toBeNull();
-      expect(component.id.dirty).toBe(true);
+      expect(component.idForm.id().value()).toBe('');
+      expect(component.idForm.id().dirty()).toBe(true);
     });
   });
 });

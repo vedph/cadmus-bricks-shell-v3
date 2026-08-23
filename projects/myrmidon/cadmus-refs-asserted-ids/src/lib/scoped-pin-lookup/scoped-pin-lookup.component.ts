@@ -1,12 +1,5 @@
 import { Component, Inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormField, form, maxLength, required } from '@angular/forms/signals';
 import { forkJoin, of, take } from 'rxjs';
 
 // material
@@ -64,8 +57,7 @@ interface LookupInfo {
   styleUrls: ['./scoped-pin-lookup.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     // material
     MatButtonModule,
     MatExpansionModule,
@@ -79,15 +71,18 @@ interface LookupInfo {
 })
 export class ScopedPinLookupComponent {
   // lookup
-  public key: FormControl<string | null>;
-  public keyForm: FormGroup;
+  private readonly _keyDraft = signal<{ key: string | null }>({ key: null });
+  public readonly keyForm = form(this._keyDraft);
 
   public readonly keys = signal<string[]>([]);
   public readonly info = signal<LookupInfo | undefined>(undefined);
 
   // builder
-  public id: FormControl<string | null>;
-  public idForm: FormGroup;
+  private readonly _idDraft = signal<{ id: string }>({ id: '' });
+  public readonly idForm = form(this._idDraft, (path) => {
+    required(path.id);
+    maxLength(path.id, 300);
+  });
 
   /**
    * Emitted whenever the user picks an ID.
@@ -101,7 +96,6 @@ export class ScopedPinLookupComponent {
   public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   constructor(
-    formBuilder: FormBuilder,
     private _itemService: ItemService,
     public lookupService: PinRefLookupService,
     @Inject('indexLookupDefinitions')
@@ -110,27 +104,10 @@ export class ScopedPinLookupComponent {
     // lookup
     // keys are all the defined lookup searches
     this.keys.set(Object.keys(lookupDefs));
-    // the selected key defines the lookup scope
-    this.key = formBuilder.control(null);
-    this.keyForm = formBuilder.group({
-      key: this.key,
-    });
-    // id
-    this.id = formBuilder.control(null, [
-      Validators.required,
-      Validators.maxLength(300),
-    ]);
-    this.idForm = formBuilder.group({
-      id: this.id,
-    });
-  }
-
-  public ngOnInit(): void {
     // pre-select a unique key
     if (this.keys().length === 1) {
-      this.key.setValue(this.keys()[0]);
-      this.key.markAsDirty();
-      this.key.updateValueAndValidity();
+      this._keyDraft.set({ key: this.keys()[0] });
+      this.keyForm.key().markAsDirty();
     }
   }
 
@@ -170,7 +147,7 @@ export class ScopedPinLookupComponent {
   }
 
   public appendIdComponent(type: string, metaIndex = -1): void {
-    let id = this.id.value || '';
+    let id = this._idDraft().id || '';
 
     switch (type) {
       case 'pin':
@@ -193,22 +170,20 @@ export class ScopedPinLookupComponent {
         break;
     }
 
-    this.id.setValue(id);
-    this.id.markAsDirty();
-    this.id.updateValueAndValidity();
+    this._idDraft.set({ id });
+    this.idForm.id().markAsDirty();
   }
 
   public pickId(): void {
-    if (this.idForm.invalid) {
+    if (this.idForm().invalid()) {
       return;
     }
-    this.idPick.emit(this.id.value!);
+    this.idPick.emit(this._idDraft().id);
     this.info.set(undefined);
   }
 
   public resetId(): void {
-    this.id.reset();
-    this.id.markAsDirty();
-    this.id.updateValueAndValidity();
+    this._idDraft.set({ id: '' });
+    this.idForm.id().markAsDirty();
   }
 }

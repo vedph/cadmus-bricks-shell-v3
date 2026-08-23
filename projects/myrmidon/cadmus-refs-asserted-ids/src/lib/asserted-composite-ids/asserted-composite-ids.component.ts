@@ -5,7 +5,6 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { take } from 'rxjs';
 
 import { MatIconModule } from '@angular/material/icon';
@@ -33,8 +32,6 @@ import {
   templateUrl: './asserted-composite-ids.component.html',
   styleUrls: ['./asserted-composite-ids.component.css'],
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
