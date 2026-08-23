@@ -55,7 +55,11 @@ interface AssertedDateControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedHistoricalDateComponent {
+  // set synchronously at the point save() writes `date` (not inside the
+  // effect below), paired with _hasLastDate since undefined is both "never
+  // saved yet" and a legitimate real value - see signal-forms-migration.md
   private _lastDate: AssertedHistoricalDate | undefined | null = undefined;
+  private _hasLastDate = false;
 
   /**
    * The date model to edit. The corresponding dateChange event
@@ -87,10 +91,11 @@ export class AssertedHistoricalDateComponent {
     // when model changes, update form
     effect(() => {
       const date = this.date();
-      if (this._lastDate === date) {
+      if (this._hasLastDate && this._lastDate === date) {
         return;
       }
       this._lastDate = date;
+      this._hasLastDate = true;
       this.updateForm(date);
     });
 
@@ -160,6 +165,8 @@ export class AssertedHistoricalDateComponent {
     }
     const next = this.getDate();
     if (!this.datesEqual(next, this.date())) {
+      this._lastDate = next;
+      this._hasLastDate = true;
       this.date.set(next);
     }
   }

@@ -46,6 +46,12 @@ import {
 })
 export class CodLocationComponent implements OnDestroy {
   private _sub?: Subscription;
+  // set synchronously at every site that writes `location` (not inside the
+  // model-sync effect below), paired with _hasLastLocation since null/undefined
+  // is both "never saved yet" and a legitimate real value - see
+  // signal-forms-migration.md
+  private _lastLocation: CodLocationRange[] | null | undefined = undefined;
+  private _hasLastLocation = false;
 
   /**
    * The label to display in the control (default="location").
@@ -98,6 +104,11 @@ export class CodLocationComponent implements OnDestroy {
     // when location changes, update text
     effect(() => {
       const location = this.location();
+      if (this._hasLastLocation && this._lastLocation === location) {
+        return;
+      }
+      this._lastLocation = location;
+      this._hasLastLocation = true;
       console.log('location', location);
       this.updateForm(location);
     });
@@ -125,9 +136,14 @@ export class CodLocationComponent implements OnDestroy {
         ? CodLocationParser.parseLocation(text)
         : null;
       if (loc) {
-        this.location.set([{ start: loc, end: loc }]);
+        const next = [{ start: loc, end: loc }];
+        this._lastLocation = next;
+        this._hasLastLocation = true;
+        this.location.set(next);
       } else {
         if (!this.required() && !text.length) {
+          this._lastLocation = null;
+          this._hasLastLocation = true;
           this.location.set(null);
         }
       }
@@ -144,9 +160,13 @@ export class CodLocationComponent implements OnDestroy {
         ? CodLocationParser.parseLocationRanges(text, true)
         : null;
       if (ranges?.length) {
+        this._lastLocation = ranges;
+        this._hasLastLocation = true;
         this.location.set(ranges);
       } else {
         if (!this.required() && !text.length) {
+          this._lastLocation = null;
+          this._hasLastLocation = true;
           this.location.set(null);
         } else {
           // the invalidLocation error is reported reactively by the

@@ -155,6 +155,12 @@ export class GeoLocationEditor implements OnDestroy {
     this.makeDefaultControls(),
   );
   public readonly form: FieldTree<GeoLocationControls>;
+  // set synchronously at the point save() writes `location` (not inside the
+  // model-sync effect below), paired with _hasLastLocation since undefined
+  // is both "never saved yet" and a legitimate real value - see
+  // signal-forms-migration.md
+  private _lastLocation: GeoLocation | undefined = undefined;
+  private _hasLastLocation = false;
   // #endregion
 
   // #region Map state signals
@@ -251,7 +257,13 @@ export class GeoLocationEditor implements OnDestroy {
     });
 
     effect(() => {
-      this.updateForm(this.location());
+      const loc = this.location();
+      if (this._hasLastLocation && this._lastLocation === loc) {
+        return;
+      }
+      this._lastLocation = loc;
+      this._hasLastLocation = true;
+      this.updateForm(loc);
     });
 
     // Debounced draft -> map overlays sync. Unlike the location model sync
@@ -733,7 +745,10 @@ export class GeoLocationEditor implements OnDestroy {
       this.form().markAsTouched();
       return;
     }
-    this.location.set(this.getLocation());
+    const next = this.getLocation();
+    this._lastLocation = next;
+    this._hasLastLocation = true;
+    this.location.set(next);
     this.form().reset();
   }
 

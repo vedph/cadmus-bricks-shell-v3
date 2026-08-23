@@ -319,8 +319,25 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   the guard, since `undefined` is both "never saved anything yet" and a
   legitimate real value (e.g. "references reset to `undefined`"), and a
   bare `_lastX === undefined` collides the two.
-  **Action item**: `datation`, `asserted-historical-date`, and
-  `compact-citation` (and by extension anything using the same
-  effect-internal-guard shape) should be revisited to move their guard
-  into the save/emit call site the same way, since they carry the same
-  latent race even though their current tests don't happen to exercise it.
+  **Follow-up (done)**: retrofitted `datation`, `asserted-historical-date`,
+  `compact-citation`, `citation` (all in `cadmus-refs-historical-date`/
+  `cadmus-refs-citation`), and `cadmus-mat-physical-size`,
+  `cadmus-cod-location`, `cadmus-geo-location` from earlier in the
+  migration. The final, correct shape needs **both** halves, not just one:
+  1. The model-sync `effect()` records, unconditionally, whatever value it
+     actually processes (`_lastX = value; _hasLastX = true;` right before
+     calling `updateForm()`) - guards against the effect being spuriously
+     re-invoked with an unchanged *external* value (confirmed to really
+     happen - see the `compact-citation` entry above).
+  2. Every site that writes the model (debounced autosave, explicit
+     save()/parse() actions) ALSO sets the same `_lastX`/`_hasLastX`
+     synchronously, at the point of writing - guards against the effect
+     processing its own echo *after* further local draft edits already
+     happened (effects are deferred, so this really can interleave).
+  Either guard alone is insuffient: effect-only reintroduces the
+  `compact-citation` stomp (confirmed by re-running its tests with only the
+  save-site guard - 2 failures came back); save-site-only reintroduces the
+  spurious-external-refire risk. A separate `_hasLastX` boolean is
+  required alongside `_lastX` in every case, since `undefined`/`null` is
+  usually both "nothing saved yet" and a legitimate real value. All 6
+  retrofitted libraries' full test suites stayed green throughout.

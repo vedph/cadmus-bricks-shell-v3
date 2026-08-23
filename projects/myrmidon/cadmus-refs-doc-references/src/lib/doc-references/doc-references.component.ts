@@ -122,12 +122,17 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
     // deferred, so further draft edits can legitimately happen first) - a
     // content-based comparison against the *current* draft would get this
     // wrong, since it would see the stale echoed value as "different from
-    // the current draft" and stomp the newer edit trying to "fix" it.
+    // the current draft" and stomp the newer edit trying to "fix" it. It is
+    // also set here, unconditionally, whenever the effect actually
+    // processes a value - guarding separately against this effect being
+    // spuriously re-invoked with an unchanged *external* value.
     effect(() => {
       const refs = this.references();
       if (this._hasLastReferences && this._lastReferences === refs) {
         return;
       }
+      this._lastReferences = refs;
+      this._hasLastReferences = true;
       this.updateForm(refs || []);
     });
 

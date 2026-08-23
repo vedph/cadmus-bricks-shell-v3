@@ -752,6 +752,8 @@ export class CitationComponent implements OnInit, OnDestroy {
     if (!this._schemeService || !this.validateCitation(this.editedCitation())) {
       return;
     }
-    this.citation.set(deepCopy(this.editedCitation!()));
+    const next = deepCopy(this.editedCitation!());
+    this._lastParentCitation = next;
+    this.citation.set(next);
   }
 }

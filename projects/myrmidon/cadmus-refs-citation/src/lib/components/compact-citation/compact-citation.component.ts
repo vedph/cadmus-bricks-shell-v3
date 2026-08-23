@@ -46,7 +46,12 @@ import { CitSchemeService } from '../../services/cit-scheme.service';
 })
 export class CompactCitationComponent {
   private _dropNextUpdate = false;
+  // set synchronously at the point save() writes `citation` (not inside the
+  // effect below), paired with _hasLastCitation since undefined is both
+  // "never saved yet" and a legitimate real value - see
+  // signal-forms-migration.md
   private _lastCitation: Citation | CitationSpan | undefined = undefined;
+  private _hasLastCitation = false;
 
   /**
    * The scheme keys to use in this component. The full list of schemes is
@@ -108,18 +113,24 @@ export class CompactCitationComponent {
   constructor(private _schemeService: CitSchemeService) {
     this.form = form(this._rangeDraft);
 
-    // when citation changes, update the form
+    // when citation changes, update the form. Two distinct guards are
+    // needed here, both keyed on the same _lastCitation/_hasLastCitation
+    // pair: (1) this effect can be re-invoked with an unchanged (reference-
+    // equal) *external* citation value - e.g. interleaved with other signal
+    // writes in the same view - so it records what it last actually
+    // processed itself; (2) save() ALSO records the value it writes,
+    // synchronously, at the point of writing - so an effect run that is
+    // just an echo of our own save (deferred, and possibly running after
+    // further local edits) is recognized and skipped too. Skipping either
+    // way is correct: re-deriving a/b/range from a stale citation would
+    // stomp a subsequent interactive change to range.
     effect(() => {
       const c = this.citation();
-      // only process if the citation actually changed from the last one we
-      // processed - effects can be re-invoked with an unchanged tracked
-      // value (e.g. interleaved with other signal writes in the same view),
-      // and re-deriving a/b/range from a stale citation would stomp on a
-      // subsequent interactive change to range
-      if (this._lastCitation === c) {
+      if (this._hasLastCitation && this._lastCitation === c) {
         return;
       }
       this._lastCitation = c;
+      this._hasLastCitation = true;
 
       if (this._dropNextUpdate) {
         this._dropNextUpdate = false;
@@ -233,10 +244,11 @@ export class CompactCitationComponent {
   }
 
   private save(): void {
-    if (this.form.range().value()) {
-      this.citation.set(deepCopy({ a: this.a(), b: this.b() }));
-    } else {
-      this.citation.set(deepCopy(this.a()));
-    }
+    const next = this.form.range().value()
+      ? deepCopy({ a: this.a(), b: this.b() })
+      : deepCopy(this.a());
+    this._lastCitation = next;
+    this._hasLastCitation = true;
+    this.citation.set(next);
   }
 }

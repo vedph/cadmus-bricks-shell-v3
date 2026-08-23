@@ -84,6 +84,14 @@ interface PhysicalSizeControls {
 })
 export class PhysicalSizeComponent implements OnDestroy {
   private _sub?: Subscription;
+  // set synchronously at every site that writes `size` (not inside the
+  // model-sync effect below), paired with _hasLastSize since undefined is
+  // both "never saved yet" and a legitimate real value - guards both a
+  // spurious re-invocation of that effect with an unchanged external value,
+  // and it echoing our own write back after further local edits already
+  // happened (effects are deferred) - see signal-forms-migration.md
+  private _lastSize: PhysicalSize | undefined = undefined;
+  private _hasLastSize = false;
 
   /**
    * The size to edit.
@@ -216,6 +224,11 @@ export class PhysicalSizeComponent implements OnDestroy {
     // when size changes, update form
     effect(() => {
       const size = this.size();
+      if (this._hasLastSize && this._lastSize === size) {
+        return;
+      }
+      this._lastSize = size;
+      this._hasLastSize = true;
       this.updateForm(size);
     });
 
@@ -236,6 +249,8 @@ export class PhysicalSizeComponent implements OnDestroy {
         if (this.sizesEqual(newSize, this.size())) {
           return;
         }
+        this._lastSize = newSize;
+        this._hasLastSize = true;
         this.size.set(newSize);
         if (
           this.isModelValid(newSize) &&
@@ -271,6 +286,8 @@ export class PhysicalSizeComponent implements OnDestroy {
     );
     if (size) {
       this.updateForm(size);
+      this._lastSize = size;
+      this._hasLastSize = true;
       this.size.set(size);
     }
   }

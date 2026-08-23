@@ -49,7 +49,12 @@ interface DatationControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DatationComponent {
+  // set synchronously at the point emitChange() writes `datation` (not
+  // inside the effect below), paired with _hasLastDatation since undefined
+  // is both "never saved yet" and a legitimate real value - see
+  // signal-forms-migration.md for why this must live at the write site
   private _lastDatation: DatationModel | undefined = undefined;
+  private _hasLastDatation = false;
 
   /**
    * The datation to edit.
@@ -79,13 +84,11 @@ export class DatationComponent {
     // when datation changes, update form
     effect(() => {
       const model = this.datation();
-      // effects can be re-invoked with an unchanged tracked value; without
-      // this guard a spurious re-run would overwrite in-progress edits
-      // still sitting in the debounce window below
-      if (this._lastDatation === model) {
+      if (this._hasLastDatation && this._lastDatation === model) {
         return;
       }
       this._lastDatation = model;
+      this._hasLastDatation = true;
       this.updateForm(model);
     });
 
@@ -95,6 +98,8 @@ export class DatationComponent {
       .subscribe(() => {
         const next = this.getDatation();
         if (!this.datationsEqual(next, this.datation())) {
+          this._lastDatation = next;
+          this._hasLastDatation = true;
           this.datation.set(next);
         }
       });
