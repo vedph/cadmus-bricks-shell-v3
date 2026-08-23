@@ -357,3 +357,15 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   consumer checking overall `form.valid`) was preserved via a `validate()`
   rule for behavioral fidelity even though nothing in this codebase
   exercises it.
+- **`cadmus-text-ed-txt`**: `EmojiImeComponent`'s single `name` field —
+  simplest conversion so far, and no model→form/autosave shape at all (the
+  form's only consumer is a pure derived side effect, `lookupEmoji()`, not a
+  write-back to a `model()`), so none of the last-processed guard machinery
+  applied here. Moved the `toObservable(this.form.name().value).pipe(
+  distinctUntilChanged(), debounceTime(300))` lookup subscription from
+  `ngOnInit()` into the constructor (no other reason remained to implement
+  `OnInit`), confirmed `toObservable()` + `debounceTime()` still works fine
+  under `vi.useFakeTimers()`/`vi.advanceTimersByTimeAsync()`. Replaced the
+  removed `[formGroup]` wrapper's implicit submit handling with an explicit
+  `(submit)="onFormSubmit($event)"` calling `event.preventDefault()` then
+  picking the first matching emoji, matching the established idiom.
