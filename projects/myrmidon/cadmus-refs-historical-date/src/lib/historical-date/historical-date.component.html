@@ -1,9 +1,9 @@
-<form role="form" [formGroup]="form" (submit)="save()">
+<form role="form" (submit)="onFormSubmit($event)">
   <div>
     <mat-form-field class="date-text" appearance="fill">
       <input
         matInput
-        [formControl]="dateText"
+        [formField]="form.dateText"
         [placeholder]="label() || 'date'"
       />
       <mat-hint>A or A--B, era: BC/AD</mat-hint>
@@ -29,7 +29,7 @@
       </button>
     </mat-form-field>
     <span>
-      @if (dateText.value && invalidDateText()) {
+      @if (form.dateText().value() && invalidDateText()) {
       <mat-icon class="mat-warn">error</mat-icon>
       }
     </span>
@@ -63,7 +63,7 @@
       [label]="'A'"
     />
 
-    @if (range.value) {
+    @if (form.range().value()) {
     <cadmus-refs-datation
       [datation]="b()"
       (datationChange)="onDatationBChange($event)"
@@ -72,7 +72,7 @@
     }
 
     <div class="form-row">
-      <mat-slide-toggle [formControl]="range" matTooltip="Toggle range"
+      <mat-slide-toggle [formField]="form.range" matTooltip="Toggle range"
         >A-B</mat-slide-toggle
       >
       <button

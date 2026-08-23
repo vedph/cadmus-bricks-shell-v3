@@ -1,12 +1,6 @@
-import { ChangeDetectionStrategy, Component, effect, input, model } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, effect, input, model, signal } from '@angular/core';
+import { FieldTree, FormField, form, required } from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -24,7 +18,16 @@ import { AssertedHistoricalDate } from './asserted-historical-date';
 
 import { HistoricalDateComponent } from '../historical-date/historical-date.component';
 import { HistoricalDateModel } from '../historical-date/historical-date';
-import { debounceTime, filter } from 'rxjs';
+import { debounceTime } from 'rxjs';
+
+/**
+ * The editable controls backing an asserted historical date.
+ */
+interface AssertedDateControls {
+  tag: string;
+  hd: HistoricalDateModel | null;
+  assertion: Assertion | null;
+}
 
 /**
  * Dumb editor component for a single asserted historical date.
@@ -34,7 +37,7 @@ import { debounceTime, filter } from 'rxjs';
 @Component({
   selector: 'cadmus-refs-asserted-historical-date',
   imports: [
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -52,18 +55,13 @@ import { debounceTime, filter } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedHistoricalDateComponent {
-  private _updatingForm = false;
+  private _lastDate: AssertedHistoricalDate | undefined | null = undefined;
 
   /**
    * The date model to edit. The corresponding dateChange event
    * is fired whenever data changes in the form.
    */
   public readonly date = model<AssertedHistoricalDate>();
-
-  public tag: FormControl<string | null>;
-  public hd: FormControl<HistoricalDateModel | null>;
-  public assertion: FormControl<Assertion | null>;
-  public form: FormGroup;
 
   // asserted-historical-dates-tags
   public tagEntries = input<ThesaurusEntry[]>();
@@ -74,83 +72,95 @@ export class AssertedHistoricalDateComponent {
   // doc-reference-tags
   public docReferenceTagEntries = input<ThesaurusEntry[]>();
 
-  constructor(formBuilder: FormBuilder) {
-    // form
-    this.tag = formBuilder.control(null);
-    this.hd = formBuilder.control(null, Validators.required);
-    this.assertion = formBuilder.control(null);
+  private readonly _draft = signal<AssertedDateControls>({
+    tag: '',
+    hd: null,
+    assertion: null,
+  });
+  public readonly form: FieldTree<AssertedDateControls>;
 
-    this.form = formBuilder.group({
-      tag: this.tag,
-      hd: this.hd,
-      assertion: this.assertion,
+  constructor() {
+    this.form = form(this._draft, (path) => {
+      required(path.hd);
     });
 
     // when model changes, update form
     effect(() => {
       const date = this.date();
+      if (this._lastDate === date) {
+        return;
+      }
+      this._lastDate = date;
       this.updateForm(date);
     });
 
     // autosave on form changes
-    this.form.valueChanges
-      .pipe(
-        // react only on user changes, when form is valid
-        filter(() => !this._updatingForm && this.form.valid),
-        debounceTime(500),
-        takeUntilDestroyed(),
-      )
-      .subscribe((values) => {
-        this.save();
+    toObservable(this._draft)
+      .pipe(debounceTime(500), takeUntilDestroyed())
+      .subscribe(() => {
+        if (this.form().valid()) {
+          this.save();
+        }
       });
   }
 
   private updateForm(date: AssertedHistoricalDate | undefined | null): void {
-    this._updatingForm = true;
-
     if (!date) {
-      this.form.reset(undefined, { emitEvent: false });
+      this._draft.set({ tag: '', hd: null, assertion: null });
     } else {
-      this.tag.setValue(date.tag || null, { emitEvent: false });
-      this.hd.setValue(date ? { a: date.a, b: date.b } : null, {
-        emitEvent: false,
+      this._draft.set({
+        tag: date.tag || '',
+        hd: date ? { a: date.a, b: date.b } : null,
+        assertion: date.assertion || null,
       });
-      this.assertion.setValue(date.assertion || null, { emitEvent: false });
-
-      this.form.markAsPristine();
     }
-
-    this._updatingForm = false;
+    this.form().reset();
   }
 
   private getDate(): AssertedHistoricalDate {
+    const v = this._draft();
     return {
-      tag: this.tag.value || undefined,
-      a: this.hd.value!.a || undefined,
-      b: this.hd.value?.b || undefined,
-      assertion: this.assertion.value || undefined,
+      tag: v.tag || undefined,
+      a: v.hd!.a || undefined,
+      b: v.hd?.b || undefined,
+      assertion: v.assertion || undefined,
     };
   }
 
+  private datesEqual(
+    a: AssertedHistoricalDate,
+    b?: AssertedHistoricalDate,
+  ): boolean {
+    if (!b) {
+      return false;
+    }
+    return (
+      a.tag === b.tag &&
+      JSON.stringify(a.assertion) === JSON.stringify(b.assertion) &&
+      JSON.stringify(a.a) === JSON.stringify(b.a) &&
+      JSON.stringify(a.b) === JSON.stringify(b.b)
+    );
+  }
+
   public onAssertionChange(assertion: Assertion | undefined): void {
-    this.assertion.setValue(assertion || null);
-    this.assertion.updateValueAndValidity();
-    this.assertion.markAsDirty();
+    this.form.assertion().value.set(assertion || null);
+    this.form.assertion().markAsDirty();
   }
 
   public onDateChange(date?: HistoricalDateModel): void {
-    this.hd.setValue(date || null);
-    this.hd.updateValueAndValidity();
-    this.hd.markAsDirty();
+    this.form.hd().value.set(date || null);
+    this.form.hd().markAsDirty();
   }
 
   private save(): void {
-    if (this.form.invalid) {
+    if (this.form().invalid()) {
       // show validation errors
-      this.form.markAllAsTouched();
+      this.form().markAsTouched();
       return;
     }
-    const date = this.getDate();
-    this.date.set(date);
+    const next = this.getDate();
+    if (!this.datesEqual(next, this.date())) {
+      this.date.set(next);
+    }
   }
 }

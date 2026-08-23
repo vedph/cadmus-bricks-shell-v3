@@ -28,15 +28,15 @@ describe('DatationComponent', () => {
   });
 
   it('should initialize form with default values when datation is undefined', () => {
-    expect(component.value.value).toBe(0);
-    expect(component.century.value).toBe(false);
-    expect(component.span.value).toBe(false);
-    expect(component.month.value).toBe(0);
-    expect(component.day.value).toBe(0);
-    expect(component.about.value).toBe(false);
-    expect(component.dubious.value).toBe(false);
-    expect(component.hint.value).toBeNull();
-    expect(component.slide.value).toBe(0);
+    expect(component.form.value().value()).toBe(0);
+    expect(component.form.century().value()).toBe(false);
+    expect(component.form.span().value()).toBe(false);
+    expect(component.form.month().value()).toBe(0);
+    expect(component.form.day().value()).toBe(0);
+    expect(component.form.about().value()).toBe(false);
+    expect(component.form.dubious().value()).toBe(false);
+    expect(component.form.hint().value()).toBe('');
+    expect(component.form.slide().value()).toBe(0);
   });
 
   it('should not render a label when label input is not set', () => {
@@ -66,16 +66,16 @@ describe('DatationComponent', () => {
     fixture.componentRef.setInput('datation', model);
     fixture.detectChanges();
 
-    expect(component.value.value).toBe(1345);
-    expect(component.century.value).toBe(true);
-    expect(component.span.value).toBe(false);
-    expect(component.month.value).toBe(5);
-    expect(component.day.value).toBe(12);
-    expect(component.about.value).toBe(true);
-    expect(component.dubious.value).toBe(false);
-    expect(component.hint.value).toBe('circa');
-    expect(component.slide.value).toBe(2);
-    expect(component.form.pristine).toBe(true);
+    expect(component.form.value().value()).toBe(1345);
+    expect(component.form.century().value()).toBe(true);
+    expect(component.form.span().value()).toBe(false);
+    expect(component.form.month().value()).toBe(5);
+    expect(component.form.day().value()).toBe(12);
+    expect(component.form.about().value()).toBe(true);
+    expect(component.form.dubious().value()).toBe(false);
+    expect(component.form.hint().value()).toBe('circa');
+    expect(component.form.slide().value()).toBe(2);
+    expect(component.form().dirty()).toBe(false);
   });
 
   it('should reset the form when datation model becomes undefined again', () => {
@@ -88,8 +88,8 @@ describe('DatationComponent', () => {
     fixture.componentRef.setInput('datation', undefined);
     fixture.detectChanges();
 
-    expect(component.value.value).toBeFalsy();
-    expect(component.century.value).toBeFalsy();
+    expect(component.form.value().value()).toBeFalsy();
+    expect(component.form.century().value()).toBeFalsy();
   });
 
   it('should fill in missing optional model fields with falsy defaults', () => {
@@ -98,19 +98,19 @@ describe('DatationComponent', () => {
     } as DatationModel);
     fixture.detectChanges();
 
-    expect(component.century.value).toBe(false);
-    expect(component.span.value).toBe(false);
-    expect(component.month.value).toBe(0);
-    expect(component.day.value).toBe(0);
-    expect(component.about.value).toBe(false);
-    expect(component.dubious.value).toBe(false);
-    expect(component.hint.value).toBeNull();
-    expect(component.slide.value).toBe(0);
+    expect(component.form.century().value()).toBe(false);
+    expect(component.form.span().value()).toBe(false);
+    expect(component.form.month().value()).toBe(0);
+    expect(component.form.day().value()).toBe(0);
+    expect(component.form.about().value()).toBe(false);
+    expect(component.form.dubious().value()).toBe(false);
+    expect(component.form.hint().value()).toBe('');
+    expect(component.form.slide().value()).toBe(0);
   });
 
   it('should emit the updated datation after a debounced form edit', async () => {
-    component.value.setValue(-753);
-    component.century.setValue(true);
+    component.form.value().value.set(-753);
+    component.form.century().value.set(true);
 
     await flushDebounce();
 
@@ -133,14 +133,14 @@ describe('DatationComponent', () => {
   });
 
   it('should sanitize the hint on emit via Datation.sanitizeHint', async () => {
-    component.hint.setValue('  circa  ');
+    component.form.hint().value.set('  circa  ');
     await flushDebounce();
     expect(component.datation()?.hint).toBe('circa');
   });
 
   it('should coerce numeric string values via getDatation on emit', async () => {
-    component.month.setValue(7);
-    component.day.setValue(15);
+    component.form.month().value.set(7);
+    component.form.day().value.set(15);
     await flushDebounce();
 
     const emitted = component.datation();
@@ -149,51 +149,51 @@ describe('DatationComponent', () => {
   });
 
   it('should flag month control invalid when out of 0-12 range', () => {
-    component.month.setValue(13);
-    expect(component.month.invalid).toBe(true);
-    expect(component.month.hasError('max')).toBe(true);
+    component.form.month().value.set(13);
+    expect(component.form.month().invalid()).toBe(true);
+    expect(component.form.month().getError('max')).toBeDefined();
 
-    component.month.setValue(-1);
-    expect(component.month.hasError('min')).toBe(true);
+    component.form.month().value.set(-1);
+    expect(component.form.month().getError('min')).toBeDefined();
 
-    component.month.setValue(6);
-    expect(component.month.valid).toBe(true);
+    component.form.month().value.set(6);
+    expect(component.form.month().valid()).toBe(true);
   });
 
   it('should flag day control invalid when out of 0-31 range', () => {
-    component.day.setValue(32);
-    expect(component.day.hasError('max')).toBe(true);
+    component.form.day().value.set(32);
+    expect(component.form.day().getError('max')).toBeDefined();
 
-    component.day.setValue(-1);
-    expect(component.day.hasError('min')).toBe(true);
+    component.form.day().value.set(-1);
+    expect(component.form.day().getError('min')).toBeDefined();
 
-    component.day.setValue(20);
-    expect(component.day.valid).toBe(true);
+    component.form.day().value.set(20);
+    expect(component.form.day().valid()).toBe(true);
   });
 
   it('should flag hint control invalid when exceeding max length', () => {
-    component.hint.setValue('a'.repeat(501));
-    expect(component.hint.hasError('maxlength')).toBe(true);
+    component.form.hint().value.set('a'.repeat(501));
+    expect(component.form.hint().getError('maxLength')).toBeDefined();
 
-    component.hint.setValue('a'.repeat(500));
-    expect(component.hint.valid).toBe(true);
+    component.form.hint().value.set('a'.repeat(500));
+    expect(component.form.hint().valid()).toBe(true);
   });
 
   it('should render month/day mat-error only after touched or dirty', () => {
-    component.month.setValue(13);
+    component.form.month().value.set(13);
     fixture.detectChanges();
     let error = fixture.nativeElement.querySelector('mat-error');
     expect(error).toBeFalsy();
 
-    component.month.markAsTouched();
+    component.form.month().markAsTouched();
     fixture.detectChanges();
     error = fixture.nativeElement.querySelector('mat-error');
     expect(error?.textContent).toContain('month greater than 12');
   });
 
   it('should render the hint mat-error when maxlength is exceeded and touched', () => {
-    component.hint.setValue('a'.repeat(501));
-    component.hint.markAsTouched();
+    component.form.hint().value.set('a'.repeat(501));
+    component.form.hint().markAsTouched();
     fixture.detectChanges();
 
     const errors = Array.from(

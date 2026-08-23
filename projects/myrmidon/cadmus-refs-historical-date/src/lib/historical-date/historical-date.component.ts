@@ -8,13 +8,12 @@ import {
   signal,
 } from '@angular/core';
 import {
-  FormGroup,
-  FormControl,
-  FormBuilder,
-  Validators,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+  FieldTree,
+  FormField,
+  disabled,
+  form,
+  required,
+} from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -33,6 +32,14 @@ import { Datation, DatationModel } from '../datation/datation';
 import { DatationComponent } from '../datation/datation.component';
 
 /**
+ * The editable controls for the historical date's text/range editor.
+ */
+interface HistoricalDateControls {
+  dateText: string;
+  range: boolean;
+}
+
+/**
  * Historical date editor.
  */
 @Component({
@@ -41,8 +48,7 @@ import { DatationComponent } from '../datation/datation.component';
   styleUrls: ['./historical-date.component.css'],
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatButtonToggleModule,
     MatCheckboxModule,
@@ -79,27 +85,23 @@ export class HistoricalDateComponent {
   public readonly a = signal<DatationModel | undefined>(undefined);
   public readonly b = signal<DatationModel | undefined>(undefined);
 
-  // form
-  public form: FormGroup;
-  public dateText: FormControl<string | null>;
-  public range: FormControl<boolean>;
+  private readonly _draft = signal<HistoricalDateControls>({
+    dateText: '',
+    range: false,
+  });
+  public readonly form: FieldTree<HistoricalDateControls>;
 
-  constructor(formBuilder: FormBuilder) {
-    // form
-    this.dateText = formBuilder.control(null, Validators.required);
-    this.range = formBuilder.control(false, { nonNullable: true });
-    this.form = formBuilder.group({
-      dateText: this.dateText,
-      range: this.range,
+  constructor() {
+    this.form = form(this._draft, (path) => {
+      required(path.dateText);
+      disabled(path.dateText, { when: () => !!this.disabled() });
+      disabled(path.range, { when: () => !!this.disabled() });
     });
 
-    // when disabled change, toggle form
+    // when disabled changes, collapse the visual editor
     effect(() => {
       if (this.disabled()) {
         this.visualExpanded.set(false);
-        this.form.disable();
-      } else {
-        this.form.enable();
       }
     });
 
@@ -111,19 +113,21 @@ export class HistoricalDateComponent {
 
   private updateForm(date?: HistoricalDateModel): void {
     if (!date) {
-      this.form.reset();
+      this._draft.set({ dateText: '', range: false });
       this.a.set(undefined);
       this.b.set(undefined);
       this.dateValue.set(undefined);
     } else {
       const hd = new HistoricalDate(date);
-      this.dateText.setValue(hd.toString());
-      this.range.setValue(hd.getDateType() === HistoricalDateType.range);
+      this._draft.set({
+        dateText: hd.toString(),
+        range: hd.getDateType() === HistoricalDateType.range,
+      });
       this.a.set(hd.a);
       this.b.set(hd.b);
       this.dateValue.set(hd.getSortValue());
-      this.form.markAsPristine();
     }
+    this.form().reset();
   }
 
   public stopPropagation(event: KeyboardEvent): void {
@@ -142,7 +146,7 @@ export class HistoricalDateComponent {
   }
 
   public resetDatations(): void {
-    this.range.setValue(false);
+    this.form.range().value.set(false);
     this.a.set(undefined);
     this.b.set(undefined);
   }
@@ -150,25 +154,25 @@ export class HistoricalDateComponent {
   public setDatations(): void {
     const hd = new HistoricalDate();
     hd.a = new Datation(this.a());
-    if (this.range.value) {
+    if (this.form.range().value()) {
       hd.b = new Datation(this.b());
     }
 
-    this.dateText.setValue(hd.toString());
+    this.form.dateText().value.set(hd.toString());
     this.visualExpanded.set(false);
     this.updateFromText();
   }
 
   public parseDateText(): void {
-    if (!this.dateText.value) {
+    if (!this.form.dateText().value()) {
       return;
     }
     try {
-      const hd = HistoricalDate.parse(this.dateText.value);
+      const hd = HistoricalDate.parse(this.form.dateText().value());
       if (hd) {
         this.invalidDateText.set(false);
         this.dateValue.set(hd.getSortValue());
-        this.range.setValue(hd.getDateType() === HistoricalDateType.range);
+        this.form.range().value.set(hd.getDateType() === HistoricalDateType.range);
         this.a.set(hd.a);
         this.b.set(hd.b);
         this.date.set(hd);
@@ -185,19 +189,18 @@ export class HistoricalDateComponent {
   }
 
   public resetDateText(): void {
-    this.dateText.setValue('');
-    this.dateText.updateValueAndValidity();
-    this.dateText.markAsDirty();
+    this.form.dateText().value.set('');
+    this.form.dateText().markAsDirty();
     this.invalidDateText.set(false);
   }
 
   private updateFromText(): void {
     try {
-      const hd = HistoricalDate.parse(this.dateText.value);
+      const hd = HistoricalDate.parse(this.form.dateText().value());
       if (hd) {
         this.invalidDateText.set(false);
         this.dateValue.set(hd.getSortValue());
-        this.range.setValue(hd.getDateType() === HistoricalDateType.range);
+        this.form.range().value.set(hd.getDateType() === HistoricalDateType.range);
         this.a.set(hd.a);
         this.b.set(hd.b);
         this.date.set(hd);
@@ -214,5 +217,10 @@ export class HistoricalDateComponent {
 
   public save(): void {
     this.updateFromText();
+  }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
   }
 }

@@ -57,7 +57,7 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
 - [x] 6. `cadmus-cod-location`
 - [x] 7. `cadmus-geo-location`
 - [x] 8. `cadmus-refs-citation`
-- [ ] 9. `cadmus-refs-historical-date`
+- [x] 9. `cadmus-refs-historical-date`
 - [ ] 10. `cadmus-refs-doc-references` — has `FormArray`
 - [ ] 11. `cadmus-text-block-view`
 - [ ] 12. `cadmus-ui-note-set`
@@ -274,3 +274,15 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
     handlers elsewhere in this migration — worth reaching for by default
     whenever a value-watching effect exists only to react to *user*
     changes, not model-driven ones.
+- **`cadmus-refs-historical-date`** (3 components): applied the accumulated
+  patterns cleanly — all 177 tests passed on the first full run.
+  `datation`/`asserted-historical-date` both have a debounced
+  form-field-changes → model `.set()` autosave (the same shape as
+  `cadmus-mat-physical-size`'s), so both got (a) a `_lastX`
+  reference-equality guard on the model→form sync `effect()` and (b) a
+  content-equality check before the debounced handler's `.set()` back to
+  the model — the two defenses established in the previous two libraries,
+  applied proactively this time instead of discovered by a failing test.
+  `historical-date` itself has no debounced watcher (only two fields,
+  `dateText`/`range`, driven by explicit method calls), so it needed
+  neither. `asserted-historical-date`'s spec is a smoke test only.

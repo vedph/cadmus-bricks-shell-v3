@@ -4,16 +4,17 @@ import {
   effect,
   input,
   model,
+  signal,
 } from '@angular/core';
 import {
-  FormControl,
-  FormBuilder,
-  Validators,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+  FieldTree,
+  FormField,
+  form,
+  max,
+  maxLength,
+  min,
+} from '@angular/forms/signals';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,23 +24,32 @@ import { MatInputModule } from '@angular/material/input';
 import { Datation, DatationModel } from './datation';
 
 /**
+ * The editable controls backing a single datation point.
+ */
+interface DatationControls {
+  value: number;
+  century: boolean;
+  span: boolean;
+  month: number;
+  day: number;
+  about: boolean;
+  dubious: boolean;
+  hint: string;
+  slide: number;
+}
+
+/**
  * Editor for a single point in a historical date.
  */
 @Component({
   selector: 'cadmus-refs-datation',
   templateUrl: './datation.component.html',
   styleUrls: ['./datation.component.css'],
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-    MatInputModule,
-  ],
+  imports: [FormField, MatCheckboxModule, MatFormFieldModule, MatInputModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DatationComponent {
-  private _updatingForm = false;
+  private _lastDatation: DatationModel | undefined = undefined;
 
   /**
    * The datation to edit.
@@ -51,98 +61,107 @@ export class DatationComponent {
    */
   public readonly label = input<string>();
 
-  public value: FormControl<number>;
-  public century: FormControl<boolean>;
-  public span: FormControl<boolean>;
-  public month: FormControl<number>;
-  public day: FormControl<number>;
-  public about: FormControl<boolean>;
-  public dubious: FormControl<boolean>;
-  public hint: FormControl<string | null>;
-  public slide: FormControl<number>;
-  public form: FormGroup;
+  private readonly _draft = signal<DatationControls>(
+    this.makeDefaultControls(),
+  );
+  public readonly form: FieldTree<DatationControls>;
 
-  constructor(formBuilder: FormBuilder) {
-    // form
-    this.value = formBuilder.control(0, { nonNullable: true });
-    this.century = formBuilder.control(false, { nonNullable: true });
-    this.span = formBuilder.control(false, { nonNullable: true });
-    this.month = formBuilder.control(0, {
-      validators: [Validators.min(0), Validators.max(12)],
-      nonNullable: true,
-    });
-    this.day = formBuilder.control(0, {
-      validators: [Validators.min(0), Validators.max(31)],
-      nonNullable: true,
-    });
-    this.about = formBuilder.control(false, { nonNullable: true });
-    this.dubious = formBuilder.control(false, { nonNullable: true });
-    this.hint = formBuilder.control(null, Validators.maxLength(500));
-    this.slide = formBuilder.control(0, { nonNullable: true });
-    this.form = formBuilder.group({
-      value: this.value,
-      century: this.century,
-      span: this.span,
-      month: this.month,
-      day: this.day,
-      about: this.about,
-      dubious: this.dubious,
-      hint: this.hint,
-      slide: this.slide,
+  constructor() {
+    this.form = form(this._draft, (path) => {
+      min(path.month, 0);
+      max(path.month, 12);
+      min(path.day, 0);
+      max(path.day, 31);
+      min(path.slide, 0);
+      maxLength(path.hint, 500);
     });
 
     // when datation changes, update form
     effect(() => {
-      this.updateForm(this.datation());
+      const model = this.datation();
+      // effects can be re-invoked with an unchanged tracked value; without
+      // this guard a spurious re-run would overwrite in-progress edits
+      // still sitting in the debounce window below
+      if (this._lastDatation === model) {
+        return;
+      }
+      this._lastDatation = model;
+      this.updateForm(model);
     });
 
     // when form changes (user edits), emit
-    this.form.valueChanges
-      .pipe(
-        debounceTime(300),
-        takeUntilDestroyed(),
-      )
+    toObservable(this._draft)
+      .pipe(debounceTime(300), takeUntilDestroyed())
       .subscribe(() => {
-        if (!this._updatingForm) {
-          this.emitChange();
+        const next = this.getDatation();
+        if (!this.datationsEqual(next, this.datation())) {
+          this.datation.set(next);
         }
       });
   }
 
-  private updateForm(model: DatationModel | undefined): void {
-    this._updatingForm = true;
-    if (!model) {
-      this.form.reset(undefined, { emitEvent: false });
-    } else {
-      this.value.setValue(model.value, { emitEvent: false });
-      this.century.setValue(model.isCentury || false, { emitEvent: false });
-      this.span.setValue(model.isSpan || false, { emitEvent: false });
-      this.month.setValue(model.month || 0, { emitEvent: false });
-      this.day.setValue(model.day || 0, { emitEvent: false });
-      this.about.setValue(model.isApproximate || false, { emitEvent: false });
-      this.dubious.setValue(model.isDubious || false, { emitEvent: false });
-      this.hint.setValue(model.hint || null, { emitEvent: false });
-      this.slide.setValue(model.slide || 0, { emitEvent: false });
-      this.form.markAsPristine();
-    }
-    this._updatingForm = false;
-  }
-
-  private getDatation(): DatationModel {
+  private makeDefaultControls(): DatationControls {
     return {
-      value: this.value.value ? +this.value.value : 0,
-      isCentury: this.century.value || false,
-      isSpan: this.span.value || false,
-      month: this.month.value ? +this.month.value : 0,
-      day: this.day.value ? +this.day.value : 0,
-      isApproximate: this.about.value || false,
-      isDubious: this.dubious.value || false,
-      hint: Datation.sanitizeHint(this.hint.value),
-      slide: this.slide.value ? +this.slide.value : 0,
+      value: 0,
+      century: false,
+      span: false,
+      month: 0,
+      day: 0,
+      about: false,
+      dubious: false,
+      hint: '',
+      slide: 0,
     };
   }
 
-  private emitChange(): void {
-    this.datation.set(this.getDatation());
+  private datationsEqual(a: DatationModel, b?: DatationModel): boolean {
+    if (!b) {
+      return false;
+    }
+    return (
+      a.value === b.value &&
+      a.isCentury === b.isCentury &&
+      a.isSpan === b.isSpan &&
+      a.month === b.month &&
+      a.day === b.day &&
+      a.isApproximate === b.isApproximate &&
+      a.isDubious === b.isDubious &&
+      a.hint === b.hint &&
+      a.slide === b.slide
+    );
+  }
+
+  private updateForm(model: DatationModel | undefined): void {
+    if (!model) {
+      this._draft.set(this.makeDefaultControls());
+    } else {
+      this._draft.set({
+        value: model.value,
+        century: model.isCentury || false,
+        span: model.isSpan || false,
+        month: model.month || 0,
+        day: model.day || 0,
+        about: model.isApproximate || false,
+        dubious: model.isDubious || false,
+        hint: model.hint || '',
+        slide: model.slide || 0,
+      });
+    }
+    this.form().reset();
+  }
+
+  private getDatation(): DatationModel {
+    const v = this._draft();
+    return {
+      value: v.value ? +v.value : 0,
+      isCentury: v.century || false,
+      isSpan: v.span || false,
+      month: v.month ? +v.month : 0,
+      day: v.day ? +v.day : 0,
+      isApproximate: v.about || false,
+      isDubious: v.dubious || false,
+      hint: Datation.sanitizeHint(v.hint),
+      slide: v.slide ? +v.slide : 0,
+    };
   }
 }
