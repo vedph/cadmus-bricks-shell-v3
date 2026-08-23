@@ -4,19 +4,20 @@ import {
   effect,
   input,
   model,
-  OnDestroy,
   OnInit,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { Subscription } from 'rxjs';
+  FieldTree,
+  FormField,
+  form,
+  min,
+  pattern,
+  readonly,
+  required,
+} from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -64,6 +65,18 @@ interface PhysicalGridCell {
 }
 
 /**
+ * The editable controls backing the grid's size/cells selection UI.
+ */
+interface PhysicalGridControls {
+  preset: string | null;
+  // text including coordinates of selected cells in Excel-like format,
+  // separated by spaces
+  text: string;
+  rowCount: number;
+  columnCount: number;
+}
+
+/**
  * A component to select a location in a physical grid, with a text box to enter
  * the selected cells in Excel-like format, and an interactive grid to select
  * the cells visually.
@@ -71,7 +84,7 @@ interface PhysicalGridCell {
 @Component({
   selector: 'cadmus-mat-physical-grid-location',
   imports: [
-    ReactiveFormsModule,
+    FormField,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -85,9 +98,9 @@ interface PhysicalGridCell {
   styleUrl: './physical-grid-location.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
+export class PhysicalGridLocationComponent implements OnInit {
   private readonly _excelColumnPipe: ExcelColumnPipe = new ExcelColumnPipe();
-  private _sub?: Subscription;
+  private readonly _controls;
 
   /**
    * The location of the grid together with the grid's size.
@@ -138,95 +151,73 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
    */
   public readonly collapsedGridChange = output<boolean>();
 
-  public preset: FormControl<string | null>;
-  // text including coordinates of selected cells in Excel-like format,
-  // separated by spaces
-  public text: FormControl<string>;
-  public rowCount: FormControl<number>;
-  public columnCount: FormControl<number>;
-  public form: FormGroup;
+  public readonly form: FieldTree<PhysicalGridControls>;
 
   // the interactive grid viewmodel
   public readonly rows = signal<PhysicalGridCell[][]>([]);
 
-  constructor(formBuilder: FormBuilder) {
-    this.preset = formBuilder.control(null);
-    this.text = formBuilder.control('', { nonNullable: true });
-    this.rowCount = formBuilder.control(1, {
-      nonNullable: true,
-      validators: [Validators.min(1)],
+  constructor() {
+    this._controls = signal<PhysicalGridControls>({
+      preset: null,
+      text: '',
+      rowCount: 1,
+      columnCount: 1,
     });
-    this.columnCount = formBuilder.control(1, {
-      nonNullable: true,
-      validators: [Validators.min(1)],
+    this.form = form(this._controls, (path) => {
+      min(path.rowCount, 1);
+      min(path.columnCount, 1);
+      readonly(path.rowCount, { when: () => !this.allowCustomSize() });
+      readonly(path.columnCount, { when: () => !this.allowCustomSize() });
+      pattern(path.text, /^(?:\s*[A-Za-z]+[0-9]+\s*)*$/);
+      required(path.text, { when: () => this.required() });
     });
-    this.form = formBuilder.group({
-      text: this.text,
-    });
-    this.setTextValidators(this.required());
 
     // when location changes, update grid
     effect(() => {
       const location = this.location();
       // update the grid size
-      this.rowCount.setValue(location?.rows || 1);
-      this.columnCount.setValue(location?.columns || 1);
-      // update grid and text
-      this.updateGrid();
-      this.updateText();
-    });
-
-    // when required changes, update validators
-    effect(() => {
-      if (this.text) {
-        this.setTextValidators(this.required());
-      }
+      this.form.rowCount().value.set(location?.rows || 1);
+      this.form.columnCount().value.set(location?.columns || 1);
+      // update grid and text (untracked: these read rowCount/columnCount,
+      // which must not become dependencies of this effect)
+      untracked(() => {
+        this.updateGrid();
+        this.updateText();
+      });
     });
 
     // when mode changes, reset cells
     effect(() => {
       console.log('mode', this.mode());
     });
-  }
 
-  public ngOnInit(): void {
-    this._sub = this.preset.valueChanges.subscribe((value) => {
+    // when preset changes, apply its size if any
+    effect(() => {
+      const value = this.form.preset().value();
       if (value && this.presets()?.length) {
         const m = value.match(/(\d+)[x×](\d+)$/);
         if (m) {
-          this.rowCount.setValue(parseInt(m[2], 10));
-          this.columnCount.setValue(parseInt(m[1], 10));
+          this.form.rowCount().value.set(parseInt(m[2], 10));
+          this.form.columnCount().value.set(parseInt(m[1], 10));
         }
       }
     });
+  }
+
+  public ngOnInit(): void {
     setTimeout(() => {
       this.updateGrid();
       this.updateText();
     });
   }
 
-  public ngOnDestroy(): void {
-    this._sub?.unsubscribe();
-  }
-
-  private setTextValidators(required: boolean) {
-    if (!this.text) {
-      return;
-    }
-    this.text.clearValidators();
-    this.text.addValidators(Validators.pattern(/^(?:\s*[A-Za-z]+[0-9]+\s*)*$/));
-    if (required) {
-      this.text.addValidators([Validators.required]);
-    }
-  }
-
   private updateGrid(): void {
     const location = this.location();
     console.log('updateGrid: location', location);
     const rows: PhysicalGridCell[][] = [];
-    for (let y = 1; y <= this.rowCount.value; y++) {
+    for (let y = 1; y <= this.form.rowCount().value(); y++) {
       const row: PhysicalGridCell[] = [];
-      for (let x = 1; x <= this.columnCount.value; x++) {
+      for (let x = 1; x <= this.form.columnCount().value(); x++) {
         const selIndex = location?.coords
           ? location.coords.findIndex((c) => c.row === y && c.column === x)
           : -1;
@@ -244,8 +235,8 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
 
   public setGridSize(): void {
     this.location.set({
-      rows: this.rowCount.value,
-      columns: this.columnCount.value,
+      rows: this.form.rowCount().value(),
+      columns: this.form.columnCount().value(),
       coords: [],
     });
     this.updateGrid();
@@ -265,8 +256,8 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
         if (
           row > 0 &&
           column > 0 &&
-          row <= this.rowCount.value &&
-          column <= this.columnCount.value &&
+          row <= this.form.rowCount().value() &&
+          column <= this.form.columnCount().value() &&
           (row !== coords.row || column !== coords.column)
         ) {
           // filter by selected if not undefined
@@ -366,9 +357,7 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
     );
     this.rows.set(newRows);
 
-    this.text.setValue('');
-    this.text.markAsDirty();
-    this.text.updateValueAndValidity();
+    this.form.text().value.set('');
     this.location.set({
       ...this.location(),
       coords: [] as PhysicalGridCoords[],
@@ -376,9 +365,7 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
   }
 
   private updateText() {
-    this.text.setValue(this.buildText());
-    this.text.markAsDirty();
-    this.text.updateValueAndValidity();
+    this.form.text().value.set(this.buildText());
   }
 
   private getSelectedCells(): PhysicalGridCell[] {
@@ -554,8 +541,8 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
     );
     selected.sort((a, b) => (a.ordinal || 0) - (b.ordinal || 0));
     this.location.set({
-      rows: this.rowCount.value,
-      columns: this.columnCount.value,
+      rows: this.form.rowCount().value(),
+      columns: this.form.columnCount().value(),
       coords: selected.map((c) => ({ row: c.row, column: c.column })),
     });
 
@@ -564,11 +551,7 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
   }
 
   public setCellsFromText() {
-    if (!this.text) {
-      return;
-    }
-
-    const text = this.text.value;
+    const text = this.form.text().value();
     if (!text) {
       this.location.set(undefined);
     } else {
@@ -595,14 +578,14 @@ export class PhysicalGridLocationComponent implements OnInit, OnDestroy {
         const filteredCoords = coords.filter(
           (c) =>
             c.row >= 1 &&
-            c.row <= this.rowCount.value &&
+            c.row <= this.form.rowCount().value() &&
             c.column >= 1 &&
-            c.column <= this.columnCount.value
+            c.column <= this.form.columnCount().value()
         );
         this.updateGrid();
         this.location.set({
-          rows: this.rowCount.value,
-          columns: this.columnCount.value,
+          rows: this.form.rowCount().value(),
+          columns: this.form.columnCount().value(),
           coords: filteredCoords,
         });
       }

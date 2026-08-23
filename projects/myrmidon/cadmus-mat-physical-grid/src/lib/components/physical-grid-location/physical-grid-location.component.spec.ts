@@ -33,71 +33,69 @@ describe('PhysicalGridLocationComponent', () => {
       expect(component.required()).toBe(false);
     });
 
-    it('should initialize form controls', async () => {
+    it('should initialize the form', async () => {
       const { component } = await setup();
-      expect(component.preset).toBeDefined();
-      expect(component.text).toBeDefined();
-      expect(component.rowCount).toBeDefined();
-      expect(component.columnCount).toBeDefined();
       expect(component.form).toBeDefined();
-      expect(component.form.get('text')).toBe(component.text);
+      expect(component.form.preset).toBeDefined();
+      expect(component.form.text).toBeDefined();
+      expect(component.form.rowCount).toBeDefined();
+      expect(component.form.columnCount).toBeDefined();
     });
 
     it('should default rowCount and columnCount to 1 when no location is set', async () => {
       const { component } = await setup();
-      expect(component.rowCount.value).toBe(1);
-      expect(component.columnCount.value).toBe(1);
+      expect(component.form.rowCount().value()).toBe(1);
+      expect(component.form.columnCount().value()).toBe(1);
     });
 
     it('should default text to empty string', async () => {
       const { component } = await setup();
-      expect(component.text.value).toBe('');
+      expect(component.form.text().value()).toBe('');
     });
   });
 
   describe('text validators', () => {
     it('should accept an empty text when not required', async () => {
       const { component } = await setup();
-      component.text.setValue('');
-      expect(component.text.valid).toBe(true);
+      component.form.text().value.set('');
+      expect(component.form.text().valid()).toBe(true);
     });
 
     it('should accept a valid cells string', async () => {
       const { component } = await setup();
-      component.text.setValue('A1 B2 C3');
-      expect(component.text.valid).toBe(true);
+      component.form.text().value.set('A1 B2 C3');
+      expect(component.form.text().valid()).toBe(true);
     });
 
     it('should reject a text not matching the cell pattern', async () => {
       const { component } = await setup();
-      component.text.setValue('123');
-      expect(component.text.invalid).toBe(true);
-      expect(component.text.hasError('pattern')).toBe(true);
+      component.form.text().value.set('123');
+      expect(component.form.text().invalid()).toBe(true);
+      expect(component.form.text().getError('pattern')).toBeDefined();
     });
 
     it('should reject text with malformed tokens', async () => {
       const { component } = await setup();
-      component.text.setValue('A1,B2');
-      expect(component.text.invalid).toBe(true);
+      component.form.text().value.set('A1,B2');
+      expect(component.form.text().invalid()).toBe(true);
     });
 
     it('should make text required when required input is true', async () => {
       const { component } = await setup({ required: true });
-      component.text.setValue('');
-      expect(component.text.invalid).toBe(true);
-      expect(component.text.hasError('required')).toBe(true);
+      component.form.text().value.set('');
+      expect(component.form.text().invalid()).toBe(true);
+      expect(component.form.text().getError('required')).toBeDefined();
     });
 
     it('should update validators reactively when required changes', async () => {
       const { fixture, component } = await setup({ required: false });
-      component.text.setValue('');
-      expect(component.text.valid).toBe(true);
+      component.form.text().value.set('');
+      expect(component.form.text().valid()).toBe(true);
 
       fixture.componentRef.setInput('required', true);
       await fixture.whenStable();
 
-      component.text.updateValueAndValidity();
-      expect(component.text.hasError('required')).toBe(true);
+      expect(component.form.text().getError('required')).toBeDefined();
     });
   });
 
@@ -111,8 +109,8 @@ describe('PhysicalGridLocationComponent', () => {
       const { fixture, component } = await setup({ location });
       await fixture.whenStable();
 
-      expect(component.rowCount.value).toBe(4);
-      expect(component.columnCount.value).toBe(5);
+      expect(component.form.rowCount().value()).toBe(4);
+      expect(component.form.columnCount().value()).toBe(5);
     });
 
     it('should build the grid rows/columns to match the location dimensions', async () => {
@@ -163,7 +161,7 @@ describe('PhysicalGridLocationComponent', () => {
       const { fixture, component } = await setup({ location });
       await fixture.whenStable();
 
-      expect(component.text.value).toBe('A1 B2');
+      expect(component.form.text().value()).toBe('A1 B2');
     });
 
     it('should set text to empty string when location has no coords', async () => {
@@ -175,7 +173,7 @@ describe('PhysicalGridLocationComponent', () => {
       const { fixture, component } = await setup({ location });
       await fixture.whenStable();
 
-      expect(component.text.value).toBe('');
+      expect(component.form.text().value()).toBe('');
     });
 
     it('should reset rowCount/columnCount to 1 when location becomes undefined', async () => {
@@ -186,13 +184,13 @@ describe('PhysicalGridLocationComponent', () => {
       };
       const { fixture, component } = await setup({ location });
       await fixture.whenStable();
-      expect(component.rowCount.value).toBe(4);
+      expect(component.form.rowCount().value()).toBe(4);
 
       component.location.set(undefined);
       await fixture.whenStable();
 
-      expect(component.rowCount.value).toBe(1);
-      expect(component.columnCount.value).toBe(1);
+      expect(component.form.rowCount().value()).toBe(1);
+      expect(component.form.columnCount().value()).toBe(1);
     });
   });
 
@@ -201,53 +199,53 @@ describe('PhysicalGridLocationComponent', () => {
       const { fixture, component } = await setup({
         presets: ['small: 3x4', 'large: 10x20'],
       });
-      component.preset.setValue('small: 3x4');
+      component.form.preset().value.set('small: 3x4');
       await fixture.whenStable();
 
-      expect(component.columnCount.value).toBe(3);
-      expect(component.rowCount.value).toBe(4);
+      expect(component.form.columnCount().value()).toBe(3);
+      expect(component.form.rowCount().value()).toBe(4);
     });
 
     it('should update rowCount/columnCount when a preset uses the × separator', async () => {
       const { fixture, component } = await setup({
         presets: ['small: 3×4'],
       });
-      component.preset.setValue('small: 3×4');
+      component.form.preset().value.set('small: 3×4');
       await fixture.whenStable();
 
-      expect(component.columnCount.value).toBe(3);
-      expect(component.rowCount.value).toBe(4);
+      expect(component.form.columnCount().value()).toBe(3);
+      expect(component.form.rowCount().value()).toBe(4);
     });
 
     it('should not update sizes when presets is empty', async () => {
       const { fixture, component } = await setup({ presets: [] });
-      component.rowCount.setValue(1);
-      component.columnCount.setValue(1);
+      component.form.rowCount().value.set(1);
+      component.form.columnCount().value.set(1);
 
-      component.preset.setValue('small: 3x4');
+      component.form.preset().value.set('small: 3x4');
       await fixture.whenStable();
 
-      expect(component.rowCount.value).toBe(1);
-      expect(component.columnCount.value).toBe(1);
+      expect(component.form.rowCount().value()).toBe(1);
+      expect(component.form.columnCount().value()).toBe(1);
     });
 
     it('should not update sizes when the preset value does not match the size pattern', async () => {
       const { fixture, component } = await setup({
         presets: ['no-size-here'],
       });
-      component.preset.setValue('no-size-here');
+      component.form.preset().value.set('no-size-here');
       await fixture.whenStable();
 
-      expect(component.rowCount.value).toBe(1);
-      expect(component.columnCount.value).toBe(1);
+      expect(component.form.rowCount().value()).toBe(1);
+      expect(component.form.columnCount().value()).toBe(1);
     });
   });
 
   describe('setGridSize', () => {
     it('should set location from rowCount/columnCount with empty coords', async () => {
       const { component } = await setup();
-      component.columnCount.setValue(4);
-      component.rowCount.setValue(3);
+      component.form.columnCount().value.set(4);
+      component.form.rowCount().value.set(3);
 
       component.setGridSize();
 
@@ -301,8 +299,8 @@ describe('PhysicalGridLocationComponent', () => {
   describe('toggleCell - single mode', () => {
     async function setupGrid(mode: 'single' | 'multiple' | 'contiguous') {
       const { fixture, component } = await setup({ mode });
-      component.columnCount.setValue(3);
-      component.rowCount.setValue(3);
+      component.form.columnCount().value.set(3);
+      component.form.rowCount().value.set(3);
       component.setGridSize();
       await fixture.whenStable();
       return { fixture, component };
@@ -344,15 +342,15 @@ describe('PhysicalGridLocationComponent', () => {
     it('should update the text control after toggling', async () => {
       const { component } = await setupGrid('single');
       component.toggleCell(component.rows()[0][0]);
-      expect(component.text.value).toBe('A1');
+      expect(component.form.text().value()).toBe('A1');
     });
   });
 
   describe('toggleCell - multiple mode', () => {
     async function setupGrid() {
       const { fixture, component } = await setup({ mode: 'multiple' });
-      component.columnCount.setValue(3);
-      component.rowCount.setValue(3);
+      component.form.columnCount().value.set(3);
+      component.form.rowCount().value.set(3);
       component.setGridSize();
       await fixture.whenStable();
       return { fixture, component };
@@ -392,8 +390,8 @@ describe('PhysicalGridLocationComponent', () => {
   describe('toggleCell - contiguous mode (default)', () => {
     async function setupGrid() {
       const { fixture, component } = await setup({ mode: 'contiguous' });
-      component.columnCount.setValue(3);
-      component.rowCount.setValue(3);
+      component.form.columnCount().value.set(3);
+      component.form.rowCount().value.set(3);
       component.setGridSize();
       await fixture.whenStable();
       return { fixture, component };
@@ -442,10 +440,10 @@ describe('PhysicalGridLocationComponent', () => {
   describe('setCellsFromText', () => {
     it('should set location from valid text', async () => {
       const { fixture, component } = await setup();
-      component.columnCount.setValue(3);
-      component.rowCount.setValue(3);
+      component.form.columnCount().value.set(3);
+      component.form.rowCount().value.set(3);
 
-      component.text.setValue('A1 B2');
+      component.form.text().value.set('A1 B2');
       component.setCellsFromText();
       await fixture.whenStable();
 
@@ -463,7 +461,7 @@ describe('PhysicalGridLocationComponent', () => {
       const { component } = await setup({
         location: { rows: 3, columns: 3, coords: [{ row: 1, column: 1 }] },
       });
-      component.text.setValue('');
+      component.form.text().value.set('');
       component.setCellsFromText();
 
       expect(component.location()).toBeUndefined();
@@ -471,10 +469,10 @@ describe('PhysicalGridLocationComponent', () => {
 
     it('should filter out coordinates outside the current grid bounds', async () => {
       const { component } = await setup();
-      component.columnCount.setValue(2);
-      component.rowCount.setValue(2);
+      component.form.columnCount().value.set(2);
+      component.form.rowCount().value.set(2);
 
-      component.text.setValue('A1 C5 B2');
+      component.form.text().value.set('A1 C5 B2');
       component.setCellsFromText();
 
       const coords = component.location()?.coords as PhysicalGridCoords[];
@@ -492,7 +490,7 @@ describe('PhysicalGridLocationComponent', () => {
       };
       const { component } = await setup({ location });
 
-      component.text.setValue('###');
+      component.form.text().value.set('###');
       component.setCellsFromText();
 
       // no valid tokens were found, so the previous location is left untouched
@@ -521,7 +519,7 @@ describe('PhysicalGridLocationComponent', () => {
       expect(component.location()?.coords).toEqual([]);
       expect(component.location()?.rows).toBe(2);
       expect(component.location()?.columns).toBe(2);
-      expect(component.text.value).toBe('');
+      expect(component.form.text().value()).toBe('');
       component.rows().forEach((row) =>
         row.forEach((cell) => {
           expect(cell.selected).toBe(false);

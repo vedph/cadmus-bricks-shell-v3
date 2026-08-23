@@ -5,32 +5,20 @@
       <!-- columnCount -->
       <mat-form-field class="nr-input">
         <mat-label>columns</mat-label>
-        <input
-          matInput
-          [formControl]="columnCount"
-          type="number"
-          min="1"
-          [readonly]="!allowCustomSize()"
-        />
+        <input matInput [formField]="form.columnCount" type="number" />
       </mat-form-field>
 
       <!-- rowCount -->
       <mat-form-field class="nr-input">
         <mat-label>rows</mat-label>
-        <input
-          matInput
-          [formControl]="rowCount"
-          type="number"
-          min="1"
-          [readonly]="!allowCustomSize()"
-        />
+        <input matInput [formField]="form.rowCount" type="number" />
       </mat-form-field>
 
       <!-- preset -->
       @if (presets()?.length) {
       <mat-form-field>
         <mat-label>preset</mat-label>
-        <mat-select [formControl]="preset">
+        <mat-select [formField]="form.preset">
           @for (p of presets(); track p) {
           <mat-option [value]="p">{{ p }}</mat-option>
           }
@@ -53,7 +41,7 @@
     <div>
       <mat-form-field>
         <mat-label>cells</mat-label>
-        <input matInput [formControl]="text" />
+        <input matInput [formField]="form.text" />
         <mat-hint>cell coordinate(s) like A1</mat-hint>
       </mat-form-field>
       <!-- buttons -->
