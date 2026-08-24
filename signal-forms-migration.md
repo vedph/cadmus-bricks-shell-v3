@@ -907,3 +907,57 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   to call it. This check should have been run once at the end of the
   main migration pass, not discovered library-by-library through live
   bug reports afterward.
+- **Follow-up, found via a second live bug report** (`cadmus-refs-doc-
+  references`'s "save" appeared to full-page-reload): the fix above only
+  covered `<form (submit)="foo()">` — a bare `<form>` with **no**
+  `(submit)` binding *at all* is exactly as vulnerable (a real browser
+  still performs the native submit-and-reload on Enter/an implicit
+  submit even with zero JS listeners attached), and grepping for that
+  pattern specifically misses it. Grepped instead for every `<form`
+  opening tag directly and found **14 more** bare, completely unhandled
+  forms: `cadmus-refs-decorated-counts` (`decorated-counts`, outer
+  add-form), `cadmus-refs-decorated-ids` (`decorated-ids`, outer list
+  form), `cadmus-refs-doc-references` (`doc-references`), `cadmus-refs-
+  assertion` (`assertion`), `cadmus-refs-asserted-chronotope`
+  (`asserted-chronotope-set`), `cadmus-mat-physical-size`
+  (`physical-size`'s inner visual-editor form), `cadmus-refs-asserted-
+  ids` (`scoped-pin-lookup`'s outer key-selection form), `cadmus-refs-
+  external-ids` (`external-ids`), `cadmus-refs-proper-name`
+  (`proper-name`), `cadmus-refs-chronotope` (`chronotope`), `cadmus-cod-
+  location` (`cod-location`), `cadmus-refs-historical-date` (`datation`,
+  `asserted-historical-date`), `cadmus-refs-lookup` (`ref-lookup`). None
+  of these components has an actual "save on submit" action — they're
+  all autosave/debounce-only or the array-wrapper case — so each just
+  got a no-op `onFormSubmit(event) { event.preventDefault(); }` (or a
+  distinctly-named sibling, e.g. `onKeyFormSubmit`, where the component
+  already had an `onFormSubmit` for a *different* nested form, as in
+  `scoped-pin-lookup`).
+  **A second, more important discovery from tracing this one down**:
+  fixing an inner form's own `preventDefault()` is not sufficient once
+  it is nested inside an ancestor's `<form>` — confirmed concretely with
+  `asserted-chronotope-set`, whose template embeds `<cadmus-refs-
+  asserted-chronotope>` (both of *its* forms already had correct
+  `onPlaceFormSubmit`/`onDateFormSubmit` handlers) directly inside its
+  own outer `<form>`. Per the HTML parsing spec, a `<form>` start tag
+  encountered while a form is already open is dropped outright (no
+  element is created for it) — so `asserted-chronotope`'s inner `<form>`
+  elements never actually exist in the rendered DOM when used this way,
+  and their `(submit)` bindings can never fire. The place/date "submit"
+  buttons instead submit whatever the nearest *real* ancestor `<form>`
+  is — here, `asserted-chronotope-set`'s own outer form, which (before
+  this fix) had no handler either. **This means every `<form>`-bearing
+  component in this library tree needs its own `preventDefault()`
+  regardless of whether it is ever expected to be the "real" form in a
+  given composition** — an inner form's handler is not wasted when the
+  component is used standalone (a demo page, a dialog), and an outer
+  form's handler is what actually fires when it is nested. Both ends of
+  every such pairing needed the fix independently; neither one alone
+  would have been sufficient. Re-verified `asserted-composite-ids` and
+  `asserted-ids` (the two other list-wrapper components already fixed
+  earlier) do **not** have this problem — neither wraps its child editor
+  in a `<form>` of its own, so their single already-fixed inner form is
+  the only one in the DOM either way.
+  Confirmed via a full grep of `projects/myrmidon` for every `<form`
+  opening tag: **all now have a `(submit)` binding**, zero remaining
+  bare forms. All 13 touched libraries build and test clean (build +
+  `ng test` individually, zero regressions).

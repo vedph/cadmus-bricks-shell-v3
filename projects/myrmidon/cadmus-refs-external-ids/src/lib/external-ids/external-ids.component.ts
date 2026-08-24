@@ -321,4 +321,8 @@ export class ExternalIdsComponent implements AfterViewInit, OnDestroy {
     this._lastSyncedDraft = JSON.stringify(this._draft());
     this.ids.set(ids);
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

@@ -42,7 +42,7 @@
     [expanded]="visualExpanded()"
     (expandedChange)="visualExpanded.set($event)"
   >
-    <form>
+    <form (submit)="onFormSubmit($event)">
       <div class="form-row">
         @if (!hideTag()) {
         <!-- tag (bound) -->

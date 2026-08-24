@@ -242,4 +242,8 @@ export class AssertedChronotopeSetComponent {
         : [],
     );
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

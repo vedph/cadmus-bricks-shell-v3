@@ -326,6 +326,10 @@ export class DecoratedCountsComponent {
     this.saveCount();
   }
 
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
+
   public moveCountUp(index: number): void {
     if (index < 1) {
       return;

@@ -334,4 +334,8 @@ export class DecoratedIdsComponent {
       this.form().reset();
     }
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

@@ -191,4 +191,8 @@ export class ScopedPinLookupComponent {
     event.preventDefault();
     this.pickId();
   }
+
+  public onKeyFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

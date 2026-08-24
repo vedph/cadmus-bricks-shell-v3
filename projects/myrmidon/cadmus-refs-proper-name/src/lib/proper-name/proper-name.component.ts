@@ -359,4 +359,8 @@ export class ProperNameComponent {
       assertion: v.assertion || undefined,
     };
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

@@ -257,4 +257,8 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
       this.references.set(next);
     }
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

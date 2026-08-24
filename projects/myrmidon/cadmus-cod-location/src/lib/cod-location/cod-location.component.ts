@@ -177,4 +177,8 @@ export class CodLocationComponent implements OnDestroy {
       }
     }
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

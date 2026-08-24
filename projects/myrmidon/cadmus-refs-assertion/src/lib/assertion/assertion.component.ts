@@ -196,4 +196,8 @@ export class AssertionComponent {
     this._lastSyncedDraft = JSON.stringify(this._draft());
     this.assertion.set(next);
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

@@ -170,4 +170,8 @@ export class AssertedHistoricalDateComponent {
       this.date.set(next);
     }
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

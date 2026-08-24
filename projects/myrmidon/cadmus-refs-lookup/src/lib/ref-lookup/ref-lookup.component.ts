@@ -501,4 +501,8 @@ export class RefLookupComponent {
       this.options.set(scope.options ? { ...scope.options } : undefined);
     }
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

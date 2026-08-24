@@ -176,4 +176,8 @@ export class ChronotopeComponent {
       this.form().reset();
     }
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

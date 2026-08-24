@@ -1,7 +1,7 @@
 <div>
   <!-- lookup -->
   <div>
-    <form class="form-row">
+    <form class="form-row" (submit)="onKeyFormSubmit($event)">
       <!-- key -->
       @if (keys().length > 1) {
         <mat-form-field>

@@ -408,4 +408,8 @@ export class PhysicalSizeComponent implements OnDestroy {
       d: v.dValue ? this.getDimension(v.dValue, v.dUnit, v.dTag) : undefined,
     };
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }

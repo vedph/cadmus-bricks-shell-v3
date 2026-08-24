@@ -169,4 +169,8 @@ export class DatationComponent {
       slide: v.slide ? +v.slide : 0,
     };
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+  }
 }
