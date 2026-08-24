@@ -481,7 +481,7 @@ export class CitationComponent implements OnInit, OnDestroy {
           this.minNrValue.set(undefined);
           this.maxNrValue.set(undefined);
         }
-        this.nrEditorForm.value().value.set(step.n!);
+        this.nrEditorForm.value().value.set(step.n ?? 0);
 
         // if there is a suffix validation pattern, apply it to the suffix
         // field; else, remove any existing pattern constraint from it

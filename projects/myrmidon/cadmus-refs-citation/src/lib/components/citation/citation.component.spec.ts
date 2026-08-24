@@ -130,40 +130,61 @@ const DC_SCHEME: CitScheme = {
 };
 //#endregion
 
+function getProviders() {
+  return [
+    provideNoopAnimations(),
+    {
+      provide: CitSchemeService,
+      useFactory: () => {
+        const service = new CitSchemeService(new RamStorageService());
+        service.configure({
+          formats: {},
+          schemes: {
+            dc: DC_SCHEME,
+            od: OD_SCHEME,
+          },
+        } as CitSchemeSet);
+        // agl formatter for Odyssey
+        const aglFormatter = new MapFormatter();
+        const aglMap: CitMappedValues = {};
+        for (let n = 0x3b1; n <= 0x3c9; n++) {
+          // skip final sigma
+          if (n === 0x3c2) {
+            continue;
+          }
+          aglMap[String.fromCharCode(n)] = n - 0x3b0;
+        }
+        aglFormatter.configure(aglMap);
+        service.addFormatter('agl', aglFormatter);
+
+        return service;
+      },
+    },
+  ];
+}
+
 describe('CitationComponent', () => {
   it('should render', async () => {
     const { fixture } = await render(CitationComponent, {
-      providers: [
-        provideNoopAnimations(),
-        {
-          provide: CitSchemeService,
-          useFactory: () => {
-            const service = new CitSchemeService(new RamStorageService());
-            service.configure({
-              formats: {},
-              schemes: {
-                dc: DC_SCHEME,
-                od: OD_SCHEME,
-              },
-            } as CitSchemeSet);
-            // agl formatter for Odyssey
-            const aglFormatter = new MapFormatter();
-            const aglMap: CitMappedValues = {};
-            for (let n = 0x3b1; n <= 0x3c9; n++) {
-              // skip final sigma
-              if (n === 0x3c2) {
-                continue;
-              }
-              aglMap[String.fromCharCode(n)] = n - 0x3b0;
-            }
-            aglFormatter.configure(aglMap);
-            service.addFormatter('agl', aglFormatter);
-
-            return service;
-          },
-        },
-      ],
+      providers: getProviders(),
     });
     expect(fixture.componentInstance).toBeTruthy();
+  });
+
+  it('should edit a numeric step with no n yet without breaking its field', async () => {
+    const { fixture } = await render(CitationComponent, {
+      providers: getProviders(),
+    });
+    const component = fixture.componentInstance;
+
+    // a freshly created step has no n set yet
+    component.editStep({ stepId: 'canto', value: '' });
+
+    expect(component.stepEditMode()).toBe('number');
+    expect(component.nrEditorForm.value().value()).toBe(0);
+
+    // the field must still be usable after being set from an undefined n
+    component.nrEditorForm.value().value.set(3);
+    expect(component.nrEditorForm.value().value()).toBe(3);
   });
 });
