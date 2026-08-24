@@ -1,4 +1,4 @@
-import { FieldTree, FormField, FormRoot, form } from '@angular/forms/signals';
+import { FieldTree, FormField, form } from '@angular/forms/signals';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -48,7 +48,6 @@ interface FlagViewModel extends Flag {
   selector: 'cadmus-ui-flag-set',
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,

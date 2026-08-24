@@ -20,7 +20,6 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   maxLength,
   max,
@@ -78,7 +77,6 @@ interface SchemeControls {
   selector: 'cadmus-refs-citation',
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,

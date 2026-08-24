@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import {
   FormField,
-  FormRoot,
   form,
   maxLength,
   required,
@@ -74,7 +73,6 @@ function makeDefaultDraft(): ProperNameControls {
   styleUrls: ['./proper-name.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,

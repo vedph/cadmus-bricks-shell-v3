@@ -12,7 +12,6 @@ import {
 } from '@angular/core';
 import {
   FormField,
-  FormRoot,
   form,
   maxLength,
   required,
@@ -146,7 +145,6 @@ function makeDefaultDraft(): AssertedCompositeIdControls {
   styleUrls: ['./asserted-composite-id.component.css'],
   imports: [
     FormField,
-    FormRoot,
     // material
     MatButtonModule,
     MatExpansionModule,

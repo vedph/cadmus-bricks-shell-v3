@@ -11,7 +11,6 @@ import {
 import {
   FieldTree,
   FormField,
-  FormRoot,
   disabled,
   form,
   maxLength,
@@ -68,7 +67,6 @@ interface EditedCountControls {
   styleUrls: ['./decorated-counts.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,

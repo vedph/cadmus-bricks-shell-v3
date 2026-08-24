@@ -1,4 +1,4 @@
-<form [formRoot]="form">
+<div>
   <!-- list -->
   <div>
     <button type="button" mat-flat-button (click)="addId()" class="mat-primary">
@@ -83,7 +83,7 @@
         {{ edited()?.id }}
       </mat-panel-description>
     </mat-expansion-panel-header>
-    <form [formRoot]="idForm">
+    <div>
       <!-- id -->
       <div class="form-row">
         <mat-form-field>
@@ -158,6 +158,6 @@
           <mat-icon class="mat-primary">check_circle</mat-icon>
         </button>
       </div>
-    </form>
+    </div>
   </mat-expansion-panel>
-</form>
+</div>

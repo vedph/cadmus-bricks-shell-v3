@@ -435,18 +435,15 @@ describe('PhysicalStateComponent', () => {
     expect(component.state()?.date).toBe(toYmd(raw));
   });
 
-  it('should not save on a native form submit event (formRoot only prevents the default reload)', () => {
-    // the save button calls save() directly via (click); [formRoot] on the
-    // <form> exists only to disable native submission (no reload on Enter),
-    // not to trigger the save itself - see signal-forms-migration.md.
+  it('should render no <form> element, so it stays valid at any nesting depth', () => {
+    // this widget is embeddable anywhere, so it must never introduce a
+    // <form>: signal forms bind through [formField] and need no form
+    // element - see signal-forms-migration.md.
     component.form.type().value.set('good');
     component.form.reporter().value.set('jdoe');
     fixture.detectChanges();
 
-    const form = fixture.debugElement.query(By.css('form'));
-    form.triggerEventHandler('submit', new Event('submit'));
-
-    expect(component.state()).toBeUndefined();
+    expect(fixture.debugElement.query(By.css('form'))).toBeNull();
   });
 
   it('should reflect reporter/note as undefined in state when they are empty', () => {

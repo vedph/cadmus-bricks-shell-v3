@@ -1,7 +1,6 @@
 import { Component, Inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormField,
-  FormRoot,
   form,
   maxLength,
   required,
@@ -64,7 +63,6 @@ interface LookupInfo {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
-    FormRoot,
     // material
     MatButtonModule,
     MatExpansionModule,

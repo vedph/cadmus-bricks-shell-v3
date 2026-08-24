@@ -36,7 +36,7 @@
       </div>
     } @else {
       <!-- free text editor -->
-      <form [formRoot]="textForm">
+      <div>
         <mat-form-field id="free-text-field">
           <mat-label>free text</mat-label>
           <input matInput [formField]="textForm.text" #free />
@@ -66,7 +66,7 @@
             <mat-icon class="mat-primary">check_circle</mat-icon>
           </button>
         </mat-form-field>
-      </form>
+      </div>
     }
 
     <!-- scheme -->
@@ -118,10 +118,7 @@
       @switch (stepEditMode()) {
         <!-- set mode -->
         @case ("set") {
-          <form
-            class="form-row"
-            [formRoot]="setEditorForm"
-          >
+          <div class="form-row">
             <!-- set item -->
             <mat-form-field>
               <mat-label>set</mat-label>
@@ -155,14 +152,11 @@
             >
               <mat-icon class="mat-primary">check_circle</mat-icon>
             </button>
-          </form>
+          </div>
         }
         <!-- number mode -->
         @case ("number") {
-          <form
-            class="form-row"
-            [formRoot]="nrEditorForm"
-          >
+          <div class="form-row">
             <!-- number -->
             <mat-form-field class="nr">
               <mat-label>number</mat-label>
@@ -225,14 +219,11 @@
             >
               <mat-icon class="mat-primary">check_circle</mat-icon>
             </button>
-          </form>
+          </div>
         }
         <!-- string/masked string mode -->
         @default {
-          <form
-            class="form-row"
-            [formRoot]="strEditorForm"
-          >
+          <div class="form-row">
             <!-- string -->
             <mat-form-field>
               <mat-label>string</mat-label>
@@ -268,7 +259,7 @@
             >
               <mat-icon class="mat-primary">check_circle</mat-icon>
             </button>
-          </form>
+          </div>
         }
       }
     </fieldset>

@@ -26,7 +26,7 @@
   </button>
   <!-- custom -->
   @if (allowCustom()) {
-  <form [formRoot]="customForm">
+  <div class="custom-flag">
     <mat-form-field>
       <mat-label>custom</mat-label>
       <input matInput [formField]="customForm.customFlag" />
@@ -40,7 +40,7 @@
     >
       <mat-icon class="mat-primary">add_circle</mat-icon>
     </button>
-  </form>
+  </div>
   }
 </div>
 }

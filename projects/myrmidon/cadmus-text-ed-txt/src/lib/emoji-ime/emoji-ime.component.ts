@@ -138,9 +138,12 @@ export class EmojiImeComponent implements AfterViewInit, OnDestroy {
     this._sub?.unsubscribe();
   }
 
-  public onFormSubmit(event: Event): void {
+  public onNameEnter(event: Event): void {
     event.preventDefault();
-    this.pickEmoji(this.emojis()[0]);
+    const first = this.emojis()[0];
+    if (first) {
+      this.pickEmoji(first);
+    }
   }
 
   public close(): void {

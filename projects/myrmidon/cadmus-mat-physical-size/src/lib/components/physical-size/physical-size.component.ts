@@ -13,7 +13,6 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   maxLength,
   min,
@@ -71,7 +70,6 @@ interface PhysicalSizeControls {
   imports: [
     CommonModule,
     FormField,
-    FormRoot,
     // material
     MatButtonModule,
     MatCheckboxModule,

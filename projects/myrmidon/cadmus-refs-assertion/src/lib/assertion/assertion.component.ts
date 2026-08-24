@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, input, model, signal } from '@angular/core';
-import { FormField, FormRoot, form, maxLength, min } from '@angular/forms/signals';
+import { FormField, form, maxLength, min } from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs';
 
@@ -52,7 +52,6 @@ function makeDefaultDraft(): AssertionControls {
   styleUrls: ['./assertion.component.css'],
   imports: [
     FormField,
-    FormRoot,
     // material
     MatBadgeModule,
     MatButtonModule,

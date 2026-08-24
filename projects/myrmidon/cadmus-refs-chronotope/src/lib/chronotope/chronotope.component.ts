@@ -9,7 +9,6 @@ import {
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   maxLength,
 } from '@angular/forms/signals';
@@ -65,7 +64,6 @@ function makeDefaultControls(): ChronotopeControls {
   styleUrls: ['./chronotope.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,

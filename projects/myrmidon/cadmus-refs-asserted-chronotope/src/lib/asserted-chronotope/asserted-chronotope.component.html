@@ -37,7 +37,7 @@
 
   <!-- place -->
   <mat-expansion-panel class="editor" [(expanded)]="placeExpanded">
-    <form [formRoot]="plForm">
+    <div>
       <fieldset id="place">
         <legend>place</legend>
         <div class="form-row">
@@ -127,7 +127,7 @@
           <mat-icon class="mat-primary">check_circle</mat-icon>
         </button>
       </div>
-    </form>
+    </div>
   </mat-expansion-panel>
 
   <!-- date -->
@@ -136,7 +136,7 @@
     [expanded]="dateExpanded()"
     (expandedChange)="dateExpanded.set($event)"
   >
-    <form [formRoot]="dtForm">
+    <div>
       <fieldset id="date">
         <legend>date</legend>
         <!-- tag (bound) -->
@@ -200,6 +200,6 @@
           <mat-icon class="mat-primary">check_circle</mat-icon>
         </button>
       </div>
-    </form>
+    </div>
   </mat-expansion-panel>
 </div>

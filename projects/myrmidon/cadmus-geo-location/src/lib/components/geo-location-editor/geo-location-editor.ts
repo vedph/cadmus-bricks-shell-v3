@@ -14,7 +14,6 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   max,
   maxLength,
@@ -98,7 +97,6 @@ interface GeoLocationControls {
   selector: 'cadmus-geo-location-editor',
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatButtonToggleModule,
     MatFormFieldModule,

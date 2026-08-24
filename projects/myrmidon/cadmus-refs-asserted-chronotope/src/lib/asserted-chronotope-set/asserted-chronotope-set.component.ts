@@ -7,7 +7,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { FieldTree, FormRoot, form } from '@angular/forms/signals';
+import { FieldTree, form } from '@angular/forms/signals';
 import { take } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -39,7 +39,6 @@ import {
   templateUrl: './asserted-chronotope-set.component.html',
   styleUrls: ['./asserted-chronotope-set.component.css'],
   imports: [
-    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,

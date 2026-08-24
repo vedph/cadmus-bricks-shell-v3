@@ -9,7 +9,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FieldTree, FormField, FormRoot, form } from '@angular/forms/signals';
+import { FieldTree, FormField, form } from '@angular/forms/signals';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
@@ -146,7 +146,6 @@ export interface LookupScopeEntry {
   imports: [
     CommonModule,
     FormField,
-    FormRoot,
     // material
     MatAutocompleteModule,
     MatButtonModule,

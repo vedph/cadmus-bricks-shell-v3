@@ -42,7 +42,7 @@
     [expanded]="visualExpanded()"
     (expandedChange)="visualExpanded.set($event)"
   >
-    <form [formRoot]="form">
+    <div>
       <div class="form-row">
         @if (!hideTag()) {
         <!-- tag (bound) -->
@@ -261,6 +261,6 @@
       @if (form().getError('unit') && (form().dirty() || form().touched())) {
       <mat-error>unit not set</mat-error>
       }
-    </form>
+    </div>
   </mat-expansion-panel>
 </div>

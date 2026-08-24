@@ -31,16 +31,16 @@ describe('ProperNamePieceComponent', () => {
     expect(component.form().invalid()).toBe(true);
   });
 
-  it('does not render the form when no piece is set', () => {
-    expect(fixture.nativeElement.querySelector('form')).toBeNull();
+  it('does not render the editor when no piece is set', () => {
+    expect(fixture.nativeElement.querySelector('.form-row')).toBeNull();
   });
 
-  it('renders the form once a piece is bound', async () => {
+  it('renders the editor once a piece is bound', async () => {
     fixture.componentRef.setInput('piece', { type: 'p', value: 'Publius' });
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(fixture.nativeElement.querySelector('form')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.form-row')).toBeTruthy();
   });
 
   it('populates the type/value controls with literal strings when no types are provided', async () => {
@@ -100,7 +100,7 @@ describe('ProperNamePieceComponent', () => {
 
     expect(component.form.type().value()).toBeNull();
     expect(component.form.value().value()).toBeNull();
-    expect(fixture.nativeElement.querySelector('form')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.form-row')).toBeNull();
   });
 
   it('updates typeValues (debounced) when the user changes the type control', async () => {

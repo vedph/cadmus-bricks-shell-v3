@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, effect, input, model, signal } from
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   required,
 } from '@angular/forms/signals';
@@ -44,7 +43,6 @@ interface AssertedDateControls {
   selector: 'cadmus-refs-asserted-historical-date',
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,

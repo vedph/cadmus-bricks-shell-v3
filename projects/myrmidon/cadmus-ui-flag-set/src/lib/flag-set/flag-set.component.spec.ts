@@ -133,7 +133,7 @@ describe('FlagSetComponent', () => {
       setFlags(flags);
       fixture.detectChanges();
 
-      const form = fixture.debugElement.query(By.css('form'));
+      const form = fixture.debugElement.query(By.css('.custom-flag'));
       expect(form).toBeNull();
     });
 
@@ -142,7 +142,7 @@ describe('FlagSetComponent', () => {
       fixture.componentRef.setInput('allowCustom', true);
       fixture.detectChanges();
 
-      const form = fixture.debugElement.query(By.css('form'));
+      const form = fixture.debugElement.query(By.css('.custom-flag'));
       expect(form).toBeTruthy();
     });
 
@@ -384,21 +384,15 @@ describe('FlagSetComponent', () => {
       expect(component.customForm.customFlag().value()).toBe('');
     });
 
-    it('should not add the custom flag on a native form submit event (formRoot only prevents the default reload)', () => {
-      // the add button calls addCustomFlag() directly via (click);
-      // [formRoot] on the <form> exists only to disable native submission
-      // (no reload on Enter), not to trigger the action itself - see
-      // signal-forms-migration.md.
+    it('should render no <form> element, so it stays valid at any nesting depth', () => {
+      // the add button calls addCustomFlag() directly via (click); this
+      // widget is embeddable anywhere, so it must never introduce a <form>
+      // - see signal-forms-migration.md.
       component.customForm.customFlag().value.set('custom3');
+      fixture.componentRef.setInput('allowCustom', true);
       fixture.detectChanges();
 
-      let emitted: string[] | undefined;
-      component.checkedIdsChange.subscribe((ids) => (emitted = ids));
-
-      const form = fixture.debugElement.query(By.css('form'));
-      form.triggerEventHandler('submit', new Event('submit'));
-
-      expect(emitted).toBeUndefined();
+      expect(fixture.debugElement.query(By.css('form'))).toBeNull();
     });
   });
 

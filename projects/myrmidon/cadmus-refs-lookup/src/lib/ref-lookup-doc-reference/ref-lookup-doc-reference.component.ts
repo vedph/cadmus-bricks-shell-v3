@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import {
   FormField,
-  FormRoot,
   form,
   maxLength,
   required,
@@ -57,7 +56,6 @@ export const LOOKUP_CONFIGS_KEY = 'cadmus-refs-lookup.configs';
   selector: 'cadmus-refs-lookup-doc-reference',
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -133,7 +131,7 @@ export class LookupDocReferenceComponent {
   public readonly pickerEnabled = computed<boolean>(
     () =>
       (!this.noLookup() && !!this._lookupConfig) ||
-      (!this.noCitation() && !!(this._schemeService?.getSchemes()?.length > 0))
+      (!this.noCitation() && !!(this._schemeService?.getSchemes()?.length > 0)),
   );
 
   /**
@@ -191,10 +189,10 @@ export class LookupDocReferenceComponent {
 
   constructor(
     private _schemeService: CitSchemeService,
-    settings: RamStorageService
+    settings: RamStorageService,
   ) {
     this.lookupConfigs.set(
-      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || []
+      settings.retrieve<RefLookupConfig[]>(LOOKUP_CONFIGS_KEY) || [],
     );
     this._lookupConfig = this.lookupConfigs().length
       ? this.lookupConfigs()[0]
@@ -235,10 +233,15 @@ export class LookupDocReferenceComponent {
   }
 
   private parseCitation(): void {
+    // no scheme registered: nothing to parse against
+    const scheme = this._schemeService.getSchemes()?.[0];
+    if (!scheme) {
+      return;
+    }
     const citation = this._schemeService.parse(
       this.form.citation().value(),
-      this._schemeService.getSchemes()[0].id,
-      true // we want empty slots so we can fill them
+      scheme.id,
+      true, // we want empty slots so we can fill them
     );
     if (citation) {
       this.parsedCitation.set(citation);
@@ -316,5 +319,4 @@ export class LookupDocReferenceComponent {
   public save(): void {
     this.reference.set(this.getReference());
   }
-
 }

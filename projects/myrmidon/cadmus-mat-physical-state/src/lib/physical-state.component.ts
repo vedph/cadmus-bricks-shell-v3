@@ -12,7 +12,6 @@ import {
 import {
   form,
   FormField,
-  FormRoot,
   maxLength,
   required,
 } from '@angular/forms/signals';
@@ -73,7 +72,6 @@ function makeDefaultDraft(): PhysicalStateDraft {
   imports: [
     CommonModule,
     FormField,
-    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatDatepickerModule,

@@ -265,7 +265,7 @@ describe('PhysicalDimensionComponent', () => {
   //#region template
   describe('template', () => {
     it('should not render a label span when label is not set', () => {
-      const span = fixture.nativeElement.querySelector('form > span');
+      const span = fixture.nativeElement.querySelector('.form-row > span');
       expect(span).toBeFalsy();
     });
 
@@ -275,7 +275,7 @@ describe('PhysicalDimensionComponent', () => {
       await fixture.whenStable();
 
       const span: HTMLElement = fixture.nativeElement.querySelector(
-        'form > span'
+        '.form-row > span'
       );
       expect(span?.textContent).toBe('Width');
     });

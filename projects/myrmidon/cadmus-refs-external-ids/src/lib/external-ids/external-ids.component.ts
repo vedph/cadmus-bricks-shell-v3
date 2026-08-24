@@ -14,7 +14,6 @@ import {
   applyEach,
   FieldTree,
   FormField,
-  FormRoot,
   form,
   maxLength,
   required,
@@ -85,7 +84,6 @@ function toControls(id?: RankedExternalId): ExternalIdControls {
   styleUrls: ['./external-ids.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,

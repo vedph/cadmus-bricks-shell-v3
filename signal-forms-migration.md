@@ -47,15 +47,18 @@ Angular Material inputs (`matInput`, `mat-select`, `mat-autocomplete`, ...) are
 CVA-based and `[formField]` interops with CVA controls directly — no custom
 `FormValueControl` wrapper needed for those.
 
-**Form submission**: every `<form>` element gets `[formRoot]="theFieldTree"`
-(the `FormRoot` directive, `@angular/forms/signals`) instead of a hand-rolled
-`(submit)="onXFormSubmit($event)" { event.preventDefault(); ... }` method —
-`FormRoot` sets `novalidate` and calls `preventDefault()` on the native
-`submit` event automatically, with zero behavior difference from the
-hand-rolled version. It does **not** replace the save button's own
-`(click)="save()"` — see "Post-migration fixes" below for why the actual
-save action must stay on the button's `(click)`, never on native form
-submission, in a tree this deeply nested.
+**Form submission**: these widgets render **no `<form>` element at all**.
+Signal forms bind through `[formField]` on the individual controls; the
+`<form>` tag is a reactive-forms leftover with no role here. `[formRoot]`
+(the `FormRoot` directive, `@angular/forms/signals`) exists to set
+`novalidate`, call `preventDefault()` on the native `submit` event, and run
+a `submission.action` configured on `form(...)` — none of these bricks
+declares a `submission` action, so there is nothing for it to do, and a
+`<form>` in a component that is embeddable at any depth only creates
+invalid nested markup and stray Enter-key submissions. Saves live on the
+button's own `(click)="save()"`. Reserve `<form [formRoot]="tree">` for a
+component that genuinely *is* a submission root with a `submission.action`.
+See "Post-migration fixes" below for the history that led here.
 
 ## Library checklist (dependency order)
 
@@ -1123,3 +1126,107 @@ submission, in a tree this deeply nested.
   All 21 touched libraries build clean; full `pnpm run test:lib`
   workspace run green after the two intentional spec rewrites and the
   `TEST_IMPORTS` fix.
+
+
+## Fifth pass: measured correction, and removing the `<form>` elements
+
+The reported symptom — "clicking the save button of the nested
+`LookupDocReferenceComponent` submits `AssertionComponent`'s form and reloads
+the page" — was **reproduced and root-caused in a real browser** (headless
+Chrome driven over CDP against `ng serve`), not reasoned about. Two things
+came out of it: the actual cause of the report, and the fact that two
+premises recorded in the passes above are factually wrong.
+
+### The reported bug was stale code, not a code defect
+
+The browser was executing a **frozen copy of the library** out of Vite's
+dependency pre-bundle cache. `@myrmidon/*` resolve to `dist/myrmidon/*`
+(tsconfig `paths` plus `node_modules` symlinks), so Vite classifies them as
+*dependencies* and pre-bundles them once into
+`.angular/cache/<ver>/<app>/vite/deps/`. Rebuilding a library into `dist/`
+does **not** invalidate that prebundle.
+
+Measured evidence: the served chunk
+`.angular/cache/22.0.1/cadmus-bricks-shell-v3/vite/deps/chunk-7FH4VKER.js`
+contained `["type","submit",...,"matTooltip","Accept changes",...]` and no
+`novalidate`, i.e. the pre-fix template — while `dist/` and the source both
+had `type="button"` and `[formRoot]`. The cache entry was written at 10:27,
+before the three fix commits (10:38, 11:30, 12:04). Deleting
+`.angular/cache` and restarting `ng serve` made the symptom vanish
+immediately, with the same scripted click sequence.
+
+This also explains the confusing debugger session: source maps showed the
+current sources while the code actually running was hours old.
+
+Prevention (applied): the dev-server target in `angular.json` now carries
+
+```json
+"options": { "prebundle": { "exclude": [ "@myrmidon/…", … ] } }
+```
+
+listing all 36 workspace libraries, so `ng serve` bundles them into the app
+code and picks up `dist/` rebuilds instead of freezing them.
+
+### Two premises from the earlier passes are wrong
+
+Both were measured directly in Chrome:
+
+1. **Nested `<form>` elements DO exist in the DOM.** With the reference
+   editor open, `document.querySelectorAll('form').length === 2`, the inner
+   form's parent was `CADMUS-REFS-LOOKUP-DOC-REFERENCE`, and every button
+   inside it had the *inner* form as its `.form` owner. The HTML
+   nested-form-elision rule is a **parser** rule: it applies when a browser
+   parses markup text, not when Angular builds the tree through DOM APIs —
+   which is always the case across component boundaries. So the claim that
+   "only the single outermost `<form>` in any composition actually exists"
+   (passes three and four) is false, and inner `[formRoot]`/`(submit)`
+   handlers were never being elided.
+
+2. **`submit` events never reach an ancestor form.** Dispatching a bubbling
+   `submit` on the inner form and listening at every node up the ancestor
+   chain showed propagation stopping *exactly one node before* the outer
+   `<form>` — the DOM dispatch algorithm stops `submit`/`reset` at a `form`
+   ancestor precisely to prevent this leakage. So an inner form could never
+   have triggered an ancestor form's handler either.
+
+The fixes made in passes two through four (explicit `type="button"` plus
+`(click)="save()"` on every action button) remain **exactly the right
+pattern** — a save action should not be routed through native form
+submission — but the reasoning recorded for them was wrong. What actually
+broke was simpler: a `type="submit"` button inside a form whose `(submit)`
+handler did not `preventDefault()`, which reloads the page. Nesting never
+entered into it.
+
+### Consequence: the `<form>` elements are gone
+
+Since none of these components declares a `submission` action, `[formRoot]`
+had nothing left to do but suppress a submission that should not exist in
+the first place. All 29 widget templates now use a plain `<div>`:
+
+- `<form [formRoot]="form">` → `<div>` across 28 templates (plus
+  `emoji-ime`, the last bare `<form>`, whose Enter-to-pick-first-emoji
+  behavior moved from implicit form submission to an explicit
+  `(keydown.enter)` handler); `FormRoot` dropped from 28 component
+  `imports` arrays.
+- `flag-set`'s `form { display: inline-block }` rule became
+  `.custom-flag { … }` on the replacement `<div>`, preserving layout.
+- Specs that used `By.css('form')` / `querySelector('form')` as a
+  "is the editor rendered" proxy now target the real marker element; the
+  two "must not save on a native submit event" tests became "renders no
+  `<form>` element, so it stays valid at any nesting depth".
+
+Verified in the browser after rebuilding the libraries:
+`document.querySelectorAll('form').length === 0` on the assertion demo
+page, Enter inside the deepest nested input neither navigates nor fires a
+submit, and the full edit→save flow propagates the reference all the way up
+to the host page's model. Full `pnpm run test:lib` green across all 27
+library projects.
+
+### Unrelated bug found while reproducing
+
+`LookupDocReferenceComponent.parseCitation()` read
+`this._schemeService.getSchemes()[0].id` unguarded, throwing
+`TypeError: Cannot read properties of undefined (reading 'id')` whenever the
+picker-type subscription fired with no citation scheme registered (it
+surfaced as an unhandled error in this library's test run). Pre-existing,
+not a migration regression; now guarded with an early return.

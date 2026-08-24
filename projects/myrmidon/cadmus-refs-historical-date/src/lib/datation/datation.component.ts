@@ -9,7 +9,6 @@ import {
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   max,
   maxLength,
@@ -48,7 +47,6 @@ interface DatationControls {
   styleUrls: ['./datation.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,

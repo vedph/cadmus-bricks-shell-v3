@@ -12,7 +12,10 @@
       "Bash(curl -s \"https://iconclass.org/25F713.json\")",
       "Bash(npx ng *)",
       "Skill(run)",
-      "Skill(run:*)"
+      "Skill(run:*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(pnpm run *)"
     ]
   }
 }

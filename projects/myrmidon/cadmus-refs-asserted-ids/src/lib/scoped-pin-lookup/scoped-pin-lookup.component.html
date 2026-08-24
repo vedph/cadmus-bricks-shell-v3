@@ -1,7 +1,7 @@
 <div>
   <!-- lookup -->
   <div>
-    <form class="form-row" [formRoot]="keyForm">
+    <div class="form-row">
       <!-- key -->
       @if (keys().length > 1) {
         <mat-form-field>
@@ -24,7 +24,7 @@
         [lookupProviderOptions]="lookupProviderOptions()"
         (itemChange)="onItemChange($event)"
       />
-    </form>
+    </div>
   </div>
 
   <!-- builder -->
@@ -33,7 +33,7 @@
       <mat-expansion-panel-header>ID builder</mat-expansion-panel-header>
       <!-- ID -->
       <div>
-        <form [formRoot]="idForm">
+        <div>
           <mat-form-field style="width: 100%">
             <input matInput [formField]="idForm.id" />
             @if (idForm.id().getError('required') && (idForm.id().dirty() ||
@@ -63,7 +63,7 @@
               <mat-icon class="mat-primary">check_circle</mat-icon>
             </button>
           </mat-form-field>
-        </form>
+        </div>
       </div>
       <!-- table -->
       <table>

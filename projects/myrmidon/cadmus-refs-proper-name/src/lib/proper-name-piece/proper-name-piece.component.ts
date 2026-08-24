@@ -10,7 +10,6 @@ import {
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   required,
 } from '@angular/forms/signals';
@@ -44,7 +43,6 @@ interface ProperNamePieceControls {
   styleUrls: ['./proper-name-piece.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,

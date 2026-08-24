@@ -9,7 +9,6 @@ import {
 import {
   disabled,
   FormField,
-  FormRoot,
   form,
   maxLength,
   min,
@@ -53,7 +52,6 @@ export interface DecoratedId {
   styleUrls: ['./decorated-ids.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,

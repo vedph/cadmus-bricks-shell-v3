@@ -11,7 +11,6 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   maxLength,
   pattern,
@@ -44,7 +43,6 @@ import {
   styleUrls: ['./cod-location.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,

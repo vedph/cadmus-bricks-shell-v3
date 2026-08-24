@@ -10,7 +10,6 @@ import {
 import {
   FieldTree,
   FormField,
-  FormRoot,
   disabled,
   form,
   maxLength,
@@ -54,7 +53,6 @@ interface PhysicalDimensionControls {
   styleUrls: ['./physical-dimension.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,

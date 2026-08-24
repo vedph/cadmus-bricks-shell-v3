@@ -11,7 +11,6 @@ import {
 import {
   FieldTree,
   FormField,
-  FormRoot,
   disabled,
   form,
   min,
@@ -64,7 +63,6 @@ interface EditedMeasureControls {
   selector: 'cadmus-mat-physical-measurement-set',
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,

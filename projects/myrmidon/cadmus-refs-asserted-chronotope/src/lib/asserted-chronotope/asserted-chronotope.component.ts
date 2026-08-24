@@ -9,7 +9,6 @@ import {
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   maxLength,
   required,
@@ -83,7 +82,6 @@ function makeDefaultDateDraft(): DateControls {
   styleUrls: ['./asserted-chronotope.component.css'],
   imports: [
     FormField,
-    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,

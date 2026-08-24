@@ -1,12 +1,15 @@
-<form
-  [style.margin]="inDialog ? '16px' : '0'"
-  (submit)="onFormSubmit($event)"
->
+<div [style.margin]="inDialog ? '16px' : '0'">
   <!-- name -->
   <div>
     <mat-form-field>
       <mat-label>name</mat-label>
-      <input #nameInput matInput placeholder="name" [formField]="form.name" />
+      <input
+        #nameInput
+        matInput
+        placeholder="name"
+        [formField]="form.name"
+        (keydown.enter)="onNameEnter($event)"
+      />
     </mat-form-field>
   </div>
   <!-- list -->
@@ -30,4 +33,4 @@
       }
     </tbody>
   </table>
-</form>
+</div>

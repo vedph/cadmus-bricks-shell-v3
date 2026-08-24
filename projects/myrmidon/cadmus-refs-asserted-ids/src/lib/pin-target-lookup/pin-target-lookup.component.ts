@@ -16,7 +16,6 @@ import {
 import {
   FieldTree,
   FormField,
-  FormRoot,
   form,
   maxLength,
   required,
@@ -125,7 +124,6 @@ interface PinTargetControls {
   styleUrls: ['./pin-target-lookup.component.css'],
   imports: [
     FormField,
-    FormRoot,
     // material
     ClipboardModule,
     MatButtonModule,
