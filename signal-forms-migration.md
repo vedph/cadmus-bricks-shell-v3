@@ -1230,3 +1230,110 @@ library projects.
 picker-type subscription fired with no citation scheme registered (it
 surfaced as an unhandled error in this library's test run). Pre-existing,
 not a migration regression; now guarded with an early return.
+
+
+## Sixth pass: `linkedSignal` replaces the echo-guard bookkeeping
+
+Thirteen components carried the same hand-rolled pattern to stop a
+`model()` two-way binding from feeding its own writes back into the form:
+
+```ts
+private _lastX: X | undefined = undefined;   // set at every write site
+private _hasLastX = false;                   // "undefined" is a real value
+private _lastSyncedDraft = '';               // JSON snapshot for autosave
+
+effect(() => {
+  const x = this.x();
+  if (this._hasLastX && this._lastX === x) return;   // our own echo
+  this._lastX = x; this._hasLastX = true;
+  this.updateForm(x);
+});
+```
+
+That is exactly what `linkedSignal` exists for: writable state derived from
+a source. Twelve of the thirteen now read:
+
+```ts
+private readonly _draft = linkedSignal<X | undefined, XControls>({
+  source: () => this.x(),
+  computation: (x, previous) =>
+    previous && JSON.stringify(x) === JSON.stringify(toX(previous.value))
+      ? previous.value          // echo of our own save: keep the live draft
+      : toDraft(x),             // genuinely new value: rebuild
+});
+```
+
+`previous` is what makes the echo detectable without any instance fields:
+if the incoming value is simply what the current draft maps to, the draft
+is already current. Keeping it (rather than rebuilding) is what preserves
+an in-progress edit that saving normalizes away — a tag the user is still
+typing, trailing space and all.
+
+Three consequences fall out:
+
+- **The `_lastSyncedDraft` JSON snapshot is gone**, replaced by a stateless
+  `isDraftInSync(draft)` — `JSON.stringify(draft) === JSON.stringify(toDraft(this.x()))`.
+  It answers the same question ("did the draft change for a reason worth
+  saving?") by computing it rather than remembering it, so it cannot go
+  stale.
+- **`updateForm()` is gone** in favour of pure `toDraft()`/`toX()` mapping
+  helpers, which the computation, the autosave guard and the save path all
+  share.
+- **`form().reset()` moved into an effect keyed on the draft**, firing only
+  when the draft is back in sync. It deliberately does *not* fire on an
+  echo (the draft never changes there), so a validation error can no longer
+  be cleared out from under the user 300 ms after they typed it.
+
+Converted: `assertion`, `doc-references`, `chronotope`, `datation`,
+`asserted-historical-date`, `cod-location`, `compact-citation`,
+`decorated-ids`, `physical-size`, `asserted-id`, `external-ids`,
+`geo-location-editor`, `asserted-composite-id`.
+
+Two special cases inside that set:
+
+- **`compact-citation`** projects the bound citation into three writable
+  pieces (`a`, `b`, `range`), so it became three `linkedSignal`s over the
+  same source. The projection is lossless in both directions, so an echo
+  simply re-derives identical values and no echo guard is needed at all.
+  Its `_dropNextUpdate` flag turned out to be dead code — never set to
+  true — and was deleted.
+- **`asserted-composite-id`** keeps `_updatingForm`, now scoped to the
+  effect that re-derives target mode: it guards a *child* lookup-set
+  echoing a config change during that window, which is re-entrancy
+  suppression, not model echo. Its `resetTarget()` autosave suppression is
+  now expressed as "never autosave a target the user has not picked yet"
+  (`!draft.target?.gid`) instead of a JSON snapshot.
+
+### Deliberately not converted
+
+- **`note-set`** — its sync is not a derivation. `preserveExistingNotes()`
+  merges notes across a *definitions* change using the previous set, and
+  `updateForm()` reconciles the currently-edited key against the new
+  definitions. The draft is a function of the set *and* the user's
+  selection *and* the merge history, which `linkedSignal` does not model.
+  Forcing it in would be a redesign of the merge semantics, with little
+  spec coverage on that path.
+- **`citation`** (`_lastParentCitation`) — same shape: the parent-sync
+  effect drives `editedCitation`, `editedStep`, `textForm`, `_schemeDraft`
+  and `lastStepIndex` behind two re-entrancy flags.
+- **`pin-target-lookup`** (`_updatingForm`, 13 sites) — never had the echo
+  guard; the flag suppresses lookup side effects during programmatic
+  writes.
+- **`named-value-editor`** (`_lastResetName`) — tracks whether the value
+  fields were already cleared for a given name, making `onNameChanged()`
+  idempotent across repeated blurs. Unrelated.
+
+### Verification
+
+Full `pnpm run test:lib` green across all 27 library projects, with no
+spec changes needed — the existing tests already pinned the behaviours the
+guards protected (autosave suppression after an external set, pristine
+state after save, trimming).
+
+Checked in a real browser as well, because the risky case is one no unit
+test covers: typing `"abc "` into the assertion tag, waiting past the
+300 ms autosave, then continuing to type. The model receives the trimmed
+`"abc"`, the echo comes back, and the input still reads `"abc "` — so the
+next keystroke yields `"abc d"`, not `"abcd"`. That is the regression a
+naive `linkedSignal` swap (without the `previous` check) would have
+introduced.

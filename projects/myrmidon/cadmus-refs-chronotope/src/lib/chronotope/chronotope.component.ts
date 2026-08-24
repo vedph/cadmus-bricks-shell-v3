@@ -3,8 +3,9 @@ import {
   Component,
   effect,
   input,
+  linkedSignal,
   model,
-  signal,
+  untracked,
 } from '@angular/core';
 import {
   FieldTree,
@@ -46,6 +47,27 @@ interface ChronotopeControls {
   hasDate: boolean;
 }
 
+/** Map a bound chronotope to the editable draft shape. */
+function toControls(chronotope: Chronotope | undefined): ChronotopeControls {
+  return !chronotope
+    ? makeDefaultControls()
+    : {
+        tag: chronotope.tag || '',
+        place: chronotope.place || '',
+        date: chronotope.date || null,
+        hasDate: chronotope.date ? true : false,
+      };
+}
+
+/** Map the draft back to a chronotope. */
+function toChronotope(v: ChronotopeControls): Chronotope {
+  return {
+    tag: v.tag.trim() || undefined,
+    place: v.place.trim() || undefined,
+    date: v.hasDate && v.date ? v.date : undefined,
+  };
+}
+
 function makeDefaultControls(): ChronotopeControls {
   return {
     tag: '',
@@ -77,13 +99,6 @@ function makeDefaultControls(): ChronotopeControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChronotopeComponent {
-  // set synchronously at the point save() writes `chronotope` (not inside
-  // the effect below), paired with _hasLastChronotope since undefined is
-  // both "never saved yet" and a legitimate real value - see
-  // signal-forms-migration.md for why this must live at the write site.
-  private _lastChronotope: Chronotope | undefined = undefined;
-  private _hasLastChronotope = false;
-
   /**
    * The chronotope to edit.
    */
@@ -92,7 +107,26 @@ export class ChronotopeComponent {
   // chronotope-tags
   public readonly ctTagEntries = input<ThesaurusEntry[]>();
 
-  private readonly _draft = signal<ChronotopeControls>(makeDefaultControls());
+  /**
+   * The editable draft, derived from `chronotope` but writable in place.
+   * `previous` tells an external change apart from the echo of our own save:
+   * when the incoming chronotope is just what the current draft maps to,
+   * the draft is already up to date and keeping it preserves in-progress
+   * edits that saving normalizes away (whitespace still being typed).
+   */
+  private readonly _draft = linkedSignal<
+    Chronotope | undefined,
+    ChronotopeControls
+  >({
+    source: () => this.chronotope(),
+    computation: (chronotope, previous) =>
+      previous &&
+      chronotope &&
+      this.chronotopesEqual(toChronotope(previous.value), chronotope)
+        ? previous.value
+        : toControls(chronotope),
+  });
+
   public readonly form: FieldTree<ChronotopeControls>;
 
   constructor() {
@@ -101,15 +135,17 @@ export class ChronotopeComponent {
       maxLength(path.place, 50);
     });
 
-    // when chronotope changes, update form
+    // the draft mirrors the bound chronotope again: no unsaved edits, so
+    // clear the interaction state
     effect(() => {
-      const chronotope = this.chronotope();
-      if (this._hasLastChronotope && this._lastChronotope === chronotope) {
-        return;
-      }
-      this._lastChronotope = chronotope;
-      this._hasLastChronotope = true;
-      this.updateForm(chronotope);
+      const draft = this._draft();
+      untracked(() => {
+        if (
+          JSON.stringify(draft) === JSON.stringify(toControls(this.chronotope()))
+        ) {
+          this.form().reset();
+        }
+      });
     });
 
     // autosave: only when form is valid and, if hasDate is true, date is set
@@ -122,8 +158,6 @@ export class ChronotopeComponent {
         }
         const next = this.getChronotope();
         if (!this.chronotopesEqual(next, this.chronotope())) {
-          this._lastChronotope = next;
-          this._hasLastChronotope = true;
           this.chronotope.set(next);
         }
       });
@@ -140,31 +174,12 @@ export class ChronotopeComponent {
     );
   }
 
-  private updateForm(chronotope: Chronotope | undefined): void {
-    if (!chronotope) {
-      this._draft.set(makeDefaultControls());
-    } else {
-      this._draft.set({
-        tag: chronotope.tag || '',
-        place: chronotope.place || '',
-        date: chronotope.date || null,
-        hasDate: chronotope.date ? true : false,
-      });
-    }
-    this.form().reset();
-  }
-
   public onDateChange(date?: HistoricalDateModel): void {
     this.form.date().value.set(date || null);
   }
 
   private getChronotope(): Chronotope {
-    const v = this._draft();
-    return {
-      tag: v.tag.trim() || undefined,
-      place: v.place.trim() || undefined,
-      date: v.hasDate && v.date ? v.date : undefined,
-    };
+    return toChronotope(this._draft());
   }
 
   public save(pristine = true): void {
@@ -173,10 +188,7 @@ export class ChronotopeComponent {
       this.form().markAsTouched();
       return;
     }
-    const chronotope = this.getChronotope();
-    this._lastChronotope = chronotope;
-    this._hasLastChronotope = true;
-    this.chronotope.set(chronotope);
+    this.chronotope.set(this.getChronotope());
     if (pristine) {
       this.form().reset();
     }

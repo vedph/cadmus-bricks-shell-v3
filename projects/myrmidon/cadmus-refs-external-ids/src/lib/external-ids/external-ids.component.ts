@@ -4,10 +4,12 @@ import {
   Component,
   effect,
   input,
+  linkedSignal,
   model,
   OnDestroy,
   QueryList,
   signal,
+  untracked,
   ViewChildren,
 } from '@angular/core';
 import {
@@ -68,6 +70,11 @@ interface ExternalIdsControls {
 // way reactive forms did (undefined -> '' / null), and to keep the
 // signal-forms FieldTree from tagging the caller's own objects with its
 // internal array-item identity Symbol (see signal-forms-migration.md).
+/** Map the bound IDs to the editable draft shape. */
+function toDraft(ids: RankedExternalId[] | undefined): ExternalIdsControls {
+  return { idsArr: (ids || []).map((id) => toControls(id)) };
+}
+
 function toControls(id?: RankedExternalId): ExternalIdControls {
   return {
     value: id?.value ?? '',
@@ -106,19 +113,6 @@ export class ExternalIdsComponent implements AfterViewInit, OnDestroy {
   // documented for toObservable() elsewhere in this migration).
   private _suppressFocus = false;
 
-  // set synchronously wherever `ids` is written (not inside the effect
-  // below), paired with _hasLastIds since undefined is both "never saved
-  // yet" and a legitimate real value - see signal-forms-migration.md.
-  private _lastIds: RankedExternalId[] | undefined = undefined;
-  private _hasLastIds = false;
-  // a JSON snapshot of the draft as of the last external sync or emitted
-  // save, used by the debounced autosave to tell "the draft changed only
-  // because of a sync/save we already accounted for" apart from a real
-  // user edit - see the cadmus-refs-assertion entry in
-  // signal-forms-migration.md for why a synchronous flag can't do this
-  // job once toObservable()'s deferred emission is involved.
-  private _lastSyncedDraft = '';
-
   @ViewChildren('id') idQueryList: QueryList<any> | undefined;
 
   /**
@@ -149,7 +143,25 @@ export class ExternalIdsComponent implements AfterViewInit, OnDestroy {
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
 
-  private readonly _draft = signal<ExternalIdsControls>({ idsArr: [] });
+  /**
+   * The editable draft, derived from `ids` but writable in place.
+   * `previous` tells an external change apart from the echo of our own
+   * save: when the incoming IDs are just what the current draft maps to,
+   * the draft is already up to date and rebuilding it would discard the
+   * row the user is editing.
+   */
+  private readonly _draft = linkedSignal<
+    RankedExternalId[],
+    ExternalIdsControls
+  >({
+    source: () => this.ids(),
+    computation: (ids, previous) =>
+      previous &&
+      JSON.stringify(this.getIds(previous.value)) === JSON.stringify(ids)
+        ? previous.value
+        : toDraft(ids),
+  });
+
   public readonly form: FieldTree<ExternalIdsControls>;
   public readonly idsArr: FieldTree<ExternalIdControls[]>;
 
@@ -169,23 +181,24 @@ export class ExternalIdsComponent implements AfterViewInit, OnDestroy {
     });
     this.idsArr = this.form.idsArr;
 
-    // when ids change, update form
+    // the draft mirrors the bound IDs again: this row set came from
+    // outside, so don't steal focus into the last row
     effect(() => {
-      const ids = this.ids();
-      if (this._hasLastIds && this._lastIds === ids) {
-        return;
-      }
-      this._lastIds = ids;
-      this._hasLastIds = true;
-      this.updateForm(ids);
+      const draft = this._draft();
+      untracked(() => {
+        if (this.isDraftInSync(draft)) {
+          this._suppressFocus = true;
+        }
+      });
     });
 
-    // autosave: debounced, and only when something actually changed
-    // since the last external sync or explicit save (see _lastSyncedDraft)
+    // autosave, but only once the draft has actually diverged from what is
+    // bound - otherwise merely receiving IDs would save a normalized copy
+    // of them straight back over the originals
     toObservable(this._draft)
       .pipe(debounceTime(300), takeUntilDestroyed())
       .subscribe(() => {
-        if (JSON.stringify(this._draft()) === this._lastSyncedDraft) {
+        if (this.isDraftInSync(this._draft())) {
           return;
         }
         this.emitIdsChange();
@@ -295,17 +308,13 @@ export class ExternalIdsComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private updateForm(ids: RankedExternalId[]): void {
-    this._suppressFocus = true;
-    const draft: ExternalIdsControls = {
-      idsArr: (ids || []).map((id) => toControls(id)),
-    };
-    this._draft.set(draft);
-    this._lastSyncedDraft = JSON.stringify(draft);
+  /** True when the draft still mirrors the bound IDs. */
+  private isDraftInSync(draft: ExternalIdsControls): boolean {
+    return JSON.stringify(draft) === JSON.stringify(toDraft(this.ids()));
   }
 
-  private getIds(): RankedExternalId[] {
-    return this._draft().idsArr.map((g) => ({
+  private getIds(draft: ExternalIdsControls = this._draft()): RankedExternalId[] {
+    return draft.idsArr.map((g) => ({
       value: g.value.trim(),
       scope: g.scope.trim() || undefined,
       tag: g.tag.trim() || undefined,
@@ -315,11 +324,7 @@ export class ExternalIdsComponent implements AfterViewInit, OnDestroy {
   }
 
   private emitIdsChange(): void {
-    const ids = this.getIds();
-    this._lastIds = ids;
-    this._hasLastIds = true;
-    this._lastSyncedDraft = JSON.stringify(this._draft());
-    this.ids.set(ids);
+    this.ids.set(this.getIds());
   }
 
 }

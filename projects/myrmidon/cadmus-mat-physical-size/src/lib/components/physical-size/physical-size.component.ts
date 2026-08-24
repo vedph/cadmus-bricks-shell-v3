@@ -5,9 +5,11 @@ import {
   computed,
   effect,
   input,
+  linkedSignal,
   model,
   OnDestroy,
   signal,
+  untracked,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
@@ -84,14 +86,6 @@ interface PhysicalSizeControls {
 })
 export class PhysicalSizeComponent implements OnDestroy {
   private _sub?: Subscription;
-  // set synchronously at every site that writes `size` (not inside the
-  // model-sync effect below), paired with _hasLastSize since undefined is
-  // both "never saved yet" and a legitimate real value - guards both a
-  // spurious re-invocation of that effect with an unchanged external value,
-  // and it echoing our own write back after further local edits already
-  // happened (effects are deferred) - see signal-forms-migration.md
-  private _lastSize: PhysicalSize | undefined = undefined;
-  private _hasLastSize = false;
 
   /**
    * The size to edit.
@@ -132,9 +126,24 @@ export class PhysicalSizeComponent implements OnDestroy {
    */
   public readonly hideTag = input<boolean>();
 
-  private readonly _draft = signal<PhysicalSizeControls>(
-    this.makeDefaultControls()
-  );
+  /**
+   * The editable draft, derived from `size` but writable in place.
+   * `previous` tells an external change apart from the echo of our own
+   * save: when the incoming size is just what the current draft maps to,
+   * the draft is already up to date and keeping it preserves in-progress
+   * edits that the mapping normalizes away.
+   */
+  private readonly _draft = linkedSignal<
+    PhysicalSize | undefined,
+    PhysicalSizeControls
+  >({
+    source: () => this.size(),
+    computation: (size, previous) =>
+      previous && this.sizesEqual(this.getSize(previous.value), size)
+        ? previous.value
+        : this.toControls(size),
+  });
+
   public readonly form: FieldTree<PhysicalSizeControls>;
 
   private readonly _text = signal({ text: '' });
@@ -221,15 +230,17 @@ export class PhysicalSizeComponent implements OnDestroy {
       maxLength(path.text, 1000);
     });
 
-    // when size changes, update form
+    // the draft mirrors the bound size again: no unsaved edits, so clear
+    // the interaction state
     effect(() => {
-      const size = this.size();
-      if (this._hasLastSize && this._lastSize === size) {
-        return;
-      }
-      this._lastSize = size;
-      this._hasLastSize = true;
-      this.updateForm(size);
+      const draft = this._draft();
+      untracked(() => {
+        if (
+          JSON.stringify(draft) === JSON.stringify(this.toControls(this.size()))
+        ) {
+          this.form().reset();
+        }
+      });
     });
 
     // when hBeforeW changes, update text
@@ -249,8 +260,6 @@ export class PhysicalSizeComponent implements OnDestroy {
         if (this.sizesEqual(newSize, this.size())) {
           return;
         }
-        this._lastSize = newSize;
-        this._hasLastSize = true;
         this.size.set(newSize);
         if (
           this.isModelValid(newSize) &&
@@ -285,9 +294,6 @@ export class PhysicalSizeComponent implements OnDestroy {
       this.hBeforeW() ? this.defaultHUnit() : this.defaultWUnit()
     );
     if (size) {
-      this.updateForm(size);
-      this._lastSize = size;
-      this._hasLastSize = true;
       this.size.set(size);
     }
   }
@@ -363,11 +369,11 @@ export class PhysicalSizeComponent implements OnDestroy {
     );
   }
 
-  private updateForm(size?: PhysicalSize | null): void {
-    if (!size) {
-      this._draft.set(this.makeDefaultControls());
-    } else {
-      this._draft.set({
+  /** Map a bound size to the editable draft shape. */
+  private toControls(size?: PhysicalSize | null): PhysicalSizeControls {
+    return !size
+      ? this.makeDefaultControls()
+      : {
         tag: size.tag || '',
         wValue: size.w?.value || 0,
         wUnit: size.w?.value
@@ -385,9 +391,7 @@ export class PhysicalSizeComponent implements OnDestroy {
           : this.defaultDUnit(),
         dTag: (size.d?.value ? size.d.tag : undefined) || '',
         note: size.note || '',
-      });
-    }
-    this.form().reset();
+      };
   }
 
   private getDimension(value: number, unit: string, tag: string): PhysicalDimension {
@@ -398,8 +402,8 @@ export class PhysicalSizeComponent implements OnDestroy {
     };
   }
 
-  private getSize(): PhysicalSize {
-    const v = this._draft();
+  private getSize(draft: PhysicalSizeControls = this._draft()): PhysicalSize {
+    const v = draft;
     return {
       tag: v.tag.trim() || undefined,
       note: v.note.trim() || undefined,

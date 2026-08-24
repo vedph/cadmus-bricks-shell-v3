@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, effect, input, model, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  input,
+  linkedSignal,
+  model,
+  untracked,
+} from '@angular/core';
 import {
   FieldTree,
   FormField,
@@ -39,6 +47,19 @@ interface AssertedDateControls {
  * Thesauri: asserted-historical-dates-tags, assertion-tags,
  * doc-reference-types, doc-reference-tags.
  */
+/** Map a bound asserted date to the editable draft shape. */
+function toControls(
+  date: AssertedHistoricalDate | undefined | null,
+): AssertedDateControls {
+  return !date
+    ? { tag: '', hd: null, assertion: null }
+    : {
+        tag: date.tag || '',
+        hd: { a: date.a, b: date.b },
+        assertion: date.assertion || null,
+      };
+}
+
 @Component({
   selector: 'cadmus-refs-asserted-historical-date',
   imports: [
@@ -60,12 +81,6 @@ interface AssertedDateControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedHistoricalDateComponent {
-  // set synchronously at the point save() writes `date` (not inside the
-  // effect below), paired with _hasLastDate since undefined is both "never
-  // saved yet" and a legitimate real value - see signal-forms-migration.md
-  private _lastDate: AssertedHistoricalDate | undefined | null = undefined;
-  private _hasLastDate = false;
-
   /**
    * The date model to edit. The corresponding dateChange event
    * is fired whenever data changes in the form.
@@ -81,11 +96,27 @@ export class AssertedHistoricalDateComponent {
   // doc-reference-tags
   public docReferenceTagEntries = input<ThesaurusEntry[]>();
 
-  private readonly _draft = signal<AssertedDateControls>({
-    tag: '',
-    hd: null,
-    assertion: null,
+  /**
+   * The editable draft, derived from `date` but writable in place.
+   * `previous` tells an external change apart from the echo of our own
+   * save: when the incoming date is just what the current draft maps to,
+   * the draft is already up to date and keeping it preserves in-progress
+   * edits that the mapping normalizes away.
+   */
+  private readonly _draft = linkedSignal<
+    AssertedHistoricalDate | undefined,
+    AssertedDateControls
+  >({
+    source: () => this.date(),
+    computation: (date, previous) =>
+      previous &&
+      date &&
+      previous.value.hd &&
+      this.datesEqual(this.toDate(previous.value), date)
+        ? previous.value
+        : toControls(date),
   });
+
   public readonly form: FieldTree<AssertedDateControls>;
 
   constructor() {
@@ -93,15 +124,15 @@ export class AssertedHistoricalDateComponent {
       required(path.hd);
     });
 
-    // when model changes, update form
+    // the draft mirrors the bound date again: no unsaved edits, so clear
+    // the interaction state
     effect(() => {
-      const date = this.date();
-      if (this._hasLastDate && this._lastDate === date) {
-        return;
-      }
-      this._lastDate = date;
-      this._hasLastDate = true;
-      this.updateForm(date);
+      const draft = this._draft();
+      untracked(() => {
+        if (JSON.stringify(draft) === JSON.stringify(toControls(this.date()))) {
+          this.form().reset();
+        }
+      });
     });
 
     // autosave on form changes
@@ -114,27 +145,18 @@ export class AssertedHistoricalDateComponent {
       });
   }
 
-  private updateForm(date: AssertedHistoricalDate | undefined | null): void {
-    if (!date) {
-      this._draft.set({ tag: '', hd: null, assertion: null });
-    } else {
-      this._draft.set({
-        tag: date.tag || '',
-        hd: date ? { a: date.a, b: date.b } : null,
-        assertion: date.assertion || null,
-      });
-    }
-    this.form().reset();
-  }
-
-  private getDate(): AssertedHistoricalDate {
-    const v = this._draft();
+  /** Map the draft back to an asserted date. */
+  private toDate(v: AssertedDateControls): AssertedHistoricalDate {
     return {
       tag: v.tag || undefined,
       a: v.hd!.a || undefined,
       b: v.hd?.b || undefined,
       assertion: v.assertion || undefined,
     };
+  }
+
+  private getDate(): AssertedHistoricalDate {
+    return this.toDate(this._draft());
   }
 
   private datesEqual(
@@ -170,8 +192,6 @@ export class AssertedHistoricalDateComponent {
     }
     const next = this.getDate();
     if (!this.datesEqual(next, this.date())) {
-      this._lastDate = next;
-      this._hasLastDate = true;
       this.date.set(next);
     }
   }

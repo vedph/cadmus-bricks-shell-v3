@@ -1,11 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  effect,
   input,
+  linkedSignal,
   model,
   OnDestroy,
-  signal,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
@@ -51,12 +50,6 @@ import {
 })
 export class CodLocationComponent implements OnDestroy {
   private _sub?: Subscription;
-  // set synchronously at every site that writes `location` (not inside the
-  // model-sync effect below), paired with _hasLastLocation since null/undefined
-  // is both "never saved yet" and a legitimate real value - see
-  // signal-forms-migration.md
-  private _lastLocation: CodLocationRange[] | null | undefined = undefined;
-  private _hasLastLocation = false;
 
   /**
    * The label to display in the control (default="location").
@@ -81,7 +74,26 @@ export class CodLocationComponent implements OnDestroy {
    */
   public readonly location = model<CodLocationRange[] | null>(null);
 
-  private readonly _draft = signal({ text: '' });
+  /**
+   * The editable draft, derived from `location` but writable in place: the
+   * text field binds straight to it. `previous` tells an external change
+   * apart from the echo of our own save - when the incoming ranges render
+   * to the text already in the box, the draft is current, and keeping it
+   * preserves what the user is still typing (trailing space or dash).
+   */
+  private readonly _draft = linkedSignal<
+    CodLocationRange[] | null,
+    { text: string }
+  >({
+    source: () => this.location(),
+    computation: (location, previous) => {
+      const text = CodLocationParser.rangesToString(location) || '';
+      return previous && previous.value.text === text
+        ? previous.value
+        : { text };
+    },
+  });
+
   public readonly form: FieldTree<{ text: string }>;
 
   constructor() {
@@ -106,18 +118,6 @@ export class CodLocationComponent implements OnDestroy {
       });
     });
 
-    // when location changes, update text
-    effect(() => {
-      const location = this.location();
-      if (this._hasLastLocation && this._lastLocation === location) {
-        return;
-      }
-      this._lastLocation = location;
-      this._hasLastLocation = true;
-      console.log('location', location);
-      this.updateForm(location);
-    });
-
     // when text changes, update location
     this._sub = toObservable(this._draft)
       .pipe(debounceTime(300), distinctUntilChanged())
@@ -130,10 +130,6 @@ export class CodLocationComponent implements OnDestroy {
     this._sub?.unsubscribe();
   }
 
-  private updateForm(location: CodLocationRange[] | null): void {
-    this.form.text().value.set(CodLocationParser.rangesToString(location) || '');
-  }
-
   private saveLocation(): void {
     const text = this.form.text().value();
     if (this.single()) {
@@ -141,14 +137,9 @@ export class CodLocationComponent implements OnDestroy {
         ? CodLocationParser.parseLocation(text)
         : null;
       if (loc) {
-        const next = [{ start: loc, end: loc }];
-        this._lastLocation = next;
-        this._hasLastLocation = true;
-        this.location.set(next);
+        this.location.set([{ start: loc, end: loc }]);
       } else {
         if (!this.required() && !text.length) {
-          this._lastLocation = null;
-          this._hasLastLocation = true;
           this.location.set(null);
         }
       }
@@ -165,13 +156,9 @@ export class CodLocationComponent implements OnDestroy {
         ? CodLocationParser.parseLocationRanges(text, true)
         : null;
       if (ranges?.length) {
-        this._lastLocation = ranges;
-        this._hasLastLocation = true;
         this.location.set(ranges);
       } else {
         if (!this.required() && !text.length) {
-          this._lastLocation = null;
-          this._hasLastLocation = true;
           this.location.set(null);
         } else {
           // the invalidLocation error is reported reactively by the

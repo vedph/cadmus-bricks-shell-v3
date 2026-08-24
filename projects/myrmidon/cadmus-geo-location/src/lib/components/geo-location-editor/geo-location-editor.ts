@@ -5,10 +5,12 @@ import {
   effect,
   inject,
   input,
+  linkedSignal,
   model,
   OnDestroy,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import {
@@ -151,16 +153,27 @@ export class GeoLocationEditor implements OnDestroy {
   // #endregion
 
   // #region Form
-  private readonly _draft = signal<GeoLocationControls>(
-    this.makeDefaultControls(),
-  );
+  /**
+   * The editable draft, derived from `location` but writable in place.
+   * `previous` tells an external change apart from the echo of our own
+   * save: when the incoming location is just what the current draft maps
+   * to, the draft is already up to date and keeping it preserves
+   * in-progress edits that saving normalizes away.
+   */
+  private readonly _draft = linkedSignal<
+    GeoLocation | undefined,
+    GeoLocationControls
+  >({
+    source: () => this.location(),
+    computation: (location, previous) =>
+      previous &&
+      JSON.stringify(location) ===
+        JSON.stringify(this.getLocation(previous.value))
+        ? previous.value
+        : this.toControls(location),
+  });
+
   public readonly form: FieldTree<GeoLocationControls>;
-  // set synchronously at the point save() writes `location` (not inside the
-  // model-sync effect below), paired with _hasLastLocation since undefined
-  // is both "never saved yet" and a legitimate real value - see
-  // signal-forms-migration.md
-  private _lastLocation: GeoLocation | undefined = undefined;
-  private _hasLastLocation = false;
   // #endregion
 
   // #region Map state signals
@@ -256,14 +269,18 @@ export class GeoLocationEditor implements OnDestroy {
       maxLength(path.note, 1000);
     });
 
+    // the draft mirrors the bound location again: no unsaved edits, so
+    // clear the interaction state and re-centre the map on it
     effect(() => {
-      const loc = this.location();
-      if (this._hasLastLocation && this._lastLocation === loc) {
-        return;
-      }
-      this._lastLocation = loc;
-      this._hasLastLocation = true;
-      this.updateForm(loc);
+      const draft = this._draft();
+      untracked(() => {
+        const location = this.location();
+        if (
+          JSON.stringify(draft) === JSON.stringify(this.toControls(location))
+        ) {
+          this.syncFromLocation(location);
+        }
+      });
     });
 
     // Debounced draft -> map overlays sync. Unlike the location model sync
@@ -298,25 +315,31 @@ export class GeoLocationEditor implements OnDestroy {
     };
   }
 
-  private updateForm(loc: GeoLocation | undefined): void {
+  /** Map a bound location to the editable draft shape. */
+  private toControls(loc: GeoLocation | undefined): GeoLocationControls {
+    return !loc
+      ? this.makeDefaultControls()
+      : {
+          eid: loc.eid || '',
+          label: loc.label,
+          latitude: loc.latitude,
+          longitude: loc.longitude,
+          altitude: loc.altitude ?? null,
+          radius: loc.radius ?? null,
+          geometry: loc.geometry || '',
+          note: loc.note || '',
+        };
+  }
+
+  /** Reset interaction state and map overlays for a newly bound location. */
+  private syncFromLocation(loc: GeoLocation | undefined): void {
     if (!loc) {
-      this._draft.set(this.makeDefaultControls());
       this.form().reset();
       this._latSignal.set(null);
       this._lngSignal.set(null);
       this.geometryGeoJSON.set({ ...EMPTY_FC });
       this.radiusGeoJSON.set({ ...EMPTY_FC });
     } else {
-      this._draft.set({
-        eid: loc.eid || '',
-        label: loc.label,
-        latitude: loc.latitude,
-        longitude: loc.longitude,
-        altitude: loc.altitude ?? null,
-        radius: loc.radius ?? null,
-        geometry: loc.geometry || '',
-        note: loc.note || '',
-      });
       this.form().reset();
 
       this._latSignal.set(loc.latitude);
@@ -330,8 +353,8 @@ export class GeoLocationEditor implements OnDestroy {
     }
   }
 
-  private getLocation(): GeoLocation {
-    const v = this._draft();
+  private getLocation(draft: GeoLocationControls = this._draft()): GeoLocation {
+    const v = draft;
     return {
       eid: v.eid.trim() || undefined,
       label: v.label.trim() || '',
@@ -745,10 +768,7 @@ export class GeoLocationEditor implements OnDestroy {
       this.form().markAsTouched();
       return;
     }
-    const next = this.getLocation();
-    this._lastLocation = next;
-    this._hasLastLocation = true;
-    this.location.set(next);
+    this.location.set(this.getLocation());
     this.form().reset();
   }
 

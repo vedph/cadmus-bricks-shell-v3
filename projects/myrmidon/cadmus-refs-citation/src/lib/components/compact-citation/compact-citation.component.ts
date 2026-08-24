@@ -4,8 +4,10 @@ import {
   computed,
   effect,
   input,
+  linkedSignal,
   model,
   signal,
+  untracked,
 } from '@angular/core';
 import { FieldTree, FormField, form } from '@angular/forms/signals';
 
@@ -45,14 +47,6 @@ import { CitSchemeService } from '../../services/cit-scheme.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompactCitationComponent {
-  private _dropNextUpdate = false;
-  // set synchronously at the point save() writes `citation` (not inside the
-  // effect below), paired with _hasLastCitation since undefined is both
-  // "never saved yet" and a legitimate real value - see
-  // signal-forms-migration.md
-  private _lastCitation: Citation | CitationSpan | undefined = undefined;
-  private _hasLastCitation = false;
-
   /**
    * The scheme keys to use in this component. The full list of schemes is
    * drawn from the service, but users might want to restrict the list to
@@ -104,39 +98,59 @@ export class CompactCitationComponent {
   public readonly edited = signal<Citation | undefined>(undefined);
   public readonly formError = signal<string | undefined>(undefined);
 
-  public readonly a = signal<Citation | undefined>(undefined);
-  public readonly b = signal<Citation | undefined>(undefined);
+  // A, B and the range flag are the bound citation projected into three
+  // writable pieces: derived from `citation`, but edited in place while the
+  // user works on them. The projection is lossless in both directions
+  // (see save() below), so an echo of our own save simply re-derives the
+  // same values - no echo bookkeeping needed.
+  public readonly a = linkedSignal<
+    Citation | CitationSpan | undefined,
+    Citation | undefined
+  >({
+    source: () => this.citation(),
+    computation: (citation) =>
+      !citation
+        ? undefined
+        : (citation as CitationSpan).a
+          ? (citation as CitationSpan).a
+          : (citation as Citation),
+  });
 
-  private readonly _rangeDraft = signal({ range: false });
+  public readonly b = linkedSignal<
+    Citation | CitationSpan | undefined,
+    Citation | undefined
+  >({
+    source: () => this.citation(),
+    computation: (citation) =>
+      citation && (citation as CitationSpan).a
+        ? (citation as CitationSpan).b
+        : undefined,
+  });
+
+  private readonly _rangeDraft = linkedSignal<
+    Citation | CitationSpan | undefined,
+    { range: boolean }
+  >({
+    source: () => this.citation(),
+    computation: (citation) => ({
+      range: !!citation && !!(citation as CitationSpan).a,
+    }),
+  });
+
   public readonly form: FieldTree<{ range: boolean }>;
 
   constructor(private _schemeService: CitSchemeService) {
     this.form = form(this._rangeDraft);
 
-    // when citation changes, update the form. Two distinct guards are
-    // needed here, both keyed on the same _lastCitation/_hasLastCitation
-    // pair: (1) this effect can be re-invoked with an unchanged (reference-
-    // equal) *external* citation value - e.g. interleaved with other signal
-    // writes in the same view - so it records what it last actually
-    // processed itself; (2) save() ALSO records the value it writes,
-    // synchronously, at the point of writing - so an effect run that is
-    // just an echo of our own save (deferred, and possibly running after
-    // further local edits) is recognized and skipped too. Skipping either
-    // way is correct: re-deriving a/b/range from a stale citation would
-    // stomp a subsequent interactive change to range.
+    // re-check the projected pair whenever a citation is bound (an empty
+    // citation reports no error until the user does something)
     effect(() => {
-      const c = this.citation();
-      if (this._hasLastCitation && this._lastCitation === c) {
-        return;
-      }
-      this._lastCitation = c;
-      this._hasLastCitation = true;
-
-      if (this._dropNextUpdate) {
-        this._dropNextUpdate = false;
-        return;
-      }
-      this.updateAB(c);
+      const citation = this.citation();
+      untracked(() => {
+        if (citation) {
+          this.validate();
+        }
+      });
     });
   }
 
@@ -162,23 +176,6 @@ export class CompactCitationComponent {
     } else {
       this.editA();
     }
-  }
-
-  private updateAB(citation?: Citation | CitationSpan) {
-    if (!citation) {
-      this._rangeDraft.set({ range: false });
-      this.a.set(undefined);
-      this.b.set(undefined);
-      return;
-    }
-
-    const span = citation as CitationSpan;
-    const isSpan = !!span.a;
-    this.a.set(isSpan ? (span as CitationSpan).a : (citation as Citation));
-    this.b.set(isSpan ? (span as CitationSpan).b : undefined);
-    this._rangeDraft.set({ range: isSpan });
-
-    this.validate();
   }
 
   public editA() {
@@ -244,11 +241,10 @@ export class CompactCitationComponent {
   }
 
   private save(): void {
-    const next = this.form.range().value()
-      ? deepCopy({ a: this.a(), b: this.b() })
-      : deepCopy(this.a());
-    this._lastCitation = next;
-    this._hasLastCitation = true;
-    this.citation.set(next);
+    this.citation.set(
+      this.form.range().value()
+        ? deepCopy({ a: this.a(), b: this.b() })
+        : deepCopy(this.a()),
+    );
   }
 }

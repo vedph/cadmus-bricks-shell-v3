@@ -5,6 +5,7 @@ import {
   effect,
   Inject,
   input,
+  linkedSignal,
   model,
   output,
   signal,
@@ -124,6 +125,22 @@ interface AssertedCompositeIdControls {
   assertion: Assertion | null;
 }
 
+/** Map a bound composite ID to the editable draft shape. */
+function toDraft(
+  id: AssertedCompositeId | undefined,
+): AssertedCompositeIdControls {
+  return !id
+    ? makeDefaultDraft()
+    : {
+        target: id.target,
+        scope: id.scope || '',
+        tag: id.tag || '',
+        features: id.features || [],
+        note: id.note || '',
+        assertion: id.assertion || null,
+      };
+}
+
 function makeDefaultDraft(): AssertedCompositeIdControls {
   return {
     target: null,
@@ -165,19 +182,11 @@ function makeDefaultDraft(): AssertedCompositeIdControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedCompositeIdComponent {
+  // true while the effect below re-derives target mode from a newly bound
+  // id, so that a child lookup-set echoing a config change during that
+  // window is not mistaken for a user pick
   private _updatingForm: boolean | undefined;
   private _lookupConfigDirty = true;
-  // set synchronously wherever `id` is written (not inside the effect
-  // below), paired with _hasLastId since undefined is both "never saved
-  // yet" and a legitimate real value - see signal-forms-migration.md.
-  private _lastId: AssertedCompositeId | undefined = undefined;
-  private _hasLastId = false;
-  // a JSON snapshot of the draft as of the last external sync or emitted
-  // save/target-reset, used by the debounced autosave to tell "the draft
-  // changed only because of a sync/reset we already accounted for" apart
-  // from a real user edit - see the cadmus-refs-assertion entry in
-  // signal-forms-migration.md.
-  private _lastSyncedDraft = '';
 
   public readonly extLookupConfigs = signal<RefLookupConfig[]>([]);
   public readonly targetExpanded = signal<boolean>(false);
@@ -211,9 +220,25 @@ export class AssertedCompositeIdComponent {
   >(undefined);
 
   // form
-  private readonly _draft = signal<AssertedCompositeIdControls>(
-    makeDefaultDraft(),
-  );
+  /**
+   * The editable draft, derived from `id` but writable in place.
+   * `previous` tells an external change apart from the echo of our own
+   * save: when the incoming id is just what the current draft maps to, the
+   * draft is already up to date and keeping it preserves in-progress edits
+   * that saving normalizes away.
+   */
+  private readonly _draft = linkedSignal<
+    AssertedCompositeId | undefined,
+    AssertedCompositeIdControls
+  >({
+    source: () => this.id(),
+    computation: (id, previous) =>
+      previous &&
+      JSON.stringify(id) === JSON.stringify(this.getId(previous.value))
+        ? previous.value
+        : toDraft(id),
+  });
+
   public readonly form = form(this._draft, (path) => {
     required(path.target);
     maxLength(path.scope, 500);
@@ -323,25 +348,42 @@ export class AssertedCompositeIdComponent {
       ) || [],
     );
 
-    // when id changes, update form
+    // the draft mirrors the bound id again: no unsaved edits, so re-derive
+    // the target source mode from it and clear the interaction state
     effect(() => {
-      const id = this.id();
-      if (this._hasLastId && this._lastId === id) {
-        return;
-      }
-      this._lastId = id;
-      this._hasLastId = true;
-      this.updateForm(id);
+      const draft = this._draft();
+      untracked(() => {
+        if (!this.isDraftInSync(draft)) {
+          return;
+        }
+        this._updatingForm = true;
+        try {
+          const id = this.id();
+          if (!id) {
+            this.targetMode.set('internal');
+            this.selectedTaxoConfig.set(undefined);
+          } else {
+            this.updateTargetMode(id.target);
+          }
+          this.form().reset();
+        } finally {
+          this._updatingForm = false;
+        }
+      });
     });
 
-    // when form changes, emit id change
+    // when form changes, emit id change - but never while the draft still
+    // mirrors what is bound, and never for a target the user has not
+    // picked yet (resetTarget() empties the gid when the source mode
+    // changes, and a composite id without a target is not worth emitting)
     toObservable(this._draft)
       .pipe(debounceTime(300), takeUntilDestroyed())
       .subscribe(() => {
+        const draft = this._draft();
         if (this._updatingForm || this.form().invalid()) {
           return;
         }
-        if (JSON.stringify(this._draft()) === this._lastSyncedDraft) {
+        if (!draft.target?.gid || this.isDraftInSync(draft)) {
           return;
         }
         this.emitIdChange();
@@ -374,37 +416,13 @@ export class AssertedCompositeIdComponent {
    * tracked effect, so reading _draft() directly here is safe.
    */
   private resetTarget(): void {
-    let draft!: AssertedCompositeIdControls;
-    this._draft.update((v) => {
-      draft = { ...v, target: { gid: '', label: '' } };
-      return draft;
-    });
-    this._lastSyncedDraft = JSON.stringify(draft);
+    this._draft.update((v) => ({ ...v, target: { gid: '', label: '' } }));
     this.form.target().markAsDirty();
   }
 
-  private updateForm(id: AssertedCompositeId | undefined): void {
-    this._updatingForm = true;
-    let draft: AssertedCompositeIdControls;
-    if (!id) {
-      draft = makeDefaultDraft();
-      this.targetMode.set('internal');
-      this.selectedTaxoConfig.set(undefined);
-    } else {
-      draft = {
-        target: id.target,
-        scope: id.scope || '',
-        tag: id.tag || '',
-        features: id.features || [],
-        note: id.note || '',
-        assertion: id.assertion || null,
-      };
-      this.updateTargetMode(id.target);
-    }
-    this._draft.set(draft);
-    this._lastSyncedDraft = JSON.stringify(draft);
-    this.form().reset();
-    this._updatingForm = false;
+  /** True when the draft still mirrors the bound id. */
+  private isDraftInSync(draft: AssertedCompositeIdControls): boolean {
+    return JSON.stringify(draft) === JSON.stringify(toDraft(this.id()));
   }
 
   /**
@@ -496,8 +514,10 @@ export class AssertedCompositeIdComponent {
     });
   }
 
-  private getId(): AssertedCompositeId {
-    const v = this._draft();
+  private getId(
+    draft: AssertedCompositeIdControls = this._draft(),
+  ): AssertedCompositeId {
+    const v = draft;
     const external = !v.target?.name;
     const target = v.target;
     return {
@@ -517,11 +537,7 @@ export class AssertedCompositeIdComponent {
 
   public emitIdChange(): void {
     if (!this.hasSubmit()) {
-      const id = this.getId();
-      this._lastId = id;
-      this._hasLastId = true;
-      this._lastSyncedDraft = JSON.stringify(this._draft());
-      this.id.set(id);
+      this.id.set(this.getId());
     }
   }
 

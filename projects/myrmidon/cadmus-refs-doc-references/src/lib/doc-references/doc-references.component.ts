@@ -4,10 +4,11 @@ import {
   Component,
   effect,
   input,
+  linkedSignal,
   model,
   OnDestroy,
   QueryList,
-  signal,
+  untracked,
   ViewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -81,8 +82,6 @@ interface DocReferenceControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocReferencesComponent implements AfterViewInit, OnDestroy {
-  private _lastReferences: DocReference[] | undefined = undefined;
-  private _hasLastReferences = false;
   private _suppressAuthorFocus = false;
   private _authorSubscription: Subscription | undefined;
 
@@ -98,9 +97,25 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
   // doc-reference-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
 
-  private readonly _draft = signal<{ references: DocReferenceControls[] }>({
-    references: [],
+  /**
+   * The editable draft, derived from `references` but writable in place.
+   * `previous` tells an external change apart from the echo of our own save:
+   * when the incoming references are just what the current draft maps to,
+   * the draft is already up to date and keeping it preserves in-progress
+   * edits (e.g. whitespace the save trims).
+   */
+  private readonly _draft = linkedSignal<
+    DocReference[],
+    { references: DocReferenceControls[] }
+  >({
+    source: () => this.references(),
+    computation: (references, previous) =>
+      previous &&
+      this.referencesEqual(this.getReferences(previous.value), references)
+        ? previous.value
+        : this.toDraft(references),
   });
+
   public readonly form: FieldTree<{ references: DocReferenceControls[] }>;
 
   constructor() {
@@ -114,26 +129,17 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
       });
     });
 
-    // when references change, update form. `_lastReferences` is set
-    // synchronously by saveReferences() at the moment it writes `references`
-    // (see below), so this guard recognizes "this is an echo of our own
-    // save" purely by reference, regardless of how much the draft may have
-    // moved on by the time this effect actually runs (effects are
-    // deferred, so further draft edits can legitimately happen first) - a
-    // content-based comparison against the *current* draft would get this
-    // wrong, since it would see the stale echoed value as "different from
-    // the current draft" and stomp the newer edit trying to "fix" it. It is
-    // also set here, unconditionally, whenever the effect actually
-    // processes a value - guarding separately against this effect being
-    // spuriously re-invoked with an unchanged *external* value.
+    // the draft mirrors the bound references again: no unsaved edits, so
+    // clear the interaction state, and don't steal focus into the last row
+    // (this row set came from outside, the user did not just add it)
     effect(() => {
-      const refs = this.references();
-      if (this._hasLastReferences && this._lastReferences === refs) {
-        return;
-      }
-      this._lastReferences = refs;
-      this._hasLastReferences = true;
-      this.updateForm(refs || []);
+      const draft = this._draft();
+      untracked(() => {
+        if (this.isDraftInSync(draft)) {
+          this._suppressAuthorFocus = true;
+          this.form().reset();
+        }
+      });
     });
 
     // autosave on any row edit (add/remove/move already save synchronously)
@@ -219,16 +225,26 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
   }
   // #endregion
 
-  protected updateForm(value: DocReference[]): void {
-    this._suppressAuthorFocus = true;
-    this._draft.set({
-      references: (value || []).map((r) => this.toControls(r)),
-    });
-    this.form().reset();
+  /** True when the draft still mirrors the bound references. */
+  private isDraftInSync(draft: {
+    references: DocReferenceControls[];
+  }): boolean {
+    return this.referencesEqual(
+      this.getReferences(draft),
+      this.getReferences(this.toDraft(this.references())),
+    );
   }
 
-  protected getReferences(): DocReference[] {
-    return this._draft().references.map((r) => ({
+  private toDraft(references: DocReference[] | undefined): {
+    references: DocReferenceControls[];
+  } {
+    return { references: (references || []).map((r) => this.toControls(r)) };
+  }
+
+  protected getReferences(
+    draft: { references: DocReferenceControls[] } = this._draft(),
+  ): DocReference[] {
+    return draft.references.map((r) => ({
       type: r.type ? r.type.trim() : undefined,
       tag: r.tag ? r.tag.trim() : undefined,
       citation: r.citation ? r.citation.trim() : undefined,
@@ -252,8 +268,6 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
   public saveReferences(): void {
     const next = this.getReferences();
     if (!this.referencesEqual(next, this.references())) {
-      this._lastReferences = next;
-      this._hasLastReferences = true;
       this.references.set(next);
     }
   }

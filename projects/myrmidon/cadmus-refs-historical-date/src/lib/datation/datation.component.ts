@@ -3,8 +3,9 @@ import {
   Component,
   effect,
   input,
+  linkedSignal,
   model,
-  signal,
+  untracked,
 } from '@angular/core';
 import {
   FieldTree,
@@ -54,13 +55,6 @@ interface DatationControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DatationComponent {
-  // set synchronously at the point emitChange() writes `datation` (not
-  // inside the effect below), paired with _hasLastDatation since undefined
-  // is both "never saved yet" and a legitimate real value - see
-  // signal-forms-migration.md for why this must live at the write site
-  private _lastDatation: DatationModel | undefined = undefined;
-  private _hasLastDatation = false;
-
   /**
    * The datation to edit.
    */
@@ -71,9 +65,26 @@ export class DatationComponent {
    */
   public readonly label = input<string>();
 
-  private readonly _draft = signal<DatationControls>(
-    this.makeDefaultControls(),
-  );
+  /**
+   * The editable draft, derived from `datation` but writable in place.
+   * `previous` tells an external change apart from the echo of our own
+   * emit: when the incoming datation is just what the current draft maps
+   * to, the draft is already up to date and keeping it preserves
+   * in-progress edits that the mapping normalizes away.
+   */
+  private readonly _draft = linkedSignal<
+    DatationModel | undefined,
+    DatationControls
+  >({
+    source: () => this.datation(),
+    computation: (datation, previous) =>
+      previous &&
+      datation &&
+      this.datationsEqual(this.toDatation(previous.value), datation)
+        ? previous.value
+        : this.toControls(datation),
+  });
+
   public readonly form: FieldTree<DatationControls>;
 
   constructor() {
@@ -86,15 +97,18 @@ export class DatationComponent {
       maxLength(path.hint, 500);
     });
 
-    // when datation changes, update form
+    // the draft mirrors the bound datation again: no unsaved edits, so
+    // clear the interaction state
     effect(() => {
-      const model = this.datation();
-      if (this._hasLastDatation && this._lastDatation === model) {
-        return;
-      }
-      this._lastDatation = model;
-      this._hasLastDatation = true;
-      this.updateForm(model);
+      const draft = this._draft();
+      untracked(() => {
+        if (
+          JSON.stringify(draft) ===
+          JSON.stringify(this.toControls(this.datation()))
+        ) {
+          this.form().reset();
+        }
+      });
     });
 
     // when form changes (user edits), emit
@@ -103,8 +117,6 @@ export class DatationComponent {
       .subscribe(() => {
         const next = this.getDatation();
         if (!this.datationsEqual(next, this.datation())) {
-          this._lastDatation = next;
-          this._hasLastDatation = true;
           this.datation.set(next);
         }
       });
@@ -141,27 +153,25 @@ export class DatationComponent {
     );
   }
 
-  private updateForm(model: DatationModel | undefined): void {
-    if (!model) {
-      this._draft.set(this.makeDefaultControls());
-    } else {
-      this._draft.set({
-        value: model.value,
-        century: model.isCentury || false,
-        span: model.isSpan || false,
-        month: model.month || 0,
-        day: model.day || 0,
-        about: model.isApproximate || false,
-        dubious: model.isDubious || false,
-        hint: model.hint || '',
-        slide: model.slide || 0,
-      });
-    }
-    this.form().reset();
+  /** Map a bound datation to the editable draft shape. */
+  private toControls(model: DatationModel | undefined): DatationControls {
+    return !model
+      ? this.makeDefaultControls()
+      : {
+          value: model.value,
+          century: model.isCentury || false,
+          span: model.isSpan || false,
+          month: model.month || 0,
+          day: model.day || 0,
+          about: model.isApproximate || false,
+          dubious: model.isDubious || false,
+          hint: model.hint || '',
+          slide: model.slide || 0,
+        };
   }
 
-  private getDatation(): DatationModel {
-    const v = this._draft();
+  /** Map the draft back to a datation. */
+  private toDatation(v: DatationControls): DatationModel {
     return {
       value: v.value ? +v.value : 0,
       isCentury: v.century || false,
@@ -173,6 +183,10 @@ export class DatationComponent {
       hint: Datation.sanitizeHint(v.hint),
       slide: v.slide ? +v.slide : 0,
     };
+  }
+
+  private getDatation(): DatationModel {
+    return this.toDatation(this._draft());
   }
 
 }

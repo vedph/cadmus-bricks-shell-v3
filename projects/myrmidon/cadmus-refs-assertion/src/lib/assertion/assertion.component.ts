@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, effect, input, model, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  input,
+  linkedSignal,
+  model,
+  signal,
+  untracked,
+} from '@angular/core';
 import { FormField, form, maxLength, min } from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs';
@@ -43,6 +52,39 @@ function makeDefaultDraft(): AssertionControls {
   return { tag: '', rank: 0, note: '', references: [] };
 }
 
+/** Map a bound assertion to the editable draft shape. */
+function toDraft(value: Assertion | undefined): AssertionControls {
+  return !value
+    ? makeDefaultDraft()
+    : {
+        tag: value.tag || '',
+        rank: value.rank,
+        note: value.note || '',
+        references: (value.references || []).map((r) => ({ ...r })),
+      };
+}
+
+/** Map the draft back to an assertion, or undefined when it is empty. */
+function toAssertion(v: AssertionControls): Assertion | undefined {
+  const assertion: Assertion = {
+    tag: v.tag.trim() || undefined,
+    rank: v.rank,
+    note: v.note.trim() || undefined,
+    references: v.references.length
+      ? v.references.map((r) => ({ ...r }))
+      : undefined,
+  };
+  if (
+    !assertion.tag &&
+    !assertion.rank &&
+    !assertion.note &&
+    !assertion.references?.length
+  ) {
+    return undefined;
+  }
+  return assertion;
+}
+
 /**
  * Editor for an assertion with optional references.
  */
@@ -66,29 +108,6 @@ function makeDefaultDraft(): AssertionControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertionComponent {
-  // set synchronously wherever `assertion` is written (not inside the
-  // effect below), paired with _hasLastAssertion since undefined is both
-  // "never saved yet" and a legitimate real value - see
-  // signal-forms-migration.md.
-  private _lastAssertion: Assertion | undefined = undefined;
-  private _hasLastAssertion = false;
-  // a JSON snapshot of the draft as of the last updateForm() sync,
-  // recorded so the debounced autosave can tell "the draft changed only
-  // because updateForm() just wrote it" apart from a real user edit,
-  // without relying on a synchronous flag - toObservable()'s emission is
-  // deferred (its own internal effect), so a flag set-then-cleared
-  // synchronously inside updateForm() would always read back false by
-  // the time the debounced subscriber saw it (the same hazard found
-  // while porting cadmus-geo-location).
-  private _lastSyncedDraft = '';
-
-  private readonly _draft = signal<AssertionControls>(makeDefaultDraft());
-  public readonly form = form(this._draft, (path) => {
-    maxLength(path.tag, 50);
-    maxLength(path.note, 500);
-    min(path.rank, 0);
-  });
-
   // assertion-tags
   public readonly assTagEntries = input<ThesaurusEntry[]>();
   // doc-reference-types
@@ -124,27 +143,57 @@ export class AssertionComponent {
 
   public readonly visualExpanded = signal<boolean>(false);
 
+  /**
+   * The editable draft, derived from `assertion` but writable in place:
+   * the form binds its controls straight to it. `previous` is what tells an
+   * external change apart from the echo of our own save - when the incoming
+   * assertion is just what the current draft maps to, the draft is already
+   * up to date, and keeping it preserves in-progress edits that saving
+   * normalizes away (a tag the user is still typing, trailing space and all).
+   */
+  private readonly _draft = linkedSignal<Assertion | undefined, AssertionControls>({
+    source: () => this.assertion(),
+    computation: (assertion, previous) =>
+      previous &&
+      JSON.stringify(assertion) === JSON.stringify(toAssertion(previous.value))
+        ? previous.value
+        : toDraft(assertion),
+  });
+
+  public readonly form = form(this._draft, (path) => {
+    maxLength(path.tag, 50);
+    maxLength(path.note, 500);
+    min(path.rank, 0);
+  });
+
   constructor() {
-    // when assertion changes, update form
+    // whenever the draft matches the bound assertion again there are no
+    // unsaved edits, so clear the interaction state
     effect(() => {
-      const assertion = this.assertion();
-      if (this._hasLastAssertion && this._lastAssertion === assertion) {
-        return;
-      }
-      this._lastAssertion = assertion;
-      this._hasLastAssertion = true;
-      this.updateForm(assertion);
+      const draft = this._draft();
+      untracked(() => {
+        if (this.isDraftInSync(draft)) {
+          this.form().reset();
+        }
+      });
     });
 
-    // autosave
+    // autosave, but only once the draft has actually diverged from what is
+    // bound - otherwise merely receiving an assertion would save a
+    // normalized copy of it straight back over the original
     toObservable(this._draft)
       .pipe(debounceTime(300), takeUntilDestroyed())
       .subscribe(() => {
-        if (JSON.stringify(this._draft()) === this._lastSyncedDraft) {
+        if (this.isDraftInSync(this._draft())) {
           return;
         }
         this.saveAssertion();
       });
+  }
+
+  /** True when the draft still mirrors the bound assertion. */
+  private isDraftInSync(draft: AssertionControls): boolean {
+    return JSON.stringify(draft) === JSON.stringify(toDraft(this.assertion()));
   }
 
   public onReferencesChange(references: DocReference[]): void {
@@ -154,46 +203,7 @@ export class AssertionComponent {
     this.saveAssertion();
   }
 
-  private updateForm(value: Assertion | undefined): void {
-    const draft = !value
-      ? makeDefaultDraft()
-      : {
-          tag: value.tag || '',
-          rank: value.rank,
-          note: value.note || '',
-          references: (value.references || []).map((r) => ({ ...r })),
-        };
-    this._draft.set(draft);
-    this._lastSyncedDraft = JSON.stringify(draft);
-    this.form().reset();
-  }
-
-  private getAssertion(): Assertion | undefined {
-    const v = this._draft();
-    const assertion: Assertion = {
-      tag: v.tag.trim() || undefined,
-      rank: v.rank,
-      note: v.note.trim() || undefined,
-      references: v.references.length
-        ? v.references.map((r) => ({ ...r }))
-        : undefined,
-    };
-    if (
-      !assertion.tag &&
-      !assertion.rank &&
-      !assertion.note &&
-      !assertion.references?.length
-    ) {
-      return undefined;
-    }
-    return assertion;
-  }
-
   public saveAssertion(): void {
-    const next = this.getAssertion();
-    this._lastAssertion = next;
-    this._hasLastAssertion = true;
-    this._lastSyncedDraft = JSON.stringify(this._draft());
-    this.assertion.set(next);
+    this.assertion.set(toAssertion(this._draft()));
   }
 }

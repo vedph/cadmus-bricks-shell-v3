@@ -182,7 +182,7 @@ export class HistoricalDateComponent {
         this.dateValue.set(0);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       this.invalidDateText.set(true);
       this.dateValue.set(0);
     }
@@ -209,7 +209,7 @@ export class HistoricalDateComponent {
         this.dateValue.set(0);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       this.invalidDateText.set(true);
       this.dateValue.set(0);
     }

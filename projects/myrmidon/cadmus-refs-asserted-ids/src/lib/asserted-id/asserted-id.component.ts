@@ -4,9 +4,11 @@ import {
   effect,
   Inject,
   input,
+  linkedSignal,
   model,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import {
   FormField,
@@ -55,6 +57,30 @@ interface AssertedIdControls {
   assertion: Assertion | null;
 }
 
+/** Map a bound asserted ID to the editable draft shape. */
+function toDraft(value: AssertedId | undefined): AssertedIdControls {
+  return !value
+    ? makeDefaultDraft()
+    : {
+        tag: value.tag || '',
+        value: value.value,
+        label: value.label || '',
+        scope: value.scope,
+        assertion: value.assertion || null,
+      };
+}
+
+/** Map the draft back to an asserted ID. */
+function toId(v: AssertedIdControls): AssertedId {
+  return {
+    tag: v.tag.trim() || undefined,
+    value: v.value.trim() || '',
+    label: v.label.trim() || undefined,
+    scope: v.scope.trim() || '',
+    assertion: v.assertion || undefined,
+  };
+}
+
 function makeDefaultDraft(): AssertedIdControls {
   return { tag: '', value: '', label: '', scope: '', assertion: null };
 }
@@ -82,19 +108,30 @@ function makeDefaultDraft(): AssertedIdControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedIdComponent {
-  // set synchronously wherever `id` is written (not inside the effect
-  // below), paired with _hasLastId since undefined is both "never saved
-  // yet" and a legitimate real value - see signal-forms-migration.md.
-  private _lastId: AssertedId | undefined = undefined;
-  private _hasLastId = false;
-  // a JSON snapshot of the draft as of the last external sync or emitted
-  // save - see the cadmus-refs-assertion entry in
-  // signal-forms-migration.md for why this, not a synchronous flag, is
-  // needed to tell "the draft changed only because of a sync we already
-  // accounted for" apart from a real user edit.
-  private _lastSyncedDraft = '';
+  /**
+   * The asserted ID being edited.
+   */
+  public readonly id = model<AssertedId>();
 
-  private readonly _draft = signal<AssertedIdControls>(makeDefaultDraft());
+  /**
+   * The editable draft, derived from `id` but writable in place.
+   * `previous` tells an external change apart from the echo of our own
+   * save: when the incoming ID is just what the current draft maps to, the
+   * draft is already up to date and keeping it preserves in-progress edits
+   * that saving normalizes away (whitespace still being typed).
+   */
+  private readonly _draft = linkedSignal<
+    AssertedId | undefined,
+    AssertedIdControls
+  >({
+    source: () => this.id(),
+    computation: (id, previous) =>
+      previous &&
+      JSON.stringify(id) === JSON.stringify(toId(previous.value))
+        ? previous.value
+        : toDraft(id),
+  });
+
   public readonly form = form(this._draft, (path) => {
     maxLength(path.tag, 50);
     required(path.value);
@@ -115,11 +152,6 @@ export class AssertedIdComponent {
   public readonly refTypeEntries = input<ThesaurusEntry[]>();
   // doc-reference-tags
   public readonly refTagEntries = input<ThesaurusEntry[]>();
-
-  /**
-   * The asserted ID being edited.
-   */
-  public readonly id = model<AssertedId>();
 
   /**
    * True to hide the pin-based EID lookup UI.
@@ -147,22 +179,24 @@ export class AssertedIdComponent {
     @Inject('indexLookupDefinitions')
     public lookupDefs: IndexLookupDefinitions
   ) {
-    // when id changes, update form
+    // the draft mirrors the bound ID again: no unsaved edits, so clear the
+    // interaction state
     effect(() => {
-      const id = this.id();
-      if (this._hasLastId && this._lastId === id) {
-        return;
-      }
-      this._lastId = id;
-      this._hasLastId = true;
-      this.updateForm(id);
+      const draft = this._draft();
+      untracked(() => {
+        if (this.isDraftInSync(draft)) {
+          this.form().reset();
+        }
+      });
     });
 
-    // autosave
+    // autosave, but only once the draft has actually diverged from what is
+    // bound - otherwise merely receiving an ID would save a normalized copy
+    // of it straight back over the original
     toObservable(this._draft)
       .pipe(debounceTime(300), takeUntilDestroyed())
       .subscribe(() => {
-        if (JSON.stringify(this._draft()) === this._lastSyncedDraft) {
+        if (this.isDraftInSync(this._draft())) {
           return;
         }
         this.emitIdChange();
@@ -179,39 +213,18 @@ export class AssertedIdComponent {
     this.lookupExpanded.set(false);
   }
 
-  private updateForm(value: AssertedId | undefined): void {
-    const draft = !value
-      ? makeDefaultDraft()
-      : {
-          tag: value.tag || '',
-          value: value.value,
-          label: value.label || '',
-          scope: value.scope,
-          assertion: value.assertion || null,
-        };
-    this._draft.set(draft);
-    this._lastSyncedDraft = JSON.stringify(draft);
-    this.form().reset();
+  /** True when the draft still mirrors the bound ID. */
+  private isDraftInSync(draft: AssertedIdControls): boolean {
+    return JSON.stringify(draft) === JSON.stringify(toDraft(this.id()));
   }
 
   private getId(): AssertedId {
-    const v = this._draft();
-    return {
-      tag: v.tag.trim() || undefined,
-      value: v.value.trim() || '',
-      label: v.label.trim() || undefined,
-      scope: v.scope.trim() || '',
-      assertion: v.assertion || undefined,
-    };
+    return toId(this._draft());
   }
 
   public emitIdChange(): void {
     if (!this.hasSubmit()) {
-      const id = this.getId();
-      this._lastId = id;
-      this._hasLastId = true;
-      this._lastSyncedDraft = JSON.stringify(this._draft());
-      this.id.set(id);
+      this.id.set(this.getId());
     }
   }
 

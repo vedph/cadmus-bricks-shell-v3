@@ -3,8 +3,10 @@ import {
   Component,
   effect,
   input,
+  linkedSignal,
   model,
   signal,
+  untracked,
 } from '@angular/core';
 import {
   disabled,
@@ -43,6 +45,21 @@ export interface DecoratedId {
   sources?: DocReference[];
 }
 
+// maps into fresh objects rather than adopting the caller's own DecoratedId
+// references: the FieldTree machinery tags each array-of-object item it
+// adopts with a hidden identity Symbol in place, and adopting the caller's
+// own objects would leak that mutation back to them - see getIds() below.
+function toDraft(ids: DecoratedId[] | undefined): { editedIds: DecoratedId[] } {
+  return {
+    editedIds: (ids || []).map((d) => ({
+      id: d.id,
+      rank: d.rank,
+      tag: d.tag,
+      sources: d.sources,
+    })),
+  };
+}
+
 /**
  * Decorated IDs real-time editor.
  */
@@ -65,12 +82,6 @@ export interface DecoratedId {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DecoratedIdsComponent {
-  // set synchronously wherever `ids` is written (not inside the effect
-  // below), paired with _hasLastIds since undefined is both "never saved
-  // yet" and a legitimate real value - see signal-forms-migration.md.
-  private _lastIds: DecoratedId[] | undefined = undefined;
-  private _hasLastIds = false;
-
   public readonly editedIndex = signal<number>(-1);
   public readonly edited = signal<DecoratedId | undefined>(undefined);
 
@@ -89,15 +100,33 @@ export class DecoratedIdsComponent {
     min(path.rank, 0);
   });
 
-  private readonly _draft = signal({ editedIds: [] as DecoratedId[] });
-  public readonly form = form(this._draft, (path) => {
-    NgxToolsSignalValidators.strictMinLength(path.editedIds, 1);
-  });
-
   /**
    * The IDs to edit.
    */
   public readonly ids = model<DecoratedId[] | undefined>(undefined);
+
+  /**
+   * The editable draft, derived from `ids` but writable in place.
+   * `previous` tells an external change apart from the echo of our own
+   * save: when the incoming IDs are just what the current draft maps to,
+   * the draft is already up to date and rebuilding it would discard the
+   * row the user is editing.
+   */
+  private readonly _draft = linkedSignal<
+    DecoratedId[] | undefined,
+    { editedIds: DecoratedId[] }
+  >({
+    source: () => this.ids(),
+    computation: (ids, previous) =>
+      previous &&
+      JSON.stringify(this.getIds(previous.value)) === JSON.stringify(ids)
+        ? previous.value
+        : toDraft(ids),
+  });
+
+  public readonly form = form(this._draft, (path) => {
+    NgxToolsSignalValidators.strictMinLength(path.editedIds, 1);
+  });
 
   // decorated-id-tags
   public readonly tagEntries = input<ThesaurusEntry[]>();
@@ -128,16 +157,16 @@ export class DecoratedIdsComponent {
   public readonly lookupProviderOptions = input<LookupProviderOptions>();
 
   constructor() {
-    // when ids change, update form and close ID editor
+    // the draft mirrors the bound IDs again: no unsaved edits, so close
+    // any open row editor and clear the interaction state
     effect(() => {
-      const ids = this.ids();
-      if (this._hasLastIds && this._lastIds === ids) {
-        return;
-      }
-      this._lastIds = ids;
-      this._hasLastIds = true;
-      this.closeIdEditor();
-      this.updateForm(ids);
+      const draft = this._draft();
+      untracked(() => {
+        if (JSON.stringify(draft) === JSON.stringify(toDraft(this.ids()))) {
+          this.closeIdEditor();
+          this.form().reset();
+        }
+      });
     });
 
     // autosave
@@ -149,8 +178,6 @@ export class DecoratedIdsComponent {
         }
         const next = this.getIds();
         if (JSON.stringify(next) !== JSON.stringify(this.ids())) {
-          this._lastIds = next;
-          this._hasLastIds = true;
           this.ids.set(next);
         }
       });
@@ -163,8 +190,10 @@ export class DecoratedIdsComponent {
   // shows up as an extra own property under toEqual() - see
   // signal-forms-migration.md. cadmus-refs-doc-references established
   // this same defense first.
-  private getIds(): DecoratedId[] | undefined {
-    const editedIds = this._draft().editedIds;
+  private getIds(
+    draft: { editedIds: DecoratedId[] } = this._draft(),
+  ): DecoratedId[] | undefined {
+    const editedIds = draft.editedIds;
     return editedIds.length
       ? editedIds.map((d) => ({
           id: d.id,
@@ -173,23 +202,6 @@ export class DecoratedIdsComponent {
           sources: d.sources,
         }))
       : undefined;
-  }
-
-  private updateForm(ids: DecoratedId[] | undefined): void {
-    // map into fresh objects rather than adopting the caller's own
-    // DecoratedId references directly: the FieldTree machinery tags each
-    // array-of-object item it adopts with a hidden identity Symbol
-    // in place, and adopting the caller's own objects would leak that
-    // mutation back to them - see the comment on getIds() below.
-    this._draft.set({
-      editedIds: (ids || []).map((d) => ({
-        id: d.id,
-        rank: d.rank,
-        tag: d.tag,
-        sources: d.sources,
-      })),
-    });
-    this.form().reset();
   }
 
   private closeIdEditor(): void {
@@ -321,10 +333,7 @@ export class DecoratedIdsComponent {
       return;
     }
 
-    const ids = this.getIds();
-    this._lastIds = ids;
-    this._hasLastIds = true;
-    this.ids.set(ids);
+    this.ids.set(this.getIds());
 
     if (pristine) {
       this.form().reset();
