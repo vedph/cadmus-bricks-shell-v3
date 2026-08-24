@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { FormField } from '@angular/forms/signals';
+import { FormField, FormRoot } from '@angular/forms/signals';
 
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 
@@ -112,6 +112,7 @@ class FakeLayerComponent {
 
 const TEST_IMPORTS = [
   FormField,
+  FormRoot,
   MatButtonModule,
   MatButtonToggleModule,
   MatFormFieldModule,

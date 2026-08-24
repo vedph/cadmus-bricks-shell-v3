@@ -1,4 +1,4 @@
-<form (submit)="onFormSubmit($event)">
+<form [formRoot]="form">
   <fieldset>
     <mat-expansion-panel>
       <mat-expansion-panel-header>
@@ -177,7 +177,7 @@
         }}</mat-panel-title>
       </mat-expansion-panel-header>
 
-      <form (submit)="onEditedFormSubmit($event)">
+      <form [formRoot]="editedForm">
         <div class="form-row">
           <!-- value -->
           <mat-form-field class="nr">

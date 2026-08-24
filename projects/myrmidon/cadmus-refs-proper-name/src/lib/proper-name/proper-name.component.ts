@@ -7,7 +7,13 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import {
+  FormField,
+  FormRoot,
+  form,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -68,6 +74,7 @@ function makeDefaultDraft(): ProperNameControls {
   styleUrls: ['./proper-name.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -360,7 +367,4 @@ export class ProperNameComponent {
     };
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-  }
 }

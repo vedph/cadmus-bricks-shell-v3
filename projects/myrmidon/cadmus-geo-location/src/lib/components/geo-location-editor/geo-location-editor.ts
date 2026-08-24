@@ -14,6 +14,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
   FormField,
+  FormRoot,
   form,
   max,
   maxLength,
@@ -97,6 +98,7 @@ interface GeoLocationControls {
   selector: 'cadmus-geo-location-editor',
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatButtonToggleModule,
     MatFormFieldModule,
@@ -752,9 +754,5 @@ export class GeoLocationEditor implements OnDestroy {
     this.form().reset();
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
-  }
   // #endregion
 }

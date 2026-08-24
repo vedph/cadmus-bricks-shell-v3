@@ -1,7 +1,7 @@
 <div>
   <!-- lookup -->
   <div>
-    <form class="form-row" (submit)="onKeyFormSubmit($event)">
+    <form class="form-row" [formRoot]="keyForm">
       <!-- key -->
       @if (keys().length > 1) {
         <mat-form-field>
@@ -33,7 +33,7 @@
       <mat-expansion-panel-header>ID builder</mat-expansion-panel-header>
       <!-- ID -->
       <div>
-        <form (submit)="onFormSubmit($event)">
+        <form [formRoot]="idForm">
           <mat-form-field style="width: 100%">
             <input matInput [formField]="idForm.id" />
             @if (idForm.id().getError('required') && (idForm.id().dirty() ||

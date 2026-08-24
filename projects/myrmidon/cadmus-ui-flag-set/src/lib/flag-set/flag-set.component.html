@@ -26,7 +26,7 @@
   </button>
   <!-- custom -->
   @if (allowCustom()) {
-  <form (submit)="onCustomFormSubmit($event)">
+  <form [formRoot]="customForm">
     <mat-form-field>
       <mat-label>custom</mat-label>
       <input matInput [formField]="customForm.customFlag" />

@@ -47,6 +47,16 @@ Angular Material inputs (`matInput`, `mat-select`, `mat-autocomplete`, ...) are
 CVA-based and `[formField]` interops with CVA controls directly — no custom
 `FormValueControl` wrapper needed for those.
 
+**Form submission**: every `<form>` element gets `[formRoot]="theFieldTree"`
+(the `FormRoot` directive, `@angular/forms/signals`) instead of a hand-rolled
+`(submit)="onXFormSubmit($event)" { event.preventDefault(); ... }` method —
+`FormRoot` sets `novalidate` and calls `preventDefault()` on the native
+`submit` event automatically, with zero behavior difference from the
+hand-rolled version. It does **not** replace the save button's own
+`(click)="save()"` — see "Post-migration fixes" below for why the actual
+save action must stay on the button's `(click)`, never on native form
+submission, in a tree this deeply nested.
+
 ## Library checklist (dependency order)
 
 - [x] 1. `cadmus-mat-physical-grid`
@@ -1029,3 +1039,87 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   `.html` file under `projects/myrmidon`. All 12 touched libraries
   build and test clean; the 3 with selector fallout are green again
   after the spec fix.
+- **Fourth pass: adopting `FormRoot`, the actual idiomatic API, in place
+  of the hand-rolled `onXFormSubmit(event){preventDefault();...}`
+  boilerplate.** Prompted by a pointer to Angular's own docs for signal
+  forms submission (`@angular/forms/signals` exports a `FormRoot`
+  directive and a `submit()`/`FormSubmitOptions` API, confirmed present
+  in this workspace's installed Angular 22.0.1 via the `.d.ts` files,
+  not just a blog post). Investigated both pieces before adopting
+  either:
+  - **`[formRoot]="fieldTree"`** (selector `form[formRoot]`) is a
+    drop-in, framework-authored replacement for exactly the boilerplate
+    this migration had been hand-rolling three times over: per its own
+    doc comment, it "sets `novalidate` on the form element" and
+    "listens for the `submit` event, prevents the default behavior, and
+    calls `submit()` on the `FieldTree` if it defines its own
+    submission options." With no `submission` option passed to `form()`
+    (this workspace doesn't use one), that reduces to exactly
+    `event.preventDefault()` - byte-for-byte the same behavior as every
+    `onXFormSubmit` method in this log, just declarative.
+  - **`submit(fieldTree, options)`** is a standalone function for
+    triggering a submission imperatively (e.g. from a button's
+    `(click)`), used in Angular's own docs for a *secondary* action
+    button alongside a primary submit. **Investigated and deliberately
+    not adopted**: its `action` callback must be `async` and return a
+    `TreeValidationResult` (typically `null` on success), a different
+    shape from every synchronous `save(): void` method across ~25
+    already-tested components - full adoption would mean touching every
+    one of them, a much larger and riskier rewrite than swapping in a
+    directive. Asked the user which scope to commit to; "FormRoot only"
+    was chosen. Save buttons keep their plain `(click)="save()")`.
+  - **Critically, neither piece changes the earlier fixes' actual
+    conclusion.** `[formRoot]`'s automatic submit-capture is still a
+    native DOM `submit`-event listener under the hood, so it is subject
+    to the *exact same* nested-`<form>`-elision hazard already proven
+    twice in this log - an inner `[formRoot]` on a `<form>` that gets
+    elided by an ancestor form never activates at all, same as the
+    hand-rolled `(submit)` handler it replaces. Only an imperative
+    `submit()` call from a button's `(click)`, bypassing the DOM event
+    entirely, would sidestep that - which is structurally what the
+    already-committed `type="button" (click)="save()"` fix does today,
+    just without the framework's `submit()` wrapper around it. So save
+    buttons were **not** touched in this pass; only the `<form>` tag's
+    own attribute changed.
+  Converted every `(submit)="onXFormSubmit($event)")`-style form (32
+  forms across 21 libraries, including citation's 4 independent
+  mini-forms and every two-form component: `scoped-pin-lookup`,
+  `asserted-chronotope`, `decorated-ids`, `decorated-counts`) to
+  `[formRoot]="theFieldTree"`, deleting the now-fully-redundant
+  `onFormSubmit`/`onEditedFormSubmit`/`onPlaceFormSubmit`/
+  `onDateFormSubmit`/`onKeyFormSubmit`/`onCustomFormSubmit`/
+  `onFreeFormSubmit`/`onSetFormSubmit`/`onNumberFormSubmit`/
+  `onStringFormSubmit` methods entirely, and adding `FormRoot` to each
+  component's `imports` array alongside `FormField`.
+  **Deliberately left one form unconverted**: `cadmus-text-ed-txt`'s
+  `EmojiImeComponent` (a `MatDialog`, so CDK portals it to an overlay
+  outside any ancestor's DOM subtree - immune to the nesting hazard by
+  construction) uses `(submit)` specifically to let Enter-in-the-search-
+  field pick the first matching emoji, with **no button in the tree at
+  all** for that action. Since `[formRoot]` only calls a save action
+  when `form()` was given `submission` options (the scope explicitly
+  not adopted here), converting this one would have silently dropped
+  real, load-bearing Enter-to-pick UX rather than just removing
+  boilerplate - correctly left as the one exception.
+  **Test fallout, both intentional and fixed, not bugs**: two specs
+  (`cadmus-mat-physical-state`, `cadmus-ui-flag-set`) asserted that
+  dispatching a native `submit` event on the form (`triggerEventHandler
+  ('submit', ...)`) caused the save/add action to run - true under the
+  old hand-rolled handler, no longer true under `[formRoot]` alone by
+  design (only the button's `(click)` triggers the action now).
+  Rewrote both to assert the *new*, intended behavior instead (no
+  action fires, no error/reload either) with a comment pointing back
+  here, rather than deleting the coverage. Separately, `cadmus-geo-
+  location`'s spec uses `TestBed.overrideComponent(..., {set: {imports:
+  TEST_IMPORTS}})` to stub MapLibre for jsdom - `overrideComponent`
+  **replaces** the imports array rather than merging with it, the exact
+  same gotcha already documented in this log for `FormField` itself
+  when this library was first migrated; needed `FormRoot` added to that
+  same `TEST_IMPORTS` array (71 of that spec's tests failed with
+  `NG0303: Can't bind to 'formRoot'` until this was found - a good
+  reminder that this specific gotcha reliably recurs for *any* new
+  signals-forms symbol used in a template, not just the ones already
+  seen).
+  All 21 touched libraries build clean; full `pnpm run test:lib`
+  workspace run green after the two intentional spec rewrites and the
+  `TEST_IMPORTS` fix.

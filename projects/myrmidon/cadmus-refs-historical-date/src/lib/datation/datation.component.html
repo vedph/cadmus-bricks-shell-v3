@@ -1,7 +1,7 @@
 @if (label()) {
   <p class="header">{{ label() }}</p>
 }
-<form role="form" (submit)="onFormSubmit($event)">
+<form role="form" [formRoot]="form">
   <!-- value -->
   <div class="form-row">
     <mat-form-field class="value">

@@ -6,7 +6,13 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { FieldTree, FormField, form, maxLength } from '@angular/forms/signals';
+import {
+  FieldTree,
+  FormField,
+  FormRoot,
+  form,
+  maxLength,
+} from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs';
 
@@ -59,6 +65,7 @@ function makeDefaultControls(): ChronotopeControls {
   styleUrls: ['./chronotope.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -177,7 +184,4 @@ export class ChronotopeComponent {
     }
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-  }
 }

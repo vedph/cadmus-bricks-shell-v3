@@ -13,7 +13,14 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { FieldTree, FormField, form, maxLength, required } from '@angular/forms/signals';
+import {
+  FieldTree,
+  FormField,
+  FormRoot,
+  form,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, forkJoin, take } from 'rxjs';
 
@@ -118,6 +125,7 @@ interface PinTargetControls {
   styleUrls: ['./pin-target-lookup.component.css'],
   imports: [
     FormField,
+    FormRoot,
     // material
     ClipboardModule,
     MatButtonModule,
@@ -713,8 +721,4 @@ export class PinTargetLookupComponent implements OnInit {
     this.emitTargetChange();
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
-  }
 }

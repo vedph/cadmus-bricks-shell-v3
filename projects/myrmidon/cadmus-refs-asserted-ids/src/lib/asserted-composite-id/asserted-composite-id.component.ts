@@ -10,7 +10,13 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import {
+  FormField,
+  FormRoot,
+  form,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
 import { debounceTime } from 'rxjs/operators';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
@@ -140,6 +146,7 @@ function makeDefaultDraft(): AssertedCompositeIdControls {
   styleUrls: ['./asserted-composite-id.component.css'],
   imports: [
     FormField,
+    FormRoot,
     // material
     MatButtonModule,
     MatExpansionModule,
@@ -560,8 +567,4 @@ export class AssertedCompositeIdComponent {
     }
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
-  }
 }

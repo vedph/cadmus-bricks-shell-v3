@@ -1,5 +1,11 @@
 import { Component, Inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
-import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import {
+  FormField,
+  FormRoot,
+  form,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
 import { forkJoin, of, take } from 'rxjs';
 
 // material
@@ -58,6 +64,7 @@ interface LookupInfo {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
+    FormRoot,
     // material
     MatButtonModule,
     MatExpansionModule,
@@ -187,12 +194,4 @@ export class ScopedPinLookupComponent {
     this.idForm.id().markAsDirty();
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.pickId();
-  }
-
-  public onKeyFormSubmit(event: Event): void {
-    event.preventDefault();
-  }
 }

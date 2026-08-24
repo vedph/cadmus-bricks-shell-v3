@@ -10,6 +10,7 @@ import {
 import {
   FieldTree,
   FormField,
+  FormRoot,
   disabled,
   form,
   required,
@@ -49,6 +50,7 @@ interface HistoricalDateControls {
   imports: [
     CommonModule,
     FormField,
+    FormRoot,
     MatButtonModule,
     MatButtonToggleModule,
     MatCheckboxModule,
@@ -219,8 +221,4 @@ export class HistoricalDateComponent {
     this.updateFromText();
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
-  }
 }

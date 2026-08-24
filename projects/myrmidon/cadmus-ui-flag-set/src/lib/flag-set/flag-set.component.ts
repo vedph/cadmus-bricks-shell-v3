@@ -1,4 +1,4 @@
-import { FieldTree, FormField, form } from '@angular/forms/signals';
+import { FieldTree, FormField, FormRoot, form } from '@angular/forms/signals';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -48,6 +48,7 @@ interface FlagViewModel extends Flag {
   selector: 'cadmus-ui-flag-set',
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -208,11 +209,6 @@ export class FlagSetComponent implements OnDestroy {
     this.checkedIdsChange.emit(this._ids$.value);
 
     this.customForm.customFlag().value.set('');
-  }
-
-  public onCustomFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.addCustomFlag();
   }
 
   public onFlagChecked(flag: FlagViewModel, checked: boolean): void {

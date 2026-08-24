@@ -11,6 +11,7 @@ import {
 import {
   FieldTree,
   FormField,
+  FormRoot,
   disabled,
   form,
   min,
@@ -63,6 +64,7 @@ interface EditedMeasureControls {
   selector: 'cadmus-mat-physical-measurement-set',
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -314,10 +316,6 @@ export class PhysicalMeasurementSetComponent {
 
   public onDimensionChange(dimension?: PhysicalDimension): void {
     this.edited.set({ ...this.edited(), ...dimension! } as PhysicalMeasurement);
-  }
-
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
   }
 
   public moveMeasurementUp(index: number): void {

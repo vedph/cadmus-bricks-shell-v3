@@ -11,6 +11,7 @@ import {
 import {
   FieldTree,
   FormField,
+  FormRoot,
   disabled,
   form,
   maxLength,
@@ -67,6 +68,7 @@ interface EditedCountControls {
   styleUrls: ['./decorated-counts.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -321,14 +323,6 @@ export class DecoratedCountsComponent {
     this.closeCount();
   }
 
-  public onEditedFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.saveCount();
-  }
-
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-  }
 
   public moveCountUp(index: number): void {
     if (index < 1) {

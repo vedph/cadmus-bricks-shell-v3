@@ -12,6 +12,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
   FormField,
+  FormRoot,
   form,
   maxLength,
   required,
@@ -81,6 +82,7 @@ interface NoteFormControls {
   styleUrls: ['./note-set.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -380,11 +382,6 @@ export class NoteSetComponent {
       key: this.currentDef()!.key,
       value: this.form.text().value().trim() || '',
     });
-  }
-
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
   }
 
   /**

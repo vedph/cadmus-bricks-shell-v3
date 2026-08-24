@@ -15,6 +15,7 @@ import {
   applyEach,
   FieldTree,
   FormField,
+  FormRoot,
   form,
   maxLength,
   required,
@@ -72,6 +73,7 @@ interface DocReferenceControls {
   styleUrls: ['./doc-references.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -258,7 +260,4 @@ export class DocReferencesComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-  }
 }

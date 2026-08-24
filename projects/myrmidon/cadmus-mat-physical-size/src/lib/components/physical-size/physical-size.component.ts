@@ -13,6 +13,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
   FormField,
+  FormRoot,
   form,
   maxLength,
   min,
@@ -70,6 +71,7 @@ interface PhysicalSizeControls {
   imports: [
     CommonModule,
     FormField,
+    FormRoot,
     // material
     MatButtonModule,
     MatCheckboxModule,
@@ -407,9 +409,5 @@ export class PhysicalSizeComponent implements OnDestroy {
       h: v.hValue ? this.getDimension(v.hValue, v.hUnit, v.hTag) : undefined,
       d: v.dValue ? this.getDimension(v.dValue, v.dUnit, v.dTag) : undefined,
     };
-  }
-
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
   }
 }

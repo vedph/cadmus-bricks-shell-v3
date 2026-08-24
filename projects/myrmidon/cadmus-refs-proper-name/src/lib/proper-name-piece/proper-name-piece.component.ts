@@ -7,7 +7,13 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FieldTree, FormField, form, required } from '@angular/forms/signals';
+import {
+  FieldTree,
+  FormField,
+  FormRoot,
+  form,
+  required,
+} from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
@@ -38,6 +44,7 @@ interface ProperNamePieceControls {
   styleUrls: ['./proper-name-piece.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatIconModule,
@@ -178,8 +185,4 @@ export class ProperNamePieceComponent {
     });
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
-  }
 }

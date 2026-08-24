@@ -11,6 +11,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
   FormField,
+  FormRoot,
   form,
   maxLength,
   pattern,
@@ -41,7 +42,13 @@ import {
   selector: 'cadmus-cod-location',
   templateUrl: './cod-location.component.html',
   styleUrls: ['./cod-location.component.css'],
-  imports: [FormField, MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [
+    FormField,
+    FormRoot,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CodLocationComponent implements OnDestroy {
@@ -178,7 +185,4 @@ export class CodLocationComponent implements OnDestroy {
     }
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-  }
 }

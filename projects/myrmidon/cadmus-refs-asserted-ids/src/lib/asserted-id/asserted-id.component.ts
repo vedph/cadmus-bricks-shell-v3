@@ -8,7 +8,13 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import {
+  FormField,
+  FormRoot,
+  form,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs';
 
@@ -63,6 +69,7 @@ function makeDefaultDraft(): AssertedIdControls {
   styleUrls: ['./asserted-id.component.css'],
   imports: [
     FormField,
+    FormRoot,
     // material
     MatButtonModule,
     MatExpansionModule,
@@ -220,8 +227,4 @@ export class AssertedIdComponent {
     }
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
-  }
 }

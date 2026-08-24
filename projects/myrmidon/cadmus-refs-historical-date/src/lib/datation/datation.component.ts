@@ -9,6 +9,7 @@ import {
 import {
   FieldTree,
   FormField,
+  FormRoot,
   form,
   max,
   maxLength,
@@ -45,7 +46,13 @@ interface DatationControls {
   selector: 'cadmus-refs-datation',
   templateUrl: './datation.component.html',
   styleUrls: ['./datation.component.css'],
-  imports: [FormField, MatCheckboxModule, MatFormFieldModule, MatInputModule],
+  imports: [
+    FormField,
+    FormRoot,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatInputModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DatationComponent {
@@ -170,7 +177,4 @@ export class DatationComponent {
     };
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-  }
 }

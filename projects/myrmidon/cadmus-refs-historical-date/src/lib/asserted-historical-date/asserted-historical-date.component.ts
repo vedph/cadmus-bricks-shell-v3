@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, effect, input, model, signal } from '@angular/core';
-import { FieldTree, FormField, form, required } from '@angular/forms/signals';
+import {
+  FieldTree,
+  FormField,
+  FormRoot,
+  form,
+  required,
+} from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -38,6 +44,7 @@ interface AssertedDateControls {
   selector: 'cadmus-refs-asserted-historical-date',
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -171,7 +178,4 @@ export class AssertedHistoricalDateComponent {
     }
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-  }
 }

@@ -9,7 +9,13 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { form, FormField, maxLength, required } from '@angular/forms/signals';
+import {
+  form,
+  FormField,
+  FormRoot,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -67,6 +73,7 @@ function makeDefaultDraft(): PhysicalStateDraft {
   imports: [
     CommonModule,
     FormField,
+    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatDatepickerModule,
@@ -183,10 +190,5 @@ export class PhysicalStateComponent {
 
   public save(): void {
     this.state.set(this.getState());
-  }
-
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
   }
 }

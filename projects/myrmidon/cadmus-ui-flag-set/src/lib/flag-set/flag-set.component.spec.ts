@@ -384,7 +384,11 @@ describe('FlagSetComponent', () => {
       expect(component.customForm.customFlag().value()).toBe('');
     });
 
-    it('should add the custom flag via the form submit button', () => {
+    it('should not add the custom flag on a native form submit event (formRoot only prevents the default reload)', () => {
+      // the add button calls addCustomFlag() directly via (click);
+      // [formRoot] on the <form> exists only to disable native submission
+      // (no reload on Enter), not to trigger the action itself - see
+      // signal-forms-migration.md.
       component.customForm.customFlag().value.set('custom3');
       fixture.detectChanges();
 
@@ -394,7 +398,7 @@ describe('FlagSetComponent', () => {
       const form = fixture.debugElement.query(By.css('form'));
       form.triggerEventHandler('submit', new Event('submit'));
 
-      expect(emitted).toEqual(['custom3']);
+      expect(emitted).toBeUndefined();
     });
   });
 

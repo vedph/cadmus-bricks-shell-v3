@@ -10,6 +10,7 @@ import {
 import {
   FieldTree,
   FormField,
+  FormRoot,
   disabled,
   form,
   maxLength,
@@ -53,6 +54,7 @@ interface PhysicalDimensionControls {
   styleUrls: ['./physical-dimension.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatFormFieldModule,
@@ -153,11 +155,6 @@ export class PhysicalDimensionComponent {
 
   public cancel(): void {
     this.cancelEdit.emit();
-  }
-
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
   }
 
   public save(pristine = true): void {

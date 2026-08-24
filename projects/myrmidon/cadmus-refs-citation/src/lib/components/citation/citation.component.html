@@ -36,7 +36,7 @@
       </div>
     } @else {
       <!-- free text editor -->
-      <form (submit)="onFreeFormSubmit($event)">
+      <form [formRoot]="textForm">
         <mat-form-field id="free-text-field">
           <mat-label>free text</mat-label>
           <input matInput [formField]="textForm.text" #free />
@@ -120,7 +120,7 @@
         @case ("set") {
           <form
             class="form-row"
-            (submit)="onSetFormSubmit($event)"
+            [formRoot]="setEditorForm"
           >
             <!-- set item -->
             <mat-form-field>
@@ -161,7 +161,7 @@
         @case ("number") {
           <form
             class="form-row"
-            (submit)="onNumberFormSubmit($event)"
+            [formRoot]="nrEditorForm"
           >
             <!-- number -->
             <mat-form-field class="nr">
@@ -231,7 +231,7 @@
         @default {
           <form
             class="form-row"
-            (submit)="onStringFormSubmit($event)"
+            [formRoot]="strEditorForm"
           >
             <!-- string -->
             <mat-form-field>

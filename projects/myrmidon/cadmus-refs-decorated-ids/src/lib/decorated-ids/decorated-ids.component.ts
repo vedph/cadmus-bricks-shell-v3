@@ -9,6 +9,7 @@ import {
 import {
   disabled,
   FormField,
+  FormRoot,
   form,
   maxLength,
   min,
@@ -52,6 +53,7 @@ export interface DecoratedId {
   styleUrls: ['./decorated-ids.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -313,10 +315,6 @@ export class DecoratedIdsComponent {
     this._draft.set({ editedIds });
   }
 
-  public onEditedFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.saveEditedId();
-  }
 
   public save(pristine = true): void {
     if (this.form().invalid()) {
@@ -333,9 +331,5 @@ export class DecoratedIdsComponent {
     if (pristine) {
       this.form().reset();
     }
-  }
-
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
   }
 }

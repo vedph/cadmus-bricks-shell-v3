@@ -1,4 +1,4 @@
-<form (submit)="onFormSubmit($event)">
+<form [formRoot]="form">
   <!-- list -->
   <div>
     <button type="button" mat-flat-button (click)="addId()" class="mat-primary">
@@ -83,7 +83,7 @@
         {{ edited()?.id }}
       </mat-panel-description>
     </mat-expansion-panel-header>
-    <form (submit)="onEditedFormSubmit($event)">
+    <form [formRoot]="idForm">
       <!-- id -->
       <div class="form-row">
         <mat-form-field>

@@ -8,7 +8,13 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormField, form, maxLength, required } from '@angular/forms/signals';
+import {
+  FormField,
+  FormRoot,
+  form,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
@@ -51,6 +57,7 @@ export const LOOKUP_CONFIGS_KEY = 'cadmus-refs-lookup.configs';
   selector: 'cadmus-refs-lookup-doc-reference',
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -310,8 +317,4 @@ export class LookupDocReferenceComponent {
     this.reference.set(this.getReference());
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.save();
-  }
 }

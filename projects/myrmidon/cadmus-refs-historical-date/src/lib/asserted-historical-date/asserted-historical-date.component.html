@@ -1,4 +1,4 @@
-<form (submit)="onFormSubmit($event)">
+<form [formRoot]="form">
   <!-- tag (bound) -->
   @if (tagEntries()?.length) {
     <mat-form-field>

@@ -6,7 +6,14 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { FieldTree, FormField, form, maxLength, required } from '@angular/forms/signals';
+import {
+  FieldTree,
+  FormField,
+  FormRoot,
+  form,
+  maxLength,
+  required,
+} from '@angular/forms/signals';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -76,6 +83,7 @@ function makeDefaultDateDraft(): DateControls {
   styleUrls: ['./asserted-chronotope.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatCheckboxModule,
     MatExpansionModule,
@@ -280,10 +288,6 @@ export class AssertedChronotopeComponent {
     this.placeExpanded.set(false);
   }
 
-  public onPlaceFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.savePlace();
-  }
 
   public editDate(): void {
     const chronotope = this.chronotope();
@@ -321,10 +325,6 @@ export class AssertedChronotopeComponent {
     this.dateExpanded.set(false);
   }
 
-  public onDateFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.saveDate();
-  }
 
   private getChronotope(): AssertedChronotope {
     const pl = this._plDraft();

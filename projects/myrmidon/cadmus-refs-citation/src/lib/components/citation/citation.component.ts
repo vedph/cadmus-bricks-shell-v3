@@ -20,6 +20,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
   FormField,
+  FormRoot,
   form,
   maxLength,
   max,
@@ -77,6 +78,7 @@ interface SchemeControls {
   selector: 'cadmus-refs-citation',
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -410,26 +412,6 @@ export class CitationComponent implements OnInit, OnDestroy {
 
   public closeFreeMode(): void {
     this.freeMode.set(false);
-  }
-
-  public onFreeFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.setFreeMode(false);
-  }
-
-  public onSetFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.saveSetStep();
-  }
-
-  public onNumberFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.saveNumberStep();
-  }
-
-  public onStringFormSubmit(event: Event): void {
-    event.preventDefault();
-    this.saveStringStep();
   }
 
   //#region Step editing

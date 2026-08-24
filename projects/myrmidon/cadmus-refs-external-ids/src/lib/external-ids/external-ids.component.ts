@@ -14,6 +14,7 @@ import {
   applyEach,
   FieldTree,
   FormField,
+  FormRoot,
   form,
   maxLength,
   required,
@@ -84,6 +85,7 @@ function toControls(id?: RankedExternalId): ExternalIdControls {
   styleUrls: ['./external-ids.component.css'],
   imports: [
     FormField,
+    FormRoot,
     MatButtonModule,
     MatExpansionModule,
     MatFormFieldModule,
@@ -322,7 +324,4 @@ export class ExternalIdsComponent implements AfterViewInit, OnDestroy {
     this.ids.set(ids);
   }
 
-  public onFormSubmit(event: Event): void {
-    event.preventDefault();
-  }
 }
