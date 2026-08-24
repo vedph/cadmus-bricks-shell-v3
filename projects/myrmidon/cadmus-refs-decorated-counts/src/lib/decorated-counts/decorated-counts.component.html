@@ -235,7 +235,8 @@
             <mat-icon class="mat-warn">cancel</mat-icon>
           </button>
           <button
-            type="submit"
+            type="button"
+            (click)="saveCount()"
             [disabled]="editedForm().invalid()"
             mat-icon-button
             matTooltip="Save count"

@@ -123,7 +123,8 @@
           <mat-icon class="danger">clear</mat-icon>
         </button>
         <button
-          type="submit"
+          type="button"
+          (click)="save()"
           mat-icon-button
           matTooltip="Accept changes"
           [disabled]="form().invalid() || !form().dirty()"

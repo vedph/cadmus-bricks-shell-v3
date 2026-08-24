@@ -33,7 +33,8 @@
     </mat-form-field>
     <button
       [disabled]="customForm().invalid()"
-      type="submit"
+      type="button"
+      (click)="addCustomFlag()"
       mat-icon-button
       matTooltip="Add a new entry"
     >

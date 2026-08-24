@@ -118,7 +118,12 @@
         <button type="button" mat-icon-button (click)="closePlace()">
           <mat-icon class="mat-warn">cancel</mat-icon>
         </button>
-        <button type="submit" mat-icon-button [disabled]="plForm().invalid()">
+        <button
+          type="button"
+          (click)="savePlace()"
+          mat-icon-button
+          [disabled]="plForm().invalid()"
+        >
           <mat-icon class="mat-primary">check_circle</mat-icon>
         </button>
       </div>
@@ -186,7 +191,12 @@
         <button type="button" mat-icon-button (click)="closeDate()">
           <mat-icon class="mat-warn">cancel</mat-icon>
         </button>
-        <button type="submit" mat-icon-button [disabled]="dtForm().invalid()">
+        <button
+          type="button"
+          (click)="saveDate()"
+          mat-icon-button
+          [disabled]="dtForm().invalid()"
+        >
           <mat-icon class="mat-primary">check_circle</mat-icon>
         </button>
       </div>

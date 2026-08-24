@@ -57,7 +57,12 @@
           >
             <mat-icon class="mat-warn">cancel</mat-icon>
           </button>
-          <button type="submit" mat-icon-button matSuffix>
+          <button
+            type="button"
+            (click)="setFreeMode(false)"
+            mat-icon-button
+            matSuffix
+          >
             <mat-icon class="mat-primary">check_circle</mat-icon>
           </button>
         </mat-form-field>
@@ -142,7 +147,8 @@
               <mat-icon class="mat-warn">cancel</mat-icon>
             </button>
             <button
-              type="submit"
+              type="button"
+              (click)="saveSetStep()"
               mat-icon-button
               matTooltip="Save step"
               [disabled]="setEditorForm().invalid()"
@@ -211,7 +217,8 @@
               <mat-icon class="mat-warn">cancel</mat-icon>
             </button>
             <button
-              type="submit"
+              type="button"
+              (click)="saveNumberStep()"
               mat-icon-button
               matTooltip="Save step"
               [disabled]="nrEditorForm().invalid()"
@@ -253,7 +260,8 @@
               <mat-icon class="mat-warn"> cancel </mat-icon>
             </button>
             <button
-              type="submit"
+              type="button"
+              (click)="saveStringStep()"
               mat-icon-button
               matTooltip="Save step"
               [disabled]="strEditorForm().invalid()"

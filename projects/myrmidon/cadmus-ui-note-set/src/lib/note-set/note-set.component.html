@@ -84,7 +84,8 @@
         <mat-icon class="mat-warn">delete</mat-icon>
       </button>
       <button
-        type="submit"
+        type="button"
+        (click)="save()"
         [disabled]="form.text().invalid()"
         mat-icon-button
         matTooltip="Save this note"

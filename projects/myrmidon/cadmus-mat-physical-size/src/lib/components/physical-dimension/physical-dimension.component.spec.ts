@@ -332,7 +332,9 @@ describe('PhysicalDimensionComponent', () => {
 
     it('should disable the save button while the form is invalid or pristine', () => {
       const saveBtn: HTMLButtonElement =
-        fixture.nativeElement.querySelector('button[type="submit"]');
+        fixture.nativeElement.querySelector(
+          'button[matTooltip="Accept changes"]',
+        );
       expect(saveBtn.disabled).toBe(true);
     });
 
@@ -344,7 +346,9 @@ describe('PhysicalDimensionComponent', () => {
       await fixture.whenStable();
 
       const saveBtn: HTMLButtonElement =
-        fixture.nativeElement.querySelector('button[type="submit"]');
+        fixture.nativeElement.querySelector(
+          'button[matTooltip="Accept changes"]',
+        );
       expect(saveBtn.disabled).toBe(false);
     });
 

@@ -75,7 +75,8 @@
       <mat-icon class="mat-warn">cancel</mat-icon>
     </button>
     <button
-      type="submit"
+      type="button"
+      (click)="save()"
       mat-icon-button
       [disabled]="form().invalid() || !form().dirty()"
     >

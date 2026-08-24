@@ -961,3 +961,71 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   opening tag: **all now have a `(submit)` binding**, zero remaining
   bare forms. All 13 touched libraries build and test clean (build +
   `ng test` individually, zero regressions).
+- **Third live bug report, and the fix that actually settles this
+  class of bug for good**: `cadmus-refs-lookup-doc-references`' child
+  editor, when used inside `cadmus-refs-assertion`, submitted the
+  *outer* assertion form instead of saving the individual reference —
+  and separately, `asserted-composite-id.component.html`'s own submit
+  button was flagged as a `type="submit"` button with no explicit
+  `(click)` handler, "worth checking for potential issues." Both point
+  at the same root cause, one level deeper than the two previous fixes:
+  **relying on `type="submit"` + a `<form>`'s `(submit)` handler to
+  trigger the actual save is fundamentally unreliable in this component
+  tree**, because nesting is the norm here (editors embed editors embed
+  lookups), and per the HTML nested-`<form>`-elision rule (documented in
+  the previous two entries), only the single outermost `<form>` in any
+  given composition ever actually exists in the DOM. Every inner
+  `<form>`'s own `(submit)` handler - even a correctly-written one with
+  `preventDefault()` - can simply never fire, no matter how many levels
+  deep the fix was applied at each individual component. The
+  `assertion`/`ref-lookup-doc-references`/`ref-lookup-doc-reference`
+  chain is three levels deep; the earlier `asserted-composite-id`/
+  `pin-target-lookup` fix only went two levels deep and was still
+  incomplete in principle - `asserted-composite-id` is itself nested
+  inside `asserted-composite-ids`' editor slot in some call sites, and
+  every additional level of nesting anywhere in the tree reopens the
+  same hazard at that ancestor.
+  **The real fix**: stop routing the save action through native
+  form-submission bubbling at all. Grepped for every remaining
+  `type="submit"` button across `projects/myrmidon` (18 files, 3 of
+  them test-only false positives) and converted all **15** real
+  instances to `type="button"` with an explicit `(click)="save()"` (or
+  the component's equivalent save method) directly on the button,
+  exactly matching the pattern every cancel/close/array-management
+  button in this migration already used. This makes the save action
+  fire correctly regardless of nesting depth, since it no longer depends
+  on which `<form>` element the browser happened to keep. The `<form
+  (submit)="onXFormSubmit($event)">` handlers added in the two earlier
+  fixes were **kept**, not removed - they remain a valid defensive
+  backstop against a native Enter-key-triggered submit when a given
+  component's own form *is* the one that survives parsing (e.g. used
+  standalone, in a dialog, or as the outermost nesting level), and are
+  harmless no-ops otherwise.
+  One button (`physical-measurement-set`'s) already had `(click)=
+  "saveMeasurement()"` *alongside* `type="submit"` from earlier in the
+  migration - already immune to this bug by accident, confirming the
+  `(click)`-based pattern is the right one; just dropped the now-inert
+  `type="submit"`.
+  Fixed across 12 libraries: `cadmus-refs-decorated-ids`,
+  `cadmus-refs-decorated-counts`, `cadmus-refs-lookup` (`ref-lookup-doc-
+  reference`), `cadmus-refs-proper-name` (`proper-name-piece`),
+  `cadmus-ui-note-set`, `cadmus-refs-asserted-ids` (`pin-target-lookup`,
+  `asserted-composite-id`, `asserted-id`), `cadmus-ui-flag-set`,
+  `cadmus-mat-physical-state`, `cadmus-refs-asserted-chronotope`
+  (`asserted-chronotope`, both forms), `cadmus-geo-location`,
+  `cadmus-mat-physical-size` (`physical-dimension`,
+  `physical-measurement-set`), `cadmus-refs-citation` (4 submit buttons:
+  free-text, set/number/string step editors).
+  **Test fallout, all fixed**: 3 spec files across
+  `cadmus-mat-physical-state`, `cadmus-geo-location`, and
+  `cadmus-mat-physical-size` queried the submit button via
+  `By.css('button[type="submit"]')`/`querySelector('button[type=
+  "submit"]')` to assert its `disabled` state - now-meaningless
+  selectors since the button is no longer `type="submit"`. Updated each
+  to select by the button's `matTooltip` instead (a stable identity
+  attribute unrelated to the submission mechanism). Grepped for any
+  other spec using the same selector pattern - none found.
+  Full grep confirms **zero** remaining `type="submit"` buttons in any
+  `.html` file under `projects/myrmidon`. All 12 touched libraries
+  build and test clean; the 3 with selector fallout are green again
+  after the spec fix.

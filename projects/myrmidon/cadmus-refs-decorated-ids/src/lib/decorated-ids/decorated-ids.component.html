@@ -149,7 +149,8 @@
           <mat-icon class="mat-warn">clear</mat-icon>
         </button>
         <button
-          type="submit"
+          type="button"
+          (click)="saveEditedId()"
           [disabled]="idForm().invalid()"
           mat-icon-button
           matTooltip="Save ID changes"

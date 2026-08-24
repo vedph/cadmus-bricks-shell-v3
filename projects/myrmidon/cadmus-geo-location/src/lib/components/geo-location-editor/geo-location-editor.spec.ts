@@ -435,7 +435,7 @@ describe('GeoLocationEditor', () => {
     it('disables the submit button while the form is invalid or pristine', () => {
       fixture.detectChanges();
       const submitBtn = fixture.debugElement.query(
-        By.css('button[type="submit"]'),
+        By.css('button[matTooltip="Accept changes"]'),
       );
       expect(submitBtn.nativeElement.disabled).toBe(true);
     });
@@ -447,7 +447,7 @@ describe('GeoLocationEditor', () => {
       component.form.longitude().value.set(12.5);
       fixture.detectChanges();
       const submitBtn = fixture.debugElement.query(
-        By.css('button[type="submit"]'),
+        By.css('button[matTooltip="Accept changes"]'),
       );
       expect(submitBtn.nativeElement.disabled).toBe(false);
     });

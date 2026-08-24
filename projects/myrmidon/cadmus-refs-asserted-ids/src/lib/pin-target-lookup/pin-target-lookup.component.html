@@ -294,7 +294,12 @@
     <button mat-icon-button type="button" (click)="close()">
       <mat-icon class="mat-warn">close</mat-icon>
     </button>
-    <button mat-flat-button type="submit" [disabled]="form().invalid()">
+    <button
+      mat-flat-button
+      type="button"
+      (click)="save()"
+      [disabled]="form().invalid()"
+    >
       <mat-icon>check_circle</mat-icon>
       target
     </button>

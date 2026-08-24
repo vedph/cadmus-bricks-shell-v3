@@ -313,7 +313,7 @@ describe('PhysicalStateComponent', () => {
   it('should keep the submit button disabled while the form is invalid', () => {
     fixture.detectChanges();
     const submitBtn = fixture.debugElement.query(
-      By.css('button[type="submit"]')
+      By.css('button[matTooltip="Save state"]')
     );
     expect(submitBtn.nativeElement.disabled).toBe(true);
   });
@@ -327,7 +327,7 @@ describe('PhysicalStateComponent', () => {
 
     expect(component.form().dirty()).toBe(false);
     const submitBtn = fixture.debugElement.query(
-      By.css('button[type="submit"]')
+      By.css('button[matTooltip="Save state"]')
     );
     expect(submitBtn.nativeElement.disabled).toBe(true);
   });
@@ -345,7 +345,7 @@ describe('PhysicalStateComponent', () => {
     expect(component.form().valid()).toBe(true);
     expect(component.form().dirty()).toBe(true);
     const submitBtn = fixture.debugElement.query(
-      By.css('button[type="submit"]')
+      By.css('button[matTooltip="Save state"]')
     );
     expect(submitBtn.nativeElement.disabled).toBe(false);
   });
