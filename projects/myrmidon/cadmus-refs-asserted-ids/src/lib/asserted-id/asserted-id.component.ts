@@ -219,4 +219,9 @@ export class AssertedIdComponent {
       this.id.set(this.getId());
     }
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
+  }
 }

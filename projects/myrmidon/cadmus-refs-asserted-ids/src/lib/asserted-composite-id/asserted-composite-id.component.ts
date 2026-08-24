@@ -559,4 +559,9 @@ export class AssertedCompositeIdComponent {
       this.id.set(this.getId());
     }
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
+  }
 }

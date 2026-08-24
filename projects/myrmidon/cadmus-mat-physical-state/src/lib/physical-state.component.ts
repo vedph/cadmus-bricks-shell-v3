@@ -184,4 +184,9 @@ export class PhysicalStateComponent {
   public save(): void {
     this.state.set(this.getState());
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
+  }
 }

@@ -37,7 +37,7 @@
 
   <!-- place -->
   <mat-expansion-panel class="editor" [(expanded)]="placeExpanded">
-    <form (submit)="savePlace()">
+    <form (submit)="onPlaceFormSubmit($event)">
       <fieldset id="place">
         <legend>place</legend>
         <div class="form-row">
@@ -130,9 +130,8 @@
     class="editor"
     [expanded]="dateExpanded()"
     (expandedChange)="dateExpanded.set($event)"
-    (submit)="saveDate()"
   >
-    <form>
+    <form (submit)="onDateFormSubmit($event)">
       <fieldset id="date">
         <legend>date</legend>
         <!-- tag (bound) -->

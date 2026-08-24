@@ -1,5 +1,5 @@
 @if (piece()) {
-<form class="form-row" (submit)="save()">
+<form class="form-row" (submit)="onFormSubmit($event)">
   <!-- type (bound) -->
   @if (types()?.length) {
   <mat-form-field>

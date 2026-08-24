@@ -837,3 +837,73 @@ CVA-based and `[formField]` interops with CVA controls directly — no custom
   out of scope throughout; the libraries' public `model()`/`input()`/
   `output()` signatures are unchanged, so the app still compiles against
   them.
+
+## Post-migration fixes (found via real-app usage, not caught by tests)
+
+- **`cadmus-refs-citation`**: `CitationComponent.editStep()`'s numeric
+  branch called `this.nrEditorForm.value().value.set(step.n!)`. For any
+  freshly created step (e.g. `createEmptyCitation()`'s steps, which only
+  set `value: ''`, never `n`), `step.n` is `undefined` — setting a
+  signal-forms field's value to `undefined` unmaps its `FieldTree`
+  accessor (the sentinel hazard documented under `cadmus-refs-lookup`
+  above), so the *next* read of `nrEditorForm.value` threw `TypeError:
+  ... is not a function`. Reproduced by: pick a `set`-type step first
+  (e.g. Divine Comedy's `cantica`, always has a defined `value`, so no
+  crash) then a `numeric` step (`canto`) on a brand-new citation. Fixed
+  by defaulting to `0` (`step.n ?? 0`), matching the field's non-nullable
+  `number` type. Added a regression test that reproduces the exact
+  scenario; confirmed it fails with the original code
+  (`component.nrEditorForm.value is not a function`) and passes with the
+  fix. **`citation.component.spec.ts` was a smoke test only** before this
+  — it never called `editStep()` at all, which is why the bug shipped
+  silently through the whole migration.
+- **Systemic: missing `event.preventDefault()` on `(submit)` handlers,
+  9 forms across 7 libraries.** The established idiom throughout this
+  migration was `(submit)="onXFormSubmit($event)"` with the handler
+  calling `event.preventDefault()` before delegating to the real save
+  method — necessary because removing `[formGroup]` also removes
+  `FormGroupDirective`'s *implicit* `preventDefault()` on native form
+  submit. That idiom was applied inconsistently: 9 forms were ported as
+  bare `(submit)="save()"` (no `$event`, no `preventDefault()`), which
+  compiles and passes every unit test (jsdom doesn't perform a real page
+  navigation on an unprevented submit) but causes a genuine full-page
+  reload in a real browser the moment the form is actually submitted —
+  invisible to the whole test suite. Found via live app usage (clicking
+  "target" in `AssertedCompositeIdComponent`'s external-link editor
+  reloaded the page instead of just setting the target). Root cause
+  compounds with the HTML nested-`<form>`-is-invalid rule: `<cadmus-
+  pin-target-lookup>`'s own `<form>` sits inside `AssertedCompositeId
+  Component`'s `<form (submit)="save()">` in the DOM; per the HTML
+  parsing spec a `<form>` start tag is dropped (no element created) when
+  one is already open, so `pin-target-lookup`'s submit button actually
+  submitted the *outer* `asserted-composite-id` form — meaning fixing
+  only the inner form would not have fixed the reported symptom; both
+  needed the fix, and this is generally true for any signal-forms
+  component nested inside another `<form>`.
+  Fixed all 9: `cadmus-refs-asserted-ids` (`pin-target-lookup`,
+  `asserted-composite-id`, `asserted-id`, `scoped-pin-lookup`),
+  `cadmus-mat-physical-state` (`physical-state`), `cadmus-refs-asserted-
+  chronotope` (`asserted-chronotope`, both the place and date forms),
+  `cadmus-refs-decorated-ids` (`decorated-ids`), `cadmus-refs-lookup`
+  (`ref-lookup-doc-reference`), `cadmus-refs-proper-name` (`proper-name-
+  piece`) — each got an `onFormSubmit`/`onEditedFormSubmit`/
+  `onPlaceFormSubmit`/`onDateFormSubmit` method matching the naming
+  already used elsewhere, calling `event.preventDefault()` then the
+  existing save method, with the template's `(submit)` updated to pass
+  `$event`.
+  **Bonus find while fixing `asserted-chronotope`'s date form**: its
+  `(submit)="saveDate()"` was bound to the *`mat-expansion-panel`*
+  wrapper, not the `<form>` element inside it — `mat-expansion-panel`
+  never emits a native `submit` event, so `saveDate()` was never called
+  by form submission at all (only by the explicit save button's
+  presence being irrelevant — the browser's default unhandled submit
+  behavior, i.e. full reload, was the *only* thing that ever fired).
+  Moved the binding onto the actual `<form>`.
+  **General lesson**: after converting a `<form (submit)="...">` away
+  from `[formGroup]`, grep the whole workspace for `(submit)="[a-zA-Z]+
+  \(\)"` (a submit handler that does *not* take `$event`) — that pattern
+  reliably identifies a missing `preventDefault()`, since every
+  correctly-ported handler in this migration takes `$event` specifically
+  to call it. This check should have been run once at the end of the
+  main migration pass, not discovered library-by-library through live
+  bug reports afterward.

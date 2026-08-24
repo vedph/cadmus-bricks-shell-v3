@@ -313,6 +313,11 @@ export class DecoratedIdsComponent {
     this._draft.set({ editedIds });
   }
 
+  public onEditedFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.saveEditedId();
+  }
+
   public save(pristine = true): void {
     if (this.form().invalid()) {
       // show validation errors

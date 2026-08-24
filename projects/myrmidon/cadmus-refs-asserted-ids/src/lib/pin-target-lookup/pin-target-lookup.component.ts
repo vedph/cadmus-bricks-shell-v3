@@ -712,4 +712,9 @@ export class PinTargetLookupComponent implements OnInit {
     }
     this.emitTargetChange();
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
+  }
 }

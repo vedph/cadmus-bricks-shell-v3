@@ -177,4 +177,9 @@ export class ProperNamePieceComponent {
       value: (valueVal as ThesaurusEntry)?.id || (valueVal as string),
     });
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
+  }
 }

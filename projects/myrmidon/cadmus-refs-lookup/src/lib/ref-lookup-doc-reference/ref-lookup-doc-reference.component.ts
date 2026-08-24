@@ -309,4 +309,9 @@ export class LookupDocReferenceComponent {
   public save(): void {
     this.reference.set(this.getReference());
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.save();
+  }
 }

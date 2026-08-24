@@ -186,4 +186,9 @@ export class ScopedPinLookupComponent {
     this._idDraft.set({ id: '' });
     this.idForm.id().markAsDirty();
   }
+
+  public onFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.pickId();
+  }
 }

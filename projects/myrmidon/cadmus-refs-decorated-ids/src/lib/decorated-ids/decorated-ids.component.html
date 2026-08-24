@@ -83,7 +83,7 @@
         {{ edited()?.id }}
       </mat-panel-description>
     </mat-expansion-panel-header>
-    <form (submit)="saveEditedId()">
+    <form (submit)="onEditedFormSubmit($event)">
       <!-- id -->
       <div class="form-row">
         <mat-form-field>

@@ -280,6 +280,11 @@ export class AssertedChronotopeComponent {
     this.placeExpanded.set(false);
   }
 
+  public onPlaceFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.savePlace();
+  }
+
   public editDate(): void {
     const chronotope = this.chronotope();
     this._dtDraft.update((v) => ({
@@ -314,6 +319,11 @@ export class AssertedChronotopeComponent {
     }
     // close the form
     this.dateExpanded.set(false);
+  }
+
+  public onDateFormSubmit(event: Event): void {
+    event.preventDefault();
+    this.saveDate();
   }
 
   private getChronotope(): AssertedChronotope {
