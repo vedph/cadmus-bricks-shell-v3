@@ -70,4 +70,5 @@ minimumReleaseAgeExclude:
   - '@vitest/utils@4.1.10'
   - vitest@4.1.10
   - '@maplibre/ngx-maplibre-gl@22.0.0'
-  - maplibre-gl@6.5.0
+  - maplibre-gl@6.5.0 || 6.7.0
+  - zone.js@0.16.3

@@ -2,10 +2,11 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-09-03: updated packages.
 - 2026-08-25:
   - ⚠️ migrated all forms to signal-based forms, updating tests accordingly and fixing some bugs in the process.
   - adjusted the workspace for libraries references.
-  - bumped all package release versions, but not yet published them.
+  - bumped all package release versions.
 
 ## 10.0.12
 

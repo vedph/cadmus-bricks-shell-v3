@@ -1,6 +1,6 @@
 {
   "name": "cadmus-bricks-shell-v3",
-  "version": "10.0.11",
+  "version": "10.0.12",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -48,7 +48,7 @@
     "build-lib": "pnpm run build-flg && pnpm run build-nav && pnpm run build-cit && pnpm run build-doc && pnpm run build-lok && pnpm run build-ass && pnpm run build-his && pnpm run build-cab && pnpm run build-col && pnpm run build-phg && pnpm run build-phs && pnpm run build-aid && pnpm run build-chr && pnpm run build-decc && pnpm run build-deci && pnpm run build-ext && pnpm run build-achr && pnpm run build-prp && pnpm run build-viaf && pnpm run build-sparql && pnpm run build-dbp && pnpm run build-blk && pnpm run build-nts && pnpm run build-ted && pnpm run build-tmd && pnpm run build-ttx && pnpm run build-geon && pnpm run build-whg && pnpm run build-pht && pnpm run build-muf && pnpm run build-zot && pnpm run build-obj && pnpm run build-mol && pnpm run build-bib && pnpm run build-geol && pnpm run build-icl"
   },
   "private": true,
-  "packageManager": "pnpm@11.23.0",
+  "packageManager": "pnpm@11.25.0",
   "dependencies": {
     "@angular/animations": "^22.0.1",
     "@angular/cdk": "^22.0.1",
@@ -62,8 +62,8 @@
     "@jean-merelis/ngx-monaco-editor": "^21.0.0",
     "@maplibre/ngx-maplibre-gl": "^22.1.0",
     "@myrmidon/auth-jwt-login": "^10.0.0",
-    "@myrmidon/cadmus-api": "^15.0.1",
-    "@myrmidon/cadmus-core": "^13.0.0",
+    "@myrmidon/cadmus-api": "^15.0.2",
+    "@myrmidon/cadmus-core": "^13.0.1",
     "@myrmidon/cadmus-thesaurus-store": "^1.0.1",
     "@myrmidon/ngx-mat-tools": "^3.0.1",
     "@myrmidon/ngx-tools": "^3.0.1",
@@ -71,8 +71,8 @@
     "@myrmidon/taxo-store-api": "^1.0.1",
     "@myrmidon/taxo-store-picker": "^1.0.0",
     "@terraformer/wkt": "^2.2.2",
-    "maplibre-gl": "^6.5.0",
-    "marked": "^18.0.10",
+    "maplibre-gl": "^6.7.0",
+    "marked": "^18.0.11",
     "monaco-editor": "^0.47.0",
     "rxjs": "~7.8.0",
     "ts-md5": "^2.0.1",
@@ -85,19 +85,19 @@
     "@angular/cli": "^22.0.1",
     "@angular/compiler-cli": "^22.0.1",
     "@angular/localize": "^22.0.1",
-    "@testing-library/angular": "^19.4.1",
+    "@testing-library/angular": "^19.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@types/geojson": "^7946.0.16",
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.4.1",
     "@types/terraformer__wkt": "^2.0.3",
-    "baseline-browser-mapping": "^2.11.17",
+    "baseline-browser-mapping": "^2.11.20",
     "jsdom": "^30.0.1",
-    "ng-packagr": "^22.0.1",
+    "ng-packagr": "^22.1.1",
     "typescript": "~6.0.3",
     "vitest": "^4.1.11",
-    "zone.js": "0.16.2"
+    "zone.js": "0.16.3"
   },
   "optionalDependencies": {
-    "@rollup/rollup-win32-arm64-msvc": "^4.62.5"
+    "@rollup/rollup-win32-arm64-msvc": "^4.63.1"
   }
 }
