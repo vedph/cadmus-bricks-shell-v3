@@ -5,6 +5,58 @@ allowBuilds:
   msgpackr-extract: true
 overrides:
   rollup: npm:@rollup/wasm-node
+  # Every library under projects/myrmidon is independently published, and
+  # they peer-depend on each other (and are peer-depended-on by external
+  # packages, e.g. @myrmidon/taxo-store-picker -> @myrmidon/cadmus-refs-lookup)
+  # so that a consuming app gets one singleton instance of each - the
+  # correct pattern for Angular libraries (peerDependencies, not
+  # dependencies). But this workspace's own copies are never installed from
+  # the registry: they resolve through tsconfig.json's compilerOptions.paths
+  # -> ./dist/myrmidon/<name>. Without an override here, pnpm has no local
+  # candidate to converge a peer chain on and silently installs a
+  # *published* copy instead, alongside the locally-built one - Angular then
+  # loads the same component from two distinct module instances, which
+  # triggers NG0912 "Component ID generation collision" at runtime. Linking
+  # every workspace library here keeps a single physical copy in play no
+  # matter which peer chain (local or external) asks for it. Keep this list
+  # in sync with peerDependencyRules.ignoreMissing below - both must cover
+  # every projects/myrmidon package.
+  '@myrmidon/cadmus-cod-location': 'link:./dist/myrmidon/cadmus-cod-location'
+  '@myrmidon/cadmus-geo-location': 'link:./dist/myrmidon/cadmus-geo-location'
+  '@myrmidon/cadmus-mat-physical-grid': 'link:./dist/myrmidon/cadmus-mat-physical-grid'
+  '@myrmidon/cadmus-mat-physical-size': 'link:./dist/myrmidon/cadmus-mat-physical-size'
+  '@myrmidon/cadmus-mat-physical-state': 'link:./dist/myrmidon/cadmus-mat-physical-state'
+  '@myrmidon/cadmus-named-value': 'link:./dist/myrmidon/cadmus-named-value'
+  '@myrmidon/cadmus-refs-asserted-chronotope': 'link:./dist/myrmidon/cadmus-refs-asserted-chronotope'
+  '@myrmidon/cadmus-refs-asserted-ids': 'link:./dist/myrmidon/cadmus-refs-asserted-ids'
+  '@myrmidon/cadmus-refs-assertion': 'link:./dist/myrmidon/cadmus-refs-assertion'
+  '@myrmidon/cadmus-refs-biblissima-lookup': 'link:./dist/myrmidon/cadmus-refs-biblissima-lookup'
+  '@myrmidon/cadmus-refs-chronotope': 'link:./dist/myrmidon/cadmus-refs-chronotope'
+  '@myrmidon/cadmus-refs-citation': 'link:./dist/myrmidon/cadmus-refs-citation'
+  '@myrmidon/cadmus-refs-dbpedia-lookup': 'link:./dist/myrmidon/cadmus-refs-dbpedia-lookup'
+  '@myrmidon/cadmus-refs-decorated-counts': 'link:./dist/myrmidon/cadmus-refs-decorated-counts'
+  '@myrmidon/cadmus-refs-decorated-ids': 'link:./dist/myrmidon/cadmus-refs-decorated-ids'
+  '@myrmidon/cadmus-refs-doc-references': 'link:./dist/myrmidon/cadmus-refs-doc-references'
+  '@myrmidon/cadmus-refs-external-ids': 'link:./dist/myrmidon/cadmus-refs-external-ids'
+  '@myrmidon/cadmus-refs-geonames-lookup': 'link:./dist/myrmidon/cadmus-refs-geonames-lookup'
+  '@myrmidon/cadmus-refs-historical-date': 'link:./dist/myrmidon/cadmus-refs-historical-date'
+  '@myrmidon/cadmus-refs-iconclass-lookup': 'link:./dist/myrmidon/cadmus-refs-iconclass-lookup'
+  '@myrmidon/cadmus-refs-lookup': 'link:./dist/myrmidon/cadmus-refs-lookup'
+  '@myrmidon/cadmus-refs-mol-lookup': 'link:./dist/myrmidon/cadmus-refs-mol-lookup'
+  '@myrmidon/cadmus-refs-mufi-lookup': 'link:./dist/myrmidon/cadmus-refs-mufi-lookup'
+  '@myrmidon/cadmus-refs-proper-name': 'link:./dist/myrmidon/cadmus-refs-proper-name'
+  '@myrmidon/cadmus-refs-sparql': 'link:./dist/myrmidon/cadmus-refs-sparql'
+  '@myrmidon/cadmus-refs-viaf-lookup': 'link:./dist/myrmidon/cadmus-refs-viaf-lookup'
+  '@myrmidon/cadmus-refs-whg-lookup': 'link:./dist/myrmidon/cadmus-refs-whg-lookup'
+  '@myrmidon/cadmus-refs-zotero-lookup': 'link:./dist/myrmidon/cadmus-refs-zotero-lookup'
+  '@myrmidon/cadmus-text-block-view': 'link:./dist/myrmidon/cadmus-text-block-view'
+  '@myrmidon/cadmus-text-ed': 'link:./dist/myrmidon/cadmus-text-ed'
+  '@myrmidon/cadmus-text-ed-md': 'link:./dist/myrmidon/cadmus-text-ed-md'
+  '@myrmidon/cadmus-text-ed-txt': 'link:./dist/myrmidon/cadmus-text-ed-txt'
+  '@myrmidon/cadmus-ui-custom-action-bar': 'link:./dist/myrmidon/cadmus-ui-custom-action-bar'
+  '@myrmidon/cadmus-ui-flag-set': 'link:./dist/myrmidon/cadmus-ui-flag-set'
+  '@myrmidon/cadmus-ui-note-set': 'link:./dist/myrmidon/cadmus-ui-note-set'
+  '@myrmidon/cadmus-ui-object-view': 'link:./dist/myrmidon/cadmus-ui-object-view'
 
 # The libraries under projects/myrmidon are this workspace's own; they resolve
 # through tsconfig.json's compilerOptions.paths -> ./dist/myrmidon/<name>, and
