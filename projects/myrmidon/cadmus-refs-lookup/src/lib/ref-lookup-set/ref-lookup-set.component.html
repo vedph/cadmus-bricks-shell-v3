@@ -3,7 +3,10 @@
   @if (configs().length) {
     <mat-form-field>
       <mat-label>provider</mat-label>
-      <mat-select [formField]="form.config">
+      <mat-select
+        [value]="config()"
+        (selectionChange)="onConfigChange($event.value)"
+      >
         @for (c of configs(); track c.name) {
           <mat-option [value]="c">
             <div class="form-row">
@@ -20,16 +23,12 @@
           </mat-option>
         }
       </mat-select>
-      <mat-hint>{{ form.config().value()?.description }}</mat-hint>
-      @if (form.config().getError('required') && (form.config().dirty() ||
-      form.config().touched())) {
-        <mat-error>config required</mat-error>
-      }
+      <mat-hint>{{ config()?.description }}</mat-hint>
     </mat-form-field>
   }
 
   <!-- lookup -->
-  @if (form.config().value(); as config) {
+  @if (config(); as config) {
     <cadmus-refs-lookup
       [service]="config.service!"
       [item]="config.item"

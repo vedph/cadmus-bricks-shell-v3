@@ -2,6 +2,12 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-09-13: fixes to `@mydmion/cadmus-refs-lookup` and its dependencies. `RefLookupSetComponent` adopted the caller-owned `RefLookupConfig` object — which holds a live injected service instance (`config.service`, e.g. `ViafRefLookupService`) directly into an `@angular/forms/signals` field. Real injected Angular services routinely contain circular references (HTTP interceptor chains, DI back-references, RxJS Subjects), whence potential overflows.
+
+The fix: RefLookupSetComponent.config is now a plain signal<RefLookupConfig | null>, driven by an explicit (selectionChange) handler instead of [formField]/form() — it never had any real validators anyway (form(this._draft) was called with no schema), so nothing is lost. Added a permanent regression test using a deliberately self-referential fake service. Full workspace suite: 1786/1786 tests pass, zero regressions.
+
+I also found and fixed the thing that made this so hard to pin down: cadmus-shell-v3/angular.json was missing the prebundle.exclude list that cadmus-bricks-shell-v3 already carries (documented in its own signal-forms-migration.md as a previously-solved problem in that repo). Without it, Vite's dev-server freezes @myrmidon/* packages in a cache keyed by version, independent of dist/ rebuilds — which is exactly why several of our test rounds showed stale behavior despite rebuilds. I've added the same exclusion to cadmus-shell-v3/angular.json.
+
 - 2026-09-08: inspected [NG0912](ng0912-workspace-playbook.md). Warnings are only in `ng serve` for development (probably due to Vite resolution mechanism) and do not affect production packages.
 - 2026-09-03: updated packages.
 - 2026-08-25:

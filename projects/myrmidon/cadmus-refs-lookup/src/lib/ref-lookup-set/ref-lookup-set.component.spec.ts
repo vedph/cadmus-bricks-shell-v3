@@ -8,10 +8,6 @@ import {
 } from './ref-lookup-set.component';
 import { RefLookupService } from '../ref-lookup/ref-lookup.component';
 
-function advanceDebounce(ms = 300): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 interface FakeItem {
   id: string;
   name: string;
@@ -69,21 +65,20 @@ describe('RefLookupSetComponent', () => {
 
   it('should auto-select the first config on init', async () => {
     await setup([CONFIG_A, CONFIG_B]);
-    expect(component.form.config().value()).toBe(CONFIG_A);
+    expect(component.config()).toBe(CONFIG_A);
   });
 
   it('should leave the config unset when there are no configs', async () => {
     await setup([]);
-    expect(component.form.config().value()).toBeNull();
+    expect(component.config()).toBeNull();
   });
 
-  it('should emit configChange after debounce when the config selection changes', async () => {
+  it('should emit configChange when the user picks a different config', async () => {
     await setup([CONFIG_A, CONFIG_B]);
     const emitted: RefLookupConfig[] = [];
     component.configChange.subscribe((c) => emitted.push(c));
 
-    component.form.config().value.set(CONFIG_B);
-    await advanceDebounce();
+    component.onConfigChange(CONFIG_B);
 
     expect(emitted).toEqual([CONFIG_B]);
   });
@@ -93,8 +88,7 @@ describe('RefLookupSetComponent', () => {
     const emitted: RefLookupConfig[] = [];
     component.configChange.subscribe((c) => emitted.push(c));
 
-    component.form.config().value.set(null);
-    await advanceDebounce();
+    component.onConfigChange(null);
 
     expect(emitted).toEqual([]);
   });
@@ -205,5 +199,52 @@ describe('RefLookupSetComponent', () => {
   it('should unsubscribe on destroy without throwing', async () => {
     await setup([CONFIG_A]);
     expect(() => fixture.destroy()).not.toThrow();
+  });
+
+  // Regression test for a real crash: opening the pin-links editor on a
+  // link with an external lookup provider configured (e.g. VIAF) threw
+  // "RangeError: Maximum call stack size exceeded" from deep inside
+  // @angular/forms/signals' field-tree machinery. Root cause: `config`
+  // used to be adopted into a signal-forms field (`form(this._draft)`),
+  // and a REAL injected lookup service (unlike this spec's own
+  // FakeLookupService above) routinely holds circular references - HTTP
+  // interceptor chains, DI back-references, RxJS Subjects with
+  // source/destination links. The field-tree's structural walk
+  // (dirty()/getError()/touched()) recurses into such a cycle and never
+  // terminates, even with zero validators declared. Fixed by using a
+  // plain signal for `config` instead, which never attempts to walk the
+  // value's shape. This test uses a deliberately self-referential fake
+  // service to reproduce the exact hazard without depending on any real
+  // external provider.
+  it('should not throw when a config holds a service with a circular reference', async () => {
+    class SelfReferentialService implements RefLookupService {
+      readonly id = 'circular';
+      // mimics a real service holding a back-reference to something that
+      // in turn points back to it (e.g. an HTTP interceptor chain)
+      readonly inner: { back?: unknown } = {};
+      constructor() {
+        this.inner.back = this;
+      }
+      lookup(): Observable<unknown[]> {
+        return of([]);
+      }
+      getName(): string {
+        return '';
+      }
+      getById(): Observable<unknown> {
+        return of(undefined);
+      }
+    }
+    const circularConfig: RefLookupConfig = {
+      name: 'Circular',
+      service: new SelfReferentialService(),
+    };
+
+    await expect(setup([circularConfig])).resolves.not.toThrow();
+    expect(() => {
+      // mimic template reads that touch the field
+      fixture.detectChanges();
+    }).not.toThrow();
+    expect(component.config()).toBe(circularConfig);
   });
 });

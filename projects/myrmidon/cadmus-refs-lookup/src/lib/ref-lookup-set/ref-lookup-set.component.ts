@@ -1,17 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  inject,
   input,
-  Injector,
   OnInit,
   output,
   signal,
 } from '@angular/core';
-import { FieldTree, FormField, form } from '@angular/forms/signals';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -166,23 +160,24 @@ export interface RefLookupSetEvent {
   selector: 'cadmus-refs-lookup-set',
   templateUrl: './ref-lookup-set.component.html',
   styleUrls: ['./ref-lookup-set.component.css'],
-  imports: [
-    FormField,
-    MatFormFieldModule,
-    MatSelectModule,
-    RefLookupComponent,
-  ],
+  imports: [MatFormFieldModule, MatSelectModule, RefLookupComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RefLookupSetComponent implements OnInit {
-  private readonly _injector = inject(Injector);
-  private readonly _destroyRef = inject(DestroyRef);
-
-  private readonly _draft = signal<{ config: RefLookupConfig | null }>({
-    config: null,
-  });
-  public readonly form: FieldTree<{ config: RefLookupConfig | null }> =
-    form(this._draft);
+  /**
+   * The currently selected lookup configuration, or null when none is
+   * selected. This is a plain signal, deliberately NOT routed through
+   * @angular/forms/signals: `RefLookupConfig.service` is a live injected
+   * service instance, which routinely contains circular references (HTTP
+   * interceptor chains, DI back-references, RxJS Subjects). Adopting such
+   * an object into a signal-forms field - even with no schema/validators
+   * declared - makes the field-tree's structural walk (dirty()/getError()/
+   * touched() etc.) recurse into the cycle and overflow the stack; a
+   * plain signal never attempts to walk the value's shape at all, so it
+   * has no such hazard. There was never any validation on this field
+   * (`form(this._draft)` was called with no schema), so nothing is lost.
+   */
+  public readonly config = signal<RefLookupConfig | null>(null);
 
   /**
    * Configuration for each lookup.
@@ -217,26 +212,28 @@ export class RefLookupSetComponent implements OnInit {
   public readonly moreRequest = output<RefLookupSetEvent>();
 
   public ngOnInit(): void {
-    toObservable(this.form.config().value, { injector: this._injector })
-      .pipe(
-        distinctUntilChanged(),
-        debounceTime(200),
-        takeUntilDestroyed(this._destroyRef)
-      )
-      .subscribe((config) => {
-        if (config) {
-          this.configChange.emit(config);
-        }
-      });
-
-    // set the first config as the current one if any
+    // select the first config as the current one if any
     if (this.configs()?.length) {
-      this.form.config().value.set(this.configs()[0]);
+      this.config.set(this.configs()[0]);
+    }
+  }
+
+  /**
+   * Called when the user picks a provider from the select. This is a
+   * plain, explicit event handler rather than a reactive watcher: it only
+   * ever fires for a genuine user pick (or the initial auto-select above),
+   * so there is no "was this our own echo" question to answer, and no
+   * debounce is needed for a single discrete selection.
+   */
+  public onConfigChange(config: RefLookupConfig | null): void {
+    this.config.set(config);
+    if (config) {
+      this.configChange.emit(config);
     }
   }
 
   private itemToEvent(item: any): RefLookupSetEvent {
-    const config = this.form.config().value()!;
+    const config = this.config()!;
     return {
       configs: this.configs(),
       config,
@@ -251,7 +248,7 @@ export class RefLookupSetComponent implements OnInit {
   }
 
   public onItemChange(item: any): void {
-    if (!this.form.config().value()) {
+    if (!this.config()) {
       return;
     }
     const event = this.itemToEvent(item);
@@ -270,7 +267,7 @@ export class RefLookupSetComponent implements OnInit {
   }
 
   public onMoreRequest(item: any): void {
-    if (!this.form.config().value()) {
+    if (!this.config()) {
       return;
     }
     const event = this.itemToEvent(item);
