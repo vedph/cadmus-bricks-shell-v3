@@ -29,6 +29,7 @@
           (click)="clear()"
           [disabled]="!item()"
           matTooltip="Clear"
+          aria-label="clear"
         >
           <mat-icon class="mat-warn">clear</mat-icon>
         </button>
@@ -87,6 +88,7 @@
             (click)="openLink()"
             [disabled]="!item()"
             matTooltip="Open the web resource"
+            aria-label="open link"
           >
             <mat-icon>link</mat-icon>
           </button>
@@ -97,6 +99,7 @@
             mat-icon-button
             (click)="showOptions()"
             matTooltip="Change quick options"
+            aria-label="options"
           >
             <mat-icon>settings</mat-icon>
           </button>
@@ -107,6 +110,7 @@
             mat-icon-button
             (click)="requestMore()"
             matTooltip="Search with more details"
+            aria-label="more"
           >
             <mat-icon class="mat-primary">more</mat-icon>
           </button>

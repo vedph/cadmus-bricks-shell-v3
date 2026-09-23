@@ -386,6 +386,32 @@ describe('RefLookupComponent', () => {
     });
   });
 
+  describe('accessibility', () => {
+    it('should give the clear button an accessible name and tooltip', () => {
+      component.lookupActive.set(true);
+      fixture.detectChanges();
+
+      const button: HTMLButtonElement = fixture.nativeElement.querySelector(
+        'button[aria-label="clear"]'
+      );
+      expect(button).toBeTruthy();
+      expect(button.getAttribute('aria-describedby')).toBeTruthy();
+    });
+
+    it('should give the optional buttons accessible names', () => {
+      fixture.componentRef.setInput('linkTemplate', 'https://x/{id}');
+      fixture.componentRef.setInput('optDialog', {});
+      fixture.componentRef.setInput('hasMore', true);
+      fixture.detectChanges();
+
+      for (const label of ['open link', 'options', 'more']) {
+        expect(
+          fixture.nativeElement.querySelector(`button[aria-label="${label}"]`)
+        ).toBeTruthy();
+      }
+    });
+  });
+
   describe('service changes', () => {
     it('should keep an initial item without emitting itemChange', () => {
       const f = TestBed.createComponent(RefLookupComponent);
