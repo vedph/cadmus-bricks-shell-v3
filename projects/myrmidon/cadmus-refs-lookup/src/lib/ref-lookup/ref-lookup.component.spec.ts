@@ -386,6 +386,43 @@ describe('RefLookupComponent', () => {
     });
   });
 
+  describe('service changes', () => {
+    it('should keep an initial item without emitting itemChange', () => {
+      const f = TestBed.createComponent(RefLookupComponent);
+      const emitted: unknown[] = [];
+      f.componentInstance.item.subscribe((i) => emitted.push(i));
+      const item = { id: '1', name: 'Alpha' };
+      f.componentRef.setInput('service', service);
+      f.componentRef.setInput('item', item);
+      f.detectChanges();
+
+      expect(f.componentInstance.item()).toBe(item);
+      expect(emitted).toEqual([]);
+    });
+
+    it('should keep the item when lookupProviderOptions change', () => {
+      const item = { id: '1', name: 'Alpha' };
+      component.pickItem(item);
+      fixture.componentRef.setInput('lookupProviderOptions', {
+        fake: { default: null },
+      } as LookupProviderOptions);
+      fixture.detectChanges();
+
+      expect(component.item()).toBe(item);
+    });
+
+    it('should clear the item when the service changes', () => {
+      component.pickItem({ id: '1', name: 'Alpha' });
+      component.lookupActive.set(true);
+
+      fixture.componentRef.setInput('service', new FakeLookupService());
+      fixture.detectChanges();
+
+      expect(component.item()).toBeUndefined();
+      expect(component.lookupActive()).toBe(false);
+    });
+  });
+
   describe('itemId resolution', () => {
     it('should resolve the item via service.getById when itemId is set', () => {
       fixture.componentRef.setInput('itemId', '2');

@@ -115,6 +115,89 @@ describe('CodLocationComponent', () => {
   });
   //#endregion
 
+  //#region no-op emissions
+  describe('no-op emissions', () => {
+    it('should not emit a location change for an initial location', async () => {
+      const f = TestBed.createComponent(CodLocationComponent);
+      const emitted: unknown[] = [];
+      f.componentInstance.location.subscribe((l) => emitted.push(l));
+      const ranges: CodLocationRange[] = [
+        { start: { n: 1, v: false }, end: { n: 3, v: true } },
+      ];
+      f.componentRef.setInput('location', ranges);
+      f.detectChanges();
+      await f.whenStable();
+      await advanceDebounce();
+
+      expect(emitted).toEqual([]);
+      expect(f.componentInstance.location()).toBe(ranges);
+    });
+
+    it('should not emit a location change for an initial single location', async () => {
+      const f = TestBed.createComponent(CodLocationComponent);
+      const emitted: unknown[] = [];
+      f.componentInstance.location.subscribe((l) => emitted.push(l));
+      f.componentRef.setInput('single', true);
+      f.componentRef.setInput('location', [
+        { start: { n: 2, v: true }, end: { n: 2, v: true } },
+      ]);
+      f.detectChanges();
+      await f.whenStable();
+      await advanceDebounce();
+
+      expect(emitted).toEqual([]);
+    });
+
+    it('should not emit a location change when the location is set externally', async () => {
+      const emitted: unknown[] = [];
+      component.location.subscribe((l) => emitted.push(l));
+      const ranges: CodLocationRange[] = [
+        { start: { n: 4, v: false }, end: { n: 4, v: false } },
+      ];
+      fixture.componentRef.setInput('location', ranges);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await advanceDebounce();
+
+      expect(emitted).toEqual([]);
+      expect(component.location()).toBe(ranges);
+    });
+
+    it('should not emit when the text is edited back to the same location', async () => {
+      fixture.componentRef.setInput('location', [
+        { start: { n: 4, v: false }, end: { n: 4, v: false } },
+      ]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const emitted: unknown[] = [];
+      component.location.subscribe((l) => emitted.push(l));
+
+      component.form.text().value.set('4');
+      component.form.text().value.set('4r');
+      await advanceDebounce();
+
+      expect(emitted).toEqual([]);
+    });
+
+    it('should still emit when the text changes the location', async () => {
+      fixture.componentRef.setInput('location', [
+        { start: { n: 4, v: false }, end: { n: 4, v: false } },
+      ]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const emitted: unknown[] = [];
+      component.location.subscribe((l) => emitted.push(l));
+
+      component.form.text().value.set('5r');
+      await advanceDebounce();
+
+      expect(emitted).toEqual([
+        [{ start: { n: 5, v: false }, end: { n: 5, v: false } }],
+      ]);
+    });
+  });
+  //#endregion
+
   //#region validators
   describe('validators', () => {
     it('should add the required validator when required is true', async () => {

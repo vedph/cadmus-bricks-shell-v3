@@ -130,6 +130,24 @@ export class CodLocationComponent implements OnDestroy {
     this._sub?.unsubscribe();
   }
 
+  /**
+   * Set the location unless the new value is equal to the current one.
+   * The draft is re-parsed whenever it changes, including when it is
+   * derived from the initial or an external location: without this check,
+   * the component would emit a location change with an equal copy of
+   * the location it just received.
+   */
+  private setLocation(location: CodLocationRange[] | null): void {
+    if (
+      (CodLocationParser.rangesToString(location) || '') ===
+        (CodLocationParser.rangesToString(this.location()) || '') &&
+      !location === !this.location()
+    ) {
+      return;
+    }
+    this.location.set(location);
+  }
+
   private saveLocation(): void {
     const text = this.form.text().value();
     if (this.single()) {
@@ -137,10 +155,10 @@ export class CodLocationComponent implements OnDestroy {
         ? CodLocationParser.parseLocation(text)
         : null;
       if (loc) {
-        this.location.set([{ start: loc, end: loc }]);
+        this.setLocation([{ start: loc, end: loc }]);
       } else {
         if (!this.required() && !text.length) {
-          this.location.set(null);
+          this.setLocation(null);
         }
       }
     } else {
@@ -156,10 +174,10 @@ export class CodLocationComponent implements OnDestroy {
         ? CodLocationParser.parseLocationRanges(text, true)
         : null;
       if (ranges?.length) {
-        this.location.set(ranges);
+        this.setLocation(ranges);
       } else {
         if (!this.required() && !text.length) {
-          this.location.set(null);
+          this.setLocation(null);
         } else {
           // the invalidLocation error is reported reactively by the
           // validate() rule above; here we just mark the field touched

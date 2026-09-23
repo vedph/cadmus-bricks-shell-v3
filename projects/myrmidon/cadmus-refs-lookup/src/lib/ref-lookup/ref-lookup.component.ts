@@ -8,6 +8,7 @@ import {
   model,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { FieldTree, FormField, form } from '@angular/forms/signals';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -314,10 +315,18 @@ export class RefLookupComponent {
       })
     );
 
-    // when service changes, clear and reset scopes
+    // when service changes, clear and reset scopes. The item is cleared
+    // only when the service actually changes: clearing it on the first run
+    // would discard the initial item and emit an itemChange(undefined)
+    let prevService: RefLookupService | undefined;
     effect(() => {
-      console.log('service changed', this.service());
-      this.clear();
+      const service = this.service();
+      untracked(() => {
+        if (prevService && prevService !== service) {
+          this.clear();
+        }
+        prevService = service;
+      });
       this.applyInitialScope();
     });
 
