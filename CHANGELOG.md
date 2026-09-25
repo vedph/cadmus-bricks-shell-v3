@@ -2,6 +2,7 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-09-25: updated Angular and packages.
 - 2026-09-23:
   - fix to `cadmus-cod-location`, which sent a location it did not change: whenever the text box got filled, including from the initial or an external location, the text got parsed again after 300 ms. The result was a new array with the same content, so `locationChange` fired. That's why every editor using this component turned dirty right after opening. Fix: a new `setLocation()` only updates the location when the ranges actually differ. It still tells null apart from an empty list. Typing a real change still emits as before.
   - fix to `cadmus-refs-lookup`: the code that reacts to a new lookup service also runs when the component starts, and it cleared the item. Any item passed in was lost and `itemChange(undefined)` was sent. It also ran, and cleared the item, whenever `lookupProviderOptions` changed. Fix: the item is now cleared only when the service really changes. Scopes are still re-applied as before.

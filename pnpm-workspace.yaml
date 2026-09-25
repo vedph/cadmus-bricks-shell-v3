@@ -110,8 +110,8 @@ minimumReleaseAgeExclude:
   - '@myrmidon/paged-data-browsers@6.0.0 || 6.0.1'
   - '@myrmidon/taxo-store-api@1.0.1'
   - '@types/node@25.9.3 || 26.1.2'
-  - '@analogjs/vite-plugin-angular@2.6.1'
-  - '@analogjs/vitest-angular@2.6.1'
+  - '@analogjs/vite-plugin-angular@2.6.1 || 2.7.5'
+  - '@analogjs/vitest-angular@2.6.1 || 2.7.5'
   - '@terraformer/wkt@2.2.2'
   - '@vitest/expect@4.1.10'
   - '@vitest/mocker@4.1.10'
@@ -122,6 +122,8 @@ minimumReleaseAgeExclude:
   - '@vitest/utils@4.1.10'
   - vitest@4.1.10
   - '@maplibre/ngx-maplibre-gl@22.0.0'
-  - maplibre-gl@6.5.0 || 6.7.0 || 6.8.0
+  - maplibre-gl@6.5.0 || 6.7.0 || 6.8.0 || 6.11.2
   - zone.js@0.16.3
   - marked@18.0.12
+  - '@rollup/rollup-win32-arm64-msvc@4.63.5'
+  - baseline-browser-mapping@2.11.26
