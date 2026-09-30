@@ -124,8 +124,7 @@ export class __NAME__Component {
    */
   private readonly _draft = linkedSignal<__TYPE__ | undefined, __NAME__Controls>({
     source: () => this.data(),
-    computation: (data, previous) => (previous && JSON.stringify(data) ===
-      JSON.stringify(toData(previous.value)) ? previous.value : toDraft(data)),
+    computation: (data, previous) => (previous && JSON.stringify(data) === JSON.stringify(toData(previous.value)) ? previous.value : toDraft(data)),
   });
 
   public readonly form = form(this._draft, (path) => {

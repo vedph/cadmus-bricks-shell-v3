@@ -16,7 +16,7 @@ This is production code: fully understand a component before changing it.
 
 Prefer the framework primitive over hand-rolled bookkeeping. If you find
 yourself adding instance fields to remember what you last wrote, stop — you are
-probably re-implementing `linkedSignal` (see *Deriving state from a model*).
+probably re-implementing `linkedSignal` (see _Deriving state from a model_).
 
 ## Workspace facts
 
@@ -37,7 +37,7 @@ probably re-implementing `linkedSignal` (see *Deriving state from a model*).
    regressions, then move on. This keeps a long job resumable.
 2. **Do not run multiple agents over the same folder.** Concurrent edits race.
 3. After each library, also rebuild it **and everything downstream of it**
-   (see *Know what the browser actually runs*).
+   (see _Know what the browser actually runs_).
 4. Keep a migration log, but **only record what you verified**. A previous
    migration recorded three confidently-wrong root causes in commit messages,
    and later work built on them. If you did not measure it, write "believed"
@@ -109,13 +109,13 @@ with the canonical pattern in `signal-forms-component-template.md`:
 
 **Template.**
 
-| reactive forms | signal forms |
-| --- | --- |
-| `[formControl]="x"` / `formControlName="x"` | `[formField]="form.x"` |
-| `x.invalid && x.touched` | `form.x().invalid() && form.x().touched()` |
-| `x.hasError('required')` | `form.x().getError('required')` |
-| `x.valueChanges` subscription | `effect()` on `form.x().value()`, or `computed()` |
-| `form.markAllAsTouched()` | `form().markAsTouched()` (descendants included by default) |
+| reactive forms                              | signal forms                                               |
+| ------------------------------------------- | ---------------------------------------------------------- |
+| `[formControl]="x"` / `formControlName="x"` | `[formField]="form.x"`                                     |
+| `x.invalid && x.touched`                    | `form.x().invalid() && form.x().touched()`                 |
+| `x.hasError('required')`                    | `form.x().getError('required')`                            |
+| `x.valueChanges` subscription               | `effect()` on `form.x().value()`, or `computed()`          |
+| `form.markAllAsTouched()`                   | `form().markAsTouched()` (descendants included by default) |
 
 **FormArray → array field.** Mutate the array on the draft signal directly
 (spread + filter; no `push` / `removeAt`), and use `applyEach(path.items,
@@ -160,7 +160,7 @@ whatever the user is still typing.
 **The test the existing suite will not contain:** type `"abc "` (trailing
 space), wait past the autosave debounce, then keep typing. Correct behaviour:
 the model receives `"abc"`, the draft still reads `"abc "`, so the next
-keystroke gives `"abc d"`. Broken behaviour gives `"abcd"`. This *is* unit
+keystroke gives `"abc d"`. Broken behaviour gives `"abcd"`. This _is_ unit
 testable — copy the spec from `signal-forms-component-template.md` into every
 autosaving component you migrate.
 
@@ -185,14 +185,14 @@ The previous migration reasoned its way to two conclusions that are **false**.
 Both were later measured in Chrome:
 
 - **Nested `<form>` elements DO exist in the DOM.** The HTML nested-form
-  elision rule is a *parser* rule: it applies when a browser parses markup
+  elision rule is a _parser_ rule: it applies when a browser parses markup
   text, not when Angular builds the tree through DOM APIs — which is always the
-  case across component boundaries. *(measured: 2 nested forms in the DOM,
-  inner buttons owned by the inner form.)*
+  case across component boundaries. _(measured: 2 nested forms in the DOM,
+  inner buttons owned by the inner form.)_
 - **`submit` and `reset` events never reach an ancestor form.** The DOM
   dispatch algorithm stops them at their own `form` element. An inner form can
-  never trigger an outer form's handler. *(measured: propagation stopped
-  exactly one node before the ancestor `<form>`.)*
+  never trigger an outer form's handler. _(measured: propagation stopped
+  exactly one node before the ancestor `<form>`.)_
 
 ### What to actually do
 
@@ -207,7 +207,7 @@ submissions.
 
 - Action buttons: **`type="button"` with an explicit `(click)="save()"`** —
   never `type="submit"` relying on form submission.
-- Reserve `<form [formRoot]="tree">` for a component that genuinely *is* a
+- Reserve `<form [formRoot]="tree">` for a component that genuinely _is_ a
   submission root with a `submission.action`.
 - Where a component legitimately wants Enter-to-confirm, use
   `(keydown.enter)` on the input rather than implicit form submission.
@@ -241,10 +241,10 @@ widgets are not):
   `toEqual()`. In tests, compare through a JSON round-trip. In code, map
   incoming arrays into fresh objects rather than adopting the caller's own
   object references, or the tagging leaks back to them.
-- **ng-packagr:** `"types": []` in a library tsconfig blocks *all* `@types` —
+- **ng-packagr:** `"types": []` in a library tsconfig blocks _all_ `@types` —
   list the ones you need explicitly. Non-peer dependencies need
   `allowedNonPeerDependencies` in `ng-package.json`. `TS2742` ("inferred type
-  cannot be named") means a types package must be added as a dependency *and*
+  cannot be named") means a types package must be added as a dependency _and_
   to the `types` array.
 - **Test-support symbols must be added to shared `TEST_IMPORTS` arrays** —
   every new signal-forms symbol used in a template will otherwise fail with
