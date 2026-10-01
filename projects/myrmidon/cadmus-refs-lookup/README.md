@@ -498,6 +498,11 @@ import { LookupDocReferencesComponent } from "@myrmidon/cadmus-refs-lookup";
 
 ## History
 
+### unreleased
+
+- 2026-10-01: `RefLookupComponent` options list: `@for` now tracks by `$index` instead of by item identity. Each lookup response carries fresh item objects, and items have no common identity field because each service defines its own shape. So identity tracking destroyed and re-created every `mat-option` on each response, which Angular reports as `NG0956` in dev mode. Index tracking reuses the option elements and updates their bindings, and picking a reused option still selects the item currently shown.
+- 2026-10-01: fixed 5 failing `RefLookupComponent` tests (harness issues): the `items$` tests now run change detection after setting the lookup value, because `toObservable` emits only then; the clear button accessibility test waits for rendering to complete, because `MatTooltip` sets `aria-describedby` in an `afterNextRender` hook.
+
 ### 10.0.8
 
 - 2026-02-06:

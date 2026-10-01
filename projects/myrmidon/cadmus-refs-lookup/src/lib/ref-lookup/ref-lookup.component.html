@@ -4,7 +4,10 @@
       #lookupAuto="matAutocomplete"
       [displayWith]="getLookupName"
     >
-      @for (i of items$ | async; track i) {
+      <!-- items have no common identity (each lookup service defines its
+        own shape) and each response carries fresh objects: track by
+        position, so that existing options are updated, not re-created -->
+      @for (i of items$ | async; track $index) {
         <mat-option [value]="i" (onSelectionChange)="pickItem(i)"
           >{{ getLookupName(i) }}
         </mat-option>

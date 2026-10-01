@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatDialog } from '@angular/material/dialog';
-import { of, throwError, Observable } from 'rxjs';
+import { of, throwError, Observable, map } from 'rxjs';
 
 import {
   RefLookupComponent,
@@ -106,6 +106,8 @@ describe('RefLookupComponent', () => {
     component.items$.subscribe((v) => (results = v));
 
     component.form.lookup().value.set('alp');
+    // toObservable emits only when change detection runs
+    fixture.detectChanges();
     await advanceDebounce();
 
     expect(service.lastFilter.text).toBe('alp');
@@ -119,6 +121,8 @@ describe('RefLookupComponent', () => {
 
     component.items$.subscribe(() => {});
     component.form.lookup().value.set('be');
+    // toObservable emits only when change detection runs
+    fixture.detectChanges();
     await advanceDebounce();
 
     expect(service.lastFilter.scope).toBe('test');
@@ -129,6 +133,8 @@ describe('RefLookupComponent', () => {
     service.delayMs = 150;
     component.items$.subscribe(() => {});
     component.form.lookup().value.set('a');
+    // toObservable emits only when change detection runs
+    fixture.detectChanges();
 
     // still within the 300ms debounce window: lookup not even started yet
     expect(component.loading()).toBe(false);
@@ -148,6 +154,8 @@ describe('RefLookupComponent', () => {
 
     const item: FakeItem = { id: '1', name: 'Alpha' };
     component.form.lookup().value.set(item);
+    // toObservable emits only when change detection runs
+    fixture.detectChanges();
     await advanceDebounce();
 
     expect(results).toEqual([item]);
@@ -387,9 +395,11 @@ describe('RefLookupComponent', () => {
   });
 
   describe('accessibility', () => {
-    it('should give the clear button an accessible name and tooltip', () => {
+    it('should give the clear button an accessible name and tooltip', async () => {
       component.lookupActive.set(true);
       fixture.detectChanges();
+      // MatTooltip sets aria-describedby in an afterNextRender hook
+      await fixture.whenStable();
 
       const button: HTMLButtonElement = fixture.nativeElement.querySelector(
         'button[aria-label="clear"]'
@@ -462,6 +472,80 @@ describe('RefLookupComponent', () => {
       fixture.detectChanges();
 
       expect(component.item()).toBeUndefined();
+    });
+  });
+
+  describe('options list', () => {
+    it('reuses the option elements when a new response repeats the items', async () => {
+      // like a real HTTP service: each response carries fresh objects
+      const lookup = service.lookup.bind(service);
+      service.lookup = (filter: any, options?: any) =>
+        lookup(filter, options).pipe(
+          map((items) => items.map((i) => ({ ...i })))
+        );
+      const warn = vi.spyOn(console, 'warn');
+
+      component.lookupActive.set(true);
+      fixture.detectChanges();
+      const input: HTMLInputElement =
+        fixture.nativeElement.querySelector('input');
+      input.focus();
+      input.value = 'al';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await advanceDebounce();
+      fixture.detectChanges();
+      const first = document.querySelector('mat-option');
+      expect(first?.textContent).toContain('Alpha');
+
+      input.value = 'alp';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await advanceDebounce();
+      fixture.detectChanges();
+      const second = document.querySelector('mat-option');
+
+      expect(second?.textContent).toContain('Alpha');
+      // the same DOM node, not a re-created one
+      expect(second).toBe(first);
+      expect(
+        warn.mock.calls.some((c) => String(c[0]).includes('NG0956'))
+      ).toBe(false);
+      warn.mockRestore();
+    });
+
+    it('picks the current item from a reused option element', async () => {
+      const lookup = service.lookup.bind(service);
+      service.lookup = (filter: any, options?: any) =>
+        lookup(filter, options).pipe(
+          map((items) => items.map((i) => ({ ...i })))
+        );
+      component.lookupActive.set(true);
+      fixture.detectChanges();
+      const input: HTMLInputElement =
+        fixture.nativeElement.querySelector('input');
+      input.focus();
+      input.value = 'alpha';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await advanceDebounce();
+      fixture.detectChanges();
+      const first = document.querySelector('mat-option') as HTMLElement;
+      expect(first.textContent).toContain('Alpha');
+
+      // now another item takes the first position
+      input.value = 'beta';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      await advanceDebounce();
+      fixture.detectChanges();
+      const option = document.querySelector('mat-option') as HTMLElement;
+      expect(option).toBe(first);
+      expect(option.textContent).toContain('Beta');
+
+      option.click();
+      fixture.detectChanges();
+      expect((component.item() as FakeItem)?.name).toBe('Beta');
     });
   });
 });

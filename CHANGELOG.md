@@ -2,6 +2,9 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-10-01: `cadmus-refs-lookup`:
+  - fixed `NG0956` in `RefLookupComponent`: its options list tracked items by identity, and each lookup response brings new objects, so every option was destroyed and re-created. It now tracks by `$index`.
+  - fixed 5 failing `RefLookupComponent` tests. They were test harness issues, not component bugs: four set the lookup value without running change detection, which `toObservable` needs before it emits; one read the clear button's `aria-describedby`, which `MatTooltip` adds in an `afterNextRender` hook, before rendering had completed.
 - 2026-09-25: updated Angular and packages.
 - 2026-09-23:
   - fix to `cadmus-cod-location`, which sent a location it did not change: whenever the text box got filled, including from the initial or an external location, the text got parsed again after 300 ms. The result was a new array with the same content, so `locationChange` fired. That's why every editor using this component turned dirty right after opening. Fix: a new `setLocation()` only updates the location when the ranges actually differ. It still tells null apart from an empty list. Typing a real change still emits as before.
