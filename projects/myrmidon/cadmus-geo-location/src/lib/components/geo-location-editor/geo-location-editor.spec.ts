@@ -23,6 +23,19 @@ import {
 import { GeoLocation, GeoLocationGeometryFormat } from '../../models';
 import type { MapMouseEvent, Map as MaplibreMap, Marker } from 'maplibre-gl';
 
+// the editor fetches its map style: keep tests off the network by making
+// fetch fail, so that the editor falls back to the plain style URL
+beforeEach(() => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() => Promise.reject(new Error('no network in tests'))),
+  );
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 // #region MapLibre stubs
 // The real @maplibre/ngx-maplibre-gl components create an actual maplibre-gl
 // Map instance, which requires a WebGL-capable canvas that jsdom cannot

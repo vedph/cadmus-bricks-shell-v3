@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-iconclass-lookup",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Cadmus - Iconclass lookup.",
   "keywords": [
     "Cadmus",
@@ -16,8 +16,8 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^22.0.0",
-    "@angular/core": "^22.0.0"
+    "@angular/common": "^22.2.1",
+    "@angular/core": "^22.2.1"
   },
   "dependencies": {
     "tslib": "^2.3.0"

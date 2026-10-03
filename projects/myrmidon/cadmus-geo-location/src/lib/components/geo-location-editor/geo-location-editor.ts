@@ -9,6 +9,7 @@ import {
   model,
   OnDestroy,
   output,
+  resource,
   signal,
   untracked,
 } from '@angular/core';
@@ -57,6 +58,7 @@ import {
   createRectanglePolygon,
   haversineDistance,
 } from '../../services/geo-helper';
+import { loadMapStyle } from '../../services/map-style-helper';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 
 const EMPTY_FC: GeoJSON.FeatureCollection = {
@@ -151,6 +153,16 @@ export class GeoLocationEditor implements OnDestroy {
    */
   public readonly mapStyle = input<string>(DEFAULT_MAP_STYLE);
   // #endregion
+
+  /**
+   * The map style actually passed to the map: the style loaded from
+   * `mapStyle` and patched to avoid maplibre-gl null-comparison warnings,
+   * or the `mapStyle` URL itself if it could not be loaded.
+   */
+  public readonly resolvedMapStyle = resource({
+    params: () => this.mapStyle(),
+    loader: ({ params, abortSignal }) => loadMapStyle(params, abortSignal),
+  });
 
   // #region Form
   /**

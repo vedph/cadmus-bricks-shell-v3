@@ -198,8 +198,9 @@
       </div>
 
       <!-- MapLibre Map -->
+      @if (resolvedMapStyle.value(); as style) {
       <mgl-map
-        [mapStyle]="mapStyle()"
+        [mapStyle]="style"
         [center]="mapCenter()"
         [zoom]="mapZoom()"
         [doubleClickZoom]="!drawingMode()"
@@ -334,6 +335,7 @@
           }"
         ></mgl-layer>
       </mgl-map>
+      }
     </div>
   </div>
 </div>
