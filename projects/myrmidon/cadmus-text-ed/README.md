@@ -19,15 +19,20 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 The typical scenario is a Monaco-based editor, usually with Markdown text, where users require some assistance in adding inline annotations. Assistance ranges from trivial shortcut operations, like toggling bold or italic in Markdown, to more complex scenarios, where for instance you might want to add a hyperlink targeting an external or internal resource.
 
-In these cases, you might imagine an editor where users type Markdown, and use shortcuts like CTRL+B for toggling bold (rather than manually typing or removing double asterisks), CTRL+I for italic (rather than manually typing or removing single asterisks), and CTRL+L for adding links.
+In these cases, you can imagine an editor where users type Markdown, and use shortcuts like CTRL+B for toggling bold (rather than manually typing or removing double asterisks), CTRL+I for italic (rather than manually typing or removing single asterisks), and CTRL+L for adding links.
 
-When adding links, you might open a popup dialog with a lookup component like an asserted composite ID picker, so that when the user picks an entity a Markdown link is automatically created or updated with its identifier.
+When adding links, you can open a popup dialog with a lookup component like an asserted composite ID picker, so that when the user picks an entity a Markdown link is automatically created or updated with its identifier.
 
 This is most useful in cases where you have free text comments with some hyperlinks to resources inside or outside the Cadmus database.
 
 To ease the implementation of this scenario, the library provides service `CadmusTextEdService`. This is a simple host for plugins, which are used to edit the received text in some way.
 
-Each plugin is a function that takes a text and an optional context object, and returns a promise with a result. For instance, there are stock plugins for toggling bold or italic in Markdown text. The service can be used in inline text editing, typically in Monaco-based editors with Markdown content.
+Each plugin is a function that:
+
+- takes a text and an optional context object;
+- returns a promise with a result.
+
+For instance, there are stock plugins for toggling bold or italic in Markdown text. The service can be used in inline text editing, typically in Monaco-based editors with Markdown content.
 
 ## Text Editing Plugin
 
@@ -49,16 +54,16 @@ The plugin functions are `matches`, which returns true if the plugin matches, an
 
 ## Configuring the Service
 
-To use the text editing service in your app, you just have to configure its options (`CadmusTextEdServiceOptions`). Currently, the only property in these options is the list of plugins.
+To use the text editing service in your app, you have to configure its options (`CadmusTextEdServiceOptions`). Currently, the only property in these options is the list of plugins.
 
 The text editing service is not a singleton, so you must add `CadmusTextEdService` to the `providers` array of your standalone component, and you can configure each service instance as you prefer. This can be done in the constructor of your consumer component, or (most often) globally in application configuration.
 
 ### Global Configuration
 
-If instead you want to configure plugins globally for all the instances you inject, in your app configuration add the desired plugins to `providers` via the specified injection token, like in this example:
+To configure plugins globally for all the instances you inject, in your app configuration add the desired plugins to `providers` via the specified injection token, like in this example:
 
 ```ts
-// global configuration (app-config.ts or app.module.ts)
+// global configuration (app-config.ts)
 import {
   CADMUS_TEXT_ED_BINDINGS_TOKEN,
   CADMUS_TEXT_ED_SERVICE_OPTIONS_TOKEN,
@@ -111,16 +116,16 @@ providers: [
   {
     provide: CADMUS_TEXT_ED_BINDINGS_TOKEN,
     useValue: {
-      2080: 'md.bold', // Ctrl+B
+      2080: 'md.bold',   // Ctrl+B
       2087: 'md.italic', // Ctrl+I
       2083: 'txt.emoji', // Ctrl+E
-      2090: 'md.link', // Ctrl+L
+      2090: 'md.link',   // Ctrl+L
     },
   },
 ]
 ```
 
-This injection token is optionally injected into the service, so you just have to provide it to configure all the instances of the service in the same way. This way, whenever the service is injected, you will get a separate instance, but configured in the same way.
+This injection token is optionally injected into the service, so you just provide it to configure all the instances of the service in the same way. So, whenever the service is injected, you will get a separate instance, but configured in the same way.
 
 ### Local Configuration
 
