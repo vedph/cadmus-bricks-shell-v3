@@ -111,6 +111,11 @@ Height before width:
 
 ## History
 
+### 10.0.3
+
+- 2026-10-02: fixed `PhysicalSizeComponent` emitting a size the user never entered: with no size bound, about 400ms after opening it set `size` to an empty object (all of its properties undefined), so a hosting editor could turn dirty without any change. The debounced form to model sync now skips a draft that is just what the bound size maps to. Added regression tests.
+- 2026-10-02: fixed the other failing tests, a test harness issue: the debounce tests edited the form and then waited without running change detection, which `toObservable` needs before it emits, so the sync never started (and the `ngOnDestroy` test passed without proving anything). The `delay` helper now runs change detection before waiting.
+
 ### 9.0.10
 
 - 2025-09-12: fix to default sizes.

@@ -187,6 +187,8 @@ describe('PhysicalGridLocationComponent', () => {
       expect(component.form.rowCount().value()).toBe(4);
 
       component.location.set(undefined);
+      // run the effects that react to it
+      fixture.detectChanges();
       await fixture.whenStable();
 
       expect(component.form.rowCount().value()).toBe(1);
@@ -200,6 +202,8 @@ describe('PhysicalGridLocationComponent', () => {
         presets: ['small: 3x4', 'large: 10x20'],
       });
       component.form.preset().value.set('small: 3x4');
+      // run the effects that react to it
+      fixture.detectChanges();
       await fixture.whenStable();
 
       expect(component.form.columnCount().value()).toBe(3);
@@ -211,6 +215,8 @@ describe('PhysicalGridLocationComponent', () => {
         presets: ['small: 3×4'],
       });
       component.form.preset().value.set('small: 3×4');
+      // run the effects that react to it
+      fixture.detectChanges();
       await fixture.whenStable();
 
       expect(component.form.columnCount().value()).toBe(3);

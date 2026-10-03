@@ -150,6 +150,11 @@ export class ProperNameComponent {
     NgxToolsSignalValidators.strictMinLength(path.pieces, 1);
   });
 
+  // the last name emitted by this component (wrapped, as it can be
+  // undefined), and the type entries the form was last built with
+  private _emitted?: { name: AssertedProperName | undefined };
+  private _formTypeEntries?: ThesaurusEntry[];
+
   // edited assertion
   public readonly assEdOpen = signal<boolean>(false);
   public readonly ordered = computed(() =>
@@ -164,10 +169,19 @@ export class ProperNameComponent {
 
     // when name or typeEntries change, update the form (native signal
     // dependency tracking replaces the original's manual
-    // BehaviorSubject + combineLatest bridge)
+    // BehaviorSubject + combineLatest bridge). The name this component
+    // emitted itself is skipped: the form already holds it, and rebuilding
+    // would close the open piece/assertion editors and lose dirty state.
     effect(() => {
       const name = this.name();
       const typeEntries = this.typeEntries();
+      if (
+        this._emitted &&
+        this._emitted.name === name &&
+        this._formTypeEntries === typeEntries
+      ) {
+        return;
+      }
       this.updateForm(name, typeEntries);
     });
 
@@ -177,7 +191,7 @@ export class ProperNameComponent {
       .subscribe(() => {
         const next = this.getName();
         if (!this.namesEqual(next, this.name())) {
-          this.name.set(next);
+          this.emitName(next);
         }
       });
     toObservable(this.form.tag().value)
@@ -185,9 +199,14 @@ export class ProperNameComponent {
       .subscribe(() => {
         const next = this.getName();
         if (!this.namesEqual(next, this.name())) {
-          this.name.set(next);
+          this.emitName(next);
         }
       });
+  }
+
+  private emitName(name: AssertedProperName | undefined): void {
+    this._emitted = { name };
+    this.name.set(name);
   }
 
   private namesEqual(
@@ -228,7 +247,7 @@ export class ProperNameComponent {
     this._draft.update((v) => ({ ...v, pieces }));
     this.form.pieces().markAsDirty();
 
-    this.name.set(this.getName());
+    this.emitName(this.getName());
   }
 
   public savePiece(piece?: ProperNamePiece): void {
@@ -283,7 +302,7 @@ export class ProperNameComponent {
       this.closePiece();
     }
 
-    this.name.set(this.getName());
+    this.emitName(this.getName());
   }
 
   public movePieceUp(index: number): void {
@@ -295,7 +314,7 @@ export class ProperNameComponent {
     pieces.splice(index - 1, 0, p);
     this._draft.update((v) => ({ ...v, pieces }));
     this.form.pieces().markAsDirty();
-    this.name.set(this.getName());
+    this.emitName(this.getName());
   }
 
   public movePieceDown(index: number): void {
@@ -307,12 +326,12 @@ export class ProperNameComponent {
     pieces.splice(index + 1, 0, p);
     this._draft.update((v) => ({ ...v, pieces }));
     this.form.pieces().markAsDirty();
-    this.name.set(this.getName());
+    this.emitName(this.getName());
   }
 
   public clearPieces(): void {
     this._draft.update((v) => ({ ...v, pieces: [] }));
-    this.name.set(this.getName());
+    this.emitName(this.getName());
   }
   //#endregion
 
@@ -322,6 +341,7 @@ export class ProperNameComponent {
   ): void {
     this.closePiece();
     this.assEdOpen.set(false);
+    this._formTypeEntries = typeEntries;
     this.pieceTypes.set(this._nameService.parseTypeEntries(typeEntries));
 
     if (!name) {
@@ -347,7 +367,7 @@ export class ProperNameComponent {
   }
 
   public saveAssertion(): void {
-    this.name.set(this.getName());
+    this.emitName(this.getName());
     this.assEdOpen.set(false);
   }
 

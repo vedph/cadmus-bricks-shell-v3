@@ -14,6 +14,10 @@ describe('NamedValueEditor', () => {
 
     fixture = TestBed.createComponent(NamedValueEditor);
     component = fixture.componentInstance;
+    // run the first change detection now, so that the effects get their
+    // initial run before a test edits the form: otherwise that run would
+    // load the still unbound (undefined) value, clearing those edits
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 

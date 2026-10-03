@@ -161,6 +161,10 @@ private updateDefinitions(): void {
 
 ## History
 
+### 12.0.3
+
+- 2026-10-02: fixed failing tests. They were test harness issues, not component bugs: the tests selected a key and then waited without running change detection, which `toObservable` needs before it emits, so the selected note was never loaded. The `wait` helper now runs change detection before waiting.
+
 ### 9.0.1
 
 - 2025-09-10: refactored to use `OnPush`.

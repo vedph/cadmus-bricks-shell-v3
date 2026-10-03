@@ -70,6 +70,10 @@ The `CodLocationComponent` is used to edit a location using its string format. I
 
 ## History
 
+### 10.0.4
+
+- 2026-10-02: fixed failing tests. They were test harness issues, not component bugs: the tests typed into the text control and then waited for its 300ms debounce without running change detection, which `toObservable` needs before it emits, so the debounced sync never started. The debounce helper now runs change detection before waiting.
+
 ### 9.0.2
 
 - 2025-09-10: set change detection to `OnPush`.

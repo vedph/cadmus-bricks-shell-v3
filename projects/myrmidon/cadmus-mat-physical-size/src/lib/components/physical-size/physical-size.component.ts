@@ -255,7 +255,15 @@ export class PhysicalSizeComponent implements OnDestroy {
     // debounced form -> model sync
     this._sub = toObservable(this._draft)
       .pipe(distinctUntilChanged(), debounceTime(400))
-      .subscribe(() => {
+      .subscribe((draft) => {
+        // nothing to save when the draft is just what the bound size maps
+        // to: e.g. with no size bound the draft holds the defaults, which
+        // would otherwise be saved as an empty size the user never entered
+        if (
+          JSON.stringify(draft) === JSON.stringify(this.toControls(this.size()))
+        ) {
+          return;
+        }
         const newSize = this.getSize();
         if (this.sizesEqual(newSize, this.size())) {
           return;

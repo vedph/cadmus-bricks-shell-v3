@@ -151,6 +151,10 @@ Pure functions for geometric calculations:
 
 ## History
 
+### 1.0.4
+
+- 2026-10-02: fixed failing tests. They were test harness issues, not component bugs: the tests set the location or edited the form and then only awaited `whenStable()`, which does not run change detection, so neither the location effect nor the 600ms debounced map overlay sync (which depends on `toObservable`) ran. The `flush` and `waitForDebounce` helpers now run change detection first.
+
 ### 0.0.5
 
 - 2026-02-22: refactor map update trigger on form change to avoid "bump" effect when typing in form controls.

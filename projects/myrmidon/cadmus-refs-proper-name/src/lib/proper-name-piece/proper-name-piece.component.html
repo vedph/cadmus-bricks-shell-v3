@@ -5,7 +5,7 @@
   <mat-form-field>
     <mat-label>type</mat-label>
     <mat-select [formField]="form.type">
-      @for (e of types(); track e) {
+      @for (e of types(); track e.id) {
       <mat-option [value]="e">{{ e.value }}</mat-option>
       }
     </mat-select>
@@ -39,7 +39,7 @@
   <mat-form-field>
     <mat-label>value</mat-label>
     <mat-select [formField]="form.value">
-      @for (e of typeValues(); track e) {
+      @for (e of typeValues(); track e.id) {
       <mat-option [value]="e">{{ e.value }}</mat-option>
       }
     </mat-select>

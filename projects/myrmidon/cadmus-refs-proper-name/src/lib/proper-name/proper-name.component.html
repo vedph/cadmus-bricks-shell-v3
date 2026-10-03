@@ -24,7 +24,7 @@
       <mat-form-field>
         <mat-label>language</mat-label>
         <mat-select [formField]="form.language">
-          @for (e of langEntries(); track e) {
+          @for (e of langEntries(); track e.id) {
             <mat-option [value]="e.id">{{ e.value }}</mat-option>
           }
         </mat-select>
@@ -51,7 +51,7 @@
       <mat-form-field>
         <mat-label>tag</mat-label>
         <mat-select [formField]="form.tag">
-          @for (e of tagEntries(); track e) {
+          @for (e of tagEntries(); track e.id) {
             <mat-option [value]="e.id">{{ e.value }}</mat-option>
           }
         </mat-select>
@@ -80,7 +80,7 @@
     <tbody>
       @for (
         piece of form.pieces().value();
-        track piece;
+        track $index;
         let i = $index;
         let first = $first;
         let last = $last

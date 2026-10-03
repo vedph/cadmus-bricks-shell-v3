@@ -112,6 +112,10 @@ Injectable service for converting physical grid coordinates to/from string repre
 
 ## History
 
+### 10.0.3
+
+- 2026-10-02: fixed failing tests. They were test harness issues, not component bugs: three tests set the location or the preset and then only awaited `whenStable()`, which does not run change detection, so the effects that update the row and column counts never ran.
+
 ### 9.0.3
 
 - 2025-09-16: more robust grid location input.

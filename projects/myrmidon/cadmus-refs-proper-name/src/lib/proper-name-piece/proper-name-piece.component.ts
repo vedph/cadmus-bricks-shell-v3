@@ -14,7 +14,7 @@ import {
   required,
 } from '@angular/forms/signals';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -53,7 +53,8 @@ interface ProperNamePieceControls {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProperNamePieceComponent {
-  private _noNextValuesUpdate?: boolean;
+  // the type value set by updateForm, until the type stream consumes it
+  private _loadedType?: TypeThesaurusEntry | string | null;
 
   /**
    * The piece being edited.
@@ -95,14 +96,19 @@ export class ProperNamePieceComponent {
       this.updateForm(piece, types);
     });
 
-    // when type changes, type's values are updated
+    // when the user changes type, type's values are updated. The first
+    // emission after updateForm is skipped only if it still carries the
+    // very type loaded there (updateForm already set its values): this
+    // depends on the value, not on emission count, so it holds whether the
+    // debounce collapses a user change into it or emits nothing at all.
+    // updateTypeValues is idempotent, so duplicate emissions are harmless.
     toObservable(this.form.type().value)
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
-      .subscribe(() => {
-        if (!this._noNextValuesUpdate) {
+      .pipe(debounceTime(300), takeUntilDestroyed())
+      .subscribe((type) => {
+        const loaded = this._loadedType;
+        this._loadedType = undefined;
+        if (type !== loaded) {
           this.updateTypeValues();
-        } else {
-          this._noNextValuesUpdate = false;
         }
       });
   }
@@ -130,10 +136,14 @@ export class ProperNamePieceComponent {
         this.typeValues.set([]);
       }
       // if we got values and there is an invalid value, reset it
+      // (the value is a ThesaurusEntry when picked from the values,
+      // or a string when typed)
+      const value = this.form.value().value();
+      const valueId = typeof value === 'string' ? value : value?.id;
       if (
         this.typeValues().length &&
-        this.form.value().value() &&
-        this.typeValues().every((e) => e.id !== this.form.value().value())
+        valueId &&
+        this.typeValues().every((e) => e.id !== valueId)
       ) {
         this.form.value().value.set(null);
         this.form.value().reset();
@@ -146,19 +156,21 @@ export class ProperNamePieceComponent {
     types?: TypeThesaurusEntry[]
   ): void {
     if (!piece) {
+      this._loadedType = null;
+      this.typeValues.set([]);
       this._draft.set({ type: null, value: null });
       this.form().reset();
       return;
     }
 
-    this._noNextValuesUpdate = true;
     // type: TypeThesaurusEntry or string
     const typeEntity = types?.find((t) => t.id === piece.type);
     this.typeValues.set(typeEntity?.values || []);
+    this._loadedType = typeEntity || piece.type || null;
 
     // value: ThesaurusEntry or string
     this._draft.set({
-      type: typeEntity || piece.type || null,
+      type: this._loadedType,
       value:
         typeEntity?.values?.find((e) => e.id === piece.value) ||
         piece.value ||

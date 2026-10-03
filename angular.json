@@ -111,7 +111,9 @@
                 "@myrmidon/cadmus-ui-custom-action-bar",
                 "@myrmidon/cadmus-ui-flag-set",
                 "@myrmidon/cadmus-ui-note-set",
-                "@myrmidon/cadmus-ui-object-view"
+                "@myrmidon/cadmus-ui-object-view",
+                "@myrmidon/taxo-store-picker",
+                "@myrmidon/taxo-store-editor"
               ]
             }
           },

@@ -135,12 +135,20 @@ class FakeDialogService {
   public confirm = vi.fn(() => of(this.confirmResult));
 }
 
+// Change detection runs first, so that the effects react to the signals
+// just written (whenStable alone does not run it).
 async function flush(fixture: ComponentFixture<GeoLocationEditor>) {
+  fixture.detectChanges();
   await fixture.whenStable();
 }
 
-/** Waits past the 600ms debounced draft -> map overlay sync. */
+/**
+ * Waits past the 600ms debounced draft -> map overlay sync. Change detection
+ * runs first, so that toObservable's effect pushes the draft just edited into
+ * the debounced stream NOW (a bare signal write does not).
+ */
 async function waitForDebounce(fixture: ComponentFixture<GeoLocationEditor>) {
+  fixture.detectChanges();
   await new Promise((resolve) => setTimeout(resolve, 650));
   await fixture.whenStable();
 }

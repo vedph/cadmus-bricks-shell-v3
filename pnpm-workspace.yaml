@@ -108,7 +108,7 @@ minimumReleaseAgeExclude:
   - '@myrmidon/ngx-mat-tools@2.0.0 || 3.0.1'
   - '@myrmidon/ngx-tools@3.0.0'
   - '@myrmidon/paged-data-browsers@6.0.0 || 6.0.1'
-  - '@myrmidon/taxo-store-api@1.0.1'
+  - '@myrmidon/taxo-store-api@1.0.1 || 1.0.2'
   - '@types/node@25.9.3 || 26.1.2'
   - '@analogjs/vite-plugin-angular@2.6.1 || 2.7.5'
   - '@analogjs/vitest-angular@2.6.1 || 2.7.5'
@@ -127,3 +127,7 @@ minimumReleaseAgeExclude:
   - marked@18.0.12
   - '@rollup/rollup-win32-arm64-msvc@4.63.5'
   - baseline-browser-mapping@2.11.26
+  - '@myrmidon/cadmus-api@20.0.0'
+  - '@myrmidon/cadmus-core@20.0.0'
+  - '@myrmidon/taxo-store-editor@1.0.1'
+  - '@myrmidon/taxo-store-picker@1.0.1'

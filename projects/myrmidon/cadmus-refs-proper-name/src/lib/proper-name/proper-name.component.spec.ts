@@ -460,6 +460,7 @@ describe('ProperNameComponent', () => {
       await fixture.whenStable();
 
       component.form.language().value.set('grc');
+      fixture.detectChanges();
       await new Promise((resolve) => setTimeout(resolve, 350));
       fixture.detectChanges();
       await fixture.whenStable();
@@ -476,11 +477,124 @@ describe('ProperNameComponent', () => {
       await fixture.whenStable();
 
       component.form.tag().value.set('modern');
+      fixture.detectChanges();
       await new Promise((resolve) => setTimeout(resolve, 350));
       fixture.detectChanges();
       await fixture.whenStable();
 
       expect(component.name()?.tag).toBe('modern');
+    });
+
+    it('keeps the assertion and piece editors open across its own emissions', async () => {
+      fixture.componentRef.setInput('name', {
+        language: 'lat',
+        pieces: [
+          { type: 'p', value: 'Publius' },
+          { type: 'n', value: 'Vergilius' },
+          { type: 'c', value: 'Maro' },
+        ],
+      });
+      fixture.detectChanges();
+      await fixture.whenStable();
+      component.assEdOpen.set(true);
+      component.editPiece(component.form.pieces().value()[0], 0);
+
+      // typing a tag emits the name once settled
+      component.form.tag().value.set('modern');
+      fixture.detectChanges();
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(component.name()?.tag).toBe('modern');
+
+      // removing another piece emits the name at once
+      component.removePiece(2);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(component.name()?.pieces.length).toBe(2);
+
+      expect(component.assEdOpen()).toBe(true);
+      expect(component.editedPieceIndex()).toBe(0);
+      expect(component.form.tag().value()).toBe('modern');
+      expect(component.form().dirty()).toBe(true);
+    });
+  });
+
+  describe('list tracking (NG0956)', () => {
+    const ng0956 = (warn: { mock: { calls: unknown[][] } }) =>
+      warn.mock.calls.filter((args) => String(args[0]).includes('NG0956'));
+
+    it('keeps the pieces rows when the parent echoes the emitted name back as a copy', async () => {
+      fixture.componentRef.setInput('name', {
+        language: 'lat',
+        pieces: [
+          { type: 'p', value: 'Publius' },
+          { type: 'n', value: 'Vergilius' },
+        ],
+      });
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const rows = (): HTMLElement[] =>
+        Array.from(fixture.nativeElement.querySelectorAll('tbody tr'));
+      const before = rows();
+      expect(before.length).toBe(2);
+
+      const warn = vi.spyOn(console, 'warn');
+      try {
+        // the tag autosave emits name, and the parent binds back a copy
+        // of it: the component rebuilds its pieces as new objects
+        const pieces = component.form.pieces().value();
+        component.form.tag().value.set('classic');
+        // let toObservable emit, then wait past the debounce
+        fixture.detectChanges();
+        await fixture.whenStable();
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        fixture.componentRef.setInput('name', structuredClone(component.name()));
+        // let the effect re-run on the echoed name and render
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.name()?.tag).toBe('classic');
+        // precondition: the pieces really were rebuilt as new objects
+        expect(component.form.pieces().value()).not.toBe(pieces);
+        expect(ng0956(warn)).toEqual([]);
+        expect(rows()).toEqual(before);
+        expect(rows().every((r, i) => r === before[i])).toBe(true);
+      } finally {
+        warn.mockRestore();
+      }
+    });
+
+    it('keeps the language options when entries arrive as new objects', async () => {
+      const entries: ThesaurusEntry[] = [
+        { id: 'lat', value: 'Latin' },
+        { id: 'grc', value: 'Greek' },
+      ];
+      fixture.componentRef.setInput('langEntries', entries);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      // open the select, so that its options are rendered
+      (fixture.nativeElement.querySelector('mat-select') as HTMLElement)
+        .querySelector<HTMLElement>('.mat-mdc-select-trigger')!
+        .click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const options = (): Element[] =>
+        Array.from(document.querySelectorAll('mat-option'));
+      const before = options();
+      expect(before.length).toBe(2);
+
+      const warn = vi.spyOn(console, 'warn');
+      try {
+        fixture.componentRef.setInput('langEntries', structuredClone(entries));
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(ng0956(warn)).toEqual([]);
+        expect(options().every((o, i) => o === before[i])).toBe(true);
+      } finally {
+        warn.mockRestore();
+      }
     });
   });
 

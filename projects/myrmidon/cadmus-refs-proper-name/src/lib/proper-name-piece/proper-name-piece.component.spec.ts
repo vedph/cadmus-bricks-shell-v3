@@ -9,6 +9,15 @@ describe('ProperNamePieceComponent', () => {
   let component: ProperNamePieceComponent;
   let fixture: ComponentFixture<ProperNamePieceComponent>;
 
+  // Runs change detection, so that toObservable's effect pushes the current type
+  // into the debounced stream NOW (a bare signal write does not), then waits
+  // past its 300ms debounce: the debounce timer is scheduled before the
+  // wait's timer, so it always fires first.
+  async function settleTypeDebounce(): Promise<void> {
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ProperNamePieceComponent],
@@ -119,21 +128,62 @@ describe('ProperNamePieceComponent', () => {
 
     expect(component.typeValues()).toEqual([]);
 
-    // let the debounced valueChanges triggered by updateForm's own
-    // type write settle first (and be swallowed by the
-    // "_noNextValuesUpdate" guard), so it doesn't collapse with the
-    // user-driven change below
-    await new Promise((resolve) => setTimeout(resolve, 350));
-
-    // simulate the user picking a different type from the select
+    // simulate the user picking a different type from the select, right
+    // after updateForm's own type write
     component.form.type().value.set(types[0]);
-    // wait past the 300ms debounce
-    await new Promise((resolve) => setTimeout(resolve, 350));
+    await settleTypeDebounce();
 
     expect(component.typeValues()).toEqual(types[0].values);
     // the previous literal value ('Italy') is not among the new preset
     // values, so it must be reset
     expect(component.form.value().value()).toBeNull();
+  });
+
+  it('updates typeValues on a user change after reloading a piece with the same type', async () => {
+    const types: TypeThesaurusEntry[] = [
+      {
+        id: 'continent',
+        value: 'continent',
+        values: [{ id: 'continent.europe', value: 'Europe' }],
+      },
+      { id: 'country', value: 'country' },
+    ];
+    fixture.componentRef.setInput('types', types);
+    fixture.componentRef.setInput('piece', { type: 'country', value: 'Italy' });
+    fixture.detectChanges();
+    await settleTypeDebounce();
+
+    // reload with the same type: the type stream does not emit for it
+    fixture.componentRef.setInput('piece', { type: 'country', value: 'France' });
+    fixture.detectChanges();
+    await settleTypeDebounce();
+
+    // the next user change must not be swallowed
+    component.form.type().value.set(types[0]);
+    await settleTypeDebounce();
+
+    expect(component.typeValues()).toEqual(types[0].values);
+  });
+
+  it('keeps a thesaurus value that is valid for the newly selected type', async () => {
+    const europe = { id: 'continent.europe', value: 'Europe' };
+    const types: TypeThesaurusEntry[] = [
+      { id: 'continent', value: 'continent', values: [europe] },
+      { id: 'region', value: 'region', values: [europe] },
+    ];
+    fixture.componentRef.setInput('types', types);
+    fixture.componentRef.setInput('piece', {
+      type: 'continent',
+      value: 'continent.europe',
+    });
+    fixture.detectChanges();
+    await settleTypeDebounce();
+
+    component.form.type().value.set(types[1]);
+    await settleTypeDebounce();
+
+    expect(component.typeValues()).toEqual(types[1].values);
+    expect(component.form.value().value()).toEqual(europe);
   });
 
   it('keeps the current value when it is still valid for the newly selected type', async () => {
@@ -153,19 +203,13 @@ describe('ProperNamePieceComponent', () => {
       value: 'continent.europe',
     });
     fixture.detectChanges();
-    await fixture.whenStable();
-
-    // let the debounced valueChanges triggered by updateForm's own
-    // type write settle first, so it doesn't collapse with the
-    // user-driven change below
-    await new Promise((resolve) => setTimeout(resolve, 350));
+    await settleTypeDebounce();
 
     const previousValue = component.form.value().value();
 
-    // re-set the same type: distinctUntilChanged means the debounced
-    // callback should not even fire, and the value must be untouched
+    // re-set the same type: the value must be untouched
     component.form.type().value.set(types[0]);
-    await new Promise((resolve) => setTimeout(resolve, 350));
+    await settleTypeDebounce();
 
     expect(component.form.value().value()).toEqual(previousValue);
   });

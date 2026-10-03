@@ -133,6 +133,19 @@ The `properName` concatenates all the name's pieces in their order, eventually f
 
 ## History
 
+### unreleased
+
+- 2026-10-02: fixed `NG0956` in `ProperNameComponent` and `ProperNamePieceComponent`:
+  - the pieces table tracked pieces by identity. The component rebuilds the pieces as new objects whenever its `name` is set from outside (e.g. when the parent binds back a copy of it), so every row was destroyed and re-created (e.g. right after an editor bound a name containing `null`s). Pieces have no identity of their own, so the table now tracks by `$index`. Its rows hold only text and buttons, so reusing them by position is safe;
+  - the language, tag, type and value selects tracked thesaurus entries by identity, so new entry objects re-created all their options. They now track by the entry `id`, which is unique within a thesaurus.
+  - added regression tests: the pieces rows and the language options are reused, and no `NG0956` is logged. Both tests fail if the tracking goes back to identity.
+- 2026-10-02: fixed `ProperNameComponent` resetting itself after each of its own emissions. Every change it emitted (language/tag autosave, adding, removing, moving or clearing pieces) came back through the `name` model and rebuilt the form, which closed the assertion panel and any open piece editor and cleared the dirty state (e.g. typing a tag closed the assertion panel about 300 ms later). The component now skips the name it emitted itself, unless the type entries changed too.
+- 2026-10-02: fixed `ProperNamePieceComponent` type values:
+  - after loading a piece, the first type emission was skipped by a one-shot flag. When the loaded type equalled the previous one, no emission came, so the flag stayed set and swallowed the user's next type change. The component now skips an emission only if it still carries the very type it loaded.
+  - when the type changed, a value picked from the type's preset values was always reset, even if valid for the new type, because the entry object was compared with entry IDs.
+  - the "updates typeValues" test failed because it set the type without flushing effects, so `toObservable` never fed the debounced stream. The tests now run change detection before waiting for the debounce.
+- 2026-10-02: peer dependencies updated to `@myrmidon/cadmus-core` 20.
+
 ### 10.0.3
 
 - 2025-09-15: aesthetic improvements.

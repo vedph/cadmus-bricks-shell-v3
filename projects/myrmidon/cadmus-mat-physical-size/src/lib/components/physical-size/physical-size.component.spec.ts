@@ -272,12 +272,29 @@ describe('PhysicalSizeComponent', () => {
   //#endregion
 
   //#region form -> model sync (debounced)
-  // fakeAsync/tick are not available under this workspace's zoneless
-  // vitest test runner, so debounced behavior is exercised with real
-  // timers instead.
-  const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  // debounced behavior is exercised with real timers. Change detection runs
+  // first, so that toObservable's effect pushes the draft just edited into
+  // the debounced stream NOW (a bare signal write does not).
+  const delay = (ms: number) => {
+    fixture.detectChanges();
+    return new Promise((r) => setTimeout(r, ms));
+  };
 
   describe('form -> model sync (debounced)', () => {
+    it('should not emit a size when none is bound and nothing is edited', async () => {
+      await delay(500);
+
+      expect(component.size()).toBeUndefined();
+    });
+
+    it('should not re-emit a bound size when nothing is edited', async () => {
+      const size = { w: { value: 20, unit: 'cm' } };
+      fixture.componentRef.setInput('size', size);
+      await delay(500);
+
+      expect(component.size()).toBe(size);
+    });
+
     it('should update the model after the debounce period', async () => {
       component.form.wValue().value.set(20);
       component.form.wUnit().value.set('cm');
@@ -306,6 +323,7 @@ describe('PhysicalSizeComponent', () => {
       component.form.tag().value.set('just-a-tag');
       await delay(500);
 
+      expect(component.size()?.tag).toBe('just-a-tag');
       expect(component.size()?.w).toBeUndefined();
       expect(component.size()?.h).toBeUndefined();
       expect(component.size()?.d).toBeUndefined();
@@ -396,6 +414,7 @@ describe('PhysicalSizeComponent', () => {
       component.form.wUnit().value.set('cm');
       component.form.hValue().value.set(10);
       component.form.hUnit().value.set('cm');
+      fixture.detectChanges();
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       expect(component.size()).toBeUndefined();

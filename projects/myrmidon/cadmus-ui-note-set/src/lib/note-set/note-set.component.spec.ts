@@ -7,13 +7,17 @@ import { DialogService } from '@myrmidon/ngx-mat-tools';
 
 import { NoteSet, NoteSetComponent } from './note-set.component';
 
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 describe('NoteSetComponent', () => {
   let component: NoteSetComponent;
   let fixture: ComponentFixture<NoteSetComponent>;
+
+  // Runs change detection first, so that toObservable's effects push the
+  // signals just written (e.g. the key) into their debounced streams NOW
+  // (a bare signal write does not), then waits past the debounce.
+  function wait(ms: number): Promise<void> {
+    fixture.detectChanges();
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
   let confirmMock: ReturnType<typeof vi.fn>;
 
   const sampleSet: NoteSet = {

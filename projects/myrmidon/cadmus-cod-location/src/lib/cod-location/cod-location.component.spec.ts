@@ -4,20 +4,20 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { CodLocationComponent } from './cod-location.component';
 import { CodLocationRange } from '../cod-location-parser';
 
-/**
- * Wait for the RxJS debounceTime(300) used by the component's text control
- * to elapse. Angular's fakeAsync/tick cannot be used here because this
- * project's vitest setup does not load zone-testing.js, and vitest's own
- * fake timers do not reach the zone-patched setTimeout that RxJS ends up
- * calling; so real timers with a generous margin are used instead.
- */
-function advanceDebounce(ms = 350): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 describe('CodLocationComponent', () => {
   let component: CodLocationComponent;
   let fixture: ComponentFixture<CodLocationComponent>;
+
+  /**
+   * Wait for the RxJS debounceTime(300) used by the component's text control
+   * to elapse, with real timers and a generous margin. Change detection runs
+   * first, so that toObservable's effect pushes the text just written into
+   * the debounced stream NOW (a bare signal write does not).
+   */
+  function advanceDebounce(ms = 350): Promise<void> {
+    fixture.detectChanges();
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
