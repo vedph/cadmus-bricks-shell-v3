@@ -15,9 +15,6 @@
     <mat-form-field>
       <mat-label>tag</mat-label>
       <input matInput [formField]="form.tag" />
-      @if (form.tag().getError("max-length") && (form.tag().dirty() || form.tag().touched())) {
-        <mat-error>tag too long</mat-error>
-      }
     </mat-form-field>
   }
   <div>

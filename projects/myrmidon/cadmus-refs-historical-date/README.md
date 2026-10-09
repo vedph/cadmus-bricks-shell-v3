@@ -70,6 +70,10 @@ Example:
 
 ## History
 
+### 10.0.4
+
+- 2026-10-09: `AssertedHistoricalDateComponent`: removed the "tag too long" message, which could never appear: the tag has no length rule, and the message checked a `max-length` error kind, which no validator produces (signal forms use `maxLength`).
+
 ### 9.1.4
 
 - 2026-03-27: better styles for datation.
