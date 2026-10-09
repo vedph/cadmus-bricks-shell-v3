@@ -125,8 +125,8 @@ minimumReleaseAgeExclude:
   - maplibre-gl@6.5.0 || 6.7.0 || 6.8.0 || 6.11.2
   - zone.js@0.16.3
   - marked@18.0.12
-  - '@rollup/rollup-win32-arm64-msvc@4.63.5'
-  - baseline-browser-mapping@2.11.26
+  - '@rollup/rollup-win32-arm64-msvc@4.63.5 || 4.64.3'
+  - baseline-browser-mapping@2.11.26 || 2.11.28
   - '@myrmidon/cadmus-api@20.0.0'
   - '@myrmidon/cadmus-core@20.0.0'
   - '@myrmidon/taxo-store-editor@1.0.1'

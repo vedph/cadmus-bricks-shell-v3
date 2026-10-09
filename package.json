@@ -48,7 +48,7 @@
     "build:obj": "ng build @myrmidon/cadmus-ui-object-view"
   },
   "private": true,
-  "packageManager": "pnpm@12.8.1",
+  "packageManager": "pnpm@12.10.1",
   "dependencies": {
     "@angular/animations": "^22.2.1",
     "@angular/cdk": "^22.2.1",
@@ -71,16 +71,16 @@
     "@myrmidon/taxo-store-api": "^1.0.2",
     "@myrmidon/taxo-store-picker": "^1.0.1",
     "@terraformer/wkt": "^2.2.2",
-    "maplibre-gl": "^6.11.2",
-    "marked": "^18.0.14",
+    "maplibre-gl": "^6.13.0",
+    "marked": "^18.1.0",
     "monaco-editor": "^0.47.0",
     "rxjs": "~7.8.0",
     "ts-md5": "^2.0.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@analogjs/vite-plugin-angular": "^2.7.5",
-    "@analogjs/vitest-angular": "^2.7.5",
+    "@analogjs/vite-plugin-angular": "^2.8.0",
+    "@analogjs/vitest-angular": "^2.8.0",
     "@angular/build": "^22.2.1",
     "@angular/cli": "^22.2.1",
     "@angular/compiler-cli": "^22.2.1",
@@ -88,16 +88,16 @@
     "@testing-library/angular": "^19.5.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@types/geojson": "^7946.0.16",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.4",
     "@types/terraformer__wkt": "^2.0.3",
-    "baseline-browser-mapping": "^2.11.26",
-    "jsdom": "^30.1.1",
+    "baseline-browser-mapping": "^2.11.28",
+    "jsdom": "^30.1.2",
     "ng-packagr": "^22.2.1",
     "typescript": "~6.0.3",
-    "vitest": "^5.0.1",
+    "vitest": "^5.0.3",
     "zone.js": "0.16.3"
   },
   "optionalDependencies": {
-    "@rollup/rollup-win32-arm64-msvc": "^4.63.5"
+    "@rollup/rollup-win32-arm64-msvc": "^4.64.3"
   }
 }
