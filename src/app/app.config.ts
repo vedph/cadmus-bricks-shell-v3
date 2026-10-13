@@ -27,7 +27,10 @@ import { ItemService, ThesaurusService } from '@myrmidon/cadmus-api';
 import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
 
 // bricks
-import { authJwtInterceptor } from '@myrmidon/auth-jwt-login';
+import {
+  AUTH_JWT_EXCLUDED_URLS,
+  authJwtInterceptor,
+} from '@myrmidon/auth-jwt-login';
 import {
   PROXY_INTERCEPTOR_OPTIONS,
   ProxyInterceptor,
@@ -64,7 +67,11 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withViewTransitions()),
-    provideHttpClient(withXhr(), withInterceptors([authJwtInterceptor]), withInterceptorsFromDi()),
+    provideHttpClient(
+      withXhr(),
+      withInterceptors([authJwtInterceptor]),
+      withInterceptorsFromDi(),
+    ),
     provideNativeDateAdapter(),
     provideMaplibreWorker('maplibre-gl-worker.mjs'),
     {
@@ -91,6 +98,11 @@ export const appConfig: ApplicationConfig = {
           'https://iconclass.org',
         ],
       },
+    },
+    // VIAF
+    {
+      provide: AUTH_JWT_EXCLUDED_URLS,
+      useValue: ['https://viaf.org/viaf/'],
     },
     // mocks for lookup
     {
