@@ -16,7 +16,24 @@ import { ThesaurusEntry } from '@myrmidon/cadmus-core';
 import {
   AssertedCompositeId,
   AssertedCompositeIdComponent,
+  AssertedCompositeIdTagSettings,
 } from '@myrmidon/cadmus-refs-asserted-ids';
+
+/**
+ * Sample tag settings: hide the WHG lookup provider and the food taxonomy
+ * tree, and use a specific tags thesaurus (see MockThesaurusService) for
+ * the colors and VIAF lookup providers and for the animals taxonomy tree.
+ * Any other source falls back to idTagEntries.
+ */
+export const TAG_SETTINGS: AssertedCompositeIdTagSettings = {
+  hiddenLookupProviderIds: ['whg'],
+  hiddenTaxoTreeIds: ['food'],
+  tagThesaurusMap: {
+    webcolor: 'asserted-id-tags-webcolor',
+    viaf: 'asserted-id-tags-viaf',
+    animals: 'asserted-id-tags-animals',
+  },
+};
 
 export const ANIMAL_ENTRIES: ThesaurusEntry[] = [
   // - y=1 x=1
@@ -116,8 +133,10 @@ export class AssertedCompositeIdPgComponent {
   public pinByTypeMode: FormControl<boolean>;
   public canSwitchMode: FormControl<boolean>;
   public canEditTarget: FormControl<boolean>;
+  public hasTagSettings: FormControl<boolean>;
   public form: FormGroup;
   // data
+  public readonly tagSettings = TAG_SETTINGS;
   public id?: AssertedCompositeId;
   public idTagEntries: ThesaurusEntry[];
   public assTagEntries: ThesaurusEntry[];
@@ -130,11 +149,13 @@ export class AssertedCompositeIdPgComponent {
     this.pinByTypeMode = formBuilder.control(false, { nonNullable: true });
     this.canSwitchMode = formBuilder.control(true, { nonNullable: true });
     this.canEditTarget = formBuilder.control(true, { nonNullable: true });
+    this.hasTagSettings = formBuilder.control(false, { nonNullable: true });
     // form group
     this.form = formBuilder.group({
       pinByTypeMode: this.pinByTypeMode,
       canSwitchMode: this.canSwitchMode,
       canEditTarget: this.canEditTarget,
+      hasTagSettings: this.hasTagSettings,
     });
     this.idTagEntries = [
       {

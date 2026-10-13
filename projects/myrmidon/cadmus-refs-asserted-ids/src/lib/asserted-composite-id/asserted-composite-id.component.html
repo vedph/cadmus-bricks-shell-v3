@@ -2,11 +2,11 @@
   <div>
     <div class="form-row">
       <!-- tag (bound) -->
-      @if (idTagEntries()?.length) {
+      @if (tagEntries()?.length) {
         <mat-form-field class="short-text">
           <mat-label>tag</mat-label>
           <mat-select [formField]="form.tag">
-            @for (e of idTagEntries(); track e) {
+            @for (e of tagEntries(); track e) {
               <mat-option [value]="e.id">{{ e.value }}</mat-option>
             }
           </mat-select>
@@ -80,7 +80,7 @@
             >
               <mat-option value="internal">🔗 internal</mat-option>
               <mat-option value="external">🌐 external</mat-option>
-              @if (hasTaxonomy()) {
+              @if (hasTaxonomy() || targetMode() === 'taxonomy') {
                 <mat-option value="taxonomy">🌴 taxonomy</mat-option>
               }
             </mat-select>
@@ -89,7 +89,7 @@
 
         @if (targetMode() === 'taxonomy') {
           <!-- taxonomy source -->
-          @if (taxoLookupConfigs().length > 1) {
+          @if (visibleTaxoLookupConfigs().length > 1) {
             <div class="form-row">
               <mat-form-field class="short-text">
                 <mat-label>tree</mat-label>
@@ -97,7 +97,7 @@
                   [value]="selectedTaxoConfig()"
                   (selectionChange)="onTaxoConfigChange($event.value)"
                 >
-                  @for (c of taxoLookupConfigs(); track c.treeId) {
+                  @for (c of visibleTaxoLookupConfigs(); track c.treeId) {
                     <mat-option [value]="c">{{ c.treeName }}</mat-option>
                   }
                 </mat-select>
@@ -130,11 +130,13 @@
             [lookupProviderOptions]="lookupProviderOptions()"
             [defaultPartTypeKey]="defaultPartTypeKey()"
             [target]="form.target().value() || undefined"
-            [extLookupConfigs]="extLookupConfigs()"
+            [extLookupConfigs]="visibleExtLookupConfigs()"
+            [extLookupConfigId]="extProviderId()"
             (targetChange)="onTargetChange($event)"
             (editorClose)="onEditorClose()"
             (extMoreRequest)="onExtMoreRequest($event)"
             (extLookupConfigChange)="onExtLookupConfigChange($event)"
+            (extItemPick)="onExtItemPick($event)"
           />
         }
       </mat-expansion-panel>

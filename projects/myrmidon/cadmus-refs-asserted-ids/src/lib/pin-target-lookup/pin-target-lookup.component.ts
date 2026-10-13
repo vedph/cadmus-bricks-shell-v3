@@ -176,6 +176,12 @@ export class PinTargetLookupComponent implements OnInit {
   public readonly extLookupConfigs = input<RefLookupConfig[]>([]);
 
   /**
+   * The ID (service.id) of the external lookup configuration to select
+   * among extLookupConfigs. When not set, the first one is selected.
+   */
+  public readonly extLookupConfigId = input<string>();
+
+  /**
    * Optional preset options for external lookup providers.
    * Maps provider IDs to their available scopes.
    */
@@ -220,6 +226,13 @@ export class PinTargetLookupComponent implements OnInit {
    * Emitted when the user changes the external lookup configuration.
    */
   public readonly extLookupConfigChange = output<RefLookupConfig>();
+
+  /**
+   * Emitted when the user picks an item from an external lookup. The
+   * picked item just fills GID and label: the target changes only when
+   * the user confirms it.
+   */
+  public readonly extItemPick = output<RefLookupSetEvent>();
 
   public readonly filter = signal<PinRefLookupFilter>({
     text: '',
@@ -678,6 +691,7 @@ export class PinTargetLookupComponent implements OnInit {
 
   public onExtItemChange(event: RefLookupSetEvent): void {
     if (event.item) {
+      this.extItemPick.emit(event);
       this._updatingForm = true;
       setTimeout(() => {
         this._draft.update((v) => ({

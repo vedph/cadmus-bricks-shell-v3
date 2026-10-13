@@ -1,10 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   input,
   OnInit,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -185,6 +187,15 @@ export class RefLookupSetComponent implements OnInit {
   public readonly configs = input.required<RefLookupConfig[]>();
 
   /**
+   * The ID (service.id) of the lookup configuration to select. When this
+   * is set and matches any of the configurations, that configuration is
+   * selected without emitting configChange, as this is a selection
+   * commanded by the consumer rather than a user pick. When not set or
+   * not matching, the first configuration is selected.
+   */
+  public readonly configId = input<string>();
+
+  /**
    * The icon size used for lookup items.
    */
   public readonly iconSize = input<IconSize>({ width: 24, height: 24 });
@@ -210,6 +221,29 @@ export class RefLookupSetComponent implements OnInit {
    * Emitted when the user clicks the More button in a lookup.
    */
   public readonly moreRequest = output<RefLookupSetEvent>();
+
+  constructor() {
+    // keep the selected config in sync with configId and configs: select
+    // the config commanded by configId if any, and replace a selected
+    // config which is no longer among the available ones
+    effect(() => {
+      const configs = this.configs() || [];
+      const id = this.configId();
+      untracked(() => {
+        const current = this.config();
+        const requested = id
+          ? configs.find((c) => c.service?.id === id)
+          : undefined;
+        if (requested) {
+          if (requested !== current) {
+            this.config.set(requested);
+          }
+        } else if (current && !configs.includes(current)) {
+          this.config.set(configs[0] || null);
+        }
+      });
+    });
+  }
 
   public ngOnInit(): void {
     // select the first config as the current one if any
@@ -255,9 +289,7 @@ export class RefLookupSetComponent implements OnInit {
     this.itemChange.emit(event);
   }
 
-  public getResolvedItemId(
-    config: RefLookupConfig
-  ): string | undefined {
+  public getResolvedItemId(config: RefLookupConfig): string | undefined {
     if (!config.itemId) {
       return undefined;
     }

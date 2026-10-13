@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   effect,
+  inject,
   Inject,
   input,
   linkedSignal,
@@ -17,8 +18,13 @@ import {
   maxLength,
   required,
 } from '@angular/forms/signals';
-import { debounceTime } from 'rxjs/operators';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { of } from 'rxjs';
+import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
+import {
+  takeUntilDestroyed,
+  toObservable,
+  toSignal,
+} from '@angular/core/rxjs-interop';
 
 // material
 import { MatButtonModule } from '@angular/material/button';
@@ -36,6 +42,7 @@ import { RamStorageService } from '@myrmidon/ngx-tools';
 import { Assertion, AssertionComponent } from '@myrmidon/cadmus-refs-assertion';
 
 // cadmus
+import { ThesaurusService } from '@myrmidon/cadmus-api';
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
 import {
   LOOKUP_CONFIGS_KEY,
@@ -100,6 +107,31 @@ export interface TaxoStoreLookupConfig {
   canDelete?: boolean;
   hideLoc?: boolean;
   hideFilter?: boolean;
+}
+
+/**
+ * Settings for the asserted composite ID editor.
+ */
+export interface AssertedCompositeIdTagSettings {
+  /**
+   * The IDs of the lookup providers that should be hidden in the UI.
+   * The ID of a lookup provider is the ID of its service
+   * (RefLookupConfig.service.id).
+   */
+  hiddenLookupProviderIds?: string[];
+  /**
+   * The IDs of the taxonomy trees that should be hidden in the UI
+   * (TaxoStoreLookupConfig.treeId).
+   */
+  hiddenTaxoTreeIds?: string[];
+  /**
+   * A map between provider IDs (for both lookup providers and taxonomy trees)
+   * and the corresponding thesaurus to be used for ID tags. This allows
+   * to conditionally load the appropriate thesaurus for each provider.
+   * When the currently selected source has no entry in this map, or its
+   * thesaurus is empty or not found, the tag falls back to idTagEntries.
+   */
+  tagThesaurusMap?: { [providerId: string]: string };
 }
 
 /**
@@ -186,22 +218,61 @@ export class AssertedCompositeIdComponent {
   // id, so that a child lookup-set echoing a config change during that
   // window is not mistaken for a user pick
   private _updatingForm: boolean | undefined;
-  private _lookupConfigDirty = true;
+  // true once the user has changed the lookup source after the id was
+  // bound, so that a tag picked for the previous source can be dropped
+  // when it does not belong to the tags of the new one
+  private _sourceChanged = false;
+  // the external lookup item last picked by the user with its provider ID
+  private _extPick?: { gid: string; sourceId: string };
+  private readonly _thesService = inject(ThesaurusService);
 
+  /**
+   * The tag-related settings: lookup sources to hide, and thesauri to
+   * be used for the tag according to the selected lookup source.
+   */
+  public readonly tagSettings = input<AssertedCompositeIdTagSettings>();
+
+  /**
+   * All the configured external lookup configurations.
+   */
   public readonly extLookupConfigs = signal<RefLookupConfig[]>([]);
   public readonly targetExpanded = signal<boolean>(false);
 
   /**
-   * The taxonomy lookup configurations, if any.
+   * The external lookup configurations except those hidden by settings.
+   */
+  public readonly visibleExtLookupConfigs = computed<RefLookupConfig[]>(() => {
+    const hidden = this.tagSettings()?.hiddenLookupProviderIds;
+    const configs = this.extLookupConfigs();
+    return hidden?.length
+      ? configs.filter((c) => !c.service?.id || !hidden.includes(c.service.id))
+      : configs;
+  });
+
+  /**
+   * All the configured taxonomy lookup configurations, if any.
    */
   public readonly taxoLookupConfigs = signal<TaxoStoreLookupConfig[]>([]);
 
   /**
-   * True if at least 1 taxonomy lookup configuration is available, so
-   * that the taxonomy source mode can be selected.
+   * The taxonomy lookup configurations except those hidden by settings.
+   */
+  public readonly visibleTaxoLookupConfigs = computed<TaxoStoreLookupConfig[]>(
+    () => {
+      const hidden = this.tagSettings()?.hiddenTaxoTreeIds;
+      const configs = this.taxoLookupConfigs();
+      return hidden?.length
+        ? configs.filter((c) => !hidden.includes(c.treeId))
+        : configs;
+    },
+  );
+
+  /**
+   * True if at least 1 visible taxonomy lookup configuration is available,
+   * so that the taxonomy source mode can be selected.
    */
   public readonly hasTaxonomy = computed(
-    () => this.taxoLookupConfigs().length > 0,
+    () => this.visibleTaxoLookupConfigs().length > 0,
   );
 
   /**
@@ -218,6 +289,65 @@ export class AssertedCompositeIdComponent {
   public readonly selectedTaxoConfig = signal<
     TaxoStoreLookupConfig | undefined
   >(undefined);
+
+  /**
+   * The ID of the external lookup provider selected by the user or
+   * implied by the scope of the bound id, if any.
+   */
+  public readonly selectedExtProviderId = signal<string | undefined>(
+    undefined,
+  );
+
+  /**
+   * The ID of the external lookup provider currently selected: this is
+   * selectedExtProviderId when it refers to a visible provider, else the
+   * first visible provider, which is the one selected by default.
+   */
+  public readonly extProviderId = computed<string | undefined>(() => {
+    const configs = this.visibleExtLookupConfigs();
+    const id = this.selectedExtProviderId();
+    return (
+      (id ? configs.find((c) => c.service?.id === id) : undefined) ||
+      configs[0]
+    )?.service?.id;
+  });
+
+  /**
+   * The ID of the currently selected lookup source: the lookup provider
+   * ID in external mode, or the tree ID in taxonomy mode.
+   */
+  public readonly tagSourceId = computed<string | undefined>(() => {
+    switch (this.targetMode()) {
+      case 'taxonomy':
+        return this.selectedTaxoConfig()?.treeId;
+      case 'external':
+        return this.extProviderId();
+      default:
+        return undefined;
+    }
+  });
+
+  /**
+   * The ID of the thesaurus mapped to the currently selected lookup
+   * source for its tags, if any.
+   */
+  public readonly tagThesaurusId = computed<string | undefined>(() => {
+    const id = this.tagSourceId();
+    return id ? this.tagSettings()?.tagThesaurusMap?.[id] : undefined;
+  });
+
+  private readonly _mappedTagEntries = toSignal(
+    toObservable(this.tagThesaurusId).pipe(
+      switchMap((id) =>
+        id
+          ? this._thesService.getThesaurus(id, true).pipe(
+              map((t) => t?.entries),
+              catchError(() => of(undefined)),
+            )
+          : of(undefined),
+      ),
+    ),
+  );
 
   // form
   /**
@@ -250,6 +380,15 @@ export class AssertedCompositeIdComponent {
   public readonly idScopeEntries = input<ThesaurusEntry[]>();
   // asserted-id-tags
   public readonly idTagEntries = input<ThesaurusEntry[]>();
+
+  /**
+   * The entries used for the tag: those from the thesaurus mapped to the
+   * currently selected lookup source if any, else idTagEntries.
+   */
+  public readonly tagEntries = computed<ThesaurusEntry[] | undefined>(() => {
+    const entries = this._mappedTagEntries();
+    return entries?.length ? entries : this.idTagEntries();
+  });
   // assertion-tags
   public readonly assTagEntries = input<ThesaurusEntry[]>();
   // doc-reference-types
@@ -365,9 +504,36 @@ export class AssertedCompositeIdComponent {
           } else {
             this.updateTargetMode(id.target);
           }
+          // a scope equal to the ID of a lookup provider tells which
+          // provider the external target comes from
+          if (this.targetMode() === 'external') {
+            const config = this.visibleExtLookupConfigs().find(
+              (c) => c.service?.id && c.service.id === id?.scope,
+            );
+            if (config) {
+              this.selectedExtProviderId.set(config.service!.id);
+            }
+          }
+          this._sourceChanged = false;
           this.form().reset();
         } finally {
           this._updatingForm = false;
+        }
+      });
+    });
+
+    // when the user changes the lookup source and thus the tag entries,
+    // drop a tag which is not among them
+    effect(() => {
+      const entries = this.tagEntries();
+      untracked(() => {
+        const tag = this._draft().tag;
+        if (!this._sourceChanged || !tag || !entries?.length) {
+          return;
+        }
+        if (!entries.some((e) => e.id === tag)) {
+          this._draft.update((v) => ({ ...v, tag: '' }));
+          this.form.tag().markAsDirty();
         }
       });
     });
@@ -401,8 +567,30 @@ export class AssertedCompositeIdComponent {
   }
 
   public onTargetChange(target?: PinTarget): void {
-    this._draft.update((v) => ({ ...v, target: target! }));
+    // an external target picked from lookup gets its provider ID as scope
+    const pick = this._extPick;
+    this.setTarget(
+      target,
+      pick && !target?.name && target?.gid === pick.gid
+        ? pick.sourceId
+        : undefined,
+    );
+  }
+
+  /**
+   * Set the target, and when it was picked from a lookup source also
+   * set the scope to the ID of that source, whatever its current value.
+   */
+  private setTarget(target?: PinTarget, sourceId?: string): void {
+    this._draft.update((v) => ({
+      ...v,
+      target: target!,
+      scope: sourceId || v.scope,
+    }));
     this.form.target().markAsDirty();
+    if (sourceId) {
+      this.form.scope().markAsDirty();
+    }
     if (this.form().valid()) {
       this.targetExpanded.set(false);
     }
@@ -416,6 +604,7 @@ export class AssertedCompositeIdComponent {
    * tracked effect, so reading _draft() directly here is safe.
    */
   private resetTarget(): void {
+    this._extPick = undefined;
     this._draft.update((v) => ({ ...v, target: { gid: '', label: '' } }));
     this.form.target().markAsDirty();
   }
@@ -443,10 +632,14 @@ export class AssertedCompositeIdComponent {
       this.targetMode.set('taxonomy');
       const rest = target.gid.substring(TAXONOMY_GID_PREFIX.length);
       const treeIdPart = rest.split('/', 1)[0];
-      const configs = this.taxoLookupConfigs();
+      // the tree of an existing target is used even when hidden
+      const visible = this.visibleTaxoLookupConfigs();
+      const matches = (c: TaxoStoreLookupConfig) =>
+        c.treeId.replace(/\s+/g, '_') === treeIdPart;
       this.selectedTaxoConfig.set(
-        configs.find((c) => c.treeId.replace(/\s+/g, '_') === treeIdPart) ||
-          configs[0],
+        visible.find(matches) ||
+          this.taxoLookupConfigs().find(matches) ||
+          visible[0],
       );
       return;
     }
@@ -464,10 +657,11 @@ export class AssertedCompositeIdComponent {
       return;
     }
     this.targetMode.set(mode);
+    this._sourceChanged = true;
 
     if (mode === 'taxonomy') {
       if (!this.selectedTaxoConfig()) {
-        this.selectedTaxoConfig.set(this.taxoLookupConfigs()[0]);
+        this.selectedTaxoConfig.set(this.visibleTaxoLookupConfigs()[0]);
       }
       // a target from another mode is not a taxonomy target: reset it
       if (!untracked(() => this._draft().target?.gid?.startsWith(TAXONOMY_GID_PREFIX))) {
@@ -490,6 +684,7 @@ export class AssertedCompositeIdComponent {
       return;
     }
     this.selectedTaxoConfig.set(config);
+    this._sourceChanged = true;
     // the previously picked node belongs to another tree: reset target
     if (untracked(() => this._draft().target?.gid?.startsWith(TAXONOMY_GID_PREFIX))) {
       this.resetTarget();
@@ -508,10 +703,13 @@ export class AssertedCompositeIdComponent {
       return;
     }
     const treeIdPart = config.treeId.replace(/\s+/g, '_');
-    this.onTargetChange({
-      gid: `${TAXONOMY_GID_PREFIX}${treeIdPart}/${node.key}`,
-      label: node.label,
-    });
+    this.setTarget(
+      {
+        gid: `${TAXONOMY_GID_PREFIX}${treeIdPart}/${node.key}`,
+        label: node.label,
+      },
+      config.treeId,
+    );
   }
 
   private getId(
@@ -549,11 +747,23 @@ export class AssertedCompositeIdComponent {
     this.extMoreRequest.emit(event);
   }
 
+  /**
+   * Called when the user picks an item from an external lookup. The item
+   * becomes the target only when the user confirms it, so here we just
+   * record it with its provider.
+   */
+  public onExtItemPick(event: RefLookupSetEvent): void {
+    const sourceId = event.config?.service?.id;
+    this._extPick =
+      sourceId && event.itemId ? { gid: event.itemId, sourceId } : undefined;
+  }
+
   public onExtLookupConfigChange(config: RefLookupConfig): void {
-    if (this._lookupConfigDirty || this._updatingForm) {
-      this._lookupConfigDirty = false;
+    if (this._updatingForm) {
       return;
     }
+    this.selectedExtProviderId.set(config.service?.id);
+    this._sourceChanged = true;
 
     // update scope if external lookup config is selected - untracked():
     // this method is wired to a child component output, but is reached
@@ -565,8 +775,13 @@ export class AssertedCompositeIdComponent {
     if (this._updatingForm || !external) {
       return;
     }
-    if (!v.scope || this.extLookupConfigs().some((c) => c.name === v.scope)) {
-      this._draft.update((d) => ({ ...d, scope: config.service!.id || '' }));
+    if (
+      !v.scope ||
+      this.extLookupConfigs().some(
+        (c) => c.service?.id === v.scope || c.name === v.scope,
+      )
+    ) {
+      this._draft.update((d) => ({ ...d, scope: config.service?.id || '' }));
       this.form.scope().markAsDirty();
     }
   }

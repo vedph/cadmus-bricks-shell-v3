@@ -5,8 +5,10 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { RamStorageService } from '@myrmidon/ngx-tools';
+import { By } from '@angular/platform-browser';
 import {
   AssertedCompositeId,
+  AssertedCompositeIdComponent,
   PinRefLookupService,
 } from '@myrmidon/cadmus-refs-asserted-ids';
 import { ThesaurusService } from '@myrmidon/cadmus-api';
@@ -183,6 +185,7 @@ describe('LinkEditorComponent', () => {
       canEditTarget: true,
       canSwitchMode: true,
       defaultPartTypeKey: 'key1',
+      tagSettings: { hiddenLookupProviderIds: ['whg'] },
     };
 
     beforeEach(async () => {
@@ -217,6 +220,24 @@ describe('LinkEditorComponent', () => {
 
     it('should expose the injected dialog data as-is', () => {
       expect(component.data).toEqual(dialogData);
+    });
+
+    it('should pass tagSettings from the dialog data to the ID editor', () => {
+      const editor = fixture.debugElement.query(
+        By.directive(AssertedCompositeIdComponent),
+      ).componentInstance as AssertedCompositeIdComponent;
+      expect(editor.tagSettings()).toEqual(dialogData.tagSettings);
+    });
+
+    it('should prefer the tagSettings input over the dialog data', () => {
+      const tagSettings = { hiddenTaxoTreeIds: ['food'] };
+      fixture.componentRef.setInput('tagSettings', tagSettings);
+      fixture.detectChanges();
+
+      const editor = fixture.debugElement.query(
+        By.directive(AssertedCompositeIdComponent),
+      ).componentInstance as AssertedCompositeIdComponent;
+      expect(editor.tagSettings()).toBe(tagSettings);
     });
 
     it('should render with a 16px margin when in a dialog', () => {

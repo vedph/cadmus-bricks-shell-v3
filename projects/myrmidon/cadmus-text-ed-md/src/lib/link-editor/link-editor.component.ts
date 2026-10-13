@@ -22,6 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 import {
   AssertedCompositeId,
   AssertedCompositeIdComponent,
+  AssertedCompositeIdTagSettings,
 } from '@myrmidon/cadmus-refs-asserted-ids';
 import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
@@ -35,6 +36,7 @@ export interface LinkEditorComponentData {
   defaultPartTypeKey?: string;
   lookupDefinitions?: IndexLookupDefinitions;
   internalDefault?: boolean;
+  tagSettings?: AssertedCompositeIdTagSettings;
 }
 
 @Component({
@@ -67,6 +69,13 @@ export class LinkEditorComponent implements OnInit {
    * Maps provider IDs to their available scopes.
    */
   public readonly lookupProviderOptions = input<LookupProviderOptions>();
+
+  /**
+   * The tag-related settings for the ID editor: lookup sources to hide,
+   * and thesauri to be used for the tag according to the selected lookup
+   * source. When not set, the settings from the dialog data are used.
+   */
+  public readonly tagSettings = input<AssertedCompositeIdTagSettings>();
 
   // asserted-id-scopes
   public readonly idScopeEntries = model<ThesaurusEntry[]>();

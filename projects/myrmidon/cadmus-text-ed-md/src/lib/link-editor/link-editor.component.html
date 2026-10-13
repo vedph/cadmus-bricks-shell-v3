@@ -10,6 +10,7 @@
     [refTypeEntries]="refTypeEntries()"
     [refTagEntries]="refTagEntries()"
     [lookupProviderOptions]="lookupProviderOptions()"
+    [tagSettings]="tagSettings() || data?.tagSettings"
     [id]="id()"
     (idChange)="onIdChange($event)"
   />

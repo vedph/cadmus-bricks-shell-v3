@@ -247,4 +247,35 @@ describe('RefLookupSetComponent', () => {
     }).not.toThrow();
     expect(component.config()).toBe(circularConfig);
   });
+
+  it('should select the config matching configId without emitting', async () => {
+    await setup([CONFIG_A, CONFIG_B]);
+    const emitted: RefLookupConfig[] = [];
+    component.configChange.subscribe((c) => emitted.push(c));
+
+    fixture.componentRef.setInput('configId', 'b');
+    fixture.detectChanges();
+
+    expect(component.config()).toBe(CONFIG_B);
+    expect(emitted).toEqual([]);
+  });
+
+  it('should keep the current config when configId matches no config', async () => {
+    await setup([CONFIG_A, CONFIG_B]);
+
+    fixture.componentRef.setInput('configId', 'x');
+    fixture.detectChanges();
+
+    expect(component.config()).toBe(CONFIG_A);
+  });
+
+  it('should select the first config when the selected one is removed', async () => {
+    await setup([CONFIG_A, CONFIG_B]);
+    component.onConfigChange(CONFIG_B);
+
+    fixture.componentRef.setInput('configs', [CONFIG_A]);
+    fixture.detectChanges();
+
+    expect(component.config()).toBe(CONFIG_A);
+  });
 });

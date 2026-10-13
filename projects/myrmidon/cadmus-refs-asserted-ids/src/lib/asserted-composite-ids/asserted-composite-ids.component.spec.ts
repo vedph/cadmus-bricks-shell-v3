@@ -7,7 +7,12 @@ import { RamStorageService } from '@myrmidon/ngx-tools';
 import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
 
 import { AssertedCompositeIdsComponent } from './asserted-composite-ids.component';
-import { AssertedCompositeId } from '../asserted-composite-id/asserted-composite-id.component';
+import { By } from '@angular/platform-browser';
+import {
+  AssertedCompositeId,
+  AssertedCompositeIdComponent,
+  AssertedCompositeIdTagSettings,
+} from '../asserted-composite-id/asserted-composite-id.component';
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
 
 const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
@@ -322,5 +327,24 @@ describe('AssertedCompositeIdsComponent', () => {
         ),
       ).toBeTruthy();
     });
+  });
+
+  it('should pass tagSettings down to the ID editor', async () => {
+    const tagSettings: AssertedCompositeIdTagSettings = {
+      hiddenLookupProviderIds: ['whg'],
+      tagThesaurusMap: { viaf: 'tags-viaf' },
+    };
+    const { fixture } = await render(AssertedCompositeIdsComponent, {
+      providers: getProviders(),
+      inputs: { tagSettings },
+    });
+
+    fixture.componentInstance.addId();
+    fixture.detectChanges();
+
+    const editor = fixture.debugElement.query(
+      By.directive(AssertedCompositeIdComponent),
+    ).componentInstance as AssertedCompositeIdComponent;
+    expect(editor.tagSettings()).toBe(tagSettings);
   });
 });

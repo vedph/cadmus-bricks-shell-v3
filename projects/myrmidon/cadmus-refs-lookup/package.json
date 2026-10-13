@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-lookup",
-  "version": "11.0.8",
+  "version": "11.0.9",
   "description": "Cadmus - reference lookup component.",
   "keywords": [
     "Cadmus",
@@ -18,9 +18,9 @@
     "@angular/common": "^22.2.1",
     "@angular/core": "^22.2.1",
     "@angular/material": "^22.2.1",
-    "@myrmidon/cadmus-refs-doc-references": "^11.0.2",
-    "@myrmidon/cadmus-refs-citation": "^2.0.2",
-    "@myrmidon/cadmus-ui-object-view": "^1.0.2"
+    "@myrmidon/cadmus-refs-doc-references": "^11.0.3",
+    "@myrmidon/cadmus-refs-citation": "^2.0.3",
+    "@myrmidon/cadmus-ui-object-view": "^1.0.3"
   },
   "dependencies": {
     "tslib": "^2.3.0"

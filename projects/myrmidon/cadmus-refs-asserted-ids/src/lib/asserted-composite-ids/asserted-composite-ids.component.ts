@@ -22,6 +22,7 @@ import { deepCopy, FlatLookupPipe } from '@myrmidon/ngx-tools';
 import {
   AssertedCompositeId,
   AssertedCompositeIdComponent,
+  AssertedCompositeIdTagSettings,
 } from '../asserted-composite-id/asserted-composite-id.component';
 
 /**
@@ -102,6 +103,12 @@ export class AssertedCompositeIdsComponent {
    * Maps provider IDs to their available scopes.
    */
   public readonly lookupProviderOptions = input<LookupProviderOptions>();
+
+  /**
+   * The tag-related settings: lookup sources to hide, and thesauri to
+   * be used for the tag according to the selected lookup source.
+   */
+  public readonly tagSettings = input<AssertedCompositeIdTagSettings>();
 
   constructor(private _dialogService: DialogService) {}
 

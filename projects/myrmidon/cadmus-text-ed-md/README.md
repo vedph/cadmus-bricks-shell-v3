@@ -80,6 +80,8 @@ For an example usage with a Monaco editor instance see the [text editor service 
 
 ## History
 
+- 2026-10-13: added `tagSettings` (`AssertedCompositeIdTagSettings`) to `LinkEditorComponent`, both as an input and as a property of its dialog data (`LinkEditorComponentData`); it is passed down to the asserted composite ID editor.
+
 ### 10.0.3
 
 - 2025-10-09: refactored for `OnPush`.

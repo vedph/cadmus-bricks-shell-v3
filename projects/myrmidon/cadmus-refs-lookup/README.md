@@ -109,6 +109,7 @@ A set of lookup items. Each has its own configuration and uses a specific servic
 - 🚩 `cadmus-refs-lookup-set`
 - ▶️ input:
   - `configs`\* (`RefLookupConfig[]`)
+  - `configId` (`string?`): the ID (`service.id`) of the configuration to select. When set and matching any of `configs`, that configuration is selected without emitting `configChange`; otherwise, the first configuration is selected.
   - `iconSize` (`IconSize`, default=24x24)
   - `lookupProviderOptions` (`LookupProviderOptions?`): preset scopes for automatic options configuration. See [Configuring Lookup Scopes](#configuring-lookup-scopes).
 - 🔥 output:
@@ -500,6 +501,7 @@ import { LookupDocReferencesComponent } from "@myrmidon/cadmus-refs-lookup";
 
 ### unreleased
 
+- 2026-10-13: added `configId` to `RefLookupSetComponent` to let consumers select a lookup configuration by its service ID. Also, when the selected configuration is removed from `configs` the first one is selected.
 - 2026-10-01: `RefLookupComponent` options list: `@for` now tracks by `$index` instead of by item identity. Each lookup response carries fresh item objects, and items have no common identity field because each service defines its own shape. So identity tracking destroyed and re-created every `mat-option` on each response, which Angular reports as `NG0956` in dev mode. Index tracking reuses the option elements and updates their bindings, and picking a reused option still selects the item currently shown.
 - 2026-10-01: fixed 5 failing `RefLookupComponent` tests (harness issues): the `items$` tests now run change detection after setting the lookup value, because `toObservable` emits only then; the clear button accessibility test waits for rendering to complete, because `MatTooltip` sets `aria-describedby` in an `afterNextRender` hook.
 

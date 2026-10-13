@@ -24,6 +24,30 @@ export class MockThesaurusService {
           },
         ],
       },
+      // tags for asserted composite IDs, mapped to lookup sources via
+      // AssertedCompositeIdTagSettings.tagThesaurusMap in demo pages
+      {
+        id: 'asserted-id-tags-webcolor',
+        entries: [
+          { id: 'warm', value: 'warm color' },
+          { id: 'cold', value: 'cold color' },
+        ],
+      },
+      {
+        id: 'asserted-id-tags-viaf',
+        entries: [
+          { id: 'person', value: 'person' },
+          { id: 'corporate', value: 'corporate body' },
+          { id: 'work', value: 'work' },
+        ],
+      },
+      {
+        id: 'asserted-id-tags-animals',
+        entries: [
+          { id: 'wild', value: 'wild animal' },
+          { id: 'domestic', value: 'domestic animal' },
+        ],
+      },
     ];
   }
 

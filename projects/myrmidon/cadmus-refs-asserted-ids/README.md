@@ -9,6 +9,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [Internal IDs](#internal-ids)
   - [ID Components](#id-components)
     - [AssertedCompositeIdComponent](#assertedcompositeidcomponent)
+      - [Tag Settings](#tag-settings)
     - [AssertedCompositeIdsComponent](#assertedcompositeidscomponent)
     - [PinTargetLookupComponent](#pintargetlookupcomponent)
   - [Configuring Asserted ID](#configuring-asserted-id)
@@ -98,6 +99,7 @@ Various components from this library provide a different level of complexity, so
   - `canEditTarget` (`boolean?`)
   - `defaultPartTypeKey` (`string?|null`)
   - `lookupDefinitions` (`IndexLookupDefinitions?`)
+  - `tagSettings` (`AssertedCompositeIdTagSettings?`): see [tag settings](#tag-settings).
 - 📚 thesauri:
   - `asserted-id-scopes` (for `idScopeEntries`)
   - `asserted-id-tags` (for `idTagEntries`)
@@ -173,6 +175,45 @@ Optionally, users can customize both `gid` and `label` (when `canBuildGid` and `
 
 The user can then use buttons to append each of these components to the ID being built, and/or variously edit it. When he's ok with the ID, he can then use it as the reference ID being edited.
 
+#### Tag Settings
+
+By default, the tag of an asserted composite ID is picked from a closed list when `idTagEntries` (thesaurus `asserted-id-tags`) is set, or else freely typed. The optional `tagSettings` input (`AssertedCompositeIdTagSettings`) refines this behavior, and also allows hiding some of the globally configured lookup sources in a specific instance of the component:
+
+- `hiddenLookupProviderIds`: the IDs of the [lookup providers](#configuring-lookup-providers) to hide. The ID of a provider is the ID of its lookup service (`RefLookupConfig.service.id`, e.g. `viaf`, `whg`, `geonames`), not its human-friendly `name`.
+- `hiddenTaxoTreeIds`: the IDs of the [taxonomy trees](#configuring-taxonomy-store) to hide (`TaxoStoreLookupConfig.treeId`). When all the trees are hidden, the taxonomy source is no longer available. An existing ID whose target comes from a hidden tree can still be edited with its own tree.
+- `tagThesaurusMap`: maps the ID of a lookup source (a lookup provider ID or a taxonomy tree ID) to the ID of the thesaurus providing the tags for that source. When the currently selected source has an entry in this map, the tags are loaded from that thesaurus via `ThesaurusService`, overriding `idTagEntries`. In any other case (no map, source not found in the map, internal source, thesaurus empty or not found) the default behavior applies.
+
+```ts
+public tagSettings: AssertedCompositeIdTagSettings = {
+  hiddenLookupProviderIds: ['whg'],
+  hiddenTaxoTreeIds: ['food'],
+  tagThesaurusMap: {
+    // lookup provider ID => thesaurus ID
+    viaf: 'asserted-id-tags-viaf',
+    // taxonomy tree ID => thesaurus ID
+    animals: 'asserted-id-tags-animals',
+  },
+};
+```
+
+```html
+<cadmus-refs-asserted-composite-id
+  [idTagEntries]="idTagEntries"
+  [tagSettings]="tagSettings"
+  [(id)]="id"
+/>
+```
+
+The currently selected source is:
+
+- in _taxonomy_ mode, the selected tree. For an existing ID, this is the tree its GID refers to.
+- in _external_ mode, the lookup provider selected in the providers list. For an existing ID, this is the provider whose ID is equal to the ID's scope, if any; else, it is the first visible provider, which is selected by default.
+- in _internal_ mode there is no such source, so the default behavior applies.
+
+When the user changes the source, a tag which does not belong to the tags of the new source is cleared.
+
+Also, whenever the user picks a target from a lookup source, the ID's `scope` is set to the ID of that source (the lookup provider ID or the taxonomy tree ID), whatever its current value. This happens for a taxonomy node as soon as it is picked, and for an external lookup item when the target is confirmed with the GID got from lookup. Instead, a manually entered target does not change the scope.
+
 ### AssertedCompositeIdsComponent
 
 A collection of asserted composite IDs.
@@ -186,6 +227,7 @@ A collection of asserted composite IDs.
   - `canEditTarget` (`boolean?`)
   - `defaultPartTypeKey` (`string?|null`)
   - `lookupDefinitions` (`IndexLookupDefinitions?`)
+  - `tagSettings` (`AssertedCompositeIdTagSettings?`): passed to the ID editor; see [tag settings](#tag-settings).
 - 📚 thesauri:
   - `asserted-id-scopes` (for `idScopeEntries`)
   - `asserted-id-tags` (for `idTagEntries`)
@@ -207,9 +249,12 @@ This component is not designed for direct use by higher-level consumer component
   - `defaultPartTypeKey` (`string?|null`)
   - `lookupDefinitions` (`IndexLookupDefinitions?`)
   - `extLookupConfigs` (`RefLookupConfig[]`): the configurations of external lookup providers, if any.
+  - `extLookupConfigId` (`string?`): the ID (`service.id`) of the external lookup provider to select; when not set, the first one is selected.
 - 🔥 output:
   - `targetChange` (`PinTarget`)
   - `editorClose`
+  - `extLookupConfigChange` (`RefLookupConfig`): the user selected another external lookup provider.
+  - `extItemPick` (`RefLookupSetEvent`): the user picked an item from an external lookup. This just fills GID and label; the target changes when the user confirms it.
 
 ## Configuring Asserted ID
 
@@ -435,6 +480,12 @@ An editable list of asserted IDs.
 
 ## History
 
+- 2026-10-13:
+  - 🆕 added `tagSettings` (`AssertedCompositeIdTagSettings`) to `AssertedCompositeIdComponent` and `AssertedCompositeIdsComponent`, to hide some of the configured lookup providers and taxonomy trees, and to feed the tag from a thesaurus depending on the selected lookup source. See [tag settings](#tag-settings).
+  - picking a target from a lookup source (lookup provider or taxonomy tree) now always sets the scope to the ID of that source.
+  - an existing external ID whose scope is the ID of a lookup provider now preselects that provider.
+  - fixed the scope not following the first change of lookup provider: the first change was ignored, as a leftover from when the lookup set emitted its initial selection.
+  - added `extLookupConfigId` and `extItemPick` to `PinTargetLookupComponent`.
 - 2026-06-11: 🆕 added taxonomies mode to `AssertedCompositeId` and `AssertedCompositeIds`.
 
 ### 10.0.14

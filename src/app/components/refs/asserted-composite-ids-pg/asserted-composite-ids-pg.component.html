@@ -11,6 +11,9 @@
       >
       <mat-checkbox [formControl]="canSwitchMode">can switch mode</mat-checkbox>
       <mat-checkbox [formControl]="canEditTarget">can edit target</mat-checkbox>
+      <mat-checkbox [formControl]="hasTagSettings"
+        >tag settings (hide WHG and food, tags by source)</mat-checkbox
+      >
     </form>
     <hr />
     <cadmus-refs-asserted-composite-ids
@@ -24,6 +27,7 @@
       [pinByTypeMode]="pinByTypeMode.value"
       [canSwitchMode]="canSwitchMode.value"
       [canEditTarget]="canEditTarget.value"
+      [tagSettings]="hasTagSettings.value ? tagSettings : undefined"
       (idsChange)="onIdsChange($event)"
     />
     @if (ids) {

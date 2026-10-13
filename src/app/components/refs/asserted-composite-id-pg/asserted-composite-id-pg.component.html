@@ -13,6 +13,9 @@
       <mat-checkbox [formControl]="canEditTarget"
         >can edit internal GID/label</mat-checkbox
       >
+      <mat-checkbox [formControl]="hasTagSettings"
+        >tag settings (hide WHG and food, tags by source)</mat-checkbox
+      >
     </form>
     <hr />
     <cadmus-refs-asserted-composite-id
@@ -24,6 +27,7 @@
       [pinByTypeMode]="pinByTypeMode.value"
       [canSwitchMode]="canSwitchMode.value"
       [canEditTarget]="canEditTarget.value"
+      [tagSettings]="hasTagSettings.value ? tagSettings : undefined"
       [id]="id"
       (idChange)="onIdChange($event)"
     />

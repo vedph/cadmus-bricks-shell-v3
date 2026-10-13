@@ -17,7 +17,10 @@ import {
   AssertedCompositeId,
   AssertedCompositeIdsComponent,
 } from '@myrmidon/cadmus-refs-asserted-ids';
-import { ANIMAL_ENTRIES } from '../asserted-composite-id-pg/asserted-composite-id-pg.component';
+import {
+  ANIMAL_ENTRIES,
+  TAG_SETTINGS,
+} from '../asserted-composite-id-pg/asserted-composite-id-pg.component';
 
 @Component({
   selector: 'app-asserted-composite-ids-pg',
@@ -38,8 +41,10 @@ export class AssertedCompositeIdsPgComponent implements OnInit {
   public pinByTypeMode: FormControl<boolean>;
   public canSwitchMode: FormControl<boolean>;
   public canEditTarget: FormControl<boolean>;
+  public hasTagSettings: FormControl<boolean>;
   public form: FormGroup;
   // data
+  public readonly tagSettings = TAG_SETTINGS;
   public ids?: AssertedCompositeId[];
   public idScopeEntries: ThesaurusEntry[];
   public idTagEntries: ThesaurusEntry[];
@@ -53,10 +58,12 @@ export class AssertedCompositeIdsPgComponent implements OnInit {
     this.pinByTypeMode = formBuilder.control(false, { nonNullable: true });
     this.canSwitchMode = formBuilder.control(true, { nonNullable: true });
     this.canEditTarget = formBuilder.control(true, { nonNullable: true });
+    this.hasTagSettings = formBuilder.control(false, { nonNullable: true });
     this.form = formBuilder.group({
       pinByTypeMode: this.pinByTypeMode,
       canSwitchMode: this.canSwitchMode,
       canEditTarget: this.canEditTarget,
+      hasTagSettings: this.hasTagSettings,
     });
     // data
     this.idScopeEntries = [];
