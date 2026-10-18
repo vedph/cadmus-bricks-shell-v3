@@ -39,7 +39,7 @@ To run library tests: `pnpm run test:lib`. This excludes the app, which is just 
 
 1. `pnpm run build:libs`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker buildx build --platform linux/amd64,linux/arm64 -t vedph2020/cadmus-bricks-v3:10.0.13 -t vedph2020/cadmus-bricks-v3:latest --push .`
+3. `docker buildx build --platform linux/amd64,linux/arm64 -t vedph2020/cadmus-bricks-v3:10.0.14 -t vedph2020/cadmus-bricks-v3:latest --push .`
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
 

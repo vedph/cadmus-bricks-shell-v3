@@ -2,6 +2,18 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+## 10.0.14
+
+- 2026-10-18: MapLibre v6 NGINX fix: MapLibre v6 loads its worker as a module worker. Browsers refuse to run a module unless the server says it's JavaScript, (and they report that as the worker failing to load). Locally it works because the Angular dev server sends the right content type. The fix: right after `include /etc/nginx/mime.types;` in nginx.conf, added:
+
+```conf
+types {
+  application/javascript mjs;
+}
+```
+
+The current gzip_types already includes application/javascript, so the worker will also be compressed.
+
 ## 10.0.13
 
 - 2026-10-18:
