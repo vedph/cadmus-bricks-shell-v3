@@ -480,6 +480,9 @@ An editable list of asserted IDs.
 
 ## History
 
+- 2026-10-18: v11.0.8
+  - fixed `AssertedCompositeIdComponent` reverting to external source mode when picking the taxonomy (or internal) source for a newly added ID: resetting its empty target brought the draft back in sync with the bound ID, so that its source mode was derived again from the empty target, overriding the user's choice. The source mode is now derived only once per bound ID.
+  - ⚠️ updated to `@myrmidon/taxo-store-api` and `@myrmidon/taxo-store-picker` 1.3.0. Breaking change: in `TaxoStoreLookupConfig`, `hasFlagsFilter` and `availableFlags` (`FlagOption[]`) were renamed to `hasFeaturesFilter` and `availableFeatures` (`FeatureOption[]`), following the picker's features filter.
 - 2026-10-13:
   - 🆕 added `tagSettings` (`AssertedCompositeIdTagSettings`) to `AssertedCompositeIdComponent` and `AssertedCompositeIdsComponent`, to hide some of the configured lookup providers and taxonomy trees, and to feed the tag from a thesaurus depending on the selected lookup source. See [tag settings](#tag-settings).
   - picking a target from a lookup source (lookup provider or taxonomy tree) now always sets the scope to the ID of that source.

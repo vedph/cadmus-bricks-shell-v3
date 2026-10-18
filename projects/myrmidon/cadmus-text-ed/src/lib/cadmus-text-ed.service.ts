@@ -26,7 +26,7 @@ export const CADMUS_TEXT_ED_QUERY_MATCH_ALL = '$match-all';
  * ```
  */
 export const CADMUS_TEXT_ED_BINDINGS_TOKEN =
-  new InjectionToken<CadmusTextEdServiceOptions>('CadmusTextEdBindings');
+  new InjectionToken<CadmusTextEdBindings>('CadmusTextEdBindings');
 
 /**
  * The key bindings for the Cadmus text editor service.

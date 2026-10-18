@@ -37,9 +37,9 @@ To run library tests: `pnpm run test:lib`. This excludes the app, which is just 
 
 🐋 Quick **Docker image** build (the only purpose of this image is letting testers play with controls in the incubator):
 
-1. `pnpm run build-lib`.
+1. `pnpm run build:libs`.
 2. ensure to update the version in `env.js` (and `docker-compose.yml`), and `ng build --configuration production`.
-3. `docker buildx build --platform linux/amd64,linux/arm64 -t vedph2020/cadmus-bricks-v3:10.0.11 -t vedph2020/cadmus-bricks-v3:latest --push .`
+3. `docker buildx build --platform linux/amd64,linux/arm64 -t vedph2020/cadmus-bricks-v3:10.0.13 -t vedph2020/cadmus-bricks-v3:latest --push .`
 
 Use [publish.bat](publish.bat) to publish the libraries to NPM.
 

@@ -54,7 +54,7 @@ import { ThesaurusEntriesPickerComponent } from '@myrmidon/cadmus-thesaurus-stor
 
 // taxonomy
 import { TaxoStoreNode } from '@myrmidon/taxo-store-api';
-import { FlagOption, TaxoStorePicker } from '@myrmidon/taxo-store-picker';
+import { FeatureOption, TaxoStorePicker } from '@myrmidon/taxo-store-picker';
 
 // local
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
@@ -99,9 +99,21 @@ export interface TaxoStoreLookupConfig {
    * selector and as the label for the taxonomy lookup component.
    */
   treeName: string;
+  /**
+   * True to show a top-level nodes filter, restricting lookup to the
+   * descendants of the selected top-level node. Default is false.
+   */
   hasTopNodeFilter?: boolean;
-  hasFlagsFilter?: boolean;
-  availableFlags?: FlagOption[];
+  /**
+   * True to show a features filter, restricting lookup to the nodes
+   * matching the selected feature options. This is effective only when
+   * availableFeatures is not empty. Default is false.
+   */
+  hasFeaturesFilter?: boolean;
+  /**
+   * The feature options available to the features filter.
+   */
+  availableFeatures?: FeatureOption[];
   canEdit?: boolean;
   canAdd?: boolean;
   canDelete?: boolean;
@@ -222,6 +234,12 @@ export class AssertedCompositeIdComponent {
   // bound, so that a tag picked for the previous source can be dropped
   // when it does not belong to the tags of the new one
   private _sourceChanged = false;
+  // the bound id the target source mode was last derived from (wrapped,
+  // as undefined is a legit bound value): the mode is derived only once
+  // per bound id, so that a source picked by the user is not overridden
+  // when resetting the target brings the draft back in sync with an id
+  // whose target is still empty (as for a newly added id)
+  private _modeOf?: { id: AssertedCompositeId | undefined };
   // the external lookup item last picked by the user with its provider ID
   private _extPick?: { gid: string; sourceId: string };
   private readonly _thesService = inject(ThesaurusService);
@@ -498,20 +516,23 @@ export class AssertedCompositeIdComponent {
         this._updatingForm = true;
         try {
           const id = this.id();
-          if (!id) {
-            this.targetMode.set('internal');
-            this.selectedTaxoConfig.set(undefined);
-          } else {
-            this.updateTargetMode(id.target);
-          }
-          // a scope equal to the ID of a lookup provider tells which
-          // provider the external target comes from
-          if (this.targetMode() === 'external') {
-            const config = this.visibleExtLookupConfigs().find(
-              (c) => c.service?.id && c.service.id === id?.scope,
-            );
-            if (config) {
-              this.selectedExtProviderId.set(config.service!.id);
+          if (!this._modeOf || this._modeOf.id !== id) {
+            this._modeOf = { id };
+            if (!id) {
+              this.targetMode.set('internal');
+              this.selectedTaxoConfig.set(undefined);
+            } else {
+              this.updateTargetMode(id.target);
+            }
+            // a scope equal to the ID of a lookup provider tells which
+            // provider the external target comes from
+            if (this.targetMode() === 'external') {
+              const config = this.visibleExtLookupConfigs().find(
+                (c) => c.service?.id && c.service.id === id?.scope,
+              );
+              if (config) {
+                this.selectedExtProviderId.set(config.service!.id);
+              }
             }
           }
           this._sourceChanged = false;

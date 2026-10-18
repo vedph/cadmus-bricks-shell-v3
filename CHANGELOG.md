@@ -2,6 +2,11 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+## 10.0.13
+
+- 2026-10-18:
+  - updated Angular and packages.
+  - fixed bug in taxonomies in asserted composite ID brick.
 - 2026-10-13:
   - updated Angular and packages.
   - added settings and tag thesaurus mappings to `AssertedCompositeIdComponent` updating components which use it among their children so that they pass settings through (affected: `@myrmidon/cadmus-refs-asserted-ids`; `@myrmidon/cadmus-refs-lookup`; `@myrmidon/cadmus-text-ed-md`).
