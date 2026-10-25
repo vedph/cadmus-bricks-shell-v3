@@ -18,13 +18,17 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 - 🔑 `AssertedHistoricalDateComponent`
 - 🚩 `cadmus-refs-asserted-historical-date`
 - ▶️ input:
-  - `date` (`HistoricalDateModel`)
+  - `date` (`AssertedHistoricalDate`):
+    - `a` (`DatationModel`)
+    - `b` (`DatationModel?`)
+    - `tag` (`string?`)
+    - `assertion` (`Assertion`)
   - `label` (`string?`)
   - `disabled` (`boolean?`)
-  - `tagEntries` (`ThesaurusEntry[]?`) for `asserted-historical-dates-tags`
-  - `assertionTagEntries` (`ThesaurusEntry[]?`) for `assertion-tags`
-  - `docReferenceTypeEntries` (`ThesaurusEntry[]?`) for `doc-reference-types`
-  - `docReferenceTagEntries` (`ThesaurusEntry[]?`) for `doc-reference-tags`
+  - `tagEntries` (`ThesaurusEntry[]?`) 📚 `asserted-historical-dates-tags`
+  - `assertionTagEntries` (`ThesaurusEntry[]?`) 📚 `assertion-tags`
+  - `docReferenceTypeEntries` (`ThesaurusEntry[]?`) 📚 `doc-reference-types`
+  - `docReferenceTagEntries` (`ThesaurusEntry[]?`) 📚 `doc-reference-tags`
 - 🔥 output:
   - `dateChange` (`HistoricalDateModel`)
 
