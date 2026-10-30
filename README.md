@@ -87,6 +87,7 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 - [@myrmidon/cadmus-refs-iconclass-lookup](projects/myrmidon/cadmus-refs-iconclass-lookup/README.md)
 - [@myrmidon/cadmus-refs-mol-lookup](projects/myrmidon/cadmus-refs-mol-lookup/README.md)
 - [@myrmidon/cadmus-refs-mufi-lookup](projects/myrmidon/cadmus-refs-mufi-lookup/README.md)
+- [@myrmidon/cadmus-refs-pleiades-lookup](projects/myrmidon/cadmus-refs-pleiades-lookup/README.md)
 - [@myrmidon/cadmus-refs-viaf-lookup](projects/myrmidon/cadmus-refs-viaf-lookup/README.md)
 - [@myrmidon/cadmus-refs-whg-lookup](projects/myrmidon/cadmus-refs-whg-lookup/README.md)
 - [@myrmidon/cadmus-refs-zotero-lookup](projects/myrmidon/cadmus-refs-zotero-lookup/README.md)
@@ -139,6 +140,7 @@ ng g library @myrmidon/cadmus-refs-historical-date --prefix cadmus
 ng g library @myrmidon/cadmus-refs-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-mol-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-mufi-lookup --prefix cadmus
+ng g library @myrmidon/cadmus-refs-pleiades-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-proper-name --prefix cadmus
 ng g library @myrmidon/cadmus-refs-viaf-lookup --prefix cadmus
 ng g library @myrmidon/cadmus-refs-whg-lookup --prefix cadmus
