@@ -74,6 +74,9 @@
       "@myrmidon/cadmus-refs-mufi-lookup": [
         "./dist/myrmidon/cadmus-refs-mufi-lookup"
       ],
+      "@myrmidon/cadmus-refs-pleiades-lookup": [
+        "./dist/myrmidon/cadmus-refs-pleiades-lookup"
+      ],
       "@myrmidon/cadmus-refs-proper-name": [
         "./dist/myrmidon/cadmus-refs-proper-name"
       ],
@@ -357,6 +360,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-named-value/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-pleiades-lookup/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-refs-pleiades-lookup/tsconfig.spec.json"
     }
   ]
 }

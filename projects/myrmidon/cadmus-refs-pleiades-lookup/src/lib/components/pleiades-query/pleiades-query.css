@@ -1,0 +1,234 @@
+/*
+ * The component fills its container: give the container a height (e.g. a
+ * flex item, or calc(100vh - ...)); without it, the component falls back
+ * to its min-height.
+ */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  min-height: 560px;
+  box-sizing: border-box;
+  container-type: inline-size;
+  color: var(--mat-sys-on-surface);
+
+  /* compact form fields and chips */
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-container-vertical-padding: 8px;
+  --mat-form-field-filled-with-label-container-padding-top: 18px;
+  --mat-form-field-filled-with-label-container-padding-bottom: 2px;
+  --mat-chip-container-height: 24px;
+}
+
+/* filters */
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.text-field {
+  flex: 1 1 260px;
+  min-width: 200px;
+}
+.help {
+  cursor: help;
+  color: var(--mat-sys-on-surface-variant);
+}
+.search-button {
+  flex: 0 0 auto;
+}
+button.active {
+  color: var(--mat-sys-primary);
+}
+.scopes-field {
+  flex: 0 1 220px;
+  min-width: 140px;
+}
+.types-field {
+  flex: 1 1 280px;
+  min-width: 200px;
+}
+.sort-field {
+  flex: 0 0 120px;
+}
+.pair {
+  display: flex;
+  gap: 4px;
+}
+.num-field {
+  width: 7.5em;
+}
+.years-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* progress: reserve its height to avoid layout jumps */
+.progress {
+  flex: 0 0 4px;
+  height: 4px;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px 2px 12px;
+  border-radius: 8px;
+  color: var(--mat-sys-on-error-container);
+  background-color: var(--mat-sys-error-container);
+  font: var(--mat-sys-body-medium);
+}
+.error span {
+  flex: 1 1 auto;
+}
+
+/* map and results: stacked by default, side by side when wide */
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(300px, 3fr) minmax(260px, 2fr);
+}
+@container (min-width: 1000px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) minmax(380px, 38%);
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+
+.map-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.map-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background-color: var(--mat-sys-surface-container);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  --mat-button-toggle-height: 36px;
+}
+.map-toolbar mat-button-toggle-group {
+  --mat-button-toggle-selected-state-background-color: var(
+    --mat-sys-secondary-container
+  );
+}
+.coord-field {
+  width: 8.5em;
+}
+.km-field {
+  width: 6.5em;
+}
+.hint {
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+.spacer {
+  flex: 1 1 auto;
+}
+.map-container {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.map-container cadmus-pleiades-map {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+}
+
+/* results tabs */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tabs ::ng-deep .mat-mdc-tab-body-wrapper {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.tabs ::ng-deep .mat-mdc-tab-body-content {
+  overflow: hidden;
+}
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  container-type: inline-size;
+}
+.scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+.count {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 8px;
+  font: var(--mat-sys-label-small);
+  color: var(--mat-sys-on-primary-container);
+  background-color: var(--mat-sys-primary-container);
+}
+.tab-title {
+  margin-left: 6px;
+  max-width: 12em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: var(--mat-sys-label-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+.note {
+  padding: 4px 12px;
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+mat-paginator {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  --mat-paginator-container-size: 44px;
+}
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  min-height: 120px;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}
+.placeholder mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--mat-sys-outline);
+}

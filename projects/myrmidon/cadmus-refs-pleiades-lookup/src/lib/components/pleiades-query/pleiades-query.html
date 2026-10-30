@@ -1,0 +1,435 @@
+<!-- filters -->
+<div class="filters" (keydown.enter)="onFiltersEnter($event)">
+  <div class="row">
+    <mat-form-field class="text-field" subscriptSizing="dynamic">
+      <mat-icon matIconPrefix>search</mat-icon>
+      <mat-label>text</mat-label>
+      <input
+        matInput
+        [formField]="form.text"
+        placeholder="e.g. athenae, ^=epidaur, %=athene"
+        autocomplete="off"
+      />
+      <mat-icon
+        matIconSuffix
+        class="help"
+        matTooltip="Words are matched exactly, unless prefixed by an operator: ^= starts with, $= ends with, *= contains, ?= wildcards (? *), %= fuzzy, ~= regular expression, <> not equal. Press Enter to search."
+        aria-label="text syntax"
+        >help_outline</mat-icon
+      >
+    </mat-form-field>
+    <mat-checkbox
+      [formField]="form.matchAny"
+      matTooltip="Match any word rather than all"
+      >any</mat-checkbox
+    >
+    <button
+      type="button"
+      mat-flat-button
+      class="search-button"
+      [disabled]="loading() || form().invalid()"
+      (click)="search()"
+    >
+      <mat-icon>search</mat-icon>
+      search
+    </button>
+    <button
+      type="button"
+      mat-icon-button
+      matTooltip="Reset"
+      aria-label="reset"
+      (click)="reset()"
+    >
+      <mat-icon>restart_alt</mat-icon>
+    </button>
+    <button
+      type="button"
+      mat-icon-button
+      [matTooltip]="filtersExpanded() ? 'Hide filters' : 'Show filters'"
+      aria-label="toggle filters"
+      [attr.aria-expanded]="filtersExpanded()"
+      [matBadge]="activeFilterCount() || null"
+      matBadgeOverlap="true"
+      [class.active]="filtersExpanded()"
+      (click)="filtersExpanded.set(!filtersExpanded())"
+    >
+      <mat-icon>tune</mat-icon>
+    </button>
+  </div>
+
+  @if (filtersExpanded()) {
+  <div class="row">
+    <!-- scopes -->
+    <mat-form-field class="scopes-field" subscriptSizing="dynamic">
+      <mat-label>scopes</mat-label>
+      <mat-select [formField]="form.scopes" multiple placeholder="all">
+        @for (s of scopes; track s.id) {
+        <mat-option [value]="s.id">
+          {{ s.label }}
+          @if (s.hasYears) {
+          <mat-icon class="years-icon" matTooltip="Has years">event</mat-icon>
+          }
+        </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <!-- place types -->
+    <mat-form-field class="types-field" subscriptSizing="dynamic">
+      <mat-label>place types</mat-label>
+      <mat-chip-grid #typeChips aria-label="place types">
+        @for (t of form.placeTypes().value(); track t) {
+        <mat-chip-row (removed)="removePlaceType(t)">
+          {{ t }}
+          <button matChipRemove [attr.aria-label]="'remove ' + t">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+        }
+        <input
+          #typeInput
+          class="no-enter-search"
+          [placeholder]="placeTypesError() ? 'types not available' : 'any'"
+          [matChipInputFor]="typeChips"
+          [matAutocomplete]="typeAuto"
+          (input)="onPlaceTypeInput($event)"
+          (matChipInputTokenEnd)="onPlaceTypeTokenEnd($event)"
+        />
+      </mat-chip-grid>
+      <mat-autocomplete
+        #typeAuto="matAutocomplete"
+        (optionSelected)="onPlaceTypeSelected($event, typeInput)"
+      >
+        @for (t of placeTypeSuggestions(); track t.id) {
+        <mat-option [value]="t.shortName">{{ t.shortName }}</mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <!-- sort -->
+    <mat-form-field class="sort-field" subscriptSizing="dynamic">
+      <mat-label>sort</mat-label>
+      <mat-select [formField]="form.sort">
+        <mat-option value="title">title</mat-option>
+        <mat-option value="distance" [disabled]="!canSortByDistance()"
+          >distance</mat-option
+        >
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="row">
+    <!-- rank -->
+    <div class="pair" matTooltip="Rank of text matches (1-100, 100=most reliable; 0=any)">
+      <mat-form-field class="num-field" subscriptSizing="dynamic">
+        <mat-label>rank min</mat-label>
+        <input matInput type="number" [formField]="form.rankMin" />
+      </mat-form-field>
+      <mat-form-field class="num-field" subscriptSizing="dynamic">
+        <mat-label>rank max</mat-label>
+        <input matInput type="number" [formField]="form.rankMax" />
+        @if (form.rankMax().invalid()) {
+        <mat-error>invalid</mat-error>
+        }
+      </mat-form-field>
+    </div>
+    <!-- years -->
+    <div class="pair" matTooltip="Years (negative for BC; 0=any): they apply to names and locations only">
+      <mat-form-field class="num-field" subscriptSizing="dynamic">
+        <mat-label>year min</mat-label>
+        <input matInput type="number" [formField]="form.yearMin" />
+      </mat-form-field>
+      <mat-form-field class="num-field" subscriptSizing="dynamic">
+        <mat-label>year max</mat-label>
+        <input matInput type="number" [formField]="form.yearMax" />
+        @if (form.yearMax().invalid()) {
+        <mat-error>max &lt; min</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </div>
+  }
+</div>
+
+<!-- progress and errors -->
+<div class="progress">
+  @if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+  }
+</div>
+@if (error(); as e) {
+<div class="error" role="alert">
+  <mat-icon>error_outline</mat-icon>
+  <span>{{ e }}</span>
+  <button
+    type="button"
+    mat-icon-button
+    aria-label="dismiss"
+    (click)="error.set(undefined)"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+}
+
+<!-- map and results -->
+<div class="body">
+  <div class="map-pane">
+    <div class="map-toolbar" (keydown.enter)="onFiltersEnter($event)">
+      <mat-button-toggle-group
+        [formField]="form.spatialMode"
+        hideSingleSelectionIndicator
+        aria-label="spatial filter"
+      >
+        <mat-button-toggle value="none" matTooltip="No spatial filter">
+          <mat-icon>public</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle
+          value="range"
+          matTooltip="Distance from a point: click the map to set it, drag it to move it"
+        >
+          <mat-icon>radar</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle
+          value="bbox"
+          matTooltip="Bounding box: drag to draw it, drag inside it to move it, shift+drag to draw a new one"
+        >
+          <mat-icon>crop_free</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle
+          value="polygon"
+          matTooltip="Region: click to add vertices, click the first one or double-click to close; then drag inside it to move it, drag its vertices to reshape it, shift+click to draw a new one"
+        >
+          <mat-icon>pentagon</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      @switch (form.spatialMode().value()) { @case ('range') {
+      <mat-form-field class="coord-field" subscriptSizing="dynamic">
+        <mat-label>lat</mat-label>
+        <input matInput type="number" step="any" [formField]="form.pointLat" />
+      </mat-form-field>
+      <mat-form-field class="coord-field" subscriptSizing="dynamic">
+        <mat-label>lng</mat-label>
+        <input matInput type="number" step="any" [formField]="form.pointLng" />
+      </mat-form-field>
+      <mat-form-field class="km-field" subscriptSizing="dynamic">
+        <mat-label>min km</mat-label>
+        <input
+          matInput
+          type="number"
+          step="any"
+          [formField]="form.distanceMin"
+        />
+      </mat-form-field>
+      <mat-form-field class="km-field" subscriptSizing="dynamic">
+        <mat-label>max km</mat-label>
+        <input
+          matInput
+          type="number"
+          step="any"
+          [formField]="form.distanceMax"
+        />
+        @if (form.distanceMax().invalid()) {
+        <mat-error>max &lt; min</mat-error>
+        }
+      </mat-form-field>
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Clear point"
+        aria-label="clear point"
+        [disabled]="!mapPoint()"
+        (click)="clearPoint()"
+      >
+        <mat-icon>location_off</mat-icon>
+      </button>
+      @if (!mapPoint()) {
+      <span class="hint">click the map to set the point</span>
+      } } @case ('bbox') {
+      <mat-form-field class="coord-field" subscriptSizing="dynamic">
+        <mat-label>S</mat-label>
+        <input matInput type="number" step="any" [formField]="form.swLat" />
+      </mat-form-field>
+      <mat-form-field class="coord-field" subscriptSizing="dynamic">
+        <mat-label>W</mat-label>
+        <input matInput type="number" step="any" [formField]="form.swLng" />
+      </mat-form-field>
+      <mat-form-field class="coord-field" subscriptSizing="dynamic">
+        <mat-label>N</mat-label>
+        <input matInput type="number" step="any" [formField]="form.neLat" />
+        @if (form.neLat().invalid()) {
+        <mat-error>N &lt; S</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="coord-field" subscriptSizing="dynamic">
+        <mat-label>E</mat-label>
+        <input matInput type="number" step="any" [formField]="form.neLng" />
+      </mat-form-field>
+      <mat-checkbox
+        [formField]="form.containedInBox"
+        matTooltip="Places must be fully contained in the box, rather than just intersect it"
+        >inside</mat-checkbox
+      >
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Clear box"
+        aria-label="clear box"
+        [disabled]="!mapBBox()"
+        (click)="clearBBox()"
+      >
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+      @if (!mapBBox()) {
+      <span class="hint">drag on the map to draw the box</span>
+      } @else if (bboxCrossing()) {
+      <span class="hint">crosses 180°</span>
+      } } @case ('polygon') {
+      <mat-checkbox
+        [formField]="form.containedInRegion"
+        matTooltip="Places must be fully contained in the region, rather than just intersect it"
+        >inside</mat-checkbox
+      >
+      @if (map()?.drawingCount(); as count) {
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Close the region"
+        aria-label="close region"
+        [disabled]="count < 3"
+        (click)="finishRegion()"
+      >
+        <mat-icon>check</mat-icon>
+      </button>
+      }
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Clear region"
+        aria-label="clear region"
+        [disabled]="!mapRegion() && !map()?.drawingCount()"
+        (click)="clearRegion()"
+      >
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+      <span class="hint">
+        @if (map()?.drawingCount(); as count) { {{ count }} vertices: click
+        the first one or double-click to close } @else if (mapRegion(); as r)
+        { {{ r.length }} vertices } @else { click the map to add vertices }
+      </span>
+      } }
+
+      <span class="spacer"></span>
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Zoom to results"
+        aria-label="zoom to results"
+        [disabled]="!results().length"
+        (click)="fitResults()"
+      >
+        <mat-icon>fit_screen</mat-icon>
+      </button>
+    </div>
+
+    <div class="map-container">
+      <cadmus-pleiades-map
+        [mapStyle]="mapStyle()"
+        [initialCenter]="initialCenter()"
+        [initialZoom]="initialZoom()"
+        [results]="results()"
+        [(selectedId)]="selectedId"
+        [spatialMode]="form.spatialMode().value()"
+        [point]="mapPoint()"
+        (pointChange)="onMapPointChange($event)"
+        [distanceMin]="distanceMinMeters()"
+        [distanceMax]="distanceMaxMeters()"
+        [bbox]="mapBBox()"
+        (bboxChange)="onMapBBoxChange($event)"
+        [region]="mapRegion()"
+        (regionChange)="onMapRegionChange($event)"
+        [geometries]="detailGeometries()"
+        (placeClick)="onMapPlaceClick($event)"
+      />
+    </div>
+  </div>
+
+  <mat-tab-group
+    class="tabs"
+    mat-stretch-tabs="false"
+    animationDuration="0ms"
+    [selectedIndex]="selectedTab()"
+    (selectedIndexChange)="selectedTab.set($event)"
+  >
+    <mat-tab>
+      <ng-template mat-tab-label>
+        places @if (page(); as p) {
+        <span class="count">{{ p.total }}</span>
+        }
+      </ng-template>
+      <div class="tab-content">
+        @if (page(); as p) { @if (unlocatedCount()) {
+        <div class="note">
+          {{ unlocatedCount() }} place(s) in this page are not located.
+        </div>
+        }
+        <div class="scroll">
+          <cadmus-pleiades-result-list
+            [results]="results()"
+            [(selectedId)]="selectedId"
+            [hidePick]="hidePick()"
+            (flyToRequest)="flyTo($event)"
+            (detailsRequest)="showDetails($event.id)"
+            (placePick)="pick($event)"
+          />
+        </div>
+        <mat-paginator
+          [length]="p.total"
+          [pageIndex]="p.pageNumber - 1"
+          [pageSize]="form.pageSize().value()"
+          [pageSizeOptions]="pageSizes"
+          [hidePageSize]="false"
+          [disabled]="loading()"
+          showFirstLastButtons
+          (page)="onPage($event)"
+        />
+        } @else {
+        <div class="placeholder">
+          <mat-icon>travel_explore</mat-icon>
+          <span>Set filters and search to find places.</span>
+        </div>
+        }
+      </div>
+    </mat-tab>
+    <mat-tab>
+      <ng-template mat-tab-label>
+        details @if (details(); as d) {
+        <span class="tab-title">{{ d.title }}</span>
+        }
+      </ng-template>
+      <div class="tab-content">
+        <div class="progress">
+          @if (detailsLoading()) {
+          <mat-progress-bar mode="indeterminate" />
+          }
+        </div>
+        @if (detailsError(); as e) {
+        <div class="error" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ e }}</span>
+        </div>
+        }
+        <div class="scroll">
+          <cadmus-pleiades-place-details
+            [place]="details()"
+            [hidePick]="hidePick()"
+            (placeRequest)="showDetails($event, true)"
+            (locateRequest)="locatePlace($event)"
+            (placePick)="pick($event)"
+          />
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

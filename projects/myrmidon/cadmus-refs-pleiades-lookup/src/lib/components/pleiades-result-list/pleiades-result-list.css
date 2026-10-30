@@ -1,0 +1,124 @@
+:host {
+  display: block;
+  --mat-expansion-header-collapsed-state-height: 44px;
+  --mat-expansion-header-expanded-state-height: 48px;
+  --mat-expansion-container-shape: 0;
+}
+
+mat-expansion-panel {
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+mat-expansion-panel.selected {
+  --mat-expansion-container-background-color: var(
+    --mat-sys-secondary-container
+  );
+  --mat-expansion-header-text-color: var(--mat-sys-on-secondary-container);
+}
+
+mat-expansion-panel-header {
+  padding: 0 8px 0 12px;
+}
+
+mat-panel-title {
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 4px;
+  align-items: center;
+}
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.unlocated {
+  flex: 0 0 auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-outline);
+}
+
+mat-panel-description {
+  flex: 0 1 auto;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  margin-right: 4px;
+}
+.summary {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  font: var(--mat-sys-body-small);
+}
+.type {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 10em;
+  color: var(--mat-sys-on-surface-variant);
+}
+.distance {
+  white-space: nowrap;
+  color: var(--mat-sys-primary);
+}
+
+.actions {
+  display: flex;
+  flex: 0 0 auto;
+  --mat-icon-button-state-layer-size: 32px;
+}
+.actions [mat-icon-button] {
+  padding: 4px;
+}
+.actions mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+.pick mat-icon {
+  color: var(--mat-sys-primary);
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+  font: var(--mat-sys-body-medium);
+}
+.meta dt {
+  color: var(--mat-sys-on-surface-variant);
+}
+.meta dd {
+  margin: 0;
+}
+.meta a {
+  color: var(--mat-sys-primary);
+}
+.types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.chip {
+  padding: 0 8px;
+  border-radius: 8px;
+  font: var(--mat-sys-label-medium);
+  color: var(--mat-sys-on-surface-variant);
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+.empty {
+  padding: 16px;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}
+
+/* narrow containers: hide the summary to make room for actions */
+@container (max-width: 420px) {
+  .summary {
+    display: none;
+  }
+}

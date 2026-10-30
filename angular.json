@@ -99,6 +99,7 @@
                 "@myrmidon/cadmus-refs-lookup",
                 "@myrmidon/cadmus-refs-mol-lookup",
                 "@myrmidon/cadmus-refs-mufi-lookup",
+                "@myrmidon/cadmus-refs-pleiades-lookup",
                 "@myrmidon/cadmus-refs-proper-name",
                 "@myrmidon/cadmus-refs-sparql",
                 "@myrmidon/cadmus-refs-viaf-lookup",
@@ -1102,6 +1103,32 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "tsConfig": "projects/myrmidon/cadmus-named-value/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "@myrmidon/cadmus-refs-pleiades-lookup": {
+      "projectType": "library",
+      "root": "projects/myrmidon/cadmus-refs-pleiades-lookup",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-pleiades-lookup/src",
+      "prefix": "cadmus",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/myrmidon/cadmus-refs-pleiades-lookup/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/myrmidon/cadmus-refs-pleiades-lookup/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-pleiades-lookup/tsconfig.spec.json"
           }
         }
       }

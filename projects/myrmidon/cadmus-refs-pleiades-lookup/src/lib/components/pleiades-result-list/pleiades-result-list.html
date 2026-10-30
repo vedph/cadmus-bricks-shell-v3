@@ -1,0 +1,112 @@
+@if (results().length) {
+<mat-accordion displayMode="flat">
+  @for (r of results(); track r.id) {
+  <mat-expansion-panel
+    [attr.data-place-id]="r.id"
+    [expanded]="r.id === selectedId()"
+    [class.selected]="r.id === selectedId()"
+    (opened)="onOpened(r)"
+    (closed)="onClosed(r)"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <span class="name" [title]="r.name">{{ r.name }}</span>
+        @if (!isLocated(r)) {
+        <mat-icon
+          class="unlocated"
+          matTooltip="Not located"
+          aria-label="not located"
+          >location_off</mat-icon
+        >
+        }
+      </mat-panel-title>
+      <mat-panel-description>
+        <span class="summary">
+          @if (r.distance !== null) {
+          <span class="distance">{{ formatDistance(r.distance) }}</span>
+          } @if (r.types.length) {
+          <span class="type">{{ getTypes(r)[0] }}</span>
+          }
+        </span>
+        <span class="actions" (click)="stop($event)" (keydown)="stop($event)">
+          @if (!hideFlyTo()) {
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Show in map"
+            aria-label="show in map"
+            [disabled]="!isLocated(r)"
+            (click)="flyTo(r, $event)"
+          >
+            <mat-icon>my_location</mat-icon>
+          </button>
+          }
+          <button
+            type="button"
+            mat-icon-button
+            matTooltip="Details"
+            aria-label="details"
+            (click)="showDetails(r, $event)"
+          >
+            <mat-icon>info</mat-icon>
+          </button>
+          <a
+            mat-icon-button
+            matTooltip="Open in Pleiades"
+            aria-label="open in Pleiades"
+            target="_blank"
+            rel="noopener"
+            [href]="getUri(r)"
+            (click)="stop($event)"
+          >
+            <mat-icon>open_in_new</mat-icon>
+          </a>
+          @if (!hidePick()) {
+          <button
+            type="button"
+            mat-icon-button
+            class="pick"
+            matTooltip="Pick this place"
+            aria-label="pick"
+            (click)="pick(r, $event)"
+          >
+            <mat-icon>check_circle</mat-icon>
+          </button>
+          }
+        </span>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <ng-template matExpansionPanelContent>
+      <dl class="meta">
+        <dt>ID</dt>
+        <dd>
+          <a target="_blank" rel="noopener" [href]="getUri(r)">{{ r.id }}</a>
+        </dd>
+        @if (r.types.length) {
+        <dt>types</dt>
+        <dd class="types">
+          @for (t of getTypes(r); track $index) {
+          <span class="chip">{{ t }}</span>
+          }
+        </dd>
+        }
+        <dt>coords</dt>
+        <dd>
+          @if (isLocated(r)) { {{ r.lat!.toFixed(5) }},
+          {{ r.lng!.toFixed(5) }} } @else {
+          <em>not located</em>
+          }
+        </dd>
+        @if (r.distance !== null) {
+        <dt>distance</dt>
+        <dd>{{ formatDistance(r.distance) }}</dd>
+        }
+      </dl>
+    </ng-template>
+  </mat-expansion-panel>
+  }
+</mat-accordion>
+} @else {
+<div class="empty">No places.</div>
+}

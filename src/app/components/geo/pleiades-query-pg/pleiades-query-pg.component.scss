@@ -1,0 +1,52 @@
+// fill the viewport below the app toolbar (64px)
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: calc(100dvh - 64px);
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+
+  h2 {
+    margin: 0 8px 0 0;
+    font: var(--mat-sys-title-large);
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.picked {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    color: var(--mat-sys-primary);
+  }
+}
+
+pre {
+  flex: 0 0 auto;
+  max-height: 200px;
+  overflow: auto;
+  margin: 0;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: var(--mat-sys-surface-container);
+}
+
+cadmus-pleiades-query {
+  flex: 1 1 auto;
+  min-height: 480px;
+}

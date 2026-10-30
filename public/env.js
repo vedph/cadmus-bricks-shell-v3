@@ -10,6 +10,8 @@
   window.__env.molUrl = "http://localhost:5132/api/";
   // this is for local development with MUFI
   window.__env.mufiUrl = "http://localhost:5132/api/";
+  // Pleiades API (cadmus-refs-pleiades-lookup)
+  window.__env.pleiadesUrl = "http://localhost:5000/api/";
   // proxy for external APIs (CORS bypass for local development)
   window.__env.proxyUrl = "http://localhost:5132/api/proxy/";
   // Zotero

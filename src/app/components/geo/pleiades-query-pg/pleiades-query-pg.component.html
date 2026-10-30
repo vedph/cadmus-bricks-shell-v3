@@ -1,0 +1,43 @@
+<div class="page">
+  <div class="bar">
+    <h2>Pleiades Query</h2>
+    <mat-checkbox
+      [checked]="hidePick()"
+      (change)="hidePick.set($event.checked)"
+      >hide pick</mat-checkbox
+    >
+    <button
+      type="button"
+      mat-stroked-button
+      matTooltip="Settlements or forts within 20 km from Athens, nearest first"
+      (click)="loadSample()"
+    >
+      sample
+    </button>
+    <span class="spacer"></span>
+    @if (picked(); as p) {
+    <span class="picked">
+      <mat-icon>check_circle</mat-icon>
+      picked: <strong>{{ p.name }}</strong> #{{ p.id }}
+    </span>
+    <button
+      type="button"
+      mat-icon-button
+      [matTooltip]="showPicked() ? 'Hide picked place' : 'Show picked place'"
+      aria-label="toggle picked place"
+      (click)="showPicked.set(!showPicked())"
+    >
+      <mat-icon>data_object</mat-icon>
+    </button>
+    }
+  </div>
+  @if (showPicked() && picked(); as p) {
+  <pre>{{ p | json }}</pre>
+  }
+  <cadmus-pleiades-query
+    [hidePick]="hidePick()"
+    [request]="request()"
+    [autoSearch]="true"
+    (placePick)="onPlacePick($event)"
+  />
+</div>

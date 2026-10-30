@@ -1,0 +1,250 @@
+@if (place(); as p) {
+<article>
+  <!-- header -->
+  <header>
+    <div class="title-block">
+      <h3 class="title">{{ p.title }}</h3>
+      <div class="subtitle">
+        <a target="_blank" rel="noopener" [href]="p.uri">#{{ p.id }}</a>
+        @if (p.reviewState) {
+        <span class="state" [class.draft]="p.reviewState !== 'published'">{{
+          p.reviewState
+        }}</span>
+        }
+      </div>
+    </div>
+    <div class="actions">
+      @if (!hideLocate()) {
+      <button
+        type="button"
+        mat-icon-button
+        matTooltip="Show in map"
+        aria-label="show in map"
+        [disabled]="!isLocated()"
+        (click)="locate()"
+      >
+        <mat-icon>my_location</mat-icon>
+      </button>
+      }
+      <a
+        mat-icon-button
+        matTooltip="Open in Pleiades"
+        aria-label="open in Pleiades"
+        target="_blank"
+        rel="noopener"
+        [href]="p.uri"
+      >
+        <mat-icon>open_in_new</mat-icon>
+      </a>
+      @if (!hidePick()) {
+      <button
+        type="button"
+        mat-icon-button
+        class="pick"
+        matTooltip="Pick this place"
+        aria-label="pick"
+        (click)="pick()"
+      >
+        <mat-icon>check_circle</mat-icon>
+      </button>
+      }
+    </div>
+  </header>
+
+  @if (p.description) {
+  <p class="description">{{ p.description }}</p>
+  }
+
+  <!-- metadata -->
+  <dl class="meta">
+    @if (types().length) {
+    <dt>types</dt>
+    <dd class="chips">
+      @for (t of types(); track $index) {
+      <span class="chip">{{ t }}</span>
+      }
+    </dd>
+    }
+    <dt>coords</dt>
+    <dd>
+      @if (isLocated()) { {{ p.lat!.toFixed(5) }}, {{ p.lng!.toFixed(5) }} }
+      @else {
+      <em>not located</em>
+      }
+    </dd>
+    @if (p.bbox) {
+    <dt>bbox</dt>
+    <dd class="mono">
+      {{ p.bbox[1].toFixed(4) }}, {{ p.bbox[0].toFixed(4) }} –
+      {{ p.bbox[3].toFixed(4) }}, {{ p.bbox[2].toFixed(4) }}
+    </dd>
+    } @if (p.subjects.length) {
+    <dt>subjects</dt>
+    <dd class="chips">
+      @for (s of p.subjects; track $index) {
+      <span class="chip subtle">{{ s }}</span>
+      }
+    </dd>
+    } @if (p.provenance) {
+    <dt>provenance</dt>
+    <dd>{{ p.provenance }}</dd>
+    }
+    <dt>dates</dt>
+    <dd>
+      created {{ p.created | date: 'mediumDate' }}, modified
+      {{ p.modified | date: 'mediumDate' }}
+    </dd>
+  </dl>
+
+  <!-- names -->
+  @if (p.names.length) {
+  <section>
+    <h4>names <span class="count">{{ p.names.length }}</span></h4>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>romanized</th>
+            <th>attested</th>
+            <th>type</th>
+            <th>time span</th>
+            <th>certainty</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (n of p.names; track n.id) {
+          <tr>
+            <td>
+              <a target="_blank" rel="noopener" [href]="n.uri">{{
+                n.romanized
+              }}</a>
+              @if (n.description) {
+              <div class="note">{{ n.description }}</div>
+              }
+            </td>
+            <td>
+              @if (n.attested) {
+              <span class="attested" [attr.lang]="n.language">{{
+                n.attested
+              }}</span>
+              } @if (n.language) {
+              <span class="lang">{{ n.language }}</span>
+              }
+            </td>
+            <td>{{ n.type }}</td>
+            <td class="nowrap">{{ span(n.startYear, n.endYear) }}</td>
+            <td>
+              {{ short(n.certainty) }} @if (n.transcriptionAccuracy &&
+              n.transcriptionAccuracy !== 'accurate') {
+              <div class="note">{{ n.transcriptionAccuracy }}</div>
+              } @if (n.transcriptionCompleteness && n.transcriptionCompleteness
+              !== 'complete') {
+              <div class="note">{{ n.transcriptionCompleteness }}</div>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  }
+
+  <!-- locations -->
+  @if (p.locations.length) {
+  <section>
+    <h4>locations <span class="count">{{ p.locations.length }}</span></h4>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>title</th>
+            <th>geometry</th>
+            <th>time span</th>
+            <th>certainty</th>
+            <th>accuracy</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (l of p.locations; track l.id) {
+          <tr>
+            <td>
+              <a target="_blank" rel="noopener" [href]="l.uri">{{
+                l.title
+              }}</a>
+              @if (l.description) {
+              <div class="note">{{ l.description }}</div>
+              }
+            </td>
+            <td>{{ l.geometry?.type }}</td>
+            <td class="nowrap">{{ span(l.startYear, l.endYear) }}</td>
+            <td>{{ short(l.certainty) }}</td>
+            <td class="nowrap">
+              @if (l.accuracyValue) { {{ l.accuracyValue }} m }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  }
+
+  <!-- connections -->
+  @if (hasConnections()) {
+  <section>
+    <h4>connections</h4>
+    <ul class="connections">
+      @for (c of p.connections; track c.id) {
+      <li>
+        <mat-icon class="dir" aria-label="outgoing">east</mat-icon>
+        <span class="rel">{{ getConnectionLabel(c) }}</span>
+        <a href="#" (click)="requestPlace(c.place.id, $event)">{{
+          c.place.title
+        }}</a>
+        @if (c.certainty && c.certainty !== 'certain') {
+        <span class="note">({{ c.certainty }})</span>
+        } @if (span(c.startYear, c.endYear); as s) {
+        <span class="note">{{ s }}</span>
+        }
+      </li>
+      } @for (c of p.incomingConnections; track c.id) {
+      <li>
+        <mat-icon class="dir" aria-label="incoming">west</mat-icon>
+        <a href="#" (click)="requestPlace(c.place.id, $event)">{{
+          c.place.title
+        }}</a>
+        <span class="rel">{{ getConnectionLabel(c) }}</span>
+        <span>this</span>
+        @if (c.certainty && c.certainty !== 'certain') {
+        <span class="note">({{ c.certainty }})</span>
+        }
+      </li>
+      }
+    </ul>
+    @if (p.linkedPlaces.length) {
+    <div class="linked">
+      <span class="label">linked:</span>
+      @for (lp of p.linkedPlaces; track lp.id) {
+      <a href="#" class="chip link" (click)="requestPlace(lp.id, $event)">{{
+        lp.title
+      }}</a>
+      }
+    </div>
+    }
+  </section>
+  }
+
+  <!-- details (HTML, sanitized by Angular) -->
+  @if (p.details) {
+  <section>
+    <h4>details</h4>
+    <div class="html-details" [innerHTML]="p.details"></div>
+  </section>
+  } @if (p.rights) {
+  <footer class="rights">{{ p.rights }}</footer>
+  }
+</article>
+} @else {
+<div class="empty">No place selected.</div>
+}

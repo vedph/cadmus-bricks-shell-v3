@@ -9,7 +9,7 @@
     "build:libs": "node scripts/build-libs.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:lib": "ng test @myrmidon/cadmus-cod-location --watch=false && ng test @myrmidon/cadmus-geo-location --watch=false && ng test @myrmidon/cadmus-mat-physical-grid --watch=false && ng test @myrmidon/cadmus-mat-physical-size --watch=false && ng test @myrmidon/cadmus-mat-physical-state --watch=false && ng test @myrmidon/cadmus-named-value --watch=false && ng test @myrmidon/cadmus-refs-asserted-chronotope --watch=false && ng test @myrmidon/cadmus-refs-asserted-ids --watch=false && ng test @myrmidon/cadmus-refs-assertion --watch=false && ng test @myrmidon/cadmus-refs-chronotope --watch=false && ng test @myrmidon/cadmus-refs-citation --watch=false && ng test @myrmidon/cadmus-refs-decorated-counts --watch=false && ng test @myrmidon/cadmus-refs-decorated-ids --watch=false && ng test @myrmidon/cadmus-refs-doc-references --watch=false && ng test @myrmidon/cadmus-refs-external-ids --watch=false && ng test @myrmidon/cadmus-refs-historical-date --watch=false && ng test @myrmidon/cadmus-refs-lookup --watch=false && ng test @myrmidon/cadmus-refs-proper-name --watch=false && ng test @myrmidon/cadmus-refs-sparql --watch=false && ng test @myrmidon/cadmus-text-block-view --watch=false && ng test @myrmidon/cadmus-text-ed --watch=false && ng test @myrmidon/cadmus-text-ed-md --watch=false && ng test @myrmidon/cadmus-text-ed-txt --watch=false && ng test @myrmidon/cadmus-ui-custom-action-bar --watch=false && ng test @myrmidon/cadmus-ui-flag-set --watch=false && ng test @myrmidon/cadmus-ui-note-set --watch=false && ng test @myrmidon/cadmus-ui-object-view --watch=false",
+    "test:lib": "ng test @myrmidon/cadmus-cod-location --watch=false && ng test @myrmidon/cadmus-geo-location --watch=false && ng test @myrmidon/cadmus-mat-physical-grid --watch=false && ng test @myrmidon/cadmus-mat-physical-size --watch=false && ng test @myrmidon/cadmus-mat-physical-state --watch=false && ng test @myrmidon/cadmus-named-value --watch=false && ng test @myrmidon/cadmus-refs-asserted-chronotope --watch=false && ng test @myrmidon/cadmus-refs-asserted-ids --watch=false && ng test @myrmidon/cadmus-refs-assertion --watch=false && ng test @myrmidon/cadmus-refs-chronotope --watch=false && ng test @myrmidon/cadmus-refs-citation --watch=false && ng test @myrmidon/cadmus-refs-decorated-counts --watch=false && ng test @myrmidon/cadmus-refs-decorated-ids --watch=false && ng test @myrmidon/cadmus-refs-doc-references --watch=false && ng test @myrmidon/cadmus-refs-external-ids --watch=false && ng test @myrmidon/cadmus-refs-historical-date --watch=false && ng test @myrmidon/cadmus-refs-lookup --watch=false && ng test @myrmidon/cadmus-refs-pleiades-lookup --watch=false && ng test @myrmidon/cadmus-refs-proper-name --watch=false && ng test @myrmidon/cadmus-refs-sparql --watch=false && ng test @myrmidon/cadmus-text-block-view --watch=false && ng test @myrmidon/cadmus-text-ed --watch=false && ng test @myrmidon/cadmus-text-ed-md --watch=false && ng test @myrmidon/cadmus-text-ed-txt --watch=false && ng test @myrmidon/cadmus-ui-custom-action-bar --watch=false && ng test @myrmidon/cadmus-ui-flag-set --watch=false && ng test @myrmidon/cadmus-ui-note-set --watch=false && ng test @myrmidon/cadmus-ui-object-view --watch=false",
     "build:achr": "ng build @myrmidon/cadmus-refs-asserted-chronotope",
     "build:aid": "ng build @myrmidon/cadmus-refs-asserted-ids",
     "build:ass": "ng build @myrmidon/cadmus-refs-assertion",
@@ -33,6 +33,7 @@
     "build:lok": "ng build @myrmidon/cadmus-refs-lookup",
     "build:mol": "ng build @myrmidon/cadmus-refs-mol-lookup",
     "build:muf": "ng build @myrmidon/cadmus-refs-mufi-lookup",
+    "build:ple": "ng build @myrmidon/cadmus-refs-pleiades-lookup",
     "build:nts": "ng build @myrmidon/cadmus-ui-note-set",
     "build:phg": "ng build @myrmidon/cadmus-mat-physical-grid",
     "build:phs": "ng build @myrmidon/cadmus-mat-physical-size",
@@ -48,7 +49,7 @@
     "build:obj": "ng build @myrmidon/cadmus-ui-object-view"
   },
   "private": true,
-  "packageManager": "pnpm@12.14.0",
+  "packageManager": "pnpm@12.16.1",
   "dependencies": {
     "@angular/animations": "^22.2.3",
     "@angular/cdk": "^22.2.3",
@@ -60,8 +61,8 @@
     "@angular/platform-browser": "^22.2.3",
     "@angular/router": "^22.2.3",
     "@jean-merelis/ngx-monaco-editor": "^21.0.0",
-    "@maplibre/ngx-maplibre-gl": "^22.3.0",
-    "@myrmidon/auth-jwt-login": "^10.0.0",
+    "@maplibre/ngx-maplibre-gl": "^22.3.1",
+    "@myrmidon/auth-jwt-login": "^10.0.1",
     "@myrmidon/cadmus-api": "^20.0.0",
     "@myrmidon/cadmus-core": "^20.0.0",
     "@myrmidon/cadmus-thesaurus-store": "^1.0.1",
@@ -71,8 +72,8 @@
     "@myrmidon/taxo-store-api": "^1.3.0",
     "@myrmidon/taxo-store-picker": "^1.3.0",
     "@terraformer/wkt": "^2.2.2",
-    "maplibre-gl": "^6.14.0",
-    "marked": "^18.1.1",
+    "maplibre-gl": "^6.16.0",
+    "marked": "^18.1.2",
     "monaco-editor": "^0.47.0",
     "rxjs": "~7.8.0",
     "ts-md5": "^2.0.1",
@@ -88,9 +89,9 @@
     "@testing-library/angular": "^19.6.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@types/geojson": "^7946.0.16",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/terraformer__wkt": "^2.0.3",
-    "baseline-browser-mapping": "^2.11.29",
+    "baseline-browser-mapping": "^2.11.34",
     "jsdom": "^30.1.3",
     "ng-packagr": "^22.2.1",
     "typescript": "~6.0.3",
@@ -98,6 +99,6 @@
     "zone.js": "0.16.3"
   },
   "optionalDependencies": {
-    "@rollup/rollup-win32-arm64-msvc": "^4.64.9"
+    "@rollup/rollup-win32-arm64-msvc": "^4.66.0"
   }
 }

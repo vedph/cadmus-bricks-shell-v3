@@ -33,6 +33,10 @@ import {
   MapFormatter,
 } from '@myrmidon/cadmus-refs-citation';
 import { ZoteroRefLookupService } from '@myrmidon/cadmus-refs-zotero-lookup';
+import {
+  PleiadesRefLookupService,
+  PleiadesSearchResult,
+} from '@myrmidon/cadmus-refs-pleiades-lookup';
 
 // local
 import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.component';
@@ -107,6 +111,15 @@ export class App {
         service: inject(WhgRefLookupService),
         itemIdGetter: (item: GeoJsonFeature) => item?.properties.place_id,
         itemLabelGetter: (item: GeoJsonFeature) => item?.properties.title,
+      },
+      {
+        name: 'Pleiades',
+        iconUrl: '/img/pleiades128.png',
+        description: 'Pleiades gazetteer of ancient places',
+        label: 'ID',
+        service: inject(PleiadesRefLookupService),
+        itemIdGetter: (item: PleiadesSearchResult) => item?.id,
+        itemLabelGetter: (item: PleiadesSearchResult) => item?.name,
       },
       // Zotero
       {

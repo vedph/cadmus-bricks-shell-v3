@@ -1,0 +1,229 @@
+@if (resolvedMapStyle.value(); as style) {
+<mgl-map
+  [mapStyle]="style"
+  [center]="initialCenter()"
+  [zoom]="initialZoom()"
+  [boxZoom]="false"
+  [doubleClickZoom]="spatialMode() === 'none'"
+  [cursorStyle]="cursor()"
+  (mapLoad)="onMapLoad($event)"
+  (mapClick)="onMapClick($event)"
+>
+  <mgl-control position="top-right" mglNavigation></mgl-control>
+  <mgl-control position="bottom-left" mglScale unit="metric"></mgl-control>
+
+  <!-- highlighted geometries (e.g. place locations) -->
+  <mgl-geojson-source id="pl-geometries" [data]="geometriesGeoJSON()" />
+  <mgl-layer
+    id="pl-geometries-fill"
+    type="fill"
+    source="pl-geometries"
+    [filter]="polygonsFilter"
+    [paint]="{ 'fill-color': colors().geometry, 'fill-opacity': 0.2 }"
+  />
+  <mgl-layer
+    id="pl-geometries-line"
+    type="line"
+    source="pl-geometries"
+    [filter]="linesFilter"
+    [paint]="{ 'line-color': colors().geometry, 'line-width': 2 }"
+  />
+  <mgl-layer
+    id="pl-geometries-point"
+    type="circle"
+    source="pl-geometries"
+    [filter]="pointsFilter"
+    [paint]="{
+      'circle-color': colors().geometry,
+      'circle-opacity': 0.5,
+      'circle-radius': 7,
+      'circle-stroke-color': colors().geometry,
+      'circle-stroke-width': 2
+    }"
+  />
+
+  <!-- range: included area -->
+  <mgl-geojson-source id="pl-range-in" [data]="rangeInGeoJSON()" />
+  <mgl-layer
+    id="pl-range-in-fill"
+    type="fill"
+    source="pl-range-in"
+    [paint]="{ 'fill-color': colors().range, 'fill-opacity': 0.15 }"
+  />
+  <mgl-layer
+    id="pl-range-in-line"
+    type="line"
+    source="pl-range-in"
+    [paint]="{ 'line-color': colors().range, 'line-width': 2 }"
+  />
+
+  <!-- range: area excluded by min distance -->
+  <mgl-geojson-source id="pl-range-out" [data]="rangeOutGeoJSON()" />
+  <mgl-layer
+    id="pl-range-out-fill"
+    type="fill"
+    source="pl-range-out"
+    [paint]="{ 'fill-color': colors().rangeMin, 'fill-opacity': 0.12 }"
+  />
+  <mgl-layer
+    id="pl-range-out-line"
+    type="line"
+    source="pl-range-out"
+    [paint]="{
+      'line-color': colors().rangeMin,
+      'line-width': 2,
+      'line-dasharray': [3, 2]
+    }"
+  />
+
+  <!-- bounding box -->
+  <mgl-geojson-source id="pl-bbox" [data]="bboxGeoJSON()" />
+  <mgl-layer
+    id="pl-bbox-fill"
+    type="fill"
+    source="pl-bbox"
+    [paint]="{ 'fill-color': colors().bbox, 'fill-opacity': 0.15 }"
+  />
+  <mgl-layer
+    id="pl-bbox-line"
+    type="line"
+    source="pl-bbox"
+    [paint]="{
+      'line-color': colors().bbox,
+      'line-width': 2,
+      'line-dasharray': [4, 2]
+    }"
+  />
+
+  <!-- region -->
+  <mgl-geojson-source id="pl-region" [data]="regionGeoJSON()" />
+  <mgl-layer
+    id="pl-region-fill"
+    type="fill"
+    source="pl-region"
+    [paint]="{ 'fill-color': colors().region, 'fill-opacity': 0.15 }"
+  />
+  <mgl-layer
+    id="pl-region-line"
+    type="line"
+    source="pl-region"
+    [paint]="{ 'line-color': colors().region, 'line-width': 2 }"
+  />
+
+  <!-- region being drawn -->
+  <mgl-geojson-source id="pl-drawing" [data]="drawingGeoJSON()" />
+  <mgl-layer
+    id="pl-drawing-fill"
+    type="fill"
+    source="pl-drawing"
+    [filter]="polygonsFilter"
+    [paint]="{ 'fill-color': colors().region, 'fill-opacity': 0.08 }"
+  />
+  <mgl-layer
+    id="pl-drawing-line"
+    type="line"
+    source="pl-drawing"
+    [filter]="linesFilter"
+    [paint]="{
+      'line-color': colors().region,
+      'line-width': 2,
+      'line-dasharray': [2, 2]
+    }"
+  />
+  <mgl-layer
+    id="pl-drawing-vertex"
+    type="circle"
+    source="pl-drawing"
+    [filter]="pointsFilter"
+    [paint]="{
+      'circle-color': colors().region,
+      'circle-radius': 5,
+      'circle-stroke-color': colors().region,
+      'circle-stroke-width': 1
+    }"
+  />
+
+  <!-- region vertex handles -->
+  @for (h of regionHandles(); track h.index) {
+  <mgl-marker
+    [lngLat]="h.lngLat"
+    [draggable]="true"
+    anchor="center"
+    (markerDrag)="onVertexDrag(h.index, $event)"
+    (markerDragEnd)="onVertexDragEnd(h.index, $event)"
+  >
+    <div class="vertex" title="Drag to move this vertex"></div>
+  </mgl-marker>
+  }
+
+  <!-- distance point -->
+  @if (displayedPoint(); as pt) {
+  <mgl-marker
+    [lngLat]="pt"
+    [draggable]="true"
+    anchor="center"
+    (markerDrag)="onPointDrag($event)"
+    (markerDragEnd)="onPointDragEnd($event)"
+  >
+    <div class="distance-point" title="Drag to move the distance point">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" class="dot" />
+      </svg>
+    </div>
+  </mgl-marker>
+  }
+
+  <!-- result pins -->
+  @for (r of locatedResults(); track r.id) {
+  <mgl-marker [lngLat]="[r.lng!, r.lat!]" anchor="bottom">
+    <div
+      class="pin"
+      [class.selected]="r.id === selectedId()"
+      role="button"
+      tabindex="0"
+      [attr.aria-label]="r.name"
+      (mouseenter)="hovered.set(r)"
+      (mouseleave)="hovered.set(undefined)"
+      (mousedown)="stopEvent($event)"
+      (touchstart)="stopEvent($event)"
+      (click)="onPinClick(r, $event)"
+      (keydown.enter)="onPinClick(r, $event)"
+    >
+      <span class="pin-label">{{ r.name }}</span>
+      <svg class="pin-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"
+        />
+      </svg>
+    </div>
+  </mgl-marker>
+  }
+
+  <!-- metadata popup -->
+  @if (mapReady() && popupPlace(); as p) {
+  <mgl-popup
+    [lngLat]="[p.lng!, p.lat!]"
+    [closeButton]="false"
+    [closeOnClick]="false"
+    [offset]="[0, -34]"
+    anchor="bottom"
+    className="cadmus-pleiades-popup"
+  >
+    <div class="popup">
+      <div class="popup-title">{{ p.name }}</div>
+      @if (p.types.length) {
+      <div class="popup-types">{{ getTypeLabel(p) }}</div>
+      }
+      <div class="popup-meta">
+        <span>#{{ p.id }}</span>
+        <span>{{ p.lat!.toFixed(4) }}, {{ p.lng!.toFixed(4) }}</span>
+        @if (p.distance !== null) {
+        <span>{{ formatDistance(p.distance) }}</span>
+        }
+      </div>
+    </div>
+  </mgl-popup>
+  }
+</mgl-map>
+}

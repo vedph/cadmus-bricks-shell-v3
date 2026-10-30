@@ -12,6 +12,10 @@ import {
 } from '@myrmidon/cadmus-refs-lookup';
 import { ViafRefLookupService } from '@myrmidon/cadmus-refs-viaf-lookup';
 import { BiblissimaRefLookupService } from '@myrmidon/cadmus-refs-biblissima-lookup';
+import {
+  PleiadesRefLookupService,
+  PleiadesSearchResult,
+} from '@myrmidon/cadmus-refs-pleiades-lookup';
 
 @Component({
   selector: 'app-ref-lookup-set-pg',
@@ -34,6 +38,7 @@ export class RefLookupSetPgComponent implements OnDestroy {
   constructor(
     viafService: ViafRefLookupService,
     biblissimaService: BiblissimaRefLookupService,
+    pleiadesService: PleiadesRefLookupService,
   ) {
     this.configs = [
       {
@@ -62,6 +67,15 @@ export class RefLookupSetPgComponent implements OnDestroy {
         service: biblissimaService,
         itemIdGetter: (item: any) => item?.id,
         itemLabelGetter: (item: any) => item?.name,
+      },
+      {
+        name: 'Pleiades',
+        iconUrl: '/img/pleiades128.png',
+        description: 'Pleiades gazetteer of ancient places',
+        label: 'ID',
+        service: pleiadesService,
+        itemIdGetter: (item: PleiadesSearchResult) => item?.id,
+        itemLabelGetter: (item: PleiadesSearchResult) => item?.name,
       },
     ];
   }

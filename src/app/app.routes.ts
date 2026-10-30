@@ -289,6 +289,14 @@ export const routes: Routes = [
         (m) => m.MufiRefLookupPgComponent,
       ),
   },
+  // refs/pleiades-ref-lookup
+  {
+    path: 'refs/pleiades-ref-lookup',
+    loadComponent: () =>
+      import('./components/refs/pleiades-ref-lookup-pg/pleiades-ref-lookup-pg.component').then(
+        (m) => m.PleiadesRefLookupPgComponent,
+      ),
+  },
   // refs/viaf-ref-lookup
   {
     path: 'refs/viaf-ref-lookup',
@@ -319,6 +327,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/geo/geo-location-editor-pg/geo-location-editor-pg.component').then(
         (m) => m.GeoLocationEditorPgComponent,
+      ),
+  },
+  // geo/pleiades-query
+  {
+    path: 'geo/pleiades-query',
+    loadComponent: () =>
+      import('./components/geo/pleiades-query-pg/pleiades-query-pg.component').then(
+        (m) => m.PleiadesQueryPgComponent,
       ),
   },
   // text/emoji-ime
