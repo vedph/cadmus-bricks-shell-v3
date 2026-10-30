@@ -34,6 +34,8 @@ import {
 } from '@myrmidon/cadmus-refs-citation';
 import { ZoteroRefLookupService } from '@myrmidon/cadmus-refs-zotero-lookup';
 import {
+  PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
+  PleiadesLookupOptionsComponent,
   PleiadesRefLookupService,
   PleiadesSearchResult,
 } from '@myrmidon/cadmus-refs-pleiades-lookup';
@@ -120,6 +122,8 @@ export class App {
         service: inject(PleiadesRefLookupService),
         itemIdGetter: (item: PleiadesSearchResult) => item?.id,
         itemLabelGetter: (item: PleiadesSearchResult) => item?.name,
+        optDialog: PleiadesLookupOptionsComponent,
+        optDialogConfig: PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
       },
       // Zotero
       {

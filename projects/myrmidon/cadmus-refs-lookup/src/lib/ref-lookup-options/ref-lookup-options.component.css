@@ -1,0 +1,18 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* when the dialog has a height, the options component fills it */
+mat-dialog-content.fill {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  max-height: none;
+  min-height: 0;
+}
+mat-dialog-content.fill > ::ng-deep * {
+  flex: 1 1 auto;
+  min-height: 0;
+}

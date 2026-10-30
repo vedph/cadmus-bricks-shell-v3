@@ -38,6 +38,7 @@ Generic reference lookup component. This can be used to provide quick lookup int
   - `hasMore` (`boolean?`)
   - `linkTemplate` (`string?`): the optional template to be used when building the URI pointing to the external resource and linked by the _Link_ button. The ID placeholder is represented by a property path included in `{}`, e.g. `{id}` or `{some.id}`. If undefined, no link button will be displayed.
   - `optDialog` (`unknown`): when using quick options, this is a component used to customize the lookup `options`.
+  - `optDialogConfig` (`RefLookupOptDialogConfig?`): the configuration of the dialog hosting `optDialog`: `title`, `width`, `height`, `minWidth`, `minHeight`, `maxWidth`, `maxHeight`, `panelClass`. Use it for options components larger than a simple form, e.g. those including a map. When `height` is set, the options component fills the dialog's height (as a flex item), rather than scrolling within the default max height of the dialog content.
   - `options` (`unknown`): options for lookup.
   - `lookupProviderOptions` (`LookupProviderOptions?`): preset scopes for automatic options configuration. See [Configuring Lookup Scopes](#configuring-lookup-scopes).
 - 🔥 output:
@@ -78,6 +79,7 @@ Once you have created this options component, the component hosting the lookup c
 
 - a property for the options component: e.g. `public optDialog: Type<any> = RefLookupDummyOptComponent;`.
 - a property for the options data, e.g. `public options: any;`.
+- optionally, a property for the options dialog configuration (`RefLookupOptDialogConfig`), e.g. to give it a title and a larger size: `public optDialogConfig = { title: 'Options', width: '90vw', height: '80vh' };`. When it has a height, the hosting dialog makes your component fill that height, so give your component's host a flex column layout to fill it (e.g. `:host { display: flex; flex-direction: column; height: 100%; }`).
 
 These must then be bound to the lookup control, e.g.:
 
@@ -500,6 +502,8 @@ import { LookupDocReferencesComponent } from "@myrmidon/cadmus-refs-lookup";
 ## History
 
 ### unreleased
+
+- 2026-10-30: added `optDialogConfig` to `RefLookupComponent` (and to `RefLookupConfig`, passed by `RefLookupSetComponent` and by the place lookup of `AssertedChronotopeComponent`), so that the options dialog can have a title and a custom size, e.g. for an options component with a map. With a `height`, `RefLookupOptionsComponent` makes the options component fill the dialog instead of capping it at the default content max height. `RefLookupOptionsComponent` no longer renders an empty title when there is none.
 
 - 2026-10-13: added `configId` to `RefLookupSetComponent` to let consumers select a lookup configuration by its service ID. Also, when the selected configuration is removed from `configs` the first one is selected.
 - 2026-10-01: `RefLookupComponent` options list: `@for` now tracks by `$index` instead of by item identity. Each lookup response carries fresh item objects, and items have no common identity field because each service defines its own shape. So identity tracking destroyed and re-created every `mat-option` on each response, which Angular reports as `NG0956` in dev mode. Index tracking reuses the option elements and updates their bindings, and picking a reused option still selects the item currently shown.

@@ -49,11 +49,13 @@ import {
   PleiadesLngLat,
   PleiadesLookupEntry,
   PleiadesPlace,
+  PleiadesSearchFilters,
   PleiadesSearchRequest,
   PleiadesSearchResult,
   PleiadesSearchScope,
 } from '../../models';
 import { PleiadesApiService } from '../../services/pleiades-api.service';
+import { PleiadesFiltersStore } from '../../services/pleiades-filters-store';
 import { crossesAntimeridian } from '../../services/pleiades-geo';
 import { getPleiadesErrorMessage } from '../../services/pleiades-helpers';
 import {
@@ -68,6 +70,7 @@ import {
   getQueryPoint,
   getQueryRegion,
   isInvertedRange,
+  pleiadesQueryToFilters,
   pleiadesQueryToRequest,
   pleiadesRequestToQuery,
   PleiadesQueryControls,
@@ -86,6 +89,22 @@ const DETAILS_TAB = 1;
  * The maximum count of place types suggested while typing.
  */
 const MAX_TYPE_SUGGESTIONS = 50;
+
+/**
+ * Serialize a value into JSON with sorted object keys, so that equal
+ * filters get the same JSON whatever the order of their properties.
+ */
+function toSortedJson(value: unknown): string {
+  return JSON.stringify(value, (_, v) =>
+    v && typeof v === 'object' && !Array.isArray(v)
+      ? Object.fromEntries(
+          Object.keys(v)
+            .sort()
+            .map((k) => [k, v[k]]),
+        )
+      : v,
+  );
+}
 
 /**
  * Pleiades query component. This provides a full search UI for the
@@ -121,6 +140,7 @@ const MAX_TYPE_SUGGESTIONS = 50;
 })
 export class PleiadesQueryComponent {
   private readonly _api = inject(PleiadesApiService);
+  private readonly _store = inject(PleiadesFiltersStore);
   private readonly _search$ = new Subject<PleiadesSearchRequest>();
   private readonly _details$ = new Subject<string>();
   // the last request executed by this component
@@ -152,6 +172,19 @@ export class PleiadesQueryComponent {
   public readonly hidePick = input<boolean>(false);
 
   /**
+   * True to hide the text filter, e.g. when the text comes from elsewhere
+   * like in the lookup options. You can still search, using the other
+   * filters only.
+   */
+  public readonly hideText = input<boolean>(false);
+
+  /**
+   * True to show the button to save the filters (except text) in the
+   * local storage, so that the lookup service uses them by default.
+   */
+  public readonly canSaveFilters = input<boolean>(false);
+
+  /**
    * The default page size (1-100).
    */
   public readonly pageSize = input<number>(50);
@@ -176,6 +209,11 @@ export class PleiadesQueryComponent {
    * Emitted when the user picks a place.
    */
   public readonly placePick = output<PleiadesSearchResult>();
+
+  /**
+   * Emitted when the user saves the filters.
+   */
+  public readonly filtersSave = output<PleiadesSearchFilters>();
   // #endregion
 
   // #region Form
@@ -210,6 +248,9 @@ export class PleiadesQueryComponent {
   public readonly placeTypes = signal<PleiadesLookupEntry[]>([]);
   public readonly placeTypesError = signal<string | undefined>(undefined);
   public readonly placeTypeFilter = signal('');
+
+  // the JSON of the saved filters, if any
+  private readonly _savedFilters = signal<string | undefined>(undefined);
   // #endregion
 
   // #region Computed
@@ -242,6 +283,20 @@ export class PleiadesQueryComponent {
       d.sort !== 'title',
     ].filter((b) => b).length;
   });
+
+  /**
+   * The current filters, i.e. the request without text and paging.
+   */
+  public readonly filters = computed(() =>
+    pleiadesQueryToFilters(this._draft()),
+  );
+
+  /**
+   * True if the current filters are equal to the saved ones.
+   */
+  public readonly filtersSaved = computed(
+    () => toSortedJson(this.filters()) === this._savedFilters(),
+  );
 
   public readonly mapPoint = computed(() => getQueryPoint(this._draft()));
   public readonly mapBBox = computed(() => getQueryBBox(this._draft()));
@@ -384,6 +439,15 @@ export class PleiadesQueryComponent {
         this._fitDetails = false;
       });
 
+    // the saved filters, to tell whether the current ones are saved:
+    // normalize them through the controls, like the current ones
+    const saved = this._store.load();
+    this._savedFilters.set(
+      saved
+        ? toSortedJson(pleiadesQueryToFilters(pleiadesRequestToQuery(saved)))
+        : undefined,
+    );
+
     // load the place types once
     this._api
       .getPlaceTypes()
@@ -501,6 +565,30 @@ export class PleiadesQueryComponent {
     this.error.set(undefined);
     this.selectedId.set(undefined);
     this.details.set(undefined);
+  }
+
+  /**
+   * Get the current filters, i.e. the request without text and paging.
+   * Scopes are always included, even when empty (meaning all scopes).
+   * @returns The filters.
+   */
+  public getFilters(): PleiadesSearchFilters {
+    return this.filters();
+  }
+
+  /**
+   * Save the current filters in the local storage, unless invalid.
+   */
+  public saveFilters(): void {
+    if (this.form().invalid()) {
+      this.form().markAsTouched();
+      return;
+    }
+    const filters = this.filters();
+    if (this._store.save(filters)) {
+      this._savedFilters.set(toSortedJson(filters));
+    }
+    this.filtersSave.emit(filters);
   }
   // #endregion
 

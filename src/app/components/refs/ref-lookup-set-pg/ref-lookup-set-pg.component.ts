@@ -13,6 +13,8 @@ import {
 import { ViafRefLookupService } from '@myrmidon/cadmus-refs-viaf-lookup';
 import { BiblissimaRefLookupService } from '@myrmidon/cadmus-refs-biblissima-lookup';
 import {
+  PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
+  PleiadesLookupOptionsComponent,
   PleiadesRefLookupService,
   PleiadesSearchResult,
 } from '@myrmidon/cadmus-refs-pleiades-lookup';
@@ -76,6 +78,8 @@ export class RefLookupSetPgComponent implements OnDestroy {
         service: pleiadesService,
         itemIdGetter: (item: PleiadesSearchResult) => item?.id,
         itemLabelGetter: (item: PleiadesSearchResult) => item?.name,
+        optDialog: PleiadesLookupOptionsComponent,
+        optDialogConfig: PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
       },
     ];
   }

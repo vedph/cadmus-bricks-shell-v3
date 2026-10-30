@@ -1,6 +1,7 @@
 import {
   PleiadesBBox,
   PleiadesLngLat,
+  PleiadesSearchFilters,
   PleiadesSearchRequest,
   PleiadesSearchScope,
   PleiadesSearchSort,
@@ -202,6 +203,22 @@ export function pleiadesQueryToRequest(
     }
   }
   return request;
+}
+
+/**
+ * Build the search filters (i.e. the request without text and paging)
+ * from the query controls. Scopes are always included, even when empty
+ * (meaning all scopes), so that they override any default scopes of the
+ * consumer, e.g. the toponym scopes of the lookup service.
+ * @param c The controls.
+ * @returns The filters.
+ */
+export function pleiadesQueryToFilters(
+  c: PleiadesQueryControls,
+): PleiadesSearchFilters {
+  const { text, matchAny, pageNumber, pageSize, ...filters } =
+    pleiadesQueryToRequest(c);
+  return { ...filters, scopes: [...c.scopes] };
 }
 
 /**

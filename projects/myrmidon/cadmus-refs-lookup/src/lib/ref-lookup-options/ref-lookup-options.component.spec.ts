@@ -42,6 +42,36 @@ describe('RefLookupOptionsComponent', () => {
     expect(container.querySelector('.opt-content')).toBeTruthy();
   });
 
+  it('should not render the title when not set', async () => {
+    const { container } = await setup({ component: TestOptContentComponent });
+    expect(container.querySelector('h2')).toBeNull();
+  });
+
+  it('should render the title when set', async () => {
+    const { container } = await setup({
+      component: TestOptContentComponent,
+      title: 'Options',
+    });
+    expect(container.querySelector('h2')?.textContent).toContain('Options');
+  });
+
+  it('should not make the content fill the dialog by default', async () => {
+    const { container } = await setup({ component: TestOptContentComponent });
+    expect(
+      container.querySelector('mat-dialog-content')!.classList.contains('fill'),
+    ).toBe(false);
+  });
+
+  it('should make the content fill the dialog when data.fill is set', async () => {
+    const { container } = await setup({
+      component: TestOptContentComponent,
+      fill: true,
+    });
+    expect(
+      container.querySelector('mat-dialog-content')!.classList.contains('fill'),
+    ).toBe(true);
+  });
+
   it('should close the dialog ref when onClose is called', async () => {
     const { fixture, dialogRef } = await setup({
       component: TestOptContentComponent,

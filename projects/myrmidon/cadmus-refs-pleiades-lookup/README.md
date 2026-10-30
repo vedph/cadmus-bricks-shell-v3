@@ -6,9 +6,12 @@
   - [Services](#services)
     - [PleiadesApiService](#pleiadesapiservice)
     - [PleiadesRefLookupService](#pleiadesreflookupservice)
+    - [Lookup Options](#lookup-options)
+    - [PleiadesFiltersStore](#pleiadesfiltersstore)
   - [Components](#components)
     - [PleiadesQueryComponent](#pleiadesquerycomponent)
     - [PleiadesQueryDialogComponent](#pleiadesquerydialogcomponent)
+    - [PleiadesLookupOptionsComponent](#pleiadeslookupoptionscomponent)
     - [PleiadesMapComponent](#pleiadesmapcomponent)
     - [PleiadesResultListComponent](#pleiadesresultlistcomponent)
     - [PleiadesPlaceDetailsComponent](#pleiadesplacedetailscomponent)
@@ -22,12 +25,13 @@ Lookup and search components for the [Pleiades](https://pleiades.stoa.org) gazet
 This library provides:
 
 - 🔍 `PleiadesApiService`: a client for the Pleiades API (lookup data, search, place details, nearby places).
-- 🏷️ `PleiadesRefLookupService`: a `RefLookupService` to look up places in `RefLookupComponent` (from `@myrmidon/cadmus-refs-lookup`).
+- 🏷️ `PleiadesRefLookupService`: a `RefLookupService` to look up places in `RefLookupComponent` (from `@myrmidon/cadmus-refs-lookup`), with `PleiadesLookupOptionsComponent` letting users set all the search filters (including spatial ones drawn on a map) in the lookup options, and save them as defaults.
 - 🗺️ `PleiadesQueryComponent`: a full search UI with text, metadata, and spatial filters drawn on a map, showing results in the map, in a list, and in a details view. Also wrapped in `PleiadesQueryDialogComponent`.
 - 🧩 the building blocks of the query component, usable on their own: `PleiadesMapComponent`, `PleiadesResultListComponent`, `PleiadesPlaceDetailsComponent`.
 
 ## Requirements
 
+- `@myrmidon/cadmus-refs-lookup` with `optDialogConfig` (unreleased after 11.0.9) for `PleiadesLookupOptionsComponent`, which needs a large dialog.
 - a running Pleiades API (version 3.0.1 or later for regions and bounding boxes crossing the antimeridian). Its data endpoints are anonymous. Ensure your app's origin is listed in its `AllowedOrigins` setting (CORS).
 - Angular Material with an M3 theme (the components use `--mat-sys-*` tokens).
 - for the map components, [MapLibre GL](https://maplibre.org/) and its Angular wrapper [ngx-maplibre-gl](https://github.com/maplibre/ngx-maplibre-gl).
@@ -118,7 +122,7 @@ About 18% of the places (e.g. ethnic groups, or places known only from texts) ar
 
 A `RefLookupService` (with ID `pleiades`) for `RefLookupComponent`, which uses the quick search as a type-ahead lookup for places. Its items are `PleiadesSearchResult` objects:
 
-- `lookup(filter, options?)`: by default, searches toponyms (`PLEIADES_TOPONYM_SCOPES`), adding the "starts with" operator to the last word typed (e.g. `via app` becomes `via ^=app`), unless it already has an operator. Pass `PleiadesRefLookupOptions` as options to set any search filter except text and paging (e.g. `{ placeTypes: ['settlement'], rankMin: 90 }`), and `noTypeAhead: true` to use the text as typed. Errors yield no items.
+- `lookup(filter, options?)`: by default, searches toponyms (`PLEIADES_TOPONYM_SCOPES`), adding the "starts with" operator to the last word typed (e.g. `via app` becomes `via ^=app`), unless it already has an operator. Pass `PleiadesRefLookupOptions` as options to set any search filter except text and paging (`PleiadesSearchFilters`, e.g. `{ placeTypes: ['settlement'], rankMin: 90 }`; `scopes` replaces the default toponym scopes, and an empty array means all scopes), `matchAny: true` to match any word, and `noTypeAhead: true` to use the text as typed. When options are undefined, the filters saved by the user in `PleiadesFiltersStore` are used, if any. Errors yield no items.
 - `getById(id)`: gets a place by its Pleiades ID, as a search result (via `pleiadesPlaceToResult`).
 - `getName(item)`: returns the place name.
 
@@ -166,10 +170,59 @@ To use Pleiades among the providers of a `RefLookupSetComponent` (you can copy t
   service: inject(PleiadesRefLookupService),
   itemIdGetter: (item: PleiadesSearchResult) => item?.id,
   itemLabelGetter: (item: PleiadesSearchResult) => item?.name,
+  // optional: let users set all the filters in the lookup options
+  optDialog: PleiadesLookupOptionsComponent,
+  optDialogConfig: PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
 }
 ```
 
 To let users switch from the lookup to the full search, set `[hasMore]="true"` on the lookup and open `PleiadesQueryDialogComponent` on its `moreRequest` (see below).
+
+### Lookup Options
+
+The lookup uses the same quick search as `PleiadesQueryComponent`, so all of its filters can apply to the lookup too, except the text, which comes from what the user types in the lookup. To let users set them in the options dialog of `RefLookupComponent`, set its `optDialog` to `PleiadesLookupOptionsComponent`, and its `optDialogConfig` to `PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG` (or any configuration with a large size, as the dialog hosts a map):
+
+```html
+<cadmus-refs-lookup
+  [service]="service"
+  [item]="item()"
+  [optDialog]="optDialog"
+  [optDialogConfig]="optDialogConfig"
+  [(options)]="options"
+  label="place"
+  (itemChange)="item.set($event)"
+/>
+```
+
+```ts
+public readonly optDialog = PleiadesLookupOptionsComponent;
+public readonly optDialogConfig = PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG;
+public readonly options = signal<PleiadesRefLookupOptions | undefined>(undefined);
+```
+
+The options button of the lookup then opens a dialog with the query component without its text filter. There users can:
+
+- set any filter, including the spatial ones drawn on the map, and search to preview the places matching them.
+- apply the filters to the lookup, closing the dialog with them as the lookup options; or cancel, closing it with the original options.
+- save the filters (bookmark button), so that they are used whenever the lookup has no options, e.g. the next time the lookup is used. The button's icon shows whether the current filters are the saved ones.
+
+So the lookup uses, in order of priority:
+
+1. the options set by the dialog or by scopes (`lookupProviderOptions`);
+2. else, the saved filters;
+3. else, the default toponym scopes only.
+
+Note that `RefLookupComponent` resets its options when its dialog is closed without a result (e.g. by pressing Escape), so the saved filters apply again.
+
+### PleiadesFiltersStore
+
+The store of the filters saved by the user in the browser's local storage. The filters are a `PleiadesSearchFilters`, i.e. a search request without text and paging.
+
+- 🛠️ **methods**:
+  - `load()`: returns undefined when nothing is saved or the entry is unreadable.
+  - `save(filters)`: returns false if storage is not available.
+  - `clear()`.
+- **storage key**: `cadmus-refs-pleiades-lookup.filters`. To use a different one (e.g. for different apps on the same origin), provide the `PLEIADES_FILTERS_STORAGE_KEY` token.
 
 ## Components
 
@@ -197,6 +250,8 @@ The component fills its container, laying out map and tabs side by side when the
   - `request` (`PleiadesSearchRequest?`): the search request (two-way bindable `model`). Set it to fill the filters (and search, when `autoSearch` is true); it is updated at each search.
   - `autoSearch` (`boolean`): true to search when `request` is set by the consumer. Default is false.
   - `hidePick` (`boolean`): true to hide the buttons to pick a place. Default is false.
+  - `hideText` (`boolean`): true to hide the text filter (and its match any option), e.g. when the text comes from elsewhere, as in the lookup options. You can still search, using the other filters only. Default is false.
+  - `canSaveFilters` (`boolean`): true to show the button that saves the current filters (except text) in `PleiadesFiltersStore`, so that the lookup uses them by default. Its icon shows whether the current filters equal the saved ones. Default is false.
   - `pageSize` (`number`): the default page size (1-100). Default is 50.
   - `defaultScopes` (`PleiadesSearchScope[]`): the default scopes. Default is none (=all).
   - `mapStyle` (`string`): the MapLibre style URL. Default is `PLEIADES_DEFAULT_MAP_STYLE` (OpenFreeMap Liberty).
@@ -204,6 +259,15 @@ The component fills its container, laying out map and tabs side by side when the
   - `initialZoom` (`number`): the initial zoom of the map. Default is 4.
 - 🔥 **outputs**:
   - `placePick` (`PleiadesSearchResult`): emitted when the user picks a place, from the list or from the details.
+  - `filtersSave` (`PleiadesSearchFilters`): emitted when the user saves the filters.
+- 🛠️ **methods**:
+  - `search(pageNumber?)`.
+  - `reset()`.
+  - `getFilters()`: the current filters, without text and paging. `scopes` is always included; an empty array means all scopes.
+  - `saveFilters()`.
+- 📡 **signals**:
+  - `filters`: the current filters.
+  - `filtersSaved`: true if the current filters equal the saved ones.
 
 ```ts
 import { Component } from "@angular/core";
@@ -239,7 +303,7 @@ export class PleiadesPageComponent {
 }
 ```
 
-The form state is exposed through `form` (a signal form), and the logic converting it to and from search requests is available as pure functions in `pleiades-query-form`: `createPleiadesQueryControls`, `pleiadesQueryToRequest`, and `pleiadesRequestToQuery`.
+The form state is exposed through `form` (a signal form), and the logic converting it to and from search requests is available as pure functions in `pleiades-query-form`: `createPleiadesQueryControls`, `pleiadesQueryToRequest`, `pleiadesQueryToFilters`, and `pleiadesRequestToQuery`.
 
 ### PleiadesQueryDialogComponent
 
@@ -266,6 +330,18 @@ dialog
     }
   });
 ```
+
+### PleiadesLookupOptionsComponent
+
+The options component for the Pleiades lookup (see [Lookup Options](#lookup-options)), to be set as the `optDialog` of `RefLookupComponent`. It hosts `PleiadesQueryComponent` with the toponym scopes as its default scopes, without the text filter and the pick buttons, but with the save filters button. It adds apply and cancel buttons.
+
+- 🔑 **class**: `PleiadesLookupOptionsComponent`
+- 🚩 **selector**: `cadmus-pleiades-lookup-options`
+- 📥 **data** (`PleiadesLookupOptionsData`, from the lookup options dialog): `options` (`PleiadesRefLookupOptions?`), the current lookup options. When they are undefined, the filters start from the saved ones.
+- 📤 **result**:
+  - on apply: the new options, i.e. the filters, plus `noTypeAhead` and `matchAny` from the original options.
+  - on cancel: the original options.
+- `PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG`: the dialog configuration for `optDialogConfig` (title "Pleiades lookup filters", 95vw up to 1400px wide, 90vh high).
 
 ### PleiadesMapComponent
 
@@ -337,4 +413,8 @@ As MapLibre layers require literal colors, the map resolves these properties int
 
 ### 0.0.1
 
-- 2026-10-30: initial release.
+- 2026-10-30:
+  - initial release.
+  - lookup options: in the options dialog of `RefLookupComponent`, `PleiadesLookupOptionsComponent` lets users set all the filters except text for the lookup. Users can save them in the local storage (`PleiadesFiltersStore`), and the lookup service then uses them by default.
+    - `PleiadesQueryComponent`: new `hideText` and `canSaveFilters` inputs, `filtersSave` output, `filters` and `filtersSaved` signals, and `getFilters()` and `saveFilters()` methods.
+    - `PleiadesRefLookupOptions`: new `matchAny` option.

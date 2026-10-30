@@ -1,5 +1,7 @@
+@if (data?.title) {
 <h2 mat-dialog-title>{{ data.title }}</h2>
-<mat-dialog-content>
+}
+<mat-dialog-content [class.fill]="!!data?.fill">
   <ng-container
     *ngComponentOutlet="$safeNavigationMigration(data?.component)"
   ></ng-container>

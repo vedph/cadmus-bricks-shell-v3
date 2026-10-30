@@ -2,7 +2,9 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
-- 2026-10-30: added pleiades library (`@myrmidon/cadmus-refs-pleiades-lookup`), with demo pages for its lookup (`refs/pleiades-ref-lookup`) and its full query (`geo/pleiades-query`). These require the [Pleiades API](https://github.com/vedph/pleiades-api) 3.0.1 or later, whose URL is set by `pleiadesUrl` in `env.js`. Pleiades is also among the lookup providers of the app (with icon `img/pleiades128.png`) and of the lookup set demo.
+- 2026-10-30:
+  - added pleiades library (`@myrmidon/cadmus-refs-pleiades-lookup`), with demo pages for its lookup (`refs/pleiades-ref-lookup`) and its full query (`geo/pleiades-query`). These require the [Pleiades API](https://github.com/vedph/pleiades-api) 3.0.1 or later, whose URL is set by `pleiadesUrl` in `env.js`. Pleiades is also among the lookup providers of the app (with icon `img/pleiades128.png`) and of the lookup set demo.
+  - Pleiades lookup options: the options dialog of the lookup now hosts the Pleiades query (without text), so users can set all the other filters, including spatial ones drawn on a map, and save them as defaults in the browser. This required `optDialogConfig` in `cadmus-refs-lookup`, to size the options dialog.
 
 ## 10.0.14
 

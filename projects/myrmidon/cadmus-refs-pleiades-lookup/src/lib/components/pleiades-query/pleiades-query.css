@@ -38,6 +38,11 @@
   flex: 1 1 260px;
   min-width: 200px;
 }
+.filters-title {
+  flex: 1 1 auto;
+  font: var(--mat-sys-title-small);
+  color: var(--mat-sys-on-surface-variant);
+}
 .help {
   cursor: help;
   color: var(--mat-sys-on-surface-variant);

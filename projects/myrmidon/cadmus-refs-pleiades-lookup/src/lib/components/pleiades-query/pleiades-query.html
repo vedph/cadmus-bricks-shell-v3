@@ -1,6 +1,7 @@
 <!-- filters -->
 <div class="filters" (keydown.enter)="onFiltersEnter($event)">
   <div class="row">
+    @if (!hideText()) {
     <mat-form-field class="text-field" subscriptSizing="dynamic">
       <mat-icon matIconPrefix>search</mat-icon>
       <mat-label>text</mat-label>
@@ -23,6 +24,9 @@
       matTooltip="Match any word rather than all"
       >any</mat-checkbox
     >
+    } @else {
+    <span class="filters-title">filters</span>
+    }
     <button
       type="button"
       mat-flat-button
@@ -42,6 +46,25 @@
     >
       <mat-icon>restart_alt</mat-icon>
     </button>
+    @if (canSaveFilters()) {
+    <button
+      type="button"
+      mat-icon-button
+      class="save-filters"
+      [matTooltip]="
+        filtersSaved()
+          ? 'Filters saved: they will be used by default'
+          : hideText()
+            ? 'Save filters as default'
+            : 'Save filters (except text) as default'
+      "
+      aria-label="save filters"
+      [disabled]="form().invalid()"
+      (click)="saveFilters()"
+    >
+      <mat-icon>{{ filtersSaved() ? 'bookmark_added' : 'bookmark_add' }}</mat-icon>
+    </button>
+    }
     <button
       type="button"
       mat-icon-button
@@ -397,7 +420,11 @@
         } @else {
         <div class="placeholder">
           <mat-icon>travel_explore</mat-icon>
-          <span>Set filters and search to find places.</span>
+          <span>{{
+            hideText()
+              ? 'Search to preview the places matching the filters.'
+              : 'Set filters and search to find places.'
+          }}</span>
         </div>
         }
       </div>

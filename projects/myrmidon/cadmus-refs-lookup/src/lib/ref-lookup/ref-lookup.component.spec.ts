@@ -302,6 +302,50 @@ describe('RefLookupComponent', () => {
     expect(component.options()).toEqual({ foo: 'bar' });
   });
 
+  it('showOptions should open the options dialog with optDialogConfig', () => {
+    fixture.componentRef.setInput('optDialog', {});
+    fixture.componentRef.setInput('optDialogConfig', {
+      title: 'Options',
+      width: '90vw',
+      height: '80vh',
+      panelClass: 'big',
+    });
+    fixture.detectChanges();
+
+    // see above for why the dialog comes from the component's injector
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    const openSpy = vi.spyOn(dialog, 'open').mockReturnValue({
+      afterClosed: () => of(undefined),
+    } as any);
+
+    component.showOptions();
+
+    const config = openSpy.mock.calls[0][1] as any;
+    expect(config.width).toBe('90vw');
+    expect(config.height).toBe('80vh');
+    expect(config.panelClass).toBe('big');
+    expect(config.title).toBeUndefined();
+    expect(config.data.title).toBe('Options');
+    expect(config.data.fill).toBe(true);
+  });
+
+  it('showOptions should not fill the dialog without a height', () => {
+    fixture.componentRef.setInput('optDialog', {});
+    fixture.detectChanges();
+
+    // see above for why the dialog comes from the component's injector
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    const openSpy = vi.spyOn(dialog, 'open').mockReturnValue({
+      afterClosed: () => of(undefined),
+    } as any);
+
+    component.showOptions();
+
+    const config = openSpy.mock.calls[0][1] as any;
+    expect(config.height).toBeUndefined();
+    expect(config.data.fill).toBe(false);
+  });
+
   it('showOptions should reset options when the dialog is closed without a result', () => {
     fixture.componentRef.setInput('optDialog', {});
     fixture.detectChanges();

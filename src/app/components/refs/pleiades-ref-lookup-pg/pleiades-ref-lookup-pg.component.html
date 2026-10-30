@@ -7,10 +7,16 @@
   <mat-card-content>
     <p>
       Type a toponym to look it up in the Pleiades gazetteer: the last word
-      you type is matched as a prefix. Pick a scope to limit the search, or
-      click the More button to open the full search in a dialog. This
-      requires the Pleiades API (see <code>pleiadesUrl</code> in
-      <code>env.js</code>).
+      you type is matched as a prefix. Pick a scope to limit the search,
+      click the options button to set all the other filters (including
+      spatial ones drawn on a map), or click the More button to open the full
+      search in a dialog. This requires the Pleiades API (see
+      <code>pleiadesUrl</code> in <code>env.js</code>).
+    </p>
+    <p>
+      In the options, the save button stores the filters in your browser:
+      the lookup then uses them whenever it has no options, e.g. when you
+      come back to this page.
     </p>
     <cadmus-refs-lookup
       [service]="service"
@@ -18,6 +24,9 @@
       [required]="true"
       [hasMore]="true"
       [lookupProviderOptions]="providerOptions"
+      [optDialog]="optDialog"
+      [optDialogConfig]="optDialogConfig"
+      [(options)]="options"
       linkTemplate="https://pleiades.stoa.org/places/{id}"
       label="Pleiades"
       (itemChange)="onItemChange($event)"
@@ -26,5 +35,26 @@
     @if (item(); as i) {
     <pre>{{ i | json }}</pre>
     }
+    <div class="filters">
+      <div>
+        <h3>options</h3>
+        <pre>{{ (options() | json) || 'none' }}</pre>
+      </div>
+      <div>
+        <h3>saved filters</h3>
+        <pre>{{ (savedFilters() | json) || 'none' }}</pre>
+        <button type="button" mat-button (click)="refreshSavedFilters()">
+          refresh
+        </button>
+        <button
+          type="button"
+          mat-button
+          [disabled]="!savedFilters()"
+          (click)="clearSavedFilters()"
+        >
+          clear
+        </button>
+      </div>
+    </div>
   </mat-card-content>
 </mat-card>

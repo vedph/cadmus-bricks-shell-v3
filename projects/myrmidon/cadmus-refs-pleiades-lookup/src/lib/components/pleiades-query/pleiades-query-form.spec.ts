@@ -4,6 +4,7 @@ import {
   getQueryPoint,
   getQueryRegion,
   isInvertedRange,
+  pleiadesQueryToFilters,
   pleiadesQueryToRequest,
   pleiadesRequestToQuery,
   PleiadesQueryControls,
@@ -173,6 +174,58 @@ describe('pleiades-query-form', () => {
     );
     expect(none.region).toBeUndefined();
     expect(none.containedInRegion).toBeUndefined();
+  });
+
+  describe('pleiadesQueryToFilters', () => {
+    it('drops text and paging, keeping empty scopes', () => {
+      expect(
+        pleiadesQueryToFilters(
+          controls({ text: 'roma', matchAny: true, pageSize: 50 }),
+        ),
+      ).toEqual({ scopes: [], sort: 'title' });
+    });
+
+    it('keeps all the other filters', () => {
+      const region: [number, number][] = [
+        [170, 10],
+        [190, 10],
+        [180, 20],
+      ];
+      expect(
+        pleiadesQueryToFilters(
+          controls({
+            scopes: ['plttl'],
+            placeTypes: ['settlement'],
+            rankMin: 10,
+            yearMax: 300,
+            spatialMode: 'polygon',
+            region,
+            containedInRegion: true,
+          }),
+        ),
+      ).toEqual({
+        scopes: ['plttl'],
+        placeTypes: ['/settlement'],
+        rankMin: 10,
+        yearMax: 300,
+        region,
+        containedInRegion: true,
+        sort: 'title',
+      });
+    });
+
+    it('round-trips through pleiadesRequestToQuery', () => {
+      const c = controls({
+        scopes: ['nmrmz'],
+        spatialMode: 'range',
+        pointLat: 37,
+        pointLng: 23,
+        distanceMax: 50,
+        sort: 'distance',
+      });
+      const back = pleiadesRequestToQuery(pleiadesQueryToFilters(c), controls());
+      expect(pleiadesQueryToFilters(back)).toEqual(pleiadesQueryToFilters(c));
+    });
   });
 
   describe('pleiadesRequestToQuery', () => {

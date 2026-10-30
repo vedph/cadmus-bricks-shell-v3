@@ -11,6 +11,10 @@ import {
   PleiadesSearchResult,
 } from '../../models';
 import { PleiadesApiService } from '../../services/pleiades-api.service';
+import {
+  PLEIADES_FILTERS_STORAGE_KEY,
+  PleiadesFiltersStore,
+} from '../../services/pleiades-filters-store';
 import { PleiadesMapComponent } from '../pleiades-map/pleiades-map';
 import { PleiadesQueryComponent } from './pleiades-query';
 
@@ -106,6 +110,8 @@ function place(id: string, patch: Partial<PleiadesPlace> = {}): PleiadesPlace {
   };
 }
 
+const STORAGE_KEY = 'test.pleiades.query.filters';
+
 const TYPES: PleiadesLookupEntry[] = [
   { id: 1, fullName: 'x/fort', shortName: 'fort', group: null },
   { id: 2, fullName: 'x/settlement', shortName: 'settlement', group: null },
@@ -139,11 +145,13 @@ describe('PleiadesQueryComponent', () => {
 
   beforeEach(async () => {
     api = new MockApi();
+    localStorage.removeItem(STORAGE_KEY);
     await TestBed.configureTestingModule({
       imports: [PleiadesQueryComponent],
       providers: [
         provideNoopAnimations(),
         { provide: PleiadesApiService, useValue: api },
+        { provide: PLEIADES_FILTERS_STORAGE_KEY, useValue: STORAGE_KEY },
       ],
     })
       .overrideComponent(PleiadesQueryComponent, {
@@ -157,6 +165,8 @@ describe('PleiadesQueryComponent', () => {
     el = fixture.nativeElement;
     await flush();
   });
+
+  afterEach(() => localStorage.removeItem(STORAGE_KEY));
 
   it('loads place types', () => {
     expect(api.getPlaceTypes).toHaveBeenCalledTimes(1);
@@ -595,6 +605,82 @@ describe('PleiadesQueryComponent', () => {
       component.search();
       await flush();
       expect(component.selectedId()).toBeUndefined();
+    });
+  });
+
+  describe('text and saved filters', () => {
+    it('shows the text by default, without the save button', () => {
+      expect(el.querySelector('.text-field')).toBeTruthy();
+      expect(el.querySelector('.filters-title')).toBeNull();
+      expect(el.querySelector('.save-filters')).toBeNull();
+    });
+
+    it('hides the text on request, still searching with filters', async () => {
+      fixture.componentRef.setInput('hideText', true);
+      await flush();
+      expect(el.querySelector('.text-field')).toBeNull();
+      expect(el.querySelector('.filters-title')).toBeTruthy();
+      component.form.rankMin().value.set(50);
+      component.search();
+      expect(api.search).toHaveBeenCalledWith({
+        pageNumber: 1,
+        pageSize: 50,
+        rankMin: 50,
+        sort: 'title',
+      });
+    });
+
+    it('gets the filters without text and paging', () => {
+      component.form.text().value.set('roma');
+      component.form.matchAny().value.set(true);
+      component.form.yearMin().value.set(-100);
+      expect(component.getFilters()).toEqual({
+        scopes: [],
+        yearMin: -100,
+        sort: 'title',
+      });
+    });
+
+    it('saves the filters in the store and emits them', async () => {
+      fixture.componentRef.setInput('canSaveFilters', true);
+      await flush();
+      const spy = vi.fn();
+      component.filtersSave.subscribe(spy);
+      component.form.text().value.set('roma');
+      component.form.placeTypes().value.set(['fort']);
+      await flush();
+      expect(component.filtersSaved()).toBe(false);
+
+      (el.querySelector('.save-filters') as HTMLElement).click();
+      await flush();
+
+      const expected = { scopes: [], placeTypes: ['/fort'], sort: 'title' };
+      expect(TestBed.inject(PleiadesFiltersStore).load()).toEqual(expected);
+      expect(spy).toHaveBeenCalledWith(expected);
+      expect(component.filtersSaved()).toBe(true);
+      expect(el.querySelector('.save-filters mat-icon')!.textContent).toContain(
+        'bookmark_added',
+      );
+
+      // text is not a filter, other filters are
+      component.form.text().value.set('ostia');
+      expect(component.filtersSaved()).toBe(true);
+      component.form.placeTypes().value.set([]);
+      expect(component.filtersSaved()).toBe(false);
+    });
+
+    it('does not save invalid filters', () => {
+      component.form.rankMin().value.set(50);
+      component.form.rankMax().value.set(10);
+      component.saveFilters();
+      expect(TestBed.inject(PleiadesFiltersStore).load()).toBeUndefined();
+    });
+
+    it('tells when the filters were saved before it was created', async () => {
+      TestBed.inject(PleiadesFiltersStore).save({ scopes: [], sort: 'title' });
+      const other = TestBed.createComponent(PleiadesQueryComponent);
+      other.detectChanges();
+      expect(other.componentInstance.filtersSaved()).toBe(true);
     });
   });
 });

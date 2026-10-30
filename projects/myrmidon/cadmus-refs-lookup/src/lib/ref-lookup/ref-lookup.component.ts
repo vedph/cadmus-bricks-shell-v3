@@ -74,6 +74,25 @@ export interface RefLookupService {
 }
 
 /**
+ * The configuration of the dialog hosting the lookup options component.
+ * Use it for options components larger than a simple form, e.g. those
+ * including a map. When `height` is set, the options component fills the
+ * dialog's height rather than scrolling within the default max height.
+ */
+export interface RefLookupOptDialogConfig {
+  /** The dialog's title. */
+  title?: string;
+  width?: string;
+  height?: string;
+  minWidth?: string | number;
+  minHeight?: string | number;
+  maxWidth?: string | number;
+  maxHeight?: string | number;
+  /** Additional CSS class(es) for the dialog's overlay panel. */
+  panelClass?: string | string[];
+}
+
+/**
  * Represents a single scope option for a lookup provider.
  * Each scope has a label for UI display and the options to apply.
  */
@@ -230,6 +249,12 @@ export class RefLookupComponent {
    * customize the options bound to options.
    */
   public readonly optDialog = input<unknown>();
+
+  /**
+   * The optional configuration of the dialog hosting optDialog, e.g. its
+   * size and title.
+   */
+  public readonly optDialogConfig = input<RefLookupOptDialogConfig>();
 
   /**
    * The quick options for the lookup service.
@@ -458,11 +483,15 @@ export class RefLookupComponent {
     }
     // open the lookup options dialog using optDialog as its content
     // and passing the options via data
+    const { title, ...size } = this.optDialogConfig() || {};
     this._dialog
       .open(RefLookupOptionsComponent, {
+        ...size,
         data: {
           component: this.optDialog(),
           options: this.options(),
+          title,
+          fill: !!size.height,
         },
       })
       .afterClosed()

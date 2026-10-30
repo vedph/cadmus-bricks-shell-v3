@@ -4,6 +4,10 @@ import { firstValueFrom, of, throwError } from 'rxjs';
 import { PleiadesPlace, PleiadesSearchResult } from '../models';
 import { PleiadesApiService } from './pleiades-api.service';
 import {
+  PLEIADES_FILTERS_STORAGE_KEY,
+  PleiadesFiltersStore,
+} from './pleiades-filters-store';
+import {
   pleiadesPlaceToResult,
   PleiadesRefLookupService,
 } from './pleiades-ref-lookup.service';
@@ -53,11 +57,17 @@ describe('PleiadesRefLookupService', () => {
       ),
       getPlace: vi.fn(() => of(PLACE)),
     };
+    localStorage.removeItem('test.pleiades.filters');
     TestBed.configureTestingModule({
-      providers: [{ provide: PleiadesApiService, useValue: api }],
+      providers: [
+        { provide: PleiadesApiService, useValue: api },
+        { provide: PLEIADES_FILTERS_STORAGE_KEY, useValue: 'test.pleiades.filters' },
+      ],
     });
     service = TestBed.inject(PleiadesRefLookupService);
   });
+
+  afterEach(() => localStorage.removeItem('test.pleiades.filters'));
 
   it('has id pleiades', () => {
     expect(service.id).toBe('pleiades');
@@ -94,6 +104,45 @@ describe('PleiadesRefLookupService', () => {
       text: 'roma',
       pageNumber: 1,
       pageSize: 100,
+    });
+  });
+
+  it('uses the saved filters when there are no options', async () => {
+    TestBed.inject(PleiadesFiltersStore).save({
+      scopes: [],
+      rankMin: 90,
+      region: [
+        [20, 35],
+        [25, 35],
+        [22, 40],
+      ],
+    });
+    await firstValueFrom(service.lookup({ text: 'ath', limit: 5 }));
+    expect(api.search).toHaveBeenCalledWith({
+      scopes: [],
+      rankMin: 90,
+      region: [
+        [20, 35],
+        [25, 35],
+        [22, 40],
+      ],
+      text: '^=ath',
+      pageNumber: 1,
+      pageSize: 5,
+    });
+  });
+
+  it('ignores the saved filters when there are options', async () => {
+    TestBed.inject(PleiadesFiltersStore).save({ rankMin: 90 });
+    await firstValueFrom(
+      service.lookup({ text: 'ath', limit: 5 }, { yearMin: -500 }),
+    );
+    expect(api.search).toHaveBeenCalledWith({
+      scopes: ['plttl', 'nmrmz', 'nmatt'],
+      yearMin: -500,
+      text: '^=ath',
+      pageNumber: 1,
+      pageSize: 5,
     });
   });
 

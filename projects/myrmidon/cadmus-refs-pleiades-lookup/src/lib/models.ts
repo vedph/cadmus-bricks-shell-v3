@@ -174,6 +174,15 @@ export interface PleiadesSearchRequest {
 }
 
 /**
+ * The filters of a Pleiades search request, i.e. all its properties
+ * except the text and paging.
+ */
+export type PleiadesSearchFilters = Omit<
+  PleiadesSearchRequest,
+  'text' | 'matchAny' | 'pageNumber' | 'pageSize'
+>;
+
+/**
  * A Pleiades search result, i.e. a place matching a search.
  */
 export interface PleiadesSearchResult {

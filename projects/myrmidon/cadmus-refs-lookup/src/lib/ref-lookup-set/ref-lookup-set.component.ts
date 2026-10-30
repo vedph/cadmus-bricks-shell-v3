@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import {
   LookupProviderOptions,
   RefLookupComponent,
+  RefLookupOptDialogConfig,
   RefLookupService,
 } from '../ref-lookup/ref-lookup.component';
 
@@ -129,6 +130,12 @@ export interface RefLookupConfig {
    * customize the options bound to options.
    */
   optDialog?: any;
+
+  /**
+   * The optional configuration of the dialog hosting optDialog,
+   * e.g. its size and title.
+   */
+  optDialogConfig?: RefLookupOptDialogConfig;
 
   /**
    * The quick options for the lookup service.

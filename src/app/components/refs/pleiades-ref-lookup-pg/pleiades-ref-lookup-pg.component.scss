@@ -2,3 +2,12 @@ pre {
   max-height: 400px;
   overflow: auto;
 }
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+.filters h3 {
+  margin: 8px 0 4px 0;
+  font: var(--mat-sys-title-small);
+}

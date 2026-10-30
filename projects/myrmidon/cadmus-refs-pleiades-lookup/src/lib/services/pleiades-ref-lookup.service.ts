@@ -9,10 +9,12 @@ import type {
 import {
   PLEIADES_TOPONYM_SCOPES,
   PleiadesPlace,
+  PleiadesSearchFilters,
   PleiadesSearchRequest,
   PleiadesSearchResult,
 } from '../models';
 import { PleiadesApiService } from './pleiades-api.service';
+import { PleiadesFiltersStore } from './pleiades-filters-store';
 import { buildTypeAheadText } from './pleiades-helpers';
 
 /**
@@ -20,8 +22,11 @@ import { buildTypeAheadText } from './pleiades-helpers';
  * request filters (except text and paging), plus a flag to disable the
  * type-ahead text processing.
  */
-export interface PleiadesRefLookupOptions
-  extends Omit<PleiadesSearchRequest, 'text' | 'pageNumber' | 'pageSize'> {
+export interface PleiadesRefLookupOptions extends PleiadesSearchFilters {
+  /**
+   * True to match any word of the text rather than all.
+   */
+  matchAny?: boolean;
   /**
    * True to use the text as it is typed, rather than appending the
    * "starts with" operator to its last word.
@@ -57,28 +62,34 @@ export function pleiadesPlaceToResult(
  * Pleiades reference lookup service. This uses the quick search of the
  * Pleiades API as a type-ahead lookup for places: by default it searches
  * toponyms (place titles and names), matching the last word typed as a
- * prefix. Pass PleiadesRefLookupOptions to change the search filters.
- * Items are PleiadesSearchResult objects.
+ * prefix. Pass PleiadesRefLookupOptions to change the search filters;
+ * when no options are passed, the filters saved by the user in
+ * PleiadesFiltersStore apply, if any. Items are PleiadesSearchResult
+ * objects.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class PleiadesRefLookupService implements RefLookupService {
   private readonly _api = inject(PleiadesApiService);
+  private readonly _store = inject(PleiadesFiltersStore);
 
   public readonly id = 'pleiades';
 
   /**
    * Lookup places.
    * @param filter The lookup filter with text and limit.
-   * @param options The optional search options.
+   * @param options The optional search options. When undefined, the
+   * filters saved in the filters store are used, if any.
    * @returns The matching places.
    */
   public lookup(
     filter: RefLookupFilter,
     options?: PleiadesRefLookupOptions,
   ): Observable<PleiadesSearchResult[]> {
-    const { noTypeAhead, ...rest } = options || {};
+    const effective: PleiadesRefLookupOptions =
+      options ?? this._store.load() ?? {};
+    const { noTypeAhead, ...rest } = effective;
     const text = noTypeAhead
       ? filter.text?.trim() || ''
       : buildTypeAheadText(filter.text);
