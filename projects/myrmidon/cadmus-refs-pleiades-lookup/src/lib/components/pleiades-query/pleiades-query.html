@@ -8,7 +8,6 @@
       <input
         matInput
         [formField]="form.text"
-        placeholder="e.g. athenae, ^=epidaur, %=athene"
         autocomplete="off"
       />
       <mat-icon
@@ -85,7 +84,7 @@
     <!-- scopes -->
     <mat-form-field class="scopes-field" subscriptSizing="dynamic">
       <mat-label>scopes</mat-label>
-      <mat-select [formField]="form.scopes" multiple placeholder="all">
+      <mat-select [formField]="form.scopes" multiple>
         @for (s of scopes; track s.id) {
         <mat-option [value]="s.id">
           {{ s.label }}
@@ -112,13 +111,20 @@
         <input
           #typeInput
           class="no-enter-search"
-          [placeholder]="placeTypesError() ? 'types not available' : 'any'"
           [matChipInputFor]="typeChips"
           [matAutocomplete]="typeAuto"
+          (focus)="onPlaceTypeFocus()"
           (input)="onPlaceTypeInput($event)"
           (matChipInputTokenEnd)="onPlaceTypeTokenEnd($event)"
         />
       </mat-chip-grid>
+      @if (placeTypesLoading()) {
+      <mat-hint>loading types...</mat-hint>
+      } @else if (placeTypesError()) {
+      <mat-hint class="types-error" [matTooltip]="placeTypesError()!"
+        >types not available</mat-hint
+      >
+      }
       <mat-autocomplete
         #typeAuto="matAutocomplete"
         (optionSelected)="onPlaceTypeSelected($event, typeInput)"

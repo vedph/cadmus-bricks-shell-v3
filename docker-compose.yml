@@ -76,7 +76,7 @@ services:
 
   # Cadmus Bricks App service
   cadmus-bricks-app:
-    image: vedph2020/cadmus-bricks-v3:10.0.15
+    image: vedph2020/cadmus-bricks-v3:10.0.16
     restart: unless-stopped
     container_name: cadmus-bricks-app
     depends_on:

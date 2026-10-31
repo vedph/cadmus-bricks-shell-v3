@@ -1,6 +1,6 @@
 {
   "name": "cadmus-bricks-shell-v3",
-  "version": "10.0.15",
+  "version": "10.0.16",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

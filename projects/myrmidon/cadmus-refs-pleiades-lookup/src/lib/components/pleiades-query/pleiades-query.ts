@@ -141,6 +141,7 @@ function toSortedJson(value: unknown): string {
 export class PleiadesQueryComponent {
   private readonly _api = inject(PleiadesApiService);
   private readonly _store = inject(PleiadesFiltersStore);
+  private readonly _destroyRef = inject(DestroyRef);
   private readonly _search$ = new Subject<PleiadesSearchRequest>();
   private readonly _details$ = new Subject<string>();
   // the last request executed by this component
@@ -246,6 +247,7 @@ export class PleiadesQueryComponent {
   public readonly detailsError = signal<string | undefined>(undefined);
 
   public readonly placeTypes = signal<PleiadesLookupEntry[]>([]);
+  public readonly placeTypesLoading = signal(false);
   public readonly placeTypesError = signal<string | undefined>(undefined);
   public readonly placeTypeFilter = signal('');
 
@@ -448,15 +450,7 @@ export class PleiadesQueryComponent {
         : undefined,
     );
 
-    // load the place types once
-    this._api
-      .getPlaceTypes()
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: (types) => this.placeTypes.set(types),
-        error: (error) =>
-          this.placeTypesError.set(getPleiadesErrorMessage(error)),
-      });
+    this.loadPlaceTypes();
 
     // apply the default page size and scopes
     effect(() => {
@@ -492,7 +486,7 @@ export class PleiadesQueryComponent {
       }
     });
 
-    inject(DestroyRef).onDestroy(() => {
+    this._destroyRef.onDestroy(() => {
       this._search$.complete();
       this._details$.complete();
     });
@@ -593,6 +587,37 @@ export class PleiadesQueryComponent {
   // #endregion
 
   // #region Place types
+  private loadPlaceTypes(reload = false): void {
+    this.placeTypesLoading.set(true);
+    this.placeTypesError.set(undefined);
+    this._api
+      .getPlaceTypes(reload)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe({
+        next: (types) => {
+          this.placeTypes.set(types);
+          this.placeTypesLoading.set(false);
+          if (!types.length) {
+            this.placeTypesError.set('No place types from the API');
+          }
+        },
+        error: (error) => {
+          this.placeTypesError.set(getPleiadesErrorMessage(error));
+          this.placeTypesLoading.set(false);
+        },
+      });
+  }
+
+  /**
+   * Retry loading the place types when the user enters their input,
+   * if they were not got (e.g. the API was not ready).
+   */
+  public onPlaceTypeFocus(): void {
+    if (!this.placeTypes().length && !this.placeTypesLoading()) {
+      this.loadPlaceTypes(true);
+    }
+  }
+
   public onPlaceTypeInput(event: Event): void {
     this.placeTypeFilter.set((event.target as HTMLInputElement).value);
   }

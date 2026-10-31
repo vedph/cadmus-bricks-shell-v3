@@ -1,6 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, InjectionToken } from '@angular/core';
-import { catchError, map, Observable, shareReplay, throwError } from 'rxjs';
+import {
+  catchError,
+  map,
+  Observable,
+  shareReplay,
+  tap,
+  throwError,
+} from 'rxjs';
 
 import { EnvService } from '@myrmidon/ngx-tools';
 
@@ -93,27 +100,45 @@ export class PleiadesApiService {
   /**
    * Get all the place types (entries with a short name only), sorted by
    * their short name. The result is cached after the first successful
-   * request.
+   * non-empty request.
+   * @param reload True to discard the cached result and bypass the browser
+   * cache, e.g. when an earlier request got no types because the API
+   * database was not yet seeded (lookup responses are cacheable).
    * @returns The place types.
    */
-  public getPlaceTypes(): Observable<PleiadesLookupEntry[]> {
+  public getPlaceTypes(reload = false): Observable<PleiadesLookupEntry[]> {
+    if (reload) {
+      this._placeTypes$ = undefined;
+    }
     if (!this._placeTypes$) {
-      this._placeTypes$ = this.getLookup({
-        prefix: PLEIADES_PLACE_TYPE_PREFIX,
-        pageSize: 0,
-      }).pipe(
-        map((page) =>
-          page.items
-            .filter((e) => e.shortName)
-            .sort((a, b) => a.shortName!.localeCompare(b.shortName!)),
-        ),
-        catchError((error) => {
-          // do not cache failures
-          this._placeTypes$ = undefined;
-          return throwError(() => error);
-        }),
-        shareReplay(1),
-      );
+      this._placeTypes$ = this._http
+        .get<PleiadesDataPage<PleiadesLookupEntry>>(this._url + 'lookup', {
+          params: {
+            prefix: PLEIADES_PLACE_TYPE_PREFIX,
+            pageSize: 0,
+            // cache buster: the XHR backend ignores the cache option
+            ...(reload ? { _: Date.now() } : {}),
+          },
+        })
+        .pipe(
+          map((page) =>
+            page.items
+              .filter((e) => e.shortName)
+              .sort((a, b) => a.shortName!.localeCompare(b.shortName!)),
+          ),
+          tap((types) => {
+            // do not cache an empty result
+            if (!types.length) {
+              this._placeTypes$ = undefined;
+            }
+          }),
+          catchError((error) => {
+            // do not cache failures
+            this._placeTypes$ = undefined;
+            return throwError(() => error);
+          }),
+          shareReplay(1),
+        );
     }
     return this._placeTypes$;
   }

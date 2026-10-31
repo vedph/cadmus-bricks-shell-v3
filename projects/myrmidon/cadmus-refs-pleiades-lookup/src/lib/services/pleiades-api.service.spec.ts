@@ -93,6 +93,50 @@ describe('PleiadesApiService', () => {
       .flush({ pageNumber: 1, pageSize: 0, total: 0, pageCount: 0, items: [] });
   });
 
+  it('getPlaceTypes does not cache an empty result', () => {
+    setup();
+    service.getPlaceTypes().subscribe();
+    http
+      .expectOne((r) => r.url === URL + 'lookup')
+      .flush({ pageNumber: 1, pageSize: 0, total: 0, pageCount: 0, items: [] });
+
+    let types: PleiadesLookupEntry[] = [];
+    service.getPlaceTypes().subscribe((t) => (types = t));
+    http.expectOne((r) => r.url === URL + 'lookup').flush({
+      pageNumber: 1,
+      pageSize: 0,
+      total: 1,
+      pageCount: 1,
+      items: [entry(1, 'abbey')],
+    });
+    expect(types.map((t) => t.shortName)).toEqual(['abbey']);
+  });
+
+  it('getPlaceTypes reload bypasses both caches', () => {
+    setup();
+    service.getPlaceTypes().subscribe();
+    const first = http.expectOne((r) => r.url === URL + 'lookup');
+    expect(first.request.params.has('_')).toBe(false);
+    first.flush({
+      pageNumber: 1,
+      pageSize: 0,
+      total: 1,
+      pageCount: 1,
+      items: [entry(1, 'abbey')],
+    });
+
+    service.getPlaceTypes(true).subscribe();
+    const second = http.expectOne((r) => r.url === URL + 'lookup');
+    expect(second.request.params.has('_')).toBe(true);
+    second.flush({
+      pageNumber: 1,
+      pageSize: 0,
+      total: 1,
+      pageCount: 1,
+      items: [entry(1, 'abbey')],
+    });
+  });
+
   it('search builds the query params', () => {
     setup();
     service
