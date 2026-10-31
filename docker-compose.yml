@@ -1,7 +1,9 @@
 services:
+  # PostgreSQL service for Cadmus Bricks
   cadmus-bricks-pgsql:
     image: postgres
     container_name: cadmus-bricks-pgsql
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -11,6 +13,47 @@ services:
     networks:
       - cadmus-bricks-network
 
+  # PostgreSQL service for Pleiades
+  pleiades-pgsql:
+    image: postgis/postgis
+    container_name: pleiades-pgsql
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 127.0.0.1:5433:5432
+    networks:
+      - cadmus-bricks-network
+    volumes:
+  # uncomment to persist data into volume
+  #  - pleiades-vol:/var/lib/postgresql
+
+  # Pleiades API service
+  pleiades-api:
+    image: vedph2020/pleiades-api:3.0.1
+    container_name: pleiades-api
+    restart: unless-stopped
+    ports:
+      # https://stackoverflow.com/questions/48669548/why-does-aspnet-core-start-on-port-80-from-within-docker
+      - 127.0.0.1:29139:8080
+    depends_on:
+      - pleiades-pgsql
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - CONNECTIONSTRINGS__DEFAULT=User ID=postgres;Password=postgres;Host=localhost;Port=5433;Database=pleiades;
+      - ALLOWEDORIGINS__0=https://cadmus-bricks-v3.fusi-soft.com
+      - SEEDDELAY=30
+      - SERILOG__CONNECTIONSTRING=mongodb://pleiades:27017/{0}-log
+      - DATA__SOURCEDIR=/var/pleiades
+    networks:
+      - cadmus-bricks-network
+    volumes:
+      # place bin dumps into ./dump for automatic restore
+      - ./dump:/var/pleiades
+
+  # Cadmus Bricks API service
   cadmus-bricks-api:
     image: vedph2020/cadmus-bricks-api:0.0.4
     restart: unless-stopped
@@ -18,27 +61,28 @@ services:
     depends_on:
       - cadmus-bricks-pgsql
     ports:
-      - 5132:8080
+      - 127.0.0.1:5132:8080
     environment:
       - ASPNETCORE_URLS=http://+:8080
       - ALLOWEDORIGINS__0=https://cadmus-bricks-v3.fusi-soft.com
       - CONNECTIONSTRINGS__AUTH=Server=cadmus-bricks-pgsql;Database={0};User Id=postgres;Password=postgres;Include Error Detail=True
       - CONNECTIONSTRINGS__TAXOSTORE=Server=cadmus-bricks-pgsql;Database=taxo-store-demo;User Id=postgres;Password=postgres;Include Error Detail=True
       - CONNECTIONSTRINGS__MOLDATABASE=Server=cadmus-bricks-pgsql;port=5432;Database={0};User Id=postgres;Password=postgres;Include Error Detail=True
-      - SEED__DELAY=0
+      - SEEDDELAY=10
       - MOL__INITIALIZATIONDELAYSECONDS=20
       - TAXOSTORE__INITIALIZATIONDELAYSECONDS=60
     networks:
       - cadmus-bricks-network
 
+  # Cadmus Bricks App service
   cadmus-bricks-app:
-    image: vedph2020/cadmus-bricks-v3:10.0.14
+    image: vedph2020/cadmus-bricks-v3:10.0.15
     restart: unless-stopped
     container_name: cadmus-bricks-app
     depends_on:
       - cadmus-bricks-api
     ports:
-      - 4211:80
+      - 127.0.0.1:4211:80
     #volumes:
     #  - ./env.js:/usr/share/nginx/html/env.js
     networks:
@@ -47,3 +91,7 @@ services:
 networks:
   cadmus-bricks-network:
     driver: bridge
+
+# uncomment to persist PostgreSQL data into a volume
+#volumes:
+#  pleiades-vol:
