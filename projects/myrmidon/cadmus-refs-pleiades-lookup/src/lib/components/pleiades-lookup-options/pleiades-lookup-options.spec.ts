@@ -110,13 +110,34 @@ describe('PleiadesLookupOptionsComponent', () => {
     expect(PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG.title).toBeTruthy();
   });
 
-  it('hosts the query without text and pick, with the save button', async () => {
+  it('hosts the query with test text, without pick, with the save button', async () => {
     await setup();
-    expect(query().hideText()).toBe(true);
+    expect(query().hideText()).toBe(false);
+    expect(query().testText()).toBe(true);
     expect(query().hidePick()).toBe(true);
     expect(query().canSaveFilters()).toBe(true);
-    expect(el.querySelector('.text-field')).toBeNull();
+    expect(el.querySelector('.test-text .text-field')).toBeTruthy();
     expect(el.querySelector('.save-filters')).toBeTruthy();
+  });
+
+  it('tests with the match any of the options', async () => {
+    await setup({ options: { matchAny: true } });
+    expect(query().form.matchAny().value()).toBe(true);
+  });
+
+  it('does not apply the test text nor its match any', async () => {
+    await setup({ options: { rankMin: 50 } });
+    query().form.text().value.set('roma');
+    query().form.matchAny().value.set(true);
+    fixture.detectChanges();
+
+    button('apply').click();
+
+    expect(dialogRef.close).toHaveBeenCalledWith({
+      scopes: ['plttl', 'nmrmz', 'nmatt'],
+      rankMin: 50,
+      sort: 'title',
+    });
   });
 
   it('defaults to the toponym scopes of the lookup', async () => {

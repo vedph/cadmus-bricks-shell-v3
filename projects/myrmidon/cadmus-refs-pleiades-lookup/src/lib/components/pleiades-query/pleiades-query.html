@@ -1,31 +1,46 @@
 <!-- filters -->
 <div class="filters" (keydown.enter)="onFiltersEnter($event)">
   <div class="row">
-    @if (!hideText()) {
-    <mat-form-field class="text-field" subscriptSizing="dynamic">
-      <mat-icon matIconPrefix>search</mat-icon>
-      <mat-label>text</mat-label>
-      <input
-        matInput
-        [formField]="form.text"
-        autocomplete="off"
-      />
-      <mat-icon
-        matIconSuffix
-        class="help"
-        matTooltip="Words are matched exactly, unless prefixed by an operator: ^= starts with, $= ends with, *= contains, ?= wildcards (? *), %= fuzzy, ~= regular expression, <> not equal. Press Enter to search."
-        aria-label="text syntax"
-        >help_outline</mat-icon
-      >
-    </mat-form-field>
-    <mat-checkbox
-      [formField]="form.matchAny"
-      matTooltip="Match any word rather than all"
-      >any</mat-checkbox
-    >
-    } @else {
+    @if (hideText()) {
     <span class="filters-title">filters</span>
+    } @else if (testText()) {
+    <fieldset class="test-text">
+      <legend>
+        <mat-icon class="test-icon">science</mat-icon>
+        test only
+      </legend>
+      <ng-container *ngTemplateOutlet="textTpl" />
+      <span class="test-hint"
+        >Type a place name to test the filters. This text is not saved: the
+        lookup uses what you type in it.</span
+      >
+    </fieldset>
+    } @else {
+    <ng-container *ngTemplateOutlet="textTpl" />
     }
+    <ng-template #textTpl>
+      <mat-form-field class="text-field" subscriptSizing="dynamic">
+        <mat-icon matIconPrefix>search</mat-icon>
+        <mat-label>{{ testText() ? 'test text' : 'text' }}</mat-label>
+        <input
+          matInput
+          [formField]="form.text"
+          autocomplete="off"
+        />
+        <mat-icon
+          matIconSuffix
+          class="help"
+          matTooltip="Words are matched exactly, unless prefixed by an operator: ^= starts with, $= ends with, *= contains, ?= wildcards (? *), %= fuzzy, ~= regular expression, <> not equal. Press Enter to search."
+          aria-label="text syntax"
+          >help_outline</mat-icon
+        >
+      </mat-form-field>
+      <mat-checkbox
+        [formField]="form.matchAny"
+        matTooltip="Match any word rather than all"
+        >any</mat-checkbox
+      >
+    </ng-template>
     <button
       type="button"
       mat-flat-button
@@ -55,6 +70,8 @@
           ? 'Filters saved: they will be used by default'
           : hideText()
             ? 'Save filters as default'
+            : testText()
+            ? 'Save filters (except test text) as default'
             : 'Save filters (except text) as default'
       "
       aria-label="save filters"
@@ -429,7 +446,9 @@
           <span>{{
             hideText()
               ? 'Search to preview the places matching the filters.'
-              : 'Set filters and search to find places.'
+              : testText()
+                ? 'Search to preview the places matching the filters, optionally typing a test text.'
+                : 'Set filters and search to find places.'
           }}</span>
         </div>
         }

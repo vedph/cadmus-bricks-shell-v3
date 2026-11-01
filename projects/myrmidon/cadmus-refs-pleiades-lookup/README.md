@@ -200,9 +200,9 @@ public readonly optDialogConfig = PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG;
 public readonly options = signal<PleiadesRefLookupOptions | undefined>(undefined);
 ```
 
-The options button of the lookup then opens a dialog with the query component without its text filter. There users can:
+The options button of the lookup then opens a dialog with the query component. Its text filter is framed and labeled as "test only": the text always comes from the lookup, so the dialog never sets it, but users can type a place name there to check the results of the filters they are setting. There users can:
 
-- set any filter, including the spatial ones drawn on the map, and search to preview the places matching them.
+- set any filter, including the spatial ones drawn on the map, and search to preview the places matching them, optionally typing a test text (with its match any option, which starts from the lookup options). Note that, unlike the lookup, the test text is used as typed, without adding the "starts with" operator.
 - apply the filters to the lookup, closing the dialog with them as the lookup options; or cancel, closing it with the original options.
 - save the filters (bookmark button), so that they are used whenever the lookup has no options, e.g. the next time the lookup is used. The button's icon shows whether the current filters are the saved ones.
 
@@ -250,7 +250,8 @@ The component fills its container, laying out map and tabs side by side when the
   - `request` (`PleiadesSearchRequest?`): the search request (two-way bindable `model`). Set it to fill the filters (and search, when `autoSearch` is true); it is updated at each search.
   - `autoSearch` (`boolean`): true to search when `request` is set by the consumer. Default is false.
   - `hidePick` (`boolean`): true to hide the buttons to pick a place. Default is false.
-  - `hideText` (`boolean`): true to hide the text filter (and its match any option), e.g. when the text comes from elsewhere, as in the lookup options. You can still search, using the other filters only. Default is false.
+  - `hideText` (`boolean`): true to hide the text filter (and its match any option), e.g. when the text comes from elsewhere. You can still search, using the other filters only. Default is false.
+  - `testText` (`boolean`): true to show the text filter (and its match any option) only to test the other filters, e.g. when the text comes from elsewhere, as in the lookup options. The text is then framed, labeled as "test only" with a hint, and it is never part of the filters (`getFilters()`, saved filters). Ignored when `hideText` is true. Default is false.
   - `canSaveFilters` (`boolean`): true to show the button that saves the current filters (except text) in `PleiadesFiltersStore`, so that the lookup uses them by default. Its icon shows whether the current filters equal the saved ones. Default is false.
   - `pageSize` (`number`): the default page size (1-100). Default is 50.
   - `defaultScopes` (`PleiadesSearchScope[]`): the default scopes. Default is none (=all).
@@ -333,13 +334,13 @@ dialog
 
 ### PleiadesLookupOptionsComponent
 
-The options component for the Pleiades lookup (see [Lookup Options](#lookup-options)), to be set as the `optDialog` of `RefLookupComponent`. It hosts `PleiadesQueryComponent` with the toponym scopes as its default scopes, without the text filter and the pick buttons, but with the save filters button. It adds apply and cancel buttons.
+The options component for the Pleiades lookup (see [Lookup Options](#lookup-options)), to be set as the `optDialog` of `RefLookupComponent`. It hosts `PleiadesQueryComponent` with the toponym scopes as its default scopes, with its text filter only to test the filters (`testText`), without the pick buttons, but with the save filters button. It adds apply and cancel buttons.
 
 - 🔑 **class**: `PleiadesLookupOptionsComponent`
 - 🚩 **selector**: `cadmus-pleiades-lookup-options`
 - 📥 **data** (`PleiadesLookupOptionsData`, from the lookup options dialog): `options` (`PleiadesRefLookupOptions?`), the current lookup options. When they are undefined, the filters start from the saved ones.
 - 📤 **result**:
-  - on apply: the new options, i.e. the filters, plus `noTypeAhead` and `matchAny` from the original options.
+  - on apply: the new options, i.e. the filters, plus `noTypeAhead` and `matchAny` from the original options. The test text and its match any option are never applied.
   - on cancel: the original options.
 - `PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG`: the dialog configuration for `optDialogConfig` (title "Pleiades lookup filters", 95vw up to 1400px wide, 90vh high).
 
@@ -410,6 +411,11 @@ As MapLibre layers require literal colors, the map resolves these properties int
 - `pleiades-map-style`: `loadPleiadesMapStyle` loads a MapLibre style and patches its filters to avoid null-comparison warnings from third-party styles.
 
 ## History
+
+### 0.0.3
+
+- 2026-11-01: lookup options: the text filter is no longer hidden, but framed as a test, so that users can check the results of the filters they set by typing a place name. The test text is never part of the options.
+  - `PleiadesQueryComponent`: new `testText` input.
 
 ### 0.0.1
 

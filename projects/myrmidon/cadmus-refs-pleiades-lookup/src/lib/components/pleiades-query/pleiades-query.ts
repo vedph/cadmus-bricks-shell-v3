@@ -12,6 +12,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FieldTree,
@@ -115,6 +116,7 @@ function toSortedJson(value: unknown): string {
 @Component({
   selector: 'cadmus-pleiades-query',
   imports: [
+    NgTemplateOutlet,
     FormField,
     MatAutocompleteModule,
     MatBadgeModule,
@@ -178,6 +180,14 @@ export class PleiadesQueryComponent {
    * filters only.
    */
   public readonly hideText = input<boolean>(false);
+
+  /**
+   * True to show the text filter only to test the other filters, e.g. in
+   * the lookup options, where the text comes from the lookup. The text is
+   * then framed and labeled as a test, and it is never part of the filters.
+   * Ignored when hideText is true.
+   */
+  public readonly testText = input<boolean>(false);
 
   /**
    * True to show the button to save the filters (except text) in the

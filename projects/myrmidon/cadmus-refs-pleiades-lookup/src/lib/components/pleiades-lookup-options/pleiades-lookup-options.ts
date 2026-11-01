@@ -47,7 +47,8 @@ export interface PleiadesLookupOptionsData {
  * `optDialog` of RefLookupComponent, with
  * PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG as its `optDialogConfig`. This
  * lets users set all the search filters except text, which comes from the
- * lookup, using PleiadesQueryComponent. Users can also save the filters
+ * lookup, using PleiadesQueryComponent. Its text is shown only to test the
+ * filters, and it is never part of the options. Users can also save the filters
  * in the local storage, so that the lookup uses them by default.
  * The dialog is closed with the new options when applying them, or with
  * the original options when cancelling.
@@ -57,7 +58,7 @@ export interface PleiadesLookupOptionsData {
   imports: [MatButtonModule, MatIconModule, PleiadesQueryComponent],
   template: `
     <cadmus-pleiades-query
-      [hideText]="true"
+      [testText]="true"
       [hidePick]="true"
       [canSaveFilters]="true"
       [defaultScopes]="defaultScopes"
@@ -124,7 +125,8 @@ export class PleiadesLookupOptionsComponent {
   constructor() {
     const initial: PleiadesRefLookupOptions =
       this.data?.options ?? this._store.load() ?? {};
-    const { noTypeAhead, matchAny, ...filters } = initial;
+    // matchAny only affects the test text, mirroring the lookup
+    const { noTypeAhead, ...filters } = initial;
     this.request = { ...filters };
   }
 

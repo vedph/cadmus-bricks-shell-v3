@@ -611,6 +611,7 @@ describe('PleiadesQueryComponent', () => {
   describe('text and saved filters', () => {
     it('shows the text by default, without the save button', () => {
       expect(el.querySelector('.text-field')).toBeTruthy();
+      expect(el.querySelector('.test-text')).toBeNull();
       expect(el.querySelector('.filters-title')).toBeNull();
       expect(el.querySelector('.save-filters')).toBeNull();
     });
@@ -628,6 +629,44 @@ describe('PleiadesQueryComponent', () => {
         rankMin: 50,
         sort: 'title',
       });
+    });
+
+    it('frames the text as a test on request, searching with it', async () => {
+      fixture.componentRef.setInput('testText', true);
+      await flush();
+      const frame = el.querySelector('fieldset.test-text')!;
+      expect(frame).toBeTruthy();
+      expect(frame.querySelector('legend')!.textContent).toContain('test only');
+      expect(frame.querySelector('.text-field')).toBeTruthy();
+      expect(frame.querySelector('mat-checkbox')).toBeTruthy();
+      expect(frame.querySelector('.test-hint')).toBeTruthy();
+      expect(el.querySelector('.filters-title')).toBeNull();
+
+      component.form.text().value.set('roma');
+      component.form.rankMin().value.set(50);
+      component.search();
+      expect(api.search).toHaveBeenCalledWith({
+        text: 'roma',
+        pageNumber: 1,
+        pageSize: 50,
+        rankMin: 50,
+        sort: 'title',
+      });
+      // the test text is not a filter
+      expect(component.getFilters()).toEqual({
+        scopes: [],
+        rankMin: 50,
+        sort: 'title',
+      });
+    });
+
+    it('hides the text when both hidden and tested', async () => {
+      fixture.componentRef.setInput('testText', true);
+      fixture.componentRef.setInput('hideText', true);
+      await flush();
+      expect(el.querySelector('.test-text')).toBeNull();
+      expect(el.querySelector('.text-field')).toBeNull();
+      expect(el.querySelector('.filters-title')).toBeTruthy();
     });
 
     it('gets the filters without text and paging', () => {

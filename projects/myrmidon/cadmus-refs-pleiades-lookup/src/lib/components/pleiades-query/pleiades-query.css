@@ -38,6 +38,38 @@
   flex: 1 1 260px;
   min-width: 200px;
 }
+/* text used only to test the filters */
+.test-text {
+  flex: 1 1 360px;
+  display: flex;
+  gap: 4px 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+  margin: 0;
+  padding: 2px 8px 6px;
+  border: 1px dashed var(--mat-sys-outline);
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-low);
+}
+.test-text legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+  font: var(--mat-sys-label-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+.test-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+.test-hint {
+  flex: 1 1 100%;
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+}
 .filters-title {
   flex: 1 1 auto;
   font: var(--mat-sys-title-small);
