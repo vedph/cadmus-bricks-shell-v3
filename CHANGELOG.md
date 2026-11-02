@@ -2,6 +2,8 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-11-01: text in Pleiades lookup options.
+
 ## 10.0.16
 
 - 2026-10-31: do not cache emptylists in Pleiades API service.
