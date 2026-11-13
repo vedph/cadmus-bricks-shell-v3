@@ -98,6 +98,7 @@ All imaging libraries have been moved into a separate repository: [@myrmidon/ngx
 - [@myrmidon/cadmus-text-ed](projects/myrmidon/cadmus-text-ed/README.md)
 - [@myrmidon/cadmus-text-ed-md](projects/myrmidon/cadmus-text-ed-md/README.md)
 - [@myrmidon/cadmus-text-ed-txt](projects/myrmidon/cadmus-text-ed-txt/README.md)
+- [@myrmidon/cadmus-text-segment](projects/myrmidon/cadmus-text-segment/README.md)
 
 ## UI
 
@@ -149,6 +150,7 @@ ng g library @myrmidon/cadmus-text-block-view --prefix cadmus
 ng g library @myrmidon/cadmus-text-ed --prefix cadmus
 ng g library @myrmidon/cadmus-text-ed-md --prefix cadmus
 ng g library @myrmidon/cadmus-text-ed-txt --prefix cadmus
+ng g library @myrmidon/cadmus-text-segment --prefix cadmus
 ng g library @myrmidon/cadmus-ui-custom-action-bar --prefix cadmus
 ng g library @myrmidon/cadmus-ui-flag-set --prefix cadmus
 ng g library @myrmidon/cadmus-ui-note-set --prefix cadmus

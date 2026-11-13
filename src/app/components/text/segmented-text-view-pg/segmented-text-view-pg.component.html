@@ -1,0 +1,120 @@
+<div class="page">
+  <div class="bar">
+    <h2>Segmented Text View</h2>
+    <span class="hint">
+      click, drag or Shift+click to select; Shift+arrows, Home/End, Ctrl+A
+      and Esc on the focused text; Ctrl+wheel to zoom
+    </span>
+  </div>
+
+  <div class="layout">
+    <!-- options -->
+    <aside class="options">
+      <mat-form-field appearance="outline" class="text-field">
+        <mat-label>text</mat-label>
+        <textarea
+          matInput
+          rows="6"
+          spellcheck="false"
+          [formField]="form.text"
+        ></textarea>
+        <button
+          type="button"
+          matSuffix
+          mat-icon-button
+          matTooltip="Restore sample text"
+          aria-label="restore sample text"
+          (click)="resetText()"
+        >
+          <mat-icon>restart_alt</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <fieldset>
+        <legend>segmenter</legend>
+        <mat-checkbox [formField]="form.includeLf">include LF</mat-checkbox>
+        <mat-checkbox [formField]="form.attachCombining"
+          >attach combining marks</mat-checkbox
+        >
+        <mat-checkbox [formField]="form.blockPipes"
+          >block selection at |</mat-checkbox
+        >
+        <mat-checkbox [formField]="form.decorate"
+          >decorate (Lu border, Nd fill, P text)</mat-checkbox
+        >
+      </fieldset>
+
+      <fieldset>
+        <legend>display</legend>
+        <mat-checkbox [formField]="form.showBlockNumbers"
+          >block numbers</mat-checkbox
+        >
+        <mat-checkbox [formField]="form.showIdBox">ID box</mat-checkbox>
+        <mat-checkbox [formField]="form.showIndexBox">index box</mat-checkbox>
+        <mat-checkbox [formField]="form.showTipBox">tips</mat-checkbox>
+        <div class="form-row">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>tip position</mat-label>
+            <mat-select [formField]="form.tipPosition">
+              <mat-option value="popup">popup</mat-option>
+              <mat-option value="below">below</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>tip</mat-label>
+            <mat-select [formField]="form.tipMode">
+              <mat-option value="template">template</mat-option>
+              <mat-option value="component">component</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </fieldset>
+    </aside>
+
+    <!-- viewer -->
+    <section class="viewer">
+      <div class="viewer-box">
+        <cadmus-segmented-text-view
+          [blocks]="blocks()"
+          [settings]="settings()"
+          [segmenter]="segmenter()"
+          [(selectedIds)]="selectedIds"
+          (selectionChange)="onSelectionChange($event)"
+        />
+      </div>
+
+      <div class="selection">
+        <button
+          type="button"
+          mat-stroked-button
+          matTooltip="Select segments 7-16 by binding their IDs"
+          (click)="selectSample()"
+        >
+          bind selection
+        </button>
+        <span class="muted">{{ selectedIds().length }} selected</span>
+        @if (selection(); as sel) {
+          @if (sel.coords) {
+            <code class="coords">{{ sel.coords }}</code>
+          }
+          @if (selectedText()) {
+            <span class="selected-text">“{{ selectedText() }}”</span>
+          }
+          <span class="spacer"></span>
+          <button
+            type="button"
+            mat-icon-button
+            [matTooltip]="showJson() ? 'Hide event' : 'Show event'"
+            aria-label="toggle selection event"
+            (click)="showJson.set(!showJson())"
+          >
+            <mat-icon>data_object</mat-icon>
+          </button>
+        }
+      </div>
+      @if (showJson() && selection(); as sel) {
+        <pre>{{ sel | json }}</pre>
+      }
+    </section>
+  </div>
+</div>

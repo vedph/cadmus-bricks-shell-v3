@@ -1,0 +1,30 @@
+{
+  "name": "@myrmidon/cadmus-text-segment",
+  "version": "0.0.1",
+  "description": "Cadmus - segmented text viewer with linear selection of arbitrary text segments.",
+  "keywords": [
+    "Cadmus",
+    "bricks",
+    "text",
+    "segmentation"
+  ],
+  "homepage": "https://github.com/vedph/cadmus-bricks-shell-v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vedph/cadmus-bricks-shell-v3"
+  },
+  "author": {
+    "name": "Daniele Fusi"
+  },
+  "peerDependencies": {
+    "@angular/cdk": "^22.2.0",
+    "@angular/common": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/forms": "^22.2.0",
+    "@angular/material": "^22.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

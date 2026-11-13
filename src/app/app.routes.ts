@@ -353,6 +353,14 @@ export const routes: Routes = [
         (m) => m.TextBlockViewPgComponent,
       ),
   },
+  // text/segmented-text-view
+  {
+    path: 'text/segmented-text-view',
+    loadComponent: () =>
+      import('./components/text/segmented-text-view-pg/segmented-text-view-pg.component').then(
+        (m) => m.SegmentedTextViewPgComponent,
+      ),
+  },
   // text/text-ed-pg
   {
     path: 'text/text-ed',

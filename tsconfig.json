@@ -104,6 +104,9 @@
       "@myrmidon/cadmus-text-ed-txt": [
         "./dist/myrmidon/cadmus-text-ed-txt"
       ],
+      "@myrmidon/cadmus-text-segment": [
+        "./dist/myrmidon/cadmus-text-segment"
+      ],
       "@myrmidon/cadmus-ui-custom-action-bar": [
         "./dist/myrmidon/cadmus-ui-custom-action-bar"
       ],
@@ -366,6 +369,12 @@
     },
     {
       "path": "./projects/myrmidon/cadmus-refs-pleiades-lookup/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-segment/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/myrmidon/cadmus-text-segment/tsconfig.spec.json"
     }
   ]
 }

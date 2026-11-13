@@ -1,0 +1,203 @@
+@let s = resolvedSettings();
+<!-- text -->
+<div
+  #viewport
+  class="viewport"
+  tabindex="0"
+  role="listbox"
+  aria-multiselectable="true"
+  [attr.aria-label]="ariaLabel()"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event)"
+  (pointerover)="onPointerOver($event)"
+  (pointerleave)="onPointerLeave()"
+  (keydown)="onKeyDown($event)"
+  (wheel)="onWheel($event)"
+>
+  <div
+    class="content"
+    [style.zoom]="viewForm.zoom().value()"
+    [style.row-gap.px]="s.blockOffset"
+  >
+    @for (block of blocks(); track block.index) {
+      <cadmus-text-segment-block-view
+        [block]="block"
+        [settings]="s"
+        [selectedIds]="store.selectedSet()"
+        [hitIds]="store.hitSet()"
+        [caretId]="store.caretId()"
+      />
+    } @empty {
+      <div class="empty">no text</div>
+    }
+  </div>
+</div>
+
+<!-- toolbar -->
+@if (showZoom() || showFind() || (showCoords() && activeSegmenter())) {
+  <div class="toolbar">
+    <!-- zoom -->
+    @if (showZoom()) {
+      <div class="zoom">
+        <mat-icon class="muted" aria-hidden="true">zoom_in</mat-icon>
+        <mat-slider
+          [min]="minZoom"
+          [max]="maxZoom"
+          step="0.1"
+          discrete
+          [displayWith]="formatZoom"
+        >
+          <input matSliderThumb [formField]="viewForm.zoom" aria-label="zoom" />
+        </mat-slider>
+        <button
+          type="button"
+          mat-icon-button
+          class="dense"
+          matTooltip="Reset zoom"
+          aria-label="reset zoom"
+          [disabled]="viewForm.zoom().value() === 1"
+          (click)="resetZoom()"
+        >
+          <mat-icon>restart_alt</mat-icon>
+        </button>
+      </div>
+    }
+
+    <!-- find -->
+    @if (showFind()) {
+      @let find = store.find();
+      @let matchCount = store.matches().length;
+      <div class="find">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-icon matPrefix class="muted">search</mat-icon>
+          <input
+            matInput
+            type="search"
+            placeholder="find"
+            aria-label="find"
+            autocomplete="off"
+            spellcheck="false"
+            [formField]="findForm.query"
+            (keydown)="onFindKeydown($event)"
+          />
+          @if (find.query) {
+            <button
+              type="button"
+              matSuffix
+              mat-icon-button
+              class="dense"
+              aria-label="clear find"
+              (click)="clearFind()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+        <button
+          type="button"
+          mat-icon-button
+          class="dense toggle"
+          [class.on]="find.crossSegments"
+          [attr.aria-pressed]="find.crossSegments"
+          [matTooltip]="
+            find.crossSegments
+              ? 'Finding across segments'
+              : 'Finding within each segment'
+          "
+          aria-label="find across segments"
+          (click)="toggleCrossSegments()"
+        >
+          <mat-icon>{{ find.crossSegments ? "link" : "link_off" }}</mat-icon>
+        </button>
+        <button
+          type="button"
+          mat-icon-button
+          class="dense toggle case"
+          [class.on]="find.caseSensitive"
+          [attr.aria-pressed]="find.caseSensitive"
+          matTooltip="Case sensitive"
+          aria-label="case sensitive"
+          (click)="toggleCaseSensitive()"
+        >
+          Aa
+        </button>
+        @if (find.query) {
+          <span class="match-count" aria-live="polite">
+            @if (!matchCount) {
+              no match
+            } @else if (store.currentMatch() < 0) {
+              {{ matchCount }} found
+            } @else {
+              {{ store.currentMatch() + 1 }}/{{ matchCount }}
+            }
+          </span>
+          <button
+            type="button"
+            mat-icon-button
+            class="dense"
+            matTooltip="Previous match (Shift+Enter)"
+            aria-label="previous match"
+            [disabled]="!matchCount"
+            (click)="goToMatch(-1)"
+          >
+            <mat-icon>keyboard_arrow_up</mat-icon>
+          </button>
+          <button
+            type="button"
+            mat-icon-button
+            class="dense"
+            matTooltip="Next match (Enter)"
+            aria-label="next match"
+            [disabled]="!matchCount"
+            (click)="goToMatch(1)"
+          >
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- coordinates -->
+    @if (showCoords() && activeSegmenter()) {
+      <div class="coords">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-icon matPrefix class="muted">my_location</mat-icon>
+          <input
+            matInput
+            placeholder="coordinates"
+            aria-label="coordinates"
+            autocomplete="off"
+            spellcheck="false"
+            [formField]="viewForm.coords"
+          />
+          @if (coordsError()) {
+            <mat-hint class="coords-error">invalid coordinates</mat-hint>
+          }
+        </mat-form-field>
+      </div>
+    }
+  </div>
+}
+
+<!-- tip popup -->
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="popupOrigin()"
+  [cdkConnectedOverlayOpen]="popupOpen()"
+  [cdkConnectedOverlayPositions]="popupPositions"
+  (attach)="onPopupAttach()"
+>
+  <div
+    class="tip-popup"
+    role="tooltip"
+    [style.font-family]="s.tipFontFace"
+  >
+    @if (s.tipComponent; as tipComponent) {
+      <ng-container *ngComponentOutlet="tipComponent; inputs: popupInputs()" />
+    } @else {
+      {{ popupText() }}
+    }
+  </div>
+</ng-template>

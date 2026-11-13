@@ -1,0 +1,120 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 16px;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.bar h2 {
+  margin: 0;
+}
+
+.hint,
+.muted {
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.options {
+  flex: 0 1 340px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.text-field {
+  width: 100%;
+}
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 4px 8px 8px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--mat-sys-corner-small, 4px);
+}
+
+legend {
+  padding: 0 4px;
+  font: var(--mat-sys-label-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.form-row mat-form-field {
+  flex: 1 1 120px;
+}
+
+.viewer {
+  flex: 1 1 480px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* the viewer takes all the space of its container: make it resizable */
+.viewer-box {
+  height: 460px;
+  min-height: 200px;
+  resize: vertical;
+  overflow: hidden;
+}
+
+.selection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.coords {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: var(--mat-sys-surface-container-high);
+  font-family: 'Roboto Mono', Consolas, monospace;
+}
+
+.selected-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+pre {
+  margin: 0;
+  max-height: 320px;
+  overflow: auto;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: var(--mat-sys-surface-container);
+  font-size: 12px;
+}

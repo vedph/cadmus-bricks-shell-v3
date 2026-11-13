@@ -1,0 +1,111 @@
+@let g = geometry();
+@let s = settings();
+<svg
+  [attr.width]="g.width"
+  [attr.height]="g.height"
+  [attr.viewBox]="'0 0 ' + g.width + ' ' + g.height"
+  aria-hidden="true"
+  focusable="false"
+>
+  <!-- text box -->
+  <rect
+    class="text-rect"
+    [attr.x]="g.strokeWidth / 2"
+    [attr.y]="g.strokeWidth / 2"
+    [attr.width]="g.width - g.strokeWidth"
+    [attr.height]="g.text.height - g.strokeWidth"
+    [attr.rx]="g.radius"
+    [attr.stroke-width]="g.strokeWidth"
+    [attr.stroke-dasharray]="s.textRectStrokeDasharray || null"
+    [style.fill]="fill()"
+    [style.stroke]="stroke()"
+  />
+  <text
+    class="text"
+    [attr.x]="g.width / 2"
+    [attr.y]="g.text.height / 2"
+    text-anchor="middle"
+    dominant-baseline="central"
+    [style.fill]="textFill()"
+    [style.font-family]="s.fontFace"
+    [style.font-size]="s.fontSize"
+  >{{ label() }}</text>
+
+  <!-- ID box -->
+  @if (g.id; as box) {
+    <rect
+      class="info-rect id-rect"
+      x="0"
+      [attr.y]="box.y"
+      [attr.width]="g.width"
+      [attr.height]="box.height"
+      [attr.rx]="g.radius"
+    />
+    <text
+      class="info-text id-text"
+      [attr.x]="g.width / 2"
+      [attr.y]="box.y + box.height / 2"
+      text-anchor="middle"
+      dominant-baseline="central"
+      [style.font-family]="s.infoFontFace"
+      [style.font-size]="s.infoFontSize"
+    >{{ segment().id }}</text>
+  }
+
+  <!-- index box -->
+  @if (g.index; as box) {
+    <rect
+      class="info-rect index-rect"
+      x="0"
+      [attr.y]="box.y"
+      [attr.width]="g.width"
+      [attr.height]="box.height"
+      [attr.rx]="g.radius"
+    />
+    <text
+      class="info-text index-text"
+      [attr.x]="g.width / 2"
+      [attr.y]="box.y + box.height / 2"
+      text-anchor="middle"
+      dominant-baseline="central"
+      [style.font-family]="s.infoFontFace"
+      [style.font-size]="s.infoFontSize"
+    >{{ segment().index }}</text>
+  }
+
+  <!-- tip box -->
+  @if (g.tip; as box) {
+    @if (s.tipComponent; as tipComponent) {
+      <foreignObject
+        class="tip-html"
+        x="0"
+        [attr.y]="box.y"
+        [attr.width]="g.width"
+        [attr.height]="box.height"
+      >
+        <div class="tip-html-content">
+          <ng-container
+            *ngComponentOutlet="tipComponent; inputs: tipInputs()"
+          />
+        </div>
+      </foreignObject>
+    } @else {
+      <rect
+        class="tip-rect"
+        x="0"
+        [attr.y]="box.y"
+        [attr.width]="g.width"
+        [attr.height]="box.height"
+        [attr.rx]="g.radius"
+      />
+      <text
+        class="tip-text"
+        x="2"
+        [attr.y]="box.y + box.height / 2"
+        dominant-baseline="central"
+        [style.font-family]="s.tipFontFace"
+        [style.font-size]="s.tipFontSize"
+      >{{ tipText() }}</text>
+    }
+  }
+</svg>

@@ -1,0 +1,26 @@
+@let s = settings();
+@if (s.showBlockNumbers) {
+  <div
+    class="block-number"
+    aria-hidden="true"
+    [style.line-height.px]="s.textRectHeight"
+  >
+    {{ block().index + 1 }}
+  </div>
+}
+<div
+  class="segments"
+  [style.column-gap.px]="s.segmentOffset"
+  [style.row-gap.px]="s.lineOffset"
+  [style.min-height.px]="s.textRectHeight"
+>
+  @for (segment of block().segments; track segment.id) {
+    <cadmus-text-segment-view
+      [segment]="segment"
+      [settings]="s"
+      [selected]="selectedIds().has(segment.id)"
+      [hit]="hitIds().has(segment.id)"
+      [caret]="caretId() === segment.id"
+    />
+  }
+</div>

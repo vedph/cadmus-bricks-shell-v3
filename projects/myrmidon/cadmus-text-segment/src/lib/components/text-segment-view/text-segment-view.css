@@ -1,0 +1,68 @@
+:host {
+  display: block;
+  flex: 0 0 auto;
+  line-height: 0;
+  border-radius: 4px;
+  cursor: text;
+}
+
+:host(.mode-wrapped),
+:host(.mode-attached) {
+  cursor: default;
+}
+
+:host(.mode-blocked) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+:host(.caret) {
+  outline: 2px solid var(--cadmus-tseg-caret-color, var(--mat-sys-primary));
+  outline-offset: 1px;
+}
+
+svg {
+  display: block;
+  overflow: hidden;
+}
+
+rect,
+text {
+  transition:
+    fill 80ms linear,
+    stroke 80ms linear;
+}
+
+.text {
+  white-space: pre;
+}
+
+.info-rect {
+  fill: var(--mat-sys-surface-container-high);
+}
+
+.info-text {
+  fill: var(--mat-sys-on-surface-variant);
+}
+
+.tip-rect {
+  fill: var(--mat-sys-secondary-container);
+}
+
+.tip-text {
+  fill: var(--mat-sys-on-secondary-container);
+}
+
+.tip-html-content {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  line-height: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  rect,
+  text {
+    transition: none;
+  }
+}

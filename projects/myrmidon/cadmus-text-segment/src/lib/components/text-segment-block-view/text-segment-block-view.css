@@ -1,0 +1,32 @@
+:host {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+  /* room for the caret outline, as content-visibility clips paint */
+  padding: 3px;
+  /* skip layout and paint of off-screen blocks in long texts */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 40px;
+}
+
+.block-number {
+  flex: 0 0 auto;
+  min-width: 2.5em;
+  padding-right: 8px;
+  box-sizing: border-box;
+  text-align: right;
+  font-family: var(--mat-sys-label-small-font, inherit);
+  font-size: var(--mat-sys-label-small-size, 11px);
+  color: var(--mat-sys-on-surface-variant);
+  opacity: 0.8;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.segments {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
