@@ -36,6 +36,7 @@ import {
   TEXT_SEGMENTER,
   TextSegment,
   TextSegmentBlock,
+  TextSegmentClick,
   TextSegmentSelection,
   TextSegmenter,
   SegmentedTextSettings,
@@ -117,6 +118,8 @@ export class SegmentedTextView<T = unknown> {
   );
   private _dragging = false;
   private _dragChanged = false;
+  // the ID of the segment where the pointer was pressed, for clicks
+  private _downId: number | null = null;
   private _lastCoords = '';
 
   /**
@@ -164,6 +167,14 @@ export class SegmentedTextView<T = unknown> {
    * Emitted whenever the user makes a new selection.
    */
   public readonly selectionChange = output<TextSegmentSelection<T>>();
+
+  /**
+   * Emitted when the user clicks a segment (i.e. presses and releases the
+   * primary pointer button on the same segment), whatever its selection
+   * mode, including segments which cannot be selected like `blocked` ones.
+   * This is emitted after any selection change caused by the click.
+   */
+  public readonly segmentClick = output<TextSegmentClick<T>>();
 
   // ── derived state ───────────────────────────────────────────────────────
 
@@ -467,6 +478,7 @@ export class SegmentedTextView<T = unknown> {
     viewport.focus({ preventScroll: true });
     this.hovered.set(null);
     this._dragging = true;
+    this._downId = id;
     this._dragChanged = this.store.startAt(id, event.shiftKey);
     try {
       viewport.setPointerCapture?.(event.pointerId);
@@ -504,6 +516,23 @@ export class SegmentedTextView<T = unknown> {
     if (this._dragChanged) {
       this._dragChanged = false;
       this.commit();
+    }
+
+    // a click is a press and release on the same segment; with pointer
+    // capture the target is the viewport, so find the segment under it
+    const downId = this._downId;
+    this._downId = null;
+    if (downId === null || event.type === 'pointercancel') {
+      return;
+    }
+    const target =
+      this._document.elementFromPoint?.(event.clientX, event.clientY) ??
+      event.target;
+    if (this.segmentIdAt(target) === downId) {
+      const segment = this.segmentById(downId);
+      if (segment) {
+        this.segmentClick.emit({ segment, event });
+      }
     }
   }
 

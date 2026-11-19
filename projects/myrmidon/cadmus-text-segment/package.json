@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-text-segment",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Cadmus - segmented text viewer with linear selection of arbitrary text segments.",
   "keywords": [
     "Cadmus",

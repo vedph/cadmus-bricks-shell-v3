@@ -104,6 +104,18 @@ export interface TextSegmentBlock<T = unknown> {
 export type TextSegmentTipPosition = 'below' | 'popup';
 
 /**
+ * How the segments of a block wrap to the next line when they do not fit
+ * the available width:
+ * - `segment`: the line can wrap after any segment (default).
+ * - `word`: the line wraps only after a whitespace segment (i.e. a segment
+ * whose value is entirely whitespace), so that the segments between two
+ * whitespaces (e.g. the characters of a word) stay together, like in
+ * normal text. A run of segments wider than the whole line still wraps
+ * after any segment.
+ */
+export type TextSegmentWrapMode = 'segment' | 'word';
+
+/**
  * The contract of a component used to render the tip of a segment via
  * the `tipComponent` setting. The component gets the segment bound to its
  * `segment` input.
@@ -128,6 +140,11 @@ export interface SegmentedTextSettings {
   blockOffset: number;
   /** True to show the block number (=index+1) before each block. */
   showBlockNumbers?: boolean;
+  /**
+   * How segments wrap to the next line (default `segment`): see
+   * `TextSegmentWrapMode`.
+   */
+  wrapMode?: TextSegmentWrapMode;
 
   // ── optional boxes ──────────────────────────────────────────────────────
   /** True to show the ID box in each segment view. */
@@ -229,6 +246,7 @@ export const DEFAULT_SEGMENTED_TEXT_SETTINGS: Readonly<SegmentedTextSettings> =
     lineOffset: 6,
     blockOffset: 12,
     showBlockNumbers: true,
+    wrapMode: 'segment',
     showIdBox: false,
     showIndexBox: false,
     showTipBox: false,
@@ -349,6 +367,20 @@ export interface TextSegmentSelection<T = unknown> {
    * the selection is not empty.
    */
   coords?: string;
+}
+
+/**
+ * A click on a segment, as emitted by a segmented text view. This is
+ * emitted for any segment, whatever its selection mode: so it is the only
+ * way for a consumer to know that the user clicked a segment which cannot
+ * be selected (e.g. a `blocked` segment representing an existing
+ * annotation, which the consumer may want to pick for editing).
+ */
+export interface TextSegmentClick<T = unknown> {
+  /** The clicked segment. */
+  segment: TextSegment<T>;
+  /** The pointer event which completed the click. */
+  event: PointerEvent;
 }
 
 /**

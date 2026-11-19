@@ -3,6 +3,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import {
   TEXT_SEGMENTER,
+  TextSegmentClick,
   TextSegmentSelection,
   TextSegmentBlock,
 } from '../../models';
@@ -181,6 +182,82 @@ describe('SegmentedTextView', () => {
       fireEvent.pointerMove(seg(3));
       fireEvent.pointerUp(seg(3));
       expect(selectedIds()).toEqual([1]);
+    });
+  });
+
+  describe('segment click', () => {
+    const BLOCKED: TextSegmentBlock[] = [
+      {
+        index: 0,
+        segments: [
+          { id: 1, index: 0, value: 'a' },
+          { id: 2, index: 1, value: 'b', selectionMode: 'blocked' },
+          { id: 3, index: 2, value: 'c' },
+        ],
+      },
+    ];
+
+    async function setupClicks(inputs: Record<string, unknown> = {}) {
+      const s = await setup(inputs);
+      const clicks: TextSegmentClick[] = [];
+      s.component.segmentClick.subscribe((e) => clicks.push(e));
+      return { ...s, clicks };
+    }
+
+    it('should emit a click on a selectable segment', async () => {
+      const { seg, clicks, selectedIds } = await setupClicks();
+      fireEvent.pointerDown(seg(2), { button: 0 });
+      fireEvent.pointerUp(seg(2), { button: 0 });
+      expect(clicks.map((c) => c.segment.id)).toEqual([2]);
+      expect(clicks[0].event.type).toBe('pointerup');
+      expect(selectedIds()).toEqual([2]);
+    });
+
+    it('should emit a click on a blocked segment, without selecting', async () => {
+      const { seg, clicks, selectedIds, changes } = await setupClicks({
+        blocks: BLOCKED,
+      });
+      fireEvent.pointerDown(seg(2), { button: 0 });
+      fireEvent.pointerUp(seg(2), { button: 0 });
+      expect(clicks.map((c) => c.segment.id)).toEqual([2]);
+      expect(selectedIds()).toEqual([]);
+      expect(changes.length).toBe(0);
+    });
+
+    it('should clear the selection when clicking a blocked segment', async () => {
+      const { seg, clicks, selectedIds, changes } = await setupClicks({
+        blocks: BLOCKED,
+      });
+      fireEvent.pointerDown(seg(1), { button: 0 });
+      fireEvent.pointerUp(seg(1), { button: 0 });
+      expect(selectedIds()).toEqual([1]);
+      fireEvent.pointerDown(seg(2), { button: 0 });
+      fireEvent.pointerUp(seg(2), { button: 0 });
+      expect(selectedIds()).toEqual([]);
+      expect(changes.map((c) => c.ids)).toEqual([[1], []]);
+      expect(clicks.map((c) => c.segment.id)).toEqual([1, 2]);
+    });
+
+    it('should not emit a click when released on another segment', async () => {
+      const { seg, clicks } = await setupClicks();
+      fireEvent.pointerDown(seg(2), { button: 0 });
+      fireEvent.pointerMove(seg(4));
+      fireEvent.pointerUp(seg(4), { button: 0 });
+      expect(clicks.length).toBe(0);
+    });
+
+    it('should not emit a click on pointer cancel', async () => {
+      const { seg, clicks } = await setupClicks();
+      fireEvent.pointerDown(seg(2), { button: 0 });
+      fireEvent.pointerCancel(seg(2));
+      expect(clicks.length).toBe(0);
+    });
+
+    it('should not emit a click for non-primary buttons', async () => {
+      const { seg, clicks } = await setupClicks();
+      fireEvent.pointerDown(seg(2), { button: 2 });
+      fireEvent.pointerUp(seg(2), { button: 2 });
+      expect(clicks.length).toBe(0);
     });
   });
 

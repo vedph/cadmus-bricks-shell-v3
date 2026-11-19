@@ -30,3 +30,13 @@
   flex-wrap: wrap;
   align-items: flex-start;
 }
+
+/* a run of segments kept together in word wrap mode: as a flex item it is
+   placed on a line as a whole, and it wraps internally only when it is
+   wider than the whole line (as it then shrinks to the line width) */
+.run {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  min-width: 0;
+}

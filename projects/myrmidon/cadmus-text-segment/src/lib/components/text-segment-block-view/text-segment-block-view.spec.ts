@@ -2,7 +2,10 @@ import { render, screen } from '@testing-library/angular';
 
 import { resolveSegmentedTextSettings } from '../../models';
 import { SpacedTextSegmenter } from '../../services/spaced-text-segmenter';
-import { TextSegmentBlockView } from './text-segment-block-view';
+import {
+  TextSegmentBlockView,
+  getTextSegmentRuns,
+} from './text-segment-block-view';
 
 const BLOCKS = new SpacedTextSegmenter().getBlocks('ab c\nde');
 
@@ -13,6 +16,25 @@ async function setup(inputs: Record<string, unknown> = {}) {
   await result.fixture.whenStable();
   return { ...result, host: result.fixture.nativeElement as HTMLElement };
 }
+
+describe('getTextSegmentRuns', () => {
+  const ids = (text: string) =>
+    getTextSegmentRuns(new SpacedTextSegmenter().getBlocks(text)[0].segments).map(
+      (run) => run.map((s) => s.value).join(''),
+    );
+
+  it('should return no runs for no segments', () => {
+    expect(getTextSegmentRuns([])).toEqual([]);
+  });
+
+  it('should end each run with a whitespace', () => {
+    expect(ids('ab  c ')).toEqual(['ab ', ' ', 'c ']);
+  });
+
+  it('should keep a text without whitespace in a single run', () => {
+    expect(ids('abc')).toEqual(['abc']);
+  });
+});
 
 describe('TextSegmentBlockView', () => {
   it('should render a segment view for each segment', async () => {
@@ -61,6 +83,25 @@ describe('TextSegmentBlockView', () => {
     const options = getAllByRole('option');
     expect(options[0].classList).not.toContain('selected');
     expect(options[1].classList).toContain('selected');
+  });
+
+  it('should not group segments into runs by default', async () => {
+    const { host } = await setup({ block: BLOCKS[0] });
+    expect(host.querySelectorAll('.run').length).toBe(0);
+  });
+
+  it('should group segments into runs ending with whitespace in word wrap mode', async () => {
+    const { host } = await setup({
+      block: BLOCKS[0],
+      settings: resolveSegmentedTextSettings({ wrapMode: 'word' }),
+    });
+    const runs = [...host.querySelectorAll('.run')].map((run) =>
+      [...run.querySelectorAll('[data-seg-id]')].map((e) =>
+        e.getAttribute('data-seg-id'),
+      ),
+    );
+    // "ab c": ab_ | c
+    expect(runs).toEqual([['1', '2', '3'], ['4']]);
   });
 
   it('should render an empty block keeping its height', async () => {

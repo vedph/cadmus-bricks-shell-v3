@@ -14,13 +14,35 @@
   [style.row-gap.px]="s.lineOffset"
   [style.min-height.px]="s.textRectHeight"
 >
-  @for (segment of block().segments; track segment.id) {
-    <cadmus-text-segment-view
-      [segment]="segment"
-      [settings]="s"
-      [selected]="selectedIds().has(segment.id)"
-      [hit]="hitIds().has(segment.id)"
-      [caret]="caretId() === segment.id"
-    />
+  @if (runs(); as runs) {
+    <!-- word wrap: each run (e.g. a word with its trailing space) stays
+         together, unless it is wider than the whole line -->
+    @for (run of runs; track run[0].id) {
+      <div
+        class="run"
+        [style.column-gap.px]="s.segmentOffset"
+        [style.row-gap.px]="s.lineOffset"
+      >
+        @for (segment of run; track segment.id) {
+          <cadmus-text-segment-view
+            [segment]="segment"
+            [settings]="s"
+            [selected]="selectedIds().has(segment.id)"
+            [hit]="hitIds().has(segment.id)"
+            [caret]="caretId() === segment.id"
+          />
+        }
+      </div>
+    }
+  } @else {
+    @for (segment of block().segments; track segment.id) {
+      <cadmus-text-segment-view
+        [segment]="segment"
+        [settings]="s"
+        [selected]="selectedIds().has(segment.id)"
+        [hit]="hitIds().has(segment.id)"
+        [caret]="caretId() === segment.id"
+      />
+    }
   }
 </div>

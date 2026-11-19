@@ -182,6 +182,7 @@ The `segmenter` input, when set, takes precedence over the injected one.
   - `selectedIds` (`number[]`): the IDs of the selected segments, in text order. Setting it selects the specified segments (bypassing selection modes), sorted in text order, ignoring unknown IDs. It does not emit `selectionChange`.
 - 🔥 output:
   - `selectionChange` (`TextSegmentSelection<T>`): emitted whenever the user makes a new selection, with the selected `ids` and `segments` in text order, and their `coords` when a segmenter is available. When dragging, it is emitted once at the end of the drag.
+  - `segmentClick` (`TextSegmentClick<T>`): emitted when the user clicks a segment (pressing and releasing the primary pointer button on the same segment), with the clicked `segment` and the pointer `event`. This is emitted for any segment, whatever its selection mode, after any selection change caused by the click: so it is the way to know that users clicked a segment which cannot be selected, e.g. a `blocked` segment representing an existing annotation which you want to let users pick.
 - ⚙️ public methods: `scrollToSegment(id)`, `clearSelection()`, `goToMatch(dir)`.
 
 When `blocks` change, the selection is kept for the segments whose IDs are still present.
@@ -204,6 +205,8 @@ The bottom toolbar has:
   - `caretId` (`number | null`): the ID of the segment with the caret.
 
 A row of segment views, reflowing to the next line like characters in a paragraph, optionally preceded by the block number (index + 1).
+
+By default (`wrapMode` = `segment`) the row can wrap after any segment. With `wrapMode` = `word`, the segments are grouped into runs, each ending with a whitespace segment (a segment whose value is entirely whitespace; see `getTextSegmentRuns`), and the row wraps only between runs, so that e.g. the characters of a word stay together like in normal text. A run wider than the whole line still wraps internally.
 
 ### TextSegmentView
 
@@ -228,6 +231,7 @@ The host element carries the segment ID in its `data-seg-id` attribute, and the 
 | `lineOffset`              | `6`                                      | vertical gap (px) between wrapped lines of a block     |
 | `blockOffset`             | `12`                                     | vertical gap (px) between blocks                       |
 | `showBlockNumbers`        | `true`                                   | show block numbers                                     |
+| `wrapMode`                | `segment`                                | wrap after any `segment`, or after spaces (`word`)     |
 | `showIdBox`               | `false`                                  | show ID boxes                                          |
 | `showIndexBox`            | `false`                                  | show index boxes                                       |
 | `showTipBox`              | `false`                                  | show tips (below or as popup)                          |
@@ -293,7 +297,7 @@ settings = { showTipBox: true, tipComponent: UnicodeTipComponent };
 
 With the pointer:
 
-- **click** a segment to select it.
+- **click** a segment to select it. Any click also emits `segmentClick`, even on segments which cannot be selected.
 - **drag** to select all the segments from the start to the end of the drag; dragging near the top or bottom edge scrolls the text.
 - **SHIFT+click** to extend the selection from the last clicked segment.
 
@@ -401,4 +405,7 @@ The viewer is designed for fluid updates with large texts:
 
 ### 0.0.1
 
+- 2026-11-19:
+  - added `segmentClick` output to `SegmentedTextView`, emitted for any clicked segment, including `blocked` ones.
+  - added `wrapMode` setting to wrap lines by `word` rather than by `segment`.
 - 2026-11-13: initial release.
