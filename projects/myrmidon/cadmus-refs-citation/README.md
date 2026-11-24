@@ -60,7 +60,7 @@ The hierarchy has these features:
   - **numeric**, using many formats: Arabic, Roman, alphabetic, etc.; in the end, whatever the system we just have a number which is to be displayed in some format.
 - additionally, value domains can be **conditioned**: the value we can pick for a step is dependent on the step type (e.g. one of "If.", "Purg." or "Par." for a _cantica_, but a number for _canto_ or _verso_), and optionally on the value of its ascendant steps. For instance, given that `If.` has 34 _canti_ while `Purg.` and `Par.` have 33, one could set the allowed range of numeric values to 1-34 and 1-33 respectively, according to the _cantica_. This way, users won't be able to enter an invalid number for the _canto_ of each _cantica_.
 
->The model which defines the data entry behavior for a citation scheme ([CitScheme](models.ts)) is defined in the settings of the component consuming the brick. This is formally defined in [models](models.ts); for the sake of brevity, here I just show examples in their JSON encoding.
+>The model which defines the data entry behavior for a citation scheme ([CitScheme](models.ts)) is defined in the settings of the component consuming the brick. This is formally defined in [models](models.ts); for brevity, here I just show examples in their JSON encoding.
 
 The whole purpose of the model is providing an interactive and helpful UI for entering a valid citation. In the end, unless you have specific requirements, all what you will store in the backend is just a **string** with the textual representation of a citation. You might well type this string directly; the UI just provides a friendlier and more controlled environment for data entry.
 
@@ -68,10 +68,10 @@ Being able to store the citation in its compact text format has the additional b
 
 For instance, once you parse the text into this model you get additional benefits, like e.g. being able to sort citations, whatever their format. For instance, citations like:
 
-- If. IX 12
-- If. VIII 1
+- `If. IX 12`
+- `If. VIII 1`
 
-would sort in the wrong order when just sorting them as strings (I comes before V, yet IX=9 and VIII=8).
+would sort in the wrong order when just sorting them as strings (`I` comes before `V`, yet `IX`=9 and `VIII`=8).
 
 >Note that sorting cannot apply to citation steps having as type a free or masked text, because in this case there is no rule to infer an order from the citation itself. These are corner cases, provided for wider compatibility, but in most (if not all) the cases you will use other step types; otherwise, the citation model itself wouldn't make much sense, given that it is used to constrain user's input.
 

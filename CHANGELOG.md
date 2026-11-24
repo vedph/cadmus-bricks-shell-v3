@@ -2,6 +2,7 @@
 
 > 👉 Version numbers here refer to the Docker image for the demo app. For the libraries history, see the README of each library in this workspace.
 
+- 2026-11-24: updated Angular and bumped all versions because of small changes in `package.json` of each updated library.
 - 2026-11-13:
   - updated Angular and packages.
   - added segmented text library (`@myrmidon/cadmus-text-segment`), with its demo page (`text/segmented-text-view`).

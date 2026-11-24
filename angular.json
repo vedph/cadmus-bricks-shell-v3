@@ -115,7 +115,8 @@
                 "@myrmidon/cadmus-ui-note-set",
                 "@myrmidon/cadmus-ui-object-view",
                 "@myrmidon/taxo-store-picker",
-                "@myrmidon/taxo-store-editor"
+                "@myrmidon/taxo-store-editor",
+                "@myrmidon/cadmus-ui-thestaxo"
               ]
             }
           },
@@ -144,20 +145,24 @@
     "@myrmidon/cadmus-cod-location": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-cod-location",
-      "sourceRoot": "projects/myrmidon/cadmus-cod-location/src",
+      "sourceRoot": "projects/myrmidon/cadmus-cod-location",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-cod-location/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-cod-location/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-cod-location/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-cod-location"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -171,20 +176,24 @@
     "@myrmidon/cadmus-mat-physical-grid": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-mat-physical-grid",
-      "sourceRoot": "projects/myrmidon/cadmus-mat-physical-grid/src",
+      "sourceRoot": "projects/myrmidon/cadmus-mat-physical-grid",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-mat-physical-grid/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-mat-physical-grid/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-mat-physical-grid/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-mat-physical-grid"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -198,20 +207,24 @@
     "@myrmidon/cadmus-mat-physical-size": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-mat-physical-size",
-      "sourceRoot": "projects/myrmidon/cadmus-mat-physical-size/src",
+      "sourceRoot": "projects/myrmidon/cadmus-mat-physical-size",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-mat-physical-size/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-mat-physical-size/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-mat-physical-size/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-mat-physical-size"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -225,20 +238,24 @@
     "@myrmidon/cadmus-mat-physical-state": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-mat-physical-state",
-      "sourceRoot": "projects/myrmidon/cadmus-mat-physical-state/src",
+      "sourceRoot": "projects/myrmidon/cadmus-mat-physical-state",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-mat-physical-state/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-mat-physical-state/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-mat-physical-state/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-mat-physical-state"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -252,20 +269,24 @@
     "@myrmidon/cadmus-refs-asserted-chronotope": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-asserted-chronotope",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-asserted-chronotope/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-asserted-chronotope",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-asserted-chronotope/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-asserted-chronotope/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-asserted-chronotope/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-asserted-chronotope"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -279,20 +300,24 @@
     "@myrmidon/cadmus-refs-asserted-ids": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-asserted-ids",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-asserted-ids/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-asserted-ids",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-asserted-ids/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-asserted-ids/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-asserted-ids/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-asserted-ids"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -306,20 +331,24 @@
     "@myrmidon/cadmus-refs-assertion": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-assertion",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-assertion/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-assertion",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-assertion/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-assertion/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-assertion/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-assertion"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -333,20 +362,24 @@
     "@myrmidon/cadmus-refs-chronotope": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-chronotope",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-chronotope/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-chronotope",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-chronotope/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-chronotope/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-chronotope/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-chronotope"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -360,20 +393,24 @@
     "@myrmidon/cadmus-refs-citation": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-citation",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-citation/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-citation",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-citation/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-citation/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-citation/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-citation"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -387,20 +424,24 @@
     "@myrmidon/cadmus-refs-dbpedia-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-dbpedia-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-dbpedia-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-dbpedia-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-dbpedia-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-dbpedia-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-dbpedia-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-dbpedia-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -414,20 +455,24 @@
     "@myrmidon/cadmus-refs-decorated-counts": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-decorated-counts",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-decorated-counts/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-decorated-counts",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-decorated-counts/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-decorated-counts/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-decorated-counts/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-decorated-counts"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -441,20 +486,24 @@
     "@myrmidon/cadmus-refs-decorated-ids": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-decorated-ids",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-decorated-ids/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-decorated-ids",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-decorated-ids/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-decorated-ids/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-decorated-ids/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-decorated-ids"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -468,20 +517,24 @@
     "@myrmidon/cadmus-refs-doc-references": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-doc-references",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-doc-references/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-doc-references",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-doc-references/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-doc-references/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-doc-references/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-doc-references"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -495,20 +548,24 @@
     "@myrmidon/cadmus-refs-external-ids": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-external-ids",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-external-ids/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-external-ids",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-external-ids/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-external-ids/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-external-ids/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-external-ids"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -522,20 +579,24 @@
     "@myrmidon/cadmus-refs-historical-date": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-historical-date",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-historical-date/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-historical-date",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-historical-date/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-historical-date/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-historical-date/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-historical-date"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -549,20 +610,24 @@
     "@myrmidon/cadmus-refs-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -576,20 +641,24 @@
     "@myrmidon/cadmus-refs-mufi-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-mufi-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-mufi-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-mufi-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-mufi-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-mufi-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-mufi-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-mufi-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -603,20 +672,24 @@
     "@myrmidon/cadmus-refs-proper-name": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-proper-name",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-proper-name/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-proper-name",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-proper-name/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-proper-name/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-proper-name/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-proper-name"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -630,20 +703,24 @@
     "@myrmidon/cadmus-refs-viaf-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-viaf-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-viaf-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-viaf-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-viaf-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-viaf-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-viaf-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-viaf-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -657,20 +734,24 @@
     "@myrmidon/cadmus-text-block-view": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-text-block-view",
-      "sourceRoot": "projects/myrmidon/cadmus-text-block-view/src",
+      "sourceRoot": "projects/myrmidon/cadmus-text-block-view",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-text-block-view/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-text-block-view/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-text-block-view/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-text-block-view"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -684,20 +765,24 @@
     "@myrmidon/cadmus-text-ed": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-text-ed",
-      "sourceRoot": "projects/myrmidon/cadmus-text-ed/src",
+      "sourceRoot": "projects/myrmidon/cadmus-text-ed",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-text-ed/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-text-ed/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-text-ed/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-text-ed"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -711,20 +796,24 @@
     "@myrmidon/cadmus-text-ed-md": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-text-ed-md",
-      "sourceRoot": "projects/myrmidon/cadmus-text-ed-md/src",
+      "sourceRoot": "projects/myrmidon/cadmus-text-ed-md",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-text-ed-md/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-text-ed-md/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-text-ed-md/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-text-ed-md"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -738,20 +827,24 @@
     "@myrmidon/cadmus-text-ed-txt": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-text-ed-txt",
-      "sourceRoot": "projects/myrmidon/cadmus-text-ed-txt/src",
+      "sourceRoot": "projects/myrmidon/cadmus-text-ed-txt",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-text-ed-txt/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-text-ed-txt/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-text-ed-txt/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-text-ed-txt"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -765,20 +858,24 @@
     "@myrmidon/cadmus-ui-custom-action-bar": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-ui-custom-action-bar",
-      "sourceRoot": "projects/myrmidon/cadmus-ui-custom-action-bar/src",
+      "sourceRoot": "projects/myrmidon/cadmus-ui-custom-action-bar",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-ui-custom-action-bar/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-ui-custom-action-bar/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-ui-custom-action-bar/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-ui-custom-action-bar"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -792,20 +889,24 @@
     "@myrmidon/cadmus-ui-flag-set": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-ui-flag-set",
-      "sourceRoot": "projects/myrmidon/cadmus-ui-flag-set/src",
+      "sourceRoot": "projects/myrmidon/cadmus-ui-flag-set",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-ui-flag-set/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-ui-flag-set/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-ui-flag-set/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-ui-flag-set"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -819,20 +920,27 @@
     "@myrmidon/cadmus-ui-note-set": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-ui-note-set",
-      "sourceRoot": "projects/myrmidon/cadmus-ui-note-set/src",
+      "sourceRoot": "projects/myrmidon/cadmus-ui-note-set",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-ui-note-set/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-ui-note-set/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-ui-note-set/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-ui-note-set",
+            "allowedNonPeerDependencies": [
+              "marked"
+            ]
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -846,20 +954,24 @@
     "@myrmidon/cadmus-refs-geonames-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-geonames-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-geonames-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-geonames-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-geonames-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-geonames-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-geonames-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-geonames-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -873,20 +985,24 @@
     "@myrmidon/cadmus-refs-whg-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-whg-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-whg-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-whg-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-whg-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-whg-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-whg-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-whg-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -900,20 +1016,24 @@
     "@myrmidon/cadmus-refs-zotero-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-zotero-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-zotero-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-zotero-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-zotero-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-zotero-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-zotero-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-zotero-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -927,20 +1047,24 @@
     "@myrmidon/cadmus-ui-object-view": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-ui-object-view",
-      "sourceRoot": "projects/myrmidon/cadmus-ui-object-view/src",
+      "sourceRoot": "projects/myrmidon/cadmus-ui-object-view",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-ui-object-view/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-ui-object-view/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-ui-object-view/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-ui-object-view"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -954,20 +1078,24 @@
     "@myrmidon/cadmus-refs-mol-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-mol-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-mol-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-mol-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-mol-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-mol-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-mol-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-mol-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -981,20 +1109,24 @@
     "@myrmidon/cadmus-refs-biblissima-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-biblissima-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-biblissima-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-biblissima-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-biblissima-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-biblissima-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-biblissima-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-biblissima-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -1007,20 +1139,28 @@
     "@myrmidon/cadmus-geo-location": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-geo-location",
-      "sourceRoot": "projects/myrmidon/cadmus-geo-location/src",
+      "sourceRoot": "projects/myrmidon/cadmus-geo-location",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-geo-location/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-geo-location/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-geo-location/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-geo-location",
+            "allowedNonPeerDependencies": [
+              "@terraformer/wkt",
+              "@types/geojson"
+            ]
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -1033,20 +1173,24 @@
     "@myrmidon/cadmus-refs-sparql": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-sparql",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-sparql/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-sparql",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-sparql/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-sparql/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-sparql/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-sparql"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -1059,20 +1203,24 @@
     "@myrmidon/cadmus-refs-iconclass-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-iconclass-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-iconclass-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-iconclass-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-iconclass-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-iconclass-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-iconclass-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-iconclass-lookup"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -1085,20 +1233,24 @@
     "@myrmidon/cadmus-named-value": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-named-value",
-      "sourceRoot": "projects/myrmidon/cadmus-named-value/src",
+      "sourceRoot": "projects/myrmidon/cadmus-named-value",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-named-value/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-named-value/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-named-value/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-named-value"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -1111,20 +1263,27 @@
     "@myrmidon/cadmus-refs-pleiades-lookup": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-refs-pleiades-lookup",
-      "sourceRoot": "projects/myrmidon/cadmus-refs-pleiades-lookup/src",
+      "sourceRoot": "projects/myrmidon/cadmus-refs-pleiades-lookup",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-refs-pleiades-lookup/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-refs-pleiades-lookup/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-refs-pleiades-lookup/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-refs-pleiades-lookup",
+            "allowedNonPeerDependencies": [
+              "@types/geojson"
+            ]
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",
@@ -1137,20 +1296,24 @@
     "@myrmidon/cadmus-text-segment": {
       "projectType": "library",
       "root": "projects/myrmidon/cadmus-text-segment",
-      "sourceRoot": "projects/myrmidon/cadmus-text-segment/src",
+      "sourceRoot": "projects/myrmidon/cadmus-text-segment",
       "prefix": "cadmus",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "configurations": {
             "production": {
               "tsConfig": "projects/myrmidon/cadmus-text-segment/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/myrmidon/cadmus-text-segment/tsconfig.lib.json"
+              "compilationMode": "full"
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "production",
+          "options": {
+            "tsConfig": "projects/myrmidon/cadmus-text-segment/tsconfig.lib.json",
+            "outputPath": "dist/myrmidon/cadmus-text-segment"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test",

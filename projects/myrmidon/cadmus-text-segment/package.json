@@ -1,6 +1,9 @@
 {
   "name": "@myrmidon/cadmus-text-segment",
-  "version": "0.0.2",
+  "version": "0.0.3",
+  "exports": {
+    ".": "./src/public-api.ts"
+  },
   "description": "Cadmus - segmented text viewer with linear selection of arbitrary text segments.",
   "keywords": [
     "Cadmus",
@@ -22,9 +25,6 @@
     "@angular/core": "^22.2.0",
     "@angular/forms": "^22.2.0",
     "@angular/material": "^22.2.0"
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
   },
   "sideEffects": false
 }

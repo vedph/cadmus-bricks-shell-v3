@@ -70,7 +70,11 @@
             <td>{{ id?.target?.gid }}</td>
             <td>
               @for (f of id?.features; let last = $last; track f) {
-                {{ f | flatLookup: featureEntries() : "id" : "value" }}
+                {{
+                  f
+                    | thesOrTaxoLabel: featurePickerSettings() : featureLabelEntries()
+                    | async
+                }}
                 @if (!last) {
                   ,
                 }
@@ -96,6 +100,7 @@
         [refTypeEntries]="refTypeEntries()"
         [refTagEntries]="refTagEntries()"
         [featureEntries]="featureEntries()"
+        [featureSettings]="featureSettings()"
         [hasSubmit]="true"
         [pinByTypeMode]="pinByTypeMode()"
         [canSwitchMode]="canSwitchMode()"

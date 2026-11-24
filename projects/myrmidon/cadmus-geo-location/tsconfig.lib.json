@@ -7,7 +7,7 @@
     "types": ["geojson", "terraformer__wkt"]
   },
   "include": [
-    "src/**/*.ts"
+    "**/*.ts"
   ],
   "exclude": [
     "**/*.spec.ts"

@@ -1,6 +1,9 @@
 {
   "name": "@myrmidon/cadmus-text-ed-md",
-  "version": "12.0.4",
+  "version": "12.0.5",
+  "exports": {
+    ".": "./src/public-api.ts"
+  },
   "description": "Cadmus - text editing helpers.",
   "keywords": [
     "Cadmus",
@@ -21,9 +24,6 @@
     "@myrmidon/cadmus-api": "^20.0.0",
     "@myrmidon/cadmus-text-ed": "^11.0.3",
     "@myrmidon/cadmus-refs-asserted-ids": "^11.0.6"
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
   },
   "sideEffects": false
 }

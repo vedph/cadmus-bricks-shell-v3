@@ -1,10 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
+  inject,
   input,
   model,
   signal,
 } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
 import { take } from 'rxjs';
 
 import { MatIconModule } from '@angular/material/icon';
@@ -17,13 +20,22 @@ import { MatInputModule } from '@angular/material/input';
 import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
 import { LookupProviderOptions } from '@myrmidon/cadmus-refs-lookup';
 import { DialogService } from '@myrmidon/ngx-mat-tools';
-import { deepCopy, FlatLookupPipe } from '@myrmidon/ngx-tools';
+import { deepCopy } from '@myrmidon/ngx-tools';
+import {
+  resolveThesOrTaxoEntries,
+  ThesOrTaxoLabelPipe,
+  ThesOrTaxoSettings,
+} from '@myrmidon/cadmus-ui-thestaxo';
 
 import {
   AssertedCompositeId,
   AssertedCompositeIdComponent,
   AssertedCompositeIdTagSettings,
 } from '../asserted-composite-id/asserted-composite-id.component';
+import {
+  ASSERTED_ID_FEATURE_SETTINGS,
+  resolveAssertedIdFeatureSettings,
+} from '../asserted-id-features/asserted-id-feature-settings';
 
 /**
  * Asserted composite IDs editor.
@@ -39,12 +51,17 @@ import {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    AsyncPipe,
     AssertedCompositeIdComponent,
-    FlatLookupPipe
+    ThesOrTaxoLabelPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssertedCompositeIdsComponent {
+  private readonly _appFeatureSettings = inject(ASSERTED_ID_FEATURE_SETTINGS, {
+    optional: true,
+  });
+
   /**
    * The asserted IDs.
    */
@@ -65,6 +82,35 @@ export class AssertedCompositeIdsComponent {
   public readonly refTagEntries = input<ThesaurusEntry[]>();
   // asserted-id-features
   public readonly featureEntries = input<ThesaurusEntry[]>();
+
+  /**
+   * The settings for picking features: thesaurus (default), taxonomy,
+   * or unbound. Each defined property overrides the app-level settings
+   * (ASSERTED_ID_FEATURE_SETTINGS), which in turn override the defaults
+   * (thesaurus mode, with the entries from featureEntries).
+   */
+  public readonly featureSettings = input<ThesOrTaxoSettings | null>();
+
+  /**
+   * The effective settings for features, used to display their labels.
+   */
+  public readonly featurePickerSettings = computed<ThesOrTaxoSettings>(() =>
+    resolveAssertedIdFeatureSettings(
+      this._appFeatureSettings,
+      this.featureSettings(),
+    ),
+  );
+
+  /**
+   * The thesaurus entries used to display the labels of features: the
+   * feature entries, unless settings specify a thesaurus to load.
+   */
+  public readonly featureLabelEntries = computed(() =>
+    resolveThesOrTaxoEntries(
+      this.featurePickerSettings(),
+      this.featureEntries(),
+    ),
+  );
 
   /**
    * True when the internal UI preselected mode should be by type rather than

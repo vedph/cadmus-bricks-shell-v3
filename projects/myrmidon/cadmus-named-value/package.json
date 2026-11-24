@@ -1,6 +1,9 @@
 {
   "name": "@myrmidon/cadmus-named-value",
-  "version": "0.0.5",
+  "version": "0.0.6",
+  "exports": {
+    ".": "./src/public-api.ts"
+  },
   "description": "Cadmus - named value components.",
   "keywords": [
     "Cadmus",
@@ -19,9 +22,6 @@
     "@angular/core": "^22.2.1",
     "@angular/material": "^22.2.1",
     "@myrmidon/ngx-tools": "^3.0.2"
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
   },
   "sideEffects": false
 }

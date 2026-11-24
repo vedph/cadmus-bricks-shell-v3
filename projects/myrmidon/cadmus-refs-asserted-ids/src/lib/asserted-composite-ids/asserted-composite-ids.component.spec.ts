@@ -4,7 +4,8 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { DialogService } from '@myrmidon/ngx-mat-tools';
 import { RamStorageService } from '@myrmidon/ngx-tools';
-import { IndexLookupDefinitions } from '@myrmidon/cadmus-core';
+import { IndexLookupDefinitions, ThesaurusEntry } from '@myrmidon/cadmus-core';
+import { ThesOrTaxoSourceService } from '@myrmidon/cadmus-ui-thestaxo';
 
 import { AssertedCompositeIdsComponent } from './asserted-composite-ids.component';
 import { By } from '@angular/platform-browser';
@@ -14,6 +15,7 @@ import {
   AssertedCompositeIdTagSettings,
 } from '../asserted-composite-id/asserted-composite-id.component';
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
+import { provideAssertedIdFeatureSettings } from '../asserted-id-features/asserted-id-feature-settings';
 
 const INDEX_LOOKUP_DEFINITIONS: IndexLookupDefinitions = {
   item_eid: {
@@ -326,6 +328,93 @@ describe('AssertedCompositeIdsComponent', () => {
           'cadmus-refs-asserted-composite-id',
         ),
       ).toBeTruthy();
+    });
+  });
+
+  describe('features', () => {
+    const FEATURES: ThesaurusEntry[] = [
+      { id: 'f1', value: 'Feature 1' },
+      { id: 'f2', value: 'Feature 2' },
+    ];
+    const IDS: AssertedCompositeId[] = [
+      { target: { gid: 'a', label: 'a' }, features: ['f1', 'legacy'] },
+    ];
+
+    function featuresCell(fixture: any): string {
+      // the features column is the 6th one
+      return fixture.nativeElement
+        .querySelector('tbody tr td:nth-child(6)')
+        .textContent.replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    it('should list feature labels from the feature entries by default', async () => {
+      const { fixture } = await render(AssertedCompositeIdsComponent, {
+        providers: getProviders(),
+        inputs: { ids: IDS, featureEntries: FEATURES },
+      });
+      fixture.detectChanges();
+
+      expect(featuresCell(fixture)).toBe('Feature 1 , legacy');
+    });
+
+    it('should list feature labels from a taxonomy', async () => {
+      const getTaxoNodeLabel = vi.fn((tree: string, key: string) =>
+        of(tree === 'roles' && key === 'f1' ? 'Painter' : null),
+      );
+      const { fixture } = await render(AssertedCompositeIdsComponent, {
+        providers: [
+          ...getProviders(),
+          {
+            provide: ThesOrTaxoSourceService,
+            useValue: { getTaxoNodeLabel, getThesaurusEntries: vi.fn() },
+          },
+        ],
+        inputs: {
+          ids: IDS,
+          featureEntries: FEATURES,
+          featureSettings: { mode: 'taxonomy', source: 'roles' },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(featuresCell(fixture)).toBe('Painter , legacy');
+      expect(getTaxoNodeLabel).toHaveBeenCalledWith('roles', 'f1');
+    });
+
+    it('should merge the feature settings over the app-level ones', async () => {
+      const { fixture } = await render(AssertedCompositeIdsComponent, {
+        providers: [
+          ...getProviders(),
+          provideAssertedIdFeatureSettings({
+            mode: 'taxonomy',
+            source: 'roles',
+          }),
+        ],
+        inputs: { featureSettings: { source: 'other' } },
+      });
+
+      expect(fixture.componentInstance.featurePickerSettings()).toEqual({
+        mode: 'taxonomy',
+        source: 'other',
+      });
+    });
+
+    it('should pass featureSettings down to the ID editor', async () => {
+      const featureSettings = { mode: 'unbound' as const };
+      const { fixture } = await render(AssertedCompositeIdsComponent, {
+        providers: getProviders(),
+        inputs: { featureSettings, featureEntries: FEATURES },
+      });
+
+      fixture.componentInstance.addId();
+      fixture.detectChanges();
+
+      const editor = fixture.debugElement.query(
+        By.directive(AssertedCompositeIdComponent),
+      ).componentInstance as AssertedCompositeIdComponent;
+      expect(editor.featureSettings()).toBe(featureSettings);
+      expect(editor.featureEntries()).toBe(FEATURES);
     });
   });
 

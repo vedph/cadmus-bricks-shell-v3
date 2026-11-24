@@ -1,6 +1,9 @@
 {
   "name": "@myrmidon/cadmus-mat-physical-state",
-  "version": "10.0.3",
+  "version": "10.0.4",
+  "exports": {
+    ".": "./src/public-api.ts"
+  },
   "description": "Cadmus - material description: physical state.",
   "keywords": [
     "Cadmus",
@@ -19,9 +22,6 @@
     "@angular/core": "^22.2.1",
     "@angular/material": "^22.2.1",
     "@myrmidon/cadmus-ui-flag-set": "^10.0.2"
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
   },
   "sideEffects": false
 }

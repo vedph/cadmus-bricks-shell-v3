@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
 import { render } from '@testing-library/angular';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { By } from '@angular/platform-browser';
 
 import { of } from 'rxjs';
 
@@ -16,6 +17,8 @@ import {
   TAXONOMY_GID_PREFIX,
 } from './asserted-composite-id.component';
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
+import { AssertedIdFeaturesComponent } from '../asserted-id-features/asserted-id-features.component';
+import { provideAssertedIdFeatureSettings } from '../asserted-id-features/asserted-id-feature-settings';
 
 function makeLookupConfig(id: string): any {
   return {
@@ -204,6 +207,93 @@ describe('AssertedCompositeIdComponent', () => {
 
     expect(component.form.features().value()).toEqual(['f1', 'f2']);
     expect(component.form.features().dirty()).toBe(true);
+  });
+
+  describe('features', () => {
+    const FEATURES: ThesaurusEntry[] = [
+      { id: 'f1', value: 'Feature 1' },
+      { id: 'f2', value: 'Feature 2' },
+    ];
+
+    function getFeaturesPicker(fixture: any): AssertedIdFeaturesComponent {
+      return fixture.debugElement.query(
+        By.directive(AssertedIdFeaturesComponent),
+      ).componentInstance;
+    }
+
+    it('should pass entries, settings and features to the features picker', async () => {
+      const settings = { mode: 'unbound' as const };
+      const { fixture } = await render(AssertedCompositeIdComponent, {
+        providers: getProviders(),
+        inputs: {
+          featureEntries: FEATURES,
+          featureSettings: settings,
+          id: { target: { gid: 'g1', label: 'l1' }, features: ['f2', 'x'] },
+        },
+      });
+      fixture.detectChanges();
+
+      const picker = getFeaturesPicker(fixture);
+      expect(picker.entries()).toEqual(FEATURES);
+      expect(picker.settings()).toBe(settings);
+      expect(picker.features()).toEqual(['f2', 'x']);
+    });
+
+    it('should not render features without entries nor settings', async () => {
+      const { fixture } = await render(AssertedCompositeIdComponent, {
+        providers: getProviders(),
+        inputs: {
+          id: { target: { gid: 'g1', label: 'l1' }, features: ['f1'] },
+        },
+      });
+      fixture.detectChanges();
+
+      expect(getFeaturesPicker(fixture).view()).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector(
+          'cadmus-refs-asserted-id-features fieldset',
+        ),
+      ).toBeNull();
+      // features are preserved anyway
+      expect(component(fixture).form.features().value()).toEqual(['f1']);
+    });
+
+    it('should update the features when the picker changes them', async () => {
+      const { fixture } = await render(AssertedCompositeIdComponent, {
+        providers: getProviders(),
+        inputs: {
+          featureEntries: FEATURES,
+          id: { target: { gid: 'g1', label: 'l1' } },
+        },
+      });
+      fixture.detectChanges();
+
+      getFeaturesPicker(fixture).features.set(['f1', 'legacy']);
+      fixture.detectChanges();
+
+      const c = component(fixture);
+      expect(c.form.features().value()).toEqual(['f1', 'legacy']);
+      expect(c.form.features().dirty()).toBe(true);
+      c.save();
+      expect(c.id()?.features).toEqual(['f1', 'legacy']);
+    });
+
+    it('should use the app-level feature settings', async () => {
+      const { fixture } = await render(AssertedCompositeIdComponent, {
+        providers: [
+          ...getProviders(),
+          provideAssertedIdFeatureSettings({ mode: 'unbound' }),
+        ],
+        inputs: { featureEntries: FEATURES },
+      });
+      fixture.detectChanges();
+
+      expect(getFeaturesPicker(fixture).view()).toBe('unbound');
+    });
+
+    function component(fixture: any): AssertedCompositeIdComponent {
+      return fixture.componentInstance;
+    }
   });
 
   it('onTargetChange should update the target control and collapse the panel when valid', async () => {

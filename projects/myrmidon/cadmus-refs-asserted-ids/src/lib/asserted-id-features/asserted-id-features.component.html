@@ -1,0 +1,65 @@
+@if (view(); as v) {
+  <div class="features">
+    <fieldset>
+      <legend>{{ label() }}</legend>
+      @if (v === "thesaurus") {
+        <!-- thesaurus: entries picker -->
+        <cadmus-thesaurus-entries-picker
+          [availableEntries]="thesEntries()"
+          [hierarchicLabels]="true"
+          [entries]="pickedEntries()"
+          (entriesChange)="onEntriesChange($event)"
+          emptyMessage=""
+        />
+      } @else {
+        <!-- taxonomy or unbound: picked features list -->
+        @if (features().length) {
+          <mat-chip-set class="picked" aria-label="picked features">
+            @for (f of features(); track f; let i = $index) {
+              <mat-chip [matTooltip]="f" (removed)="removeFeature(i)">
+                {{ f | thesOrTaxoLabel: currentSettings() : labelEntries() | async }}
+                <button matChipRemove type="button" [attr.aria-label]="'remove ' + f">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            }
+          </mat-chip-set>
+        }
+        @if (v === "taxonomy") {
+          <!-- taxonomy: pick a node to add it -->
+          <cadmus-thes-or-taxo-picker
+            label="add feature"
+            [settings]="currentSettings()"
+            [fallbackToUnbound]="false"
+            [canClear]="false"
+            (pick)="onPick($event)"
+          />
+        } @else {
+          <!-- unbound: type a feature to add it -->
+          <div class="form-row">
+            <mat-form-field class="short-text">
+              <mat-label>add feature</mat-label>
+              <input
+                matInput
+                [value]="typedFeature()"
+                [attr.maxlength]="maxTypedLength"
+                (input)="onTypedFeatureInput($event)"
+                (keydown.enter)="$event.preventDefault(); addTypedFeature()"
+              />
+            </mat-form-field>
+            <button
+              type="button"
+              mat-icon-button
+              matTooltip="Add feature"
+              aria-label="add feature"
+              [disabled]="!typedFeature().trim()"
+              (click)="addTypedFeature()"
+            >
+              <mat-icon class="mat-primary">add_circle</mat-icon>
+            </button>
+          </div>
+        }
+      }
+    </fieldset>
+  </div>
+}

@@ -1,6 +1,9 @@
 {
   "name": "@myrmidon/cadmus-refs-doc-references",
-  "version": "11.0.3",
+  "version": "11.0.4",
+  "exports": {
+    ".": "./src/public-api.ts"
+  },
   "description": "Cadmus - document references component.",
   "keywords": [
     "Cadmus",
@@ -19,9 +22,6 @@
     "@angular/core": "^22.2.1",
     "@angular/material": "^22.2.1",
     "@myrmidon/cadmus-core": "^20.0.0"
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
   },
   "sideEffects": false
 }

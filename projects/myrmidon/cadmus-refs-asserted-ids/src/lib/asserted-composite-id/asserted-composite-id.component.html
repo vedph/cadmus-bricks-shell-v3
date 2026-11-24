@@ -143,20 +143,12 @@
     </div>
 
     <!-- features -->
-    @if (featureEntries()?.length) {
-      <div class="margin-top-sm">
-        <fieldset>
-          <legend>features</legend>
-          <cadmus-thesaurus-entries-picker
-            [availableEntries]="featureEntries()!"
-            [hierarchicLabels]="true"
-            [entries]="idFeatures()"
-            (entriesChange)="onEntriesChange($event)"
-            emptyMessage=""
-          />
-        </fieldset>
-      </div>
-    }
+    <cadmus-refs-asserted-id-features
+      [entries]="featureEntries()"
+      [settings]="featureSettings()"
+      [features]="form.features().value()"
+      (featuresChange)="onFeaturesChange($event)"
+    />
 
     <!-- note -->
     <div class="margin-top-sm">

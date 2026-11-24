@@ -50,7 +50,7 @@ import {
   RefLookupConfig,
   RefLookupSetEvent,
 } from '@myrmidon/cadmus-refs-lookup';
-import { ThesaurusEntriesPickerComponent } from '@myrmidon/cadmus-thesaurus-store';
+import { ThesOrTaxoSettings } from '@myrmidon/cadmus-ui-thestaxo';
 
 // taxonomy
 import { TaxoStoreNode } from '@myrmidon/taxo-store-api';
@@ -58,6 +58,7 @@ import { FeatureOption, TaxoStorePicker } from '@myrmidon/taxo-store-picker';
 
 // local
 import { PinRefLookupService } from '../services/pin-ref-lookup.service';
+import { AssertedIdFeaturesComponent } from '../asserted-id-features/asserted-id-features.component';
 import {
   PinTarget,
   PinTargetLookupComponent,
@@ -216,11 +217,10 @@ function makeDefaultDraft(): AssertedCompositeIdControls {
     MatTooltipModule,
     // bricks
     AssertionComponent,
-    // cadmus
-    ThesaurusEntriesPickerComponent,
     // taxonomy
     TaxoStorePicker,
     // local
+    AssertedIdFeaturesComponent,
     PinTargetLookupComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -417,6 +417,14 @@ export class AssertedCompositeIdComponent {
   public readonly featureEntries = input<ThesaurusEntry[]>();
 
   /**
+   * The settings for picking features: thesaurus (default), taxonomy,
+   * or unbound. Each defined property overrides the app-level settings
+   * (ASSERTED_ID_FEATURE_SETTINGS), which in turn override the defaults
+   * (thesaurus mode, with the entries from featureEntries).
+   */
+  public readonly featureSettings = input<ThesOrTaxoSettings | null>();
+
+  /**
    * The ID being edited.
    */
   public readonly id = model<AssertedCompositeId>();
@@ -477,6 +485,8 @@ export class AssertedCompositeIdComponent {
   /**
    * The thesaurus entries from featureEntries whose id matches
    * any of the current features.
+   * @deprecated No longer used by the component, as features are now
+   * picked via AssertedIdFeaturesComponent.
    */
   public readonly idFeatures = computed<ThesaurusEntry[]>(() => {
     const features = this.form.features().value();
@@ -577,9 +587,21 @@ export class AssertedCompositeIdComponent {
       });
   }
 
+  /**
+   * Set the features to the IDs of the specified thesaurus entries.
+   * @param entries The entries.
+   */
   public onEntriesChange(entries: ThesaurusEntry[]): void {
-    const ids = entries.map((e) => e.id);
-    this._draft.update((v) => ({ ...v, features: ids }));
+    this.onFeaturesChange(entries.map((e) => e.id));
+  }
+
+  /**
+   * Set the features.
+   * @param features The features (thesaurus entry IDs, taxonomy node
+   * keys, or free text, according to the feature settings).
+   */
+  public onFeaturesChange(features: string[]): void {
+    this._draft.update((v) => ({ ...v, features: [...features] }));
     this.form.features().markAsDirty();
   }
 

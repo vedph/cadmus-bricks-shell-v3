@@ -1,6 +1,9 @@
 {
   "name": "@myrmidon/cadmus-refs-lookup",
-  "version": "11.0.10",
+  "version": "11.0.11",
+  "exports": {
+    ".": "./src/public-api.ts"
+  },
   "description": "Cadmus - reference lookup component.",
   "keywords": [
     "Cadmus",
@@ -21,9 +24,6 @@
     "@myrmidon/cadmus-refs-doc-references": "^11.0.3",
     "@myrmidon/cadmus-refs-citation": "^2.0.3",
     "@myrmidon/cadmus-ui-object-view": "^1.0.3"
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
   },
   "sideEffects": false
 }

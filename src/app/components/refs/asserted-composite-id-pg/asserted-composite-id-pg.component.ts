@@ -10,8 +10,11 @@ import {
 
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+import { ThesOrTaxoMode, ThesOrTaxoSettings } from '@myrmidon/cadmus-ui-thestaxo';
 
 import {
   AssertedCompositeId,
@@ -34,6 +37,19 @@ export const TAG_SETTINGS: AssertedCompositeIdTagSettings = {
     animals: 'asserted-id-tags-animals',
   },
 };
+
+/**
+ * Sample feature settings for each features source mode. In a real app,
+ * you would rather provide app-level settings once, via
+ * provideAssertedIdFeatureSettings in app.config.ts. The taxonomy mode
+ * uses the animals tree of the local TaxoStore API (taxoUrl in env.js).
+ */
+export const FEATURE_SETTINGS: { [mode in ThesOrTaxoMode]: ThesOrTaxoSettings } =
+  {
+    thesaurus: { mode: 'thesaurus' },
+    taxonomy: { mode: 'taxonomy', source: 'animals' },
+    unbound: { mode: 'unbound' },
+  };
 
 export const ANIMAL_ENTRIES: ThesaurusEntry[] = [
   // - y=1 x=1
@@ -125,6 +141,8 @@ export const ANIMAL_ENTRIES: ThesaurusEntry[] = [
     ReactiveFormsModule,
     MatCardModule,
     MatCheckboxModule,
+    MatFormFieldModule,
+    MatSelectModule,
     AssertedCompositeIdComponent,
   ],
 })
@@ -134,9 +152,11 @@ export class AssertedCompositeIdPgComponent {
   public canSwitchMode: FormControl<boolean>;
   public canEditTarget: FormControl<boolean>;
   public hasTagSettings: FormControl<boolean>;
+  public featureMode: FormControl<ThesOrTaxoMode>;
   public form: FormGroup;
   // data
   public readonly tagSettings = TAG_SETTINGS;
+  public readonly featureSettings = FEATURE_SETTINGS;
   public id?: AssertedCompositeId;
   public idTagEntries: ThesaurusEntry[];
   public assTagEntries: ThesaurusEntry[];
@@ -150,12 +170,16 @@ export class AssertedCompositeIdPgComponent {
     this.canSwitchMode = formBuilder.control(true, { nonNullable: true });
     this.canEditTarget = formBuilder.control(true, { nonNullable: true });
     this.hasTagSettings = formBuilder.control(false, { nonNullable: true });
+    this.featureMode = formBuilder.control<ThesOrTaxoMode>('thesaurus', {
+      nonNullable: true,
+    });
     // form group
     this.form = formBuilder.group({
       pinByTypeMode: this.pinByTypeMode,
       canSwitchMode: this.canSwitchMode,
       canEditTarget: this.canEditTarget,
       hasTagSettings: this.hasTagSettings,
+      featureMode: this.featureMode,
     });
     this.idTagEntries = [
       {

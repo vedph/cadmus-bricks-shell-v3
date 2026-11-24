@@ -10,11 +10,18 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
   - [ID Components](#id-components)
     - [AssertedCompositeIdComponent](#assertedcompositeidcomponent)
       - [Tag Settings](#tag-settings)
+      - [Features](#features)
     - [AssertedCompositeIdsComponent](#assertedcompositeidscomponent)
+    - [AssertedIdFeaturesComponent](#assertedidfeaturescomponent)
     - [PinTargetLookupComponent](#pintargetlookupcomponent)
   - [Configuring Asserted ID](#configuring-asserted-id)
     - [Configuring Lookup Providers](#configuring-lookup-providers)
     - [Configuring Taxonomy Store](#configuring-taxonomy-store)
+    - [Configuring Features](#configuring-features)
+      - [App-Level Settings](#app-level-settings)
+      - [Editor-Level Settings](#editor-level-settings)
+      - [Feature Settings Reference](#feature-settings-reference)
+      - [Things to Consider](#things-to-consider)
     - [Defining Index Lookups](#defining-index-lookups)
   - [Legacy Components](#legacy-components)
     - [AssertedIdComponent](#assertedidcomponent)
@@ -100,12 +107,14 @@ Various components from this library provide a different level of complexity, so
   - `defaultPartTypeKey` (`string?|null`)
   - `lookupDefinitions` (`IndexLookupDefinitions?`)
   - `tagSettings` (`AssertedCompositeIdTagSettings?`): see [tag settings](#tag-settings).
+  - `featureSettings` (`ThesOrTaxoSettings?|null`): the settings for picking [features](#features). These override the app-level settings, if any (see [configuring features](#configuring-features)).
 - 📚 thesauri:
   - `asserted-id-scopes` (for `idScopeEntries`)
   - `asserted-id-tags` (for `idTagEntries`)
   - `assertion-tags` (for `assTagEntries`)
   - `doc-reference-types` (for `refTypeEntries`)
   - `doc-reference-tags` (for `refTagEntries`)
+  - `asserted-id-features` (for `featureEntries`)
 - ⚡ output:
   - `idChange` (`AssertedId[]`)
   - `editorClose`
@@ -122,6 +131,8 @@ This is the most complete ID reference, which can be used for both external and 
     - the `name` and `value` of the pin.
 - an optional `scope`, representing the context the ID originates from (e.g. an ontology, a repository, a website, etc.).
 - an optional `tag`, possibly used to group or classify the ID.
+- an optional set of `features`, i.e. binary features of the link, like the role(s) of a person linked to an object (customer, seller, creator, etc.). See [features](#features).
+- an optional `note`, a free text.
 - an optional `assertion`, possibly used to define the uncertainty level of the assignment of this ID to the context it applies to.
 
 To distinguish among link targets:
@@ -214,6 +225,26 @@ When the user changes the source, a tag which does not belong to the tags of the
 
 Also, whenever the user picks a target from a lookup source, the ID's `scope` is set to the ID of that source (the lookup provider ID or the taxonomy tree ID), whatever its current value. This happens for a taxonomy node as soon as it is picked, and for an external lookup item when the target is confirmed with the GID got from lookup. Instead, a manually entered target does not change the scope.
 
+#### Features
+
+The `features` of an asserted composite ID are a list of strings, each representing a binary feature of the link. Their source is configurable. It can be:
+
+- a **thesaurus** (default): the features are the IDs of thesaurus entries. By default, the entries come from `featureEntries` (thesaurus `asserted-id-features`), which the editor gets from its wrapper feature. Alternatively, settings can specify the ID of a thesaurus to load.
+- a **taxonomy**: the features are the keys of nodes from a [TaxoStore](https://github.com/vedph/taxo-store) tree. This is useful for much larger sets of features, e.g. those derived from a LOD ontology.
+- **unbound**: the features are free text typed by users.
+
+When you set nothing, features are picked from `featureEntries`, and the features UI is hidden when there are no entries. The source is set by `featureSettings`, or app-wide via injection: see [configuring features](#configuring-features) for a guide.
+
+According to the source, the UI is:
+
+- **thesaurus**: the thesaurus entries picker (`ThesaurusEntriesPickerComponent`), showing the picked entries as chips which can be reordered by drag and drop, and a list or tree to pick from.
+- **taxonomy**: the picked features as chips with their labels, and a taxonomy picker (`ThesOrTaxoPicker` from `@myrmidon/cadmus-ui-thestaxo`). Each node picked from it is added to the features, and the picker is reset for the next pick.
+- **unbound**: the picked features as chips, and a textbox to type a feature and add it (with Enter or the add button).
+
+In all modes, picking a feature twice has no effect, and features keep the order they were added in. When the source is not available (no thesaurus entries, an empty thesaurus, or a taxonomy without tree ID), the features UI is hidden, but the features of the edited ID are preserved.
+
+Features which are not found in their source (e.g. legacy data) are never hidden or lost: they are shown with their raw value as their label, and kept when picking other features.
+
 ### AssertedCompositeIdsComponent
 
 A collection of asserted composite IDs.
@@ -228,14 +259,40 @@ A collection of asserted composite IDs.
   - `defaultPartTypeKey` (`string?|null`)
   - `lookupDefinitions` (`IndexLookupDefinitions?`)
   - `tagSettings` (`AssertedCompositeIdTagSettings?`): passed to the ID editor; see [tag settings](#tag-settings).
+  - `featureSettings` (`ThesOrTaxoSettings?|null`): passed to the ID editor; see [features](#features).
 - 📚 thesauri:
   - `asserted-id-scopes` (for `idScopeEntries`)
   - `asserted-id-tags` (for `idTagEntries`)
   - `assertion-tags` (for `assTagEntries`)
   - `doc-reference-types` (for `refTypeEntries`)
   - `doc-reference-tags` (for `refTagEntries`)
+  - `asserted-id-features` (for `featureEntries`)
 - ⚡ output:
   - `idsChange` (`AssertedCompositeId[]`)
+
+The list shows the labels of the features of each ID, according to the same feature settings used by the editor. For taxonomy features, labels are fetched from the TaxoStore API (once per key, as they are cached).
+
+### AssertedIdFeaturesComponent
+
+The picker for the [features](#features) of an asserted composite ID. It is used by `AssertedCompositeIdComponent`, but you can also use it on its own for any list of features.
+
+- 🔑 `AssertedIdFeaturesComponent`
+- 🚩 `cadmus-refs-asserted-id-features`
+- ▶️ input:
+  - `features` (`string[]`): the picked features (two-way bindable).
+  - `entries` (`ThesaurusEntry[]?|null`): the thesaurus entries provided by the editor, used in thesaurus mode unless settings specify a thesaurus ID.
+  - `settings` (`ThesOrTaxoSettings?|null`): the feature settings, merged over the app-level ones.
+  - `label` (`string`): the label of the control. Default is `features`.
+- 🔥 output:
+  - `featuresChange` (`string[]`): emitted only when the user changes the features.
+
+```html
+<cadmus-refs-asserted-id-features
+  [entries]="featureEntries()"
+  [settings]="featureSettings()"
+  [(features)]="features"
+/>
+```
 
 ### PinTargetLookupComponent
 
@@ -333,6 +390,132 @@ The taxonomy store can be configured as follows:
     >Note that here you can be very granular in your settings: for each taxonomy tree, you can define its UI label and whether its nodes can be edited, deleted and added by users, and set other options to change the picker's behavior (see `TaxoStoreLookupConfig`).
 
 3. call this function from your app's constructor.
+
+### Configuring Features
+
+By default, [features](#features) are picked from the `asserted-id-features` thesaurus, whose entries the editor passes via `featureEntries`. If this is what you want, there is nothing to configure.
+
+To use another source, you set a `ThesOrTaxoSettings` object (from `@myrmidon/cadmus-ui-thestaxo`). The settings come from three levels, which are merged in this order, so that each defined property overrides the same property of the previous level:
+
+1. the **defaults**: `DEFAULT_ASSERTED_ID_FEATURE_SETTINGS` (`{ mode: 'thesaurus' }`).
+2. the **app-level** settings, got via injection from `ASSERTED_ID_FEATURE_SETTINGS`. These apply to all the asserted composite IDs in the app.
+3. the **editor-level** settings, got from the `featureSettings` input of `AssertedCompositeIdComponent` or `AssertedCompositeIdsComponent`. These apply only to that instance.
+
+Undefined or null properties override nothing, so that each level changes only what it specifies. You can get the merged settings with `resolveAssertedIdFeatureSettings(appSettings, inputSettings)`.
+
+#### App-Level Settings
+
+This is the usual way of configuring features. For instance, to pick features from the `link-features` taxonomy in all the asserted composite IDs of your app:
+
+1. make sure your app has the required packages: `pnpm i @myrmidon/cadmus-ui-thestaxo @myrmidon/taxo-store-api @myrmidon/taxo-store-picker`. `@myrmidon/cadmus-ui-thestaxo` is a peer dependency of this library, so you need it anyway.
+2. make sure that your app's `env.js` has the TaxoStore API base URL in `taxoUrl`, as for any other TaxoStore component (see [configuring taxonomy store](#configuring-taxonomy-store)).
+3. add the settings provider to your `app.config.ts`:
+
+    ```ts
+    import { provideAssertedIdFeatureSettings } from '@myrmidon/cadmus-refs-asserted-ids';
+
+    export const appConfig: ApplicationConfig = {
+      providers: [
+        // ...
+        provideAssertedIdFeatureSettings({
+          mode: 'taxonomy',
+          source: 'link-features',
+          // let users add new nodes while picking
+          canAddNode: true,
+        }),
+      ],
+    };
+    ```
+
+Other examples:
+
+```ts
+// load the features from a specific thesaurus rather than from the
+// entries provided by the editor (thesaurus IDs include the language)
+provideAssertedIdFeatureSettings({ mode: 'thesaurus', source: 'link-roles@en' });
+
+// let users type any features
+provideAssertedIdFeatureSettings({ mode: 'unbound' });
+```
+
+You can also provide the token directly, e.g. with a factory, or in a component's `providers` to scope it to a subtree of your app:
+
+```ts
+{
+  provide: ASSERTED_ID_FEATURE_SETTINGS,
+  useValue: { mode: 'taxonomy', source: 'link-features' },
+}
+```
+
+#### Editor-Level Settings
+
+When only some editors need a different source, pass the settings to them via `featureSettings`:
+
+```ts
+public readonly featureSettings: ThesOrTaxoSettings = {
+  mode: 'taxonomy',
+  source: 'decoration-roles',
+};
+```
+
+```html
+<cadmus-refs-asserted-composite-ids
+  [featureEntries]="featureEntries()"
+  [featureSettings]="featureSettings"
+  [ids]="ids()"
+  (idsChange)="onIdsChange($event)"
+/>
+```
+
+In a Cadmus part or fragment editor, the best place for these settings is the editor settings. These are defined per app (and optionally per part role) in the profile, and loaded via `initSettings`. This is the same pattern used by the historical events part (`@myrmidon/cadmus-part-general-ui`) for its event type. For instance:
+
+```ts
+export interface PinLinksPartSettings {
+  features?: ThesOrTaxoSettings;
+}
+
+public readonly featureSettings = signal<ThesOrTaxoSettings | undefined>(undefined);
+
+// in the editor's constructor
+this.initSettings<PinLinksPartSettings>(PIN_LINKS_PART_TYPEID, (settings) =>
+  this.featureSettings.set(settings?.features),
+);
+```
+
+```html
+<cadmus-refs-asserted-composite-ids [featureSettings]="featureSettings()" ... />
+```
+
+So, the profile of a project dealing with a LOD ontology can just add:
+
+```json
+"settings": {
+  "it.vedph.pin-links": {
+    "features": { "mode": "taxonomy", "source": "link-features" }
+  }
+}
+```
+
+#### Feature Settings Reference
+
+The `ThesOrTaxoSettings` properties, as used for features, are:
+
+- `mode`: `thesaurus` (default), `taxonomy`, or `unbound`.
+- `source`:
+  - in `thesaurus` mode: the ID of the thesaurus to load (e.g. `link-roles@en`). When set, `featureEntries` is ignored. When not set, `featureEntries` is used.
+  - in `taxonomy` mode: the ID of the TaxoStore tree. This is required: without it, the features UI is hidden.
+  - in `unbound` mode: not used.
+- `hasTopNodeFilter`: true to show the top-level nodes filter in the taxonomy picker (default true).
+- `canEditNode`, `canAddNode`, `canDeleteNode`: whether users can edit, add or delete taxonomy nodes while picking (default false).
+
+`thesaurusView` is not used for features: the thesaurus entries picker shows a tree when entries are hierarchical.
+
+#### Things to Consider
+
+- Features are stored as plain strings, whatever their source: thesaurus entry IDs, taxonomy node keys, or typed text. Unlike the target GID of a taxonomy node, they have no prefix telling their source, so their meaning depends on the configured source. If you change the source of a project with existing data, old features are still kept and shown, but with their raw value, as their labels are no longer found.
+- Node keys are unique only within their tree, so a given editor should pick its features from a single tree.
+- Taxonomies are usually shared, so editing nodes from within the picker is disabled by default. Enable it with care.
+- Taxonomy labels are fetched via `ThesOrTaxoSourceService` (from `@myrmidon/cadmus-ui-thestaxo`), which caches them. If taxonomies are edited elsewhere while the app runs, call its `clearCache()` to refresh labels.
 
 ### Defining Index Lookups
 
@@ -480,6 +663,12 @@ An editable list of asserted IDs.
 
 ## History
 
+- 2026-11-24: v11.1.0
+  - 🆕 the features of asserted composite IDs can now be picked from a thesaurus (default, as before), a taxonomy, or typed, according to `ThesOrTaxoSettings` set app-wide via `provideAssertedIdFeatureSettings` (`ASSERTED_ID_FEATURE_SETTINGS`), or per instance via the new `featureSettings` input of `AssertedCompositeIdComponent` and `AssertedCompositeIdsComponent`. See [configuring features](#configuring-features).
+  - 🆕 added `AssertedIdFeaturesComponent`, used by `AssertedCompositeIdComponent` to pick features.
+  - ⚠️ added peer dependency `@myrmidon/cadmus-ui-thestaxo` (`>=0.0.2 <1.0.0`).
+  - fixed features not found in the thesaurus being hidden, and silently dropped as soon as the user changed features. Features are now also kept in their stored order rather than in thesaurus order, so that reordering them by drag and drop works.
+  - `AssertedCompositeIdComponent.idFeatures` is deprecated, as it is no longer used.
 - 2026-10-18: v11.0.8
   - fixed `AssertedCompositeIdComponent` reverting to external source mode when picking the taxonomy (or internal) source for a newly added ID: resetting its empty target brought the draft back in sync with the bound ID, so that its source mode was derived again from the empty target, overriding the user's choice. The source mode is now derived only once per bound ID.
   - ⚠️ updated to `@myrmidon/taxo-store-api` and `@myrmidon/taxo-store-picker` 1.3.0. Breaking change: in `TaxoStoreLookupConfig`, `hasFlagsFilter` and `availableFlags` (`FlagOption[]`) were renamed to `hasFeaturesFilter` and `availableFeatures` (`FeatureOption[]`), following the picker's features filter.

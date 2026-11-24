@@ -4,6 +4,8 @@
 
 export * from './lib/asserted-composite-id/asserted-composite-id.component';
 export * from './lib/asserted-composite-ids/asserted-composite-ids.component';
+export * from './lib/asserted-id-features/asserted-id-feature-settings';
+export * from './lib/asserted-id-features/asserted-id-features.component';
 export * from './lib/asserted-id/asserted-id.component';
 export * from './lib/asserted-ids/asserted-ids.component';
 export * from './lib/pin-target-lookup/pin-target-lookup.component';

@@ -10,8 +10,11 @@ import {
 
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 
 import { ThesaurusEntry } from '@myrmidon/cadmus-core';
+import { ThesOrTaxoMode } from '@myrmidon/cadmus-ui-thestaxo';
 
 import {
   AssertedCompositeId,
@@ -19,6 +22,7 @@ import {
 } from '@myrmidon/cadmus-refs-asserted-ids';
 import {
   ANIMAL_ENTRIES,
+  FEATURE_SETTINGS,
   TAG_SETTINGS,
 } from '../asserted-composite-id-pg/asserted-composite-id-pg.component';
 
@@ -33,6 +37,8 @@ import {
     ReactiveFormsModule,
     MatCardModule,
     MatCheckboxModule,
+    MatFormFieldModule,
+    MatSelectModule,
     AssertedCompositeIdsComponent,
   ],
 })
@@ -42,9 +48,11 @@ export class AssertedCompositeIdsPgComponent implements OnInit {
   public canSwitchMode: FormControl<boolean>;
   public canEditTarget: FormControl<boolean>;
   public hasTagSettings: FormControl<boolean>;
+  public featureMode: FormControl<ThesOrTaxoMode>;
   public form: FormGroup;
   // data
   public readonly tagSettings = TAG_SETTINGS;
+  public readonly featureSettings = FEATURE_SETTINGS;
   public ids?: AssertedCompositeId[];
   public idScopeEntries: ThesaurusEntry[];
   public idTagEntries: ThesaurusEntry[];
@@ -59,11 +67,15 @@ export class AssertedCompositeIdsPgComponent implements OnInit {
     this.canSwitchMode = formBuilder.control(true, { nonNullable: true });
     this.canEditTarget = formBuilder.control(true, { nonNullable: true });
     this.hasTagSettings = formBuilder.control(false, { nonNullable: true });
+    this.featureMode = formBuilder.control<ThesOrTaxoMode>('thesaurus', {
+      nonNullable: true,
+    });
     this.form = formBuilder.group({
       pinByTypeMode: this.pinByTypeMode,
       canSwitchMode: this.canSwitchMode,
       canEditTarget: this.canEditTarget,
       hasTagSettings: this.hasTagSettings,
+      featureMode: this.featureMode,
     });
     // data
     this.idScopeEntries = [];

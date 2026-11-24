@@ -1,7 +1,10 @@
 {
   "name": "@myrmidon/cadmus-refs-pleiades-lookup",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Cadmus - Pleiades gazetteer lookup and search.",
+  "exports": {
+    ".": "./src/public-api.ts"
+  },
   "keywords": [
     "Cadmus",
     "bricks",
@@ -27,7 +30,6 @@
     "@myrmidon/cadmus-refs-lookup": "^11.0.9"
   },
   "dependencies": {
-    "tslib": "^2.3.0",
     "@types/geojson": "^7946.0.16"
   },
   "sideEffects": false

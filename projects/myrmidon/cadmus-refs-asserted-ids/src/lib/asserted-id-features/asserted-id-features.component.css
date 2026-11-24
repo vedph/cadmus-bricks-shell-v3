@@ -1,0 +1,23 @@
+.features {
+  margin-top: 6px;
+}
+fieldset {
+  border: 1px solid var(--mat-sys-on-surface-variant);
+  border-radius: 6px;
+  padding: 6px;
+}
+legend {
+  color: var(--mat-sys-on-surface-variant);
+}
+.form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.short-text {
+  width: 12em;
+}
+.picked {
+  margin-bottom: 6px;
+}
