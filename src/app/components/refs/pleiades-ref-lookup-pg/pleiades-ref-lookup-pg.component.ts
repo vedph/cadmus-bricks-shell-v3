@@ -8,7 +8,6 @@ import {
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
 
 import {
   LookupProviderOptions,
@@ -16,10 +15,10 @@ import {
 } from '@myrmidon/cadmus-refs-lookup';
 import {
   PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
+  PLEIADES_QUERY_DIALOG_CONFIG,
   PleiadesFiltersStore,
   PleiadesLookupOptionsComponent,
   PleiadesQueryDialogComponent,
-  PleiadesQueryDialogData,
   PleiadesRefLookupOptions,
   PleiadesRefLookupService,
   PleiadesSearchResult,
@@ -33,7 +32,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PleiadesRefLookupPgComponent {
-  private readonly _dialog = inject(MatDialog);
   private readonly _store = inject(PleiadesFiltersStore);
 
   public readonly service = inject(PleiadesRefLookupService);
@@ -45,6 +43,13 @@ export class PleiadesRefLookupPgComponent {
    */
   public readonly optDialog = PleiadesLookupOptionsComponent;
   public readonly optDialogConfig = PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG;
+
+  /**
+   * The More button opens the full query in a dialog, starting from the
+   * current item's name: the place picked there becomes the lookup's item.
+   */
+  public readonly moreDialog = PleiadesQueryDialogComponent;
+  public readonly moreDialogConfig = PLEIADES_QUERY_DIALOG_CONFIG;
 
   /**
    * The current lookup options, set by the options dialog or by scopes.
@@ -91,37 +96,5 @@ export class PleiadesRefLookupPgComponent {
 
   public onItemChange(item: unknown): void {
     this.item.set(item as PleiadesSearchResult | undefined);
-  }
-
-  /**
-   * Open the full query in a dialog, starting from the current item's
-   * name, and pick the place chosen there.
-   */
-  public onMoreRequest(): void {
-    const name = this.item()?.name;
-    this._dialog
-      .open<
-        PleiadesQueryDialogComponent,
-        PleiadesQueryDialogData,
-        PleiadesSearchResult
-      >(PleiadesQueryDialogComponent, {
-        width: '95vw',
-        maxWidth: '1600px',
-        height: '90vh',
-        maxHeight: '90vh',
-        data: {
-          title: 'Pleiades search',
-          request: name
-            ? { text: name, scopes: ['plttl', 'nmrmz', 'nmatt'] }
-            : undefined,
-          autoSearch: !!name,
-        },
-      })
-      .afterClosed()
-      .subscribe((place) => {
-        if (place) {
-          this.item.set(place);
-        }
-      });
   }
 }

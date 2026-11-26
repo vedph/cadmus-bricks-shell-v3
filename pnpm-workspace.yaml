@@ -137,3 +137,6 @@ minimumReleaseAgeExclude:
   - '@myrmidon/taxo-store-picker@1.0.1 || 1.0.2'
   - '@testing-library/angular@19.6.0'
   - '@myrmidon/cadmus-ui-thestaxo@0.0.2'
+  - '@myrmidon/iconclass-api@0.0.1'
+  - '@myrmidon/iconclass-builder@0.0.1'
+  - '@myrmidon/iconclass-ui@0.0.1'

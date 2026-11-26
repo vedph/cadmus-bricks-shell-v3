@@ -9,9 +9,12 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
     - [Usage](#usage)
   - [RefLookupSetComponent](#reflookupsetcomponent)
     - [Configuring Set](#configuring-set)
+    - [More Dialogs](#more-dialogs)
+    - [Using Lookup Providers in Real Apps](#using-lookup-providers-in-real-apps)
     - [Configuring Lookup Scopes](#configuring-lookup-scopes)
   - [LookupDocReferencesComponent](#lookupdocreferencescomponent)
   - [History](#history)
+    - [11.1.0](#1110)
     - [10.0.8](#1008)
     - [10.0.7](#1007)
     - [10.0.5](#1005)
@@ -35,7 +38,9 @@ Generic reference lookup component. This can be used to provide quick lookup int
   - `item` (`unknown?`): current lookup item.
   - `itemId` (`string?`): optional item ID to resolve via `service.getById()`. When set, the component calls `getById()` to resolve the full item. This should be the raw service-native ID; use `itemIdParser` on `RefLookupConfig` to strip consumer-level decoration before passing to this input.
   - `required` (`boolean?`)
-  - `hasMore` (`boolean?`)
+  - `hasMore` (`boolean?`): true to show the _More_ button, emitting `moreRequest` when clicked.
+  - `moreDialog` (`unknown`): the component to open in a dialog when the user clicks the _More_ button, to pick an item in a different way (e.g. with a full search UI). When set, the _More_ button is shown even if `hasMore` is false, and the item picked in the dialog becomes the lookup's `item` (emitting `itemChange`); `moreRequest` is not emitted. See [More Dialogs](#more-dialogs).
+  - `moreDialogConfig` (`RefLookupMoreDialogConfig?`): the configuration of the dialog hosting `moreDialog`: like `optDialogConfig` (`title`, `width`, `height`, `minWidth`, `minHeight`, `maxWidth`, `maxHeight`, `panelClass`), plus `data`, any additional data for the dialog component.
   - `linkTemplate` (`string?`): the optional template to be used when building the URI pointing to the external resource and linked by the _Link_ button. The ID placeholder is represented by a property path included in `{}`, e.g. `{id}` or `{some.id}`. If undefined, no link button will be displayed.
   - `optDialog` (`unknown`): when using quick options, this is a component used to customize the lookup `options`.
   - `optDialogConfig` (`RefLookupOptDialogConfig?`): the configuration of the dialog hosting `optDialog`: `title`, `width`, `height`, `minWidth`, `minHeight`, `maxWidth`, `maxHeight`, `panelClass`. Use it for options components larger than a simple form, e.g. those including a map. When `height` is set, the options component fills the dialog's height (as a flex item), rather than scrolling within the default max height of the dialog content.
@@ -43,7 +48,7 @@ Generic reference lookup component. This can be used to provide quick lookup int
   - `lookupProviderOptions` (`LookupProviderOptions?`): preset scopes for automatic options configuration. See [Configuring Lookup Scopes](#configuring-lookup-scopes).
 - 🔥 output:
   - `itemChange` (`unknown`): fired when an item is picked.
-  - `moreRequest` (`unknown?`): request for a more complex lookup. This receives the current item, if any.
+  - `moreRequest` (`unknown?`): request for a more complex lookup. This receives the current item, if any. It is not emitted when `moreDialog` is set.
 
 The lookup component is a general purpose lookup where:
 
@@ -101,7 +106,7 @@ Once this is in place, when the user clicks the options button he gets to a dial
 Useful events:
 
 - `itemChange` fired when the user picks an item from the list resulting from a quick search.
-- `moreRequest` fired when the user requests the advanced search by clicking the _More_ button. The component hosting the lookup control should handle this event and typically open some dialog with a search, lending back the item to be picked.
+- `moreRequest` fired when the user requests the advanced search by clicking the _More_ button. The component hosting the lookup control should handle this event and typically open some dialog with a search, lending back the item to be picked. Usually, you should rather set `moreDialog` to let the lookup itself open the dialog and pick its item: this is the only way which works also when the lookup is not directly in your template, e.g. inside a lookup set, an asserted composite ID, or an asserted chronotope (see [More Dialogs](#more-dialogs)).
 
 ## RefLookupSetComponent
 
@@ -136,9 +141,12 @@ Each lookup is **configured** via an instance of `RefLookupConfig`, having these
 - `itemIdParser`: optional function to parse a decorated/stored ID into the raw service-native ID. This is the inverse of `itemIdGetter` when it applies decoration (e.g. prefixing). If not set, `itemId` is used as-is.
 - `itemLabelGetter`: the optional function to get a string label from an item. If undefined, the item object will be used.
 - `required`: true if a value is required.
-- `hasMore`: true to add a "More" button for more complex lookup. When the user clicks it, the corresponding `moreRequest` event will be emitted.
+- `hasMore`: true to add a "More" button for more complex lookup. When the user clicks it, the corresponding `moreRequest` event will be emitted (unless `moreDialog` is set).
+- `moreDialog`: the component to open in a dialog when the user clicks the "More" button. When set, the button is shown even if `hasMore` is false, and the item picked in the dialog becomes the lookup's item, emitting `itemChange` like an item picked from the quick search. See [More Dialogs](#more-dialogs).
+- `moreDialogConfig` (`RefLookupMoreDialogConfig`): the configuration of the dialog hosting `moreDialog` (title, size, and additional `data`).
 - `linkTemplate`: the optional template to be used when building the URI pointing to the external resource and linked by the Link button. The ID placeholder is represented by a property path included in `{}`, e.g. `{id}` or `{some.id}`. If undefined, no link button will be displayed.
-- optDialog: when using quick options, this is a component used to customize the options bound to options.
+- `optDialog`: when using quick options, this is a component used to customize the options bound to options.
+- `optDialogConfig`: the configuration of the dialog hosting `optDialog` (title and size).
 - `options`: the options for the lookup service.
 
 The **set component** has these properties:
@@ -263,6 +271,103 @@ export class AppComponent {
     ] as RefLookupConfig[]);
   }
 }
+```
+
+### More Dialogs
+
+A lookup provides a quick search: users type some letters and pick an item from a short list. This is fine when you know what you are looking for, but not when you need to explore the source in search of your item, or to set many search criteria. For these cases, a lookup provider can offer a dialog with a full-fledged UI (e.g. a search with maps for places, or a builder for Iconclass identifiers), opened by the lookup's _More_ button. Whatever the way used to get to it, the item picked in this dialog is the same kind of item picked by the quick search, so that consumers do not need to know where it comes from.
+
+To use it, just set `moreDialog` (and optionally `moreDialogConfig`) in the lookup configuration, or bind them to the lookup component. When the user clicks _More_, the lookup:
+
+1. opens `moreDialog` in a dialog, configured by `moreDialogConfig` (except for its `title` and `data`), passing it `RefLookupMoreDialogData` via `MAT_DIALOG_DATA`:
+   - `title`: from `moreDialogConfig.title`;
+   - `item`: the current lookup item, if any, so that the dialog can start from it;
+   - `options`: the current lookup options, if any;
+   - any property in `moreDialogConfig.data`.
+2. when the dialog is closed with an item, sets it as the lookup's item, emitting `itemChange` (which in a lookup set becomes its `itemChange` event, with ID and label got via `itemIdGetter` and `itemLabelGetter`). When the dialog is closed without an item (`undefined` or `null`), the current item is not changed.
+
+Lookup providers with a more dialog export its component and a default configuration for it:
+
+| provider                                 | `moreDialog`                      | `moreDialogConfig`                |
+| ---------------------------------------- | --------------------------------- | --------------------------------- |
+| `@myrmidon/cadmus-refs-iconclass-lookup` | `IconclassBuilderDialogComponent` | `ICONCLASS_BUILDER_DIALOG_CONFIG` |
+| `@myrmidon/cadmus-refs-pleiades-lookup`  | `PleiadesQueryDialogComponent`    | `PLEIADES_QUERY_DIALOG_CONFIG`    |
+
+To **implement** a more dialog for your provider, create a component which:
+
+- injects `MAT_DIALOG_DATA` to get its `RefLookupMoreDialogData` (you can extend this interface with your own properties, to be set via `moreDialogConfig.data`);
+- injects `MatDialogRef` to close the dialog with the picked item, or with `undefined` when the user cancels. ⚠️ The item **must have the same shape** of the items returned by the `lookup` and `getById` methods of your lookup service, as it becomes the lookup's item: its name is got from the service's `getName`, and its ID and label from the configuration's `itemIdGetter` and `itemLabelGetter`;
+- fills the dialog, when it has a height: give its host a flex column layout (e.g. `:host { display: flex; flex-direction: column; height: 100%; }`), and let `mat-dialog-content` grow (`flex: 1 1 auto; max-height: none; min-height: 0;`).
+
+Then export a default `RefLookupMoreDialogConfig` for it, e.g. `{ title: 'My search', width: '95vw', maxWidth: '1600px', height: '90vh', maxHeight: '90vh' }`. Set its `maxHeight` too, as apps often set a default dialog max height (`MAT_DIALOG_DEFAULT_OPTIONS`) too low for a full UI.
+
+`moreRequest` is still emitted when there is no `moreDialog`, so existing consumers handling it are not affected. Anyway, this event only reaches the component which directly hosts the lookup: when the lookup is inside another brick, the event bubbles up as an output (if at all), and there is no way to set the picked item back into the lookup. So, prefer `moreDialog` for any provider-specific UI.
+
+### Using Lookup Providers in Real Apps
+
+In a Cadmus app, lookups are rarely used directly in your templates. Rather, they are configured once at the app level, and used by bricks like asserted composite IDs (`@myrmidon/cadmus-refs-asserted-ids`), asserted chronotopes (`@myrmidon/cadmus-refs-asserted-chronotope`), or lookup doc references (`LookupDocReferencesComponent`), which read the configurations from the app settings (`RamStorageService`) under `LOOKUP_CONFIGS_KEY`, and render them via `RefLookupSetComponent` (or `RefLookupComponent`). So, to add a lookup provider to your app:
+
+(1) **install** its package with its peer dependencies (listed in its README), e.g. for Iconclass:
+
+```bash
+npm i @myrmidon/cadmus-refs-iconclass-lookup @myrmidon/iconclass-api @myrmidon/iconclass-ui @myrmidon/iconclass-builder
+```
+
+(2) **provide** what the provider requires in `app.config.ts`: e.g. API keys or user names via injection tokens, or the proxy for services which do not support CORS (see [Configuring Set](#configuring-set)), and set the corresponding variables in `env.js`. If the provider uses a backend API, ensure that your API hosts it (see the provider's README).
+
+(3) **configure** the lookup in your app component, setting all the properties you need, including its more dialog, if any:
+
+```ts
+import { inject } from "@angular/core";
+import { LOOKUP_CONFIGS_KEY, RefLookupConfig } from "@myrmidon/cadmus-refs-lookup";
+import { ICONCLASS_BUILDER_DIALOG_CONFIG, IconclassBuilderDialogComponent, IconclassNotation, IconclassRefLookupService } from "@myrmidon/cadmus-refs-iconclass-lookup";
+import { PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG, PLEIADES_QUERY_DIALOG_CONFIG, PleiadesLookupOptionsComponent, PleiadesQueryDialogComponent, PleiadesRefLookupService, PleiadesSearchResult } from "@myrmidon/cadmus-refs-pleiades-lookup";
+
+// in your app component constructor, with storage: RamStorageService
+storage.store(LOOKUP_CONFIGS_KEY, [
+  {
+    name: "Iconclass",
+    iconUrl: "/img/iconclass128.png",
+    description: "Iconclass classification system",
+    label: "ID",
+    service: inject(IconclassRefLookupService),
+    itemIdGetter: (item: IconclassNotation) => item?.n,
+    itemLabelGetter: (item: IconclassNotation) => item?.txt?.en || item?.n,
+    linkTemplate: "https://iconclass.org/{n}",
+    // More opens the Iconclass builder
+    moreDialog: IconclassBuilderDialogComponent,
+    moreDialogConfig: ICONCLASS_BUILDER_DIALOG_CONFIG,
+  },
+  {
+    name: "Pleiades",
+    iconUrl: "/img/pleiades128.png",
+    description: "Pleiades gazetteer of ancient places",
+    label: "ID",
+    service: inject(PleiadesRefLookupService),
+    itemIdGetter: (item: PleiadesSearchResult) => item?.id,
+    itemLabelGetter: (item: PleiadesSearchResult) => item?.name,
+    // the settings button opens the lookup filters
+    optDialog: PleiadesLookupOptionsComponent,
+    optDialogConfig: PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
+    // More opens the full Pleiades search
+    moreDialog: PleiadesQueryDialogComponent,
+    moreDialogConfig: PLEIADES_QUERY_DIALOG_CONFIG,
+  },
+] as RefLookupConfig[]);
+```
+
+The bricks read the configurations from the app settings, so store them before any brick is shown: typically, in the constructor of the app's root component, where `inject` is available as above.
+
+(4) add the provider's icon (e.g. `iconclass128.png`) to your `public/img` folder.
+
+That's all: every brick using the lookup configurations now shows the provider, with its _More_ button opening its dialog, and the item picked there is handled like any item picked from the quick search. You can customize a more dialog via `moreDialogConfig`, e.g. to change its title or size, or to pass it additional data supported by its component:
+
+```ts
+moreDialogConfig: {
+  ...ICONCLASS_BUILDER_DIALOG_CONFIG,
+  title: "Build subject",
+  data: { language: "it", expandRefs: true },
+},
 ```
 
 ### Configuring Lookup Scopes
@@ -500,6 +605,13 @@ import { LookupDocReferencesComponent } from "@myrmidon/cadmus-refs-lookup";
 ```
 
 ## History
+
+### 11.1.0
+
+- 2026-11-26: added more dialogs, so that the _More_ button of a lookup can open a provider-specific UI to pick the item, working wherever the lookup is used (see [More Dialogs](#more-dialogs)). Previously, the button just emitted `moreRequest`, which could be handled only by the component directly hosting the lookup: inside other bricks (lookup sets, asserted composite IDs, asserted chronotopes) the picked item could not be set back into the lookup. These changes are backwards compatible:
+  - `RefLookupComponent`: new `moreDialog` and `moreDialogConfig` inputs, and `showMore` signal. When `moreDialog` is set, the _More_ button is shown even without `hasMore`, opens the dialog with `RefLookupMoreDialogData` (`title`, `item`, `options`, and the properties of `moreDialogConfig.data`), and sets the item it closes with as the lookup's item; `moreRequest` is not emitted. Without `moreDialog`, nothing changes.
+  - `RefLookupConfig`: new `moreDialog` and `moreDialogConfig` properties, passed by `RefLookupSetComponent` (and by the place lookup of `AssertedChronotopeComponent`, from `@myrmidon/cadmus-refs-asserted-chronotope` 12.1.0).
+  - new `RefLookupMoreDialogConfig` and `RefLookupMoreDialogData` interfaces.
 
 ### unreleased
 

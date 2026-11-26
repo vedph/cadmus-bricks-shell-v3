@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -15,6 +15,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import {
+  ICONCLASS_BUILDER_DIALOG_CONFIG,
+  IconclassBuilderDialogComponent,
   IconclassNotation,
   IconclassRefLookupService,
   IconclassSearchResult,
@@ -39,7 +41,15 @@ import { RefLookupComponent } from '@myrmidon/cadmus-refs-lookup';
   ],
 })
 export class IconclassRefLookupPgComponent {
-  public item?: IconclassNotation;
+  public readonly item = signal<IconclassNotation | undefined>(undefined);
+
+  /**
+   * The More button opens the Iconclass builder: the notation built there
+   * becomes the lookup's item, with the same shape of the items picked
+   * by the quick search.
+   */
+  public readonly moreDialog = IconclassBuilderDialogComponent;
+  public readonly moreDialogConfig = ICONCLASS_BUILDER_DIALOG_CONFIG;
   public term: FormControl<string | null>;
   public form: FormGroup;
   public searchResult: IconclassSearchResult | undefined;
@@ -56,12 +66,8 @@ export class IconclassRefLookupPgComponent {
     });
   }
 
-  public onItemChange(item: any | undefined): void {
-    this.item = item;
-  }
-
-  public onMoreRequest(): void {
-    alert('More...');
+  public onItemChange(item: unknown): void {
+    this.item.set(item as IconclassNotation | undefined);
   }
 
   public searchTerm(): void {

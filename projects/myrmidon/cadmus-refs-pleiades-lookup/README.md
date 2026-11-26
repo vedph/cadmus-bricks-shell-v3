@@ -308,7 +308,27 @@ The form state is exposed through `form` (a signal form), and the logic converti
 
 ### PleiadesQueryDialogComponent
 
-A dialog wrapping `PleiadesQueryComponent`, closed with the picked place (`PleiadesSearchResult`), or with `undefined` when cancelled. Its data (`PleiadesQueryDialogData`) can set `title`, `request`, `autoSearch`, `mapStyle`, `initialCenter`, `initialZoom`, `pageSize`, and `defaultScopes`. Open it with a large size:
+A dialog wrapping `PleiadesQueryComponent`, closed with the picked place (`PleiadesSearchResult`), or with `undefined` when cancelled. Its data (`PleiadesQueryDialogData`) can set `title`, `request`, `item`, `autoSearch`, `mapStyle`, `initialCenter`, `initialZoom`, `pageSize`, and `defaultScopes`. When there is no `request` but an `item` (a place), the initial request searches the toponyms for its name; `autoSearch` defaults to true in this case.
+
+This is the **more dialog** of the Pleiades lookup: set it as the `moreDialog` of the lookup configuration, with `PLEIADES_QUERY_DIALOG_CONFIG` (title "Pleiades search", 95vw up to 1600px wide, 90vh high) as its `moreDialogConfig`. The _More_ button of the lookup then opens the full search, starting from the current place, and the place picked there becomes the lookup's item, wherever the lookup is used (see [More Dialogs](../cadmus-refs-lookup/README.md#more-dialogs)):
+
+```ts
+{
+  name: "Pleiades",
+  iconUrl: "/img/pleiades128.png",
+  description: "Pleiades gazetteer of ancient places",
+  label: "ID",
+  service: inject(PleiadesRefLookupService),
+  itemIdGetter: (item: PleiadesSearchResult) => item?.id,
+  itemLabelGetter: (item: PleiadesSearchResult) => item?.name,
+  optDialog: PleiadesLookupOptionsComponent,
+  optDialogConfig: PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
+  moreDialog: PleiadesQueryDialogComponent,
+  moreDialogConfig: PLEIADES_QUERY_DIALOG_CONFIG,
+}
+```
+
+You can also open it directly with a large size:
 
 ```ts
 const dialog = inject(MatDialog);
@@ -411,6 +431,12 @@ As MapLibre layers require literal colors, the map resolves these properties int
 - `pleiades-map-style`: `loadPleiadesMapStyle` loads a MapLibre style and patches its filters to avoid null-comparison warnings from third-party styles.
 
 ## History
+
+### 0.1.0
+
+- 2026-11-26: the query dialog can be the more dialog of the lookup (requires `@myrmidon/cadmus-refs-lookup` 11.1.0):
+  - `PleiadesQueryDialogData`: new `item` property: without a `request`, the dialog searches the toponyms for the item's name, and `autoSearch` defaults to true.
+  - new `PLEIADES_QUERY_DIALOG_CONFIG`, the dialog configuration for `moreDialogConfig`.
 
 ### 0.0.3
 

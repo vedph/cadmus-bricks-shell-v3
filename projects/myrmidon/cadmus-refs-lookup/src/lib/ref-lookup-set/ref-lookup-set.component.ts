@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import {
   LookupProviderOptions,
   RefLookupComponent,
+  RefLookupMoreDialogConfig,
   RefLookupOptDialogConfig,
   RefLookupService,
 } from '../ref-lookup/ref-lookup.component';
@@ -112,9 +113,25 @@ export interface RefLookupConfig {
   /**
    * True to add a More button for more complex lookup.
    * When the user clicks it, the corresponding moreRequest
-   * event will be emitted.
+   * event will be emitted, unless moreDialog is set.
    */
   hasMore?: boolean;
+
+  /**
+   * The optional component to open in a dialog when the user clicks the
+   * More button, to pick an item in a different way (e.g. with a full
+   * search UI). When set, the More button is shown even if hasMore is
+   * false, and the item picked in the dialog becomes the lookup's item
+   * (emitting itemChange) rather than emitting moreRequest. See
+   * RefLookupMoreDialogData for the contract of this component.
+   */
+  moreDialog?: any;
+
+  /**
+   * The optional configuration of the dialog hosting moreDialog, e.g. its
+   * size, title, and additional data.
+   */
+  moreDialogConfig?: RefLookupMoreDialogConfig;
 
   /**
    * The optional template to be used when building the
@@ -225,7 +242,8 @@ export class RefLookupSetComponent implements OnInit {
   public readonly itemChange = output<RefLookupSetEvent>();
 
   /**
-   * Emitted when the user clicks the More button in a lookup.
+   * Emitted when the user clicks the More button in a lookup, unless its
+   * configuration has a moreDialog, which handles the request.
    */
   public readonly moreRequest = output<RefLookupSetEvent>();
 

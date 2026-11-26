@@ -5,19 +5,28 @@
     </mat-card-title>
   </mat-card-header>
   <mat-card-content>
+    <p>
+      Type some letters to look up ICONCLASS notations by their label or
+      keywords (public ICONCLASS API, via proxy). If you do not know what to
+      look for, click the More button to build the identifier step by step
+      in the Iconclass builder, and accept it to pick it (this requires the
+      Iconclass API, here hosted by the bricks API at
+      <code>apiUrl</code> in <code>env.js</code>). In both cases the picked
+      item has the same shape.
+    </p>
     <cadmus-refs-lookup
       [service]="service"
-      [item]="item"
+      [item]="item()"
       [required]="true"
-      [hasMore]="true"
+      [moreDialog]="moreDialog"
+      [moreDialogConfig]="moreDialogConfig"
       linkTemplate="https://iconclass.org/{n}"
       label="ICONCLASS"
       (itemChange)="onItemChange($event)"
-      (moreRequest)="onMoreRequest()"
     />
-    @if (item) {
+    @if (item(); as i) {
       <div>
-        <pre>{{ item | json }}</pre>
+        <pre>{{ i | json }}</pre>
       </div>
     }
     <hr />

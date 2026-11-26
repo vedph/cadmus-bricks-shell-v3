@@ -10,7 +10,8 @@
       you type is matched as a prefix. Pick a scope to limit the search,
       click the options button to set all the other filters (including
       spatial ones drawn on a map), or click the More button to open the full
-      search in a dialog. This requires the Pleiades API (see
+      search in a dialog, starting from the picked place name: the place you
+      pick there becomes the lookup item. This requires the Pleiades API (see
       <code>pleiadesUrl</code> in <code>env.js</code>).
     </p>
     <p>
@@ -22,7 +23,8 @@
       [service]="service"
       [item]="item()"
       [required]="true"
-      [hasMore]="true"
+      [moreDialog]="moreDialog"
+      [moreDialogConfig]="moreDialogConfig"
       [lookupProviderOptions]="providerOptions"
       [optDialog]="optDialog"
       [optDialogConfig]="optDialogConfig"
@@ -30,7 +32,6 @@
       linkTemplate="https://pleiades.stoa.org/places/{id}"
       label="Pleiades"
       (itemChange)="onItemChange($event)"
-      (moreRequest)="onMoreRequest()"
     />
     @if (item(); as i) {
     <pre>{{ i | json }}</pre>

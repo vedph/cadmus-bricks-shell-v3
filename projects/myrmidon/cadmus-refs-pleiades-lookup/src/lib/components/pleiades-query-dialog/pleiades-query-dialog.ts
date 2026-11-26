@@ -8,7 +8,10 @@ import {
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 
+import type { RefLookupMoreDialogConfig } from '@myrmidon/cadmus-refs-lookup';
+
 import {
+  PLEIADES_TOPONYM_SCOPES,
   PleiadesLngLat,
   PleiadesSearchRequest,
   PleiadesSearchResult,
@@ -25,7 +28,16 @@ export interface PleiadesQueryDialogData {
   title?: string;
   /** The initial request. */
   request?: PleiadesSearchRequest;
-  /** True to search the initial request when opening the dialog. */
+  /**
+   * The current place, e.g. the item of the lookup when this dialog is its
+   * `moreDialog`. When there is no request, the initial request searches
+   * the toponyms for this place's name.
+   */
+  item?: PleiadesSearchResult;
+  /**
+   * True to search the initial request when opening the dialog. When not
+   * set, this is true when the request comes from the item.
+   */
   autoSearch?: boolean;
   /** The map style URL. */
   mapStyle?: string;
@@ -40,9 +52,23 @@ export interface PleiadesQueryDialogData {
 }
 
 /**
+ * The default configuration of the Pleiades query dialog, used as the
+ * `moreDialogConfig` of the Pleiades lookup.
+ */
+export const PLEIADES_QUERY_DIALOG_CONFIG: RefLookupMoreDialogConfig = {
+  title: 'Pleiades search',
+  width: '95vw',
+  maxWidth: '1600px',
+  height: '90vh',
+  maxHeight: '90vh',
+};
+
+/**
  * A dialog wrapping PleiadesQueryComponent, closed with the place picked
  * by the user, or with undefined when cancelled. Open it with a large
- * size, e.g. `{ width: '95vw', maxWidth: '1600px', height: '90vh' }`.
+ * size, e.g. `{ width: '95vw', maxWidth: '1600px', height: '90vh' }`
+ * (see PLEIADES_QUERY_DIALOG_CONFIG). It can be the `moreDialog` of the
+ * Pleiades lookup, as it starts from the current item's name.
  */
 @Component({
   selector: 'cadmus-pleiades-query-dialog',
@@ -61,8 +87,8 @@ export interface PleiadesQueryDialogData {
     </div>
     <mat-dialog-content>
       <cadmus-pleiades-query
-        [request]="data?.request"
-        [autoSearch]="!!data?.autoSearch"
+        [request]="request"
+        [autoSearch]="autoSearch"
         [mapStyle]="data?.mapStyle || defaultMapStyle"
         [initialCenter]="data?.initialCenter || [22, 39]"
         [initialZoom]="data?.initialZoom ?? 4"
@@ -109,6 +135,22 @@ export class PleiadesQueryDialogComponent {
     { optional: true },
   );
   public readonly defaultMapStyle = PLEIADES_DEFAULT_MAP_STYLE;
+
+  /**
+   * The initial request: the one from data, or a toponyms search for the
+   * item's name.
+   */
+  public readonly request: PleiadesSearchRequest | undefined =
+    this.data?.request ??
+    (this.data?.item?.name
+      ? { text: this.data.item.name, scopes: [...PLEIADES_TOPONYM_SCOPES] }
+      : undefined);
+
+  /**
+   * True to search the initial request when opening the dialog.
+   */
+  public readonly autoSearch: boolean =
+    this.data?.autoSearch ?? (!this.data?.request && !!this.request);
 
   public pick(place: PleiadesSearchResult): void {
     this._dialogRef.close(place);

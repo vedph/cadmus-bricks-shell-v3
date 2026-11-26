@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-lookup",
-  "version": "11.0.11",
+  "version": "11.1.0",
   "exports": {
     ".": "./src/public-api.ts"
   },

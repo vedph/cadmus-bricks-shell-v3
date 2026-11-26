@@ -64,6 +64,10 @@ A pipe to transform a single chronotope or an array of chronotopes into a string
 
 ## History
 
+### 12.1.0
+
+- 2026-11-26: the place lookup passes `moreDialog` and `moreDialogConfig` from its configuration (`placeLookupConfig`), so that the _More_ button of providers with a more dialog (e.g. Pleiades) works. This requires `@myrmidon/cadmus-refs-lookup` 11.1.0, now an explicit peer dependency.
+
 ### 10.0.5
 
 - 2025-10-10: fix to chronotopes set.

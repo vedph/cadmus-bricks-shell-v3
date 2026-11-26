@@ -6,7 +6,11 @@ import {
   RefLookupSetComponent,
   RefLookupConfig,
 } from './ref-lookup-set.component';
-import { RefLookupService } from '../ref-lookup/ref-lookup.component';
+import { By } from '@angular/platform-browser';
+import {
+  RefLookupComponent,
+  RefLookupService,
+} from '../ref-lookup/ref-lookup.component';
 
 interface FakeItem {
   id: string;
@@ -187,6 +191,20 @@ describe('RefLookupSetComponent', () => {
     expect(
       fixture.nativeElement.querySelector('cadmus-refs-lookup')
     ).toBeTruthy();
+  });
+
+  it('should pass moreDialog and moreDialogConfig to the child lookup', async () => {
+    class FakeMoreDialog {}
+    const moreDialogConfig = { title: 'More', width: '80vw' };
+    await setup([
+      { ...CONFIG_A, moreDialog: FakeMoreDialog, moreDialogConfig },
+    ]);
+    const child = fixture.debugElement.query(
+      By.directive(RefLookupComponent)
+    ).componentInstance as RefLookupComponent;
+    expect(child.moreDialog()).toBe(FakeMoreDialog);
+    expect(child.moreDialogConfig()).toBe(moreDialogConfig);
+    expect(child.showMore()).toBe(true);
   });
 
   it('should not render the child lookup component when there are no configs', async () => {

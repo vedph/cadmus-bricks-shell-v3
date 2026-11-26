@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-pleiades-lookup",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Cadmus - Pleiades gazetteer lookup and search.",
   "exports": {
     ".": "./src/public-api.ts"
@@ -27,7 +27,7 @@
     "@maplibre/ngx-maplibre-gl": "^22.3.0",
     "maplibre-gl": "^6.16.0",
     "@myrmidon/ngx-tools": "^3.0.2",
-    "@myrmidon/cadmus-refs-lookup": "^11.0.9"
+    "@myrmidon/cadmus-refs-lookup": "^11.1.0"
   },
   "dependencies": {
     "@types/geojson": "^7946.0.16"

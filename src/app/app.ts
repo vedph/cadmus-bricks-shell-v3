@@ -35,10 +35,18 @@ import {
 import { ZoteroRefLookupService } from '@myrmidon/cadmus-refs-zotero-lookup';
 import {
   PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
+  PLEIADES_QUERY_DIALOG_CONFIG,
   PleiadesLookupOptionsComponent,
+  PleiadesQueryDialogComponent,
   PleiadesRefLookupService,
   PleiadesSearchResult,
 } from '@myrmidon/cadmus-refs-pleiades-lookup';
+import {
+  ICONCLASS_BUILDER_DIALOG_CONFIG,
+  IconclassBuilderDialogComponent,
+  IconclassNotation,
+  IconclassRefLookupService,
+} from '@myrmidon/cadmus-refs-iconclass-lookup';
 
 // local
 import { WebColorLookup } from './components/refs/ref-lookup-pg/ref-lookup-pg.component';
@@ -124,6 +132,23 @@ export class App {
         itemLabelGetter: (item: PleiadesSearchResult) => item?.name,
         optDialog: PleiadesLookupOptionsComponent,
         optDialogConfig: PLEIADES_LOOKUP_OPTIONS_DIALOG_CONFIG,
+        // the More button opens the full Pleiades search
+        moreDialog: PleiadesQueryDialogComponent,
+        moreDialogConfig: PLEIADES_QUERY_DIALOG_CONFIG,
+      },
+      // ICONCLASS
+      {
+        name: 'Iconclass',
+        iconUrl: '/img/iconclass128.png',
+        description: 'Iconclass classification system',
+        label: 'ID',
+        service: inject(IconclassRefLookupService),
+        itemIdGetter: (item: IconclassNotation) => item?.n,
+        itemLabelGetter: (item: IconclassNotation) => item?.txt?.en || item?.n,
+        linkTemplate: 'https://iconclass.org/{n}',
+        // the More button opens the Iconclass builder
+        moreDialog: IconclassBuilderDialogComponent,
+        moreDialogConfig: ICONCLASS_BUILDER_DIALOG_CONFIG,
       },
       // Zotero
       {

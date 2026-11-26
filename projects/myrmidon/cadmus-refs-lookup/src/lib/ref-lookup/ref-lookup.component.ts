@@ -8,6 +8,7 @@ import {
   model,
   output,
   signal,
+  Type,
   untracked,
 } from '@angular/core';
 import { FieldTree, FormField, form } from '@angular/forms/signals';
@@ -93,6 +94,40 @@ export interface RefLookupOptDialogConfig {
 }
 
 /**
+ * The configuration of the dialog opened by the More button, when the
+ * lookup has a `moreDialog` component. This has the same size and title
+ * properties of RefLookupOptDialogConfig, plus any additional data to
+ * pass to the dialog component.
+ */
+export interface RefLookupMoreDialogConfig extends RefLookupOptDialogConfig {
+  /**
+   * Additional data passed to the dialog component, merged into its
+   * RefLookupMoreDialogData (so it can be read via MAT_DIALOG_DATA).
+   */
+  data?: Record<string, unknown>;
+}
+
+/**
+ * The data received via MAT_DIALOG_DATA by a component opened by the More
+ * button of RefLookupComponent (its `moreDialog`). This includes the
+ * properties of RefLookupMoreDialogConfig.data, if any. The component must
+ * close its dialog with the item picked by the user, which must have the
+ * same shape of the items returned by the lookup service (i.e. its
+ * `lookup` and `getById` methods); closing with undefined (or null) means
+ * that nothing was picked, and the current item is not changed.
+ */
+export interface RefLookupMoreDialogData {
+  /** The dialog title, if any. */
+  title?: string;
+  /** The current lookup item, if any. */
+  item?: unknown;
+  /** The current lookup options, if any. */
+  options?: unknown;
+  /** Any additional data from RefLookupMoreDialogConfig.data. */
+  [key: string]: unknown;
+}
+
+/**
  * Represents a single scope option for a lookup provider.
  * Each scope has a label for UI display and the options to apply.
  */
@@ -158,7 +193,9 @@ export interface LookupScopeEntry {
  * property to the lookup service, implementing the LookupService
  * interface, and optionally the current lookup item. Optionally
  * set the label and limit, and hasMore to true if you want a
- * more button for more complex lookup.
+ * more button for more complex lookup. To have the More button
+ * open a dialog picking the item, set moreDialog: in this case
+ * the button is shown even if hasMore is false.
  */
 @Component({
   selector: 'cadmus-refs-lookup',
@@ -231,9 +268,34 @@ export class RefLookupComponent {
   /**
    * True to add a More button for more complex lookup.
    * When the user clicks it, the corresponding moreRequest
-   * event will be emitted.
+   * event will be emitted, unless moreDialog is set.
    */
   public readonly hasMore = input<boolean>();
+
+  /**
+   * The optional component to open in a dialog when the user clicks the
+   * More button. When set, the More button is shown even if hasMore is
+   * false, and clicking it opens this component in a dialog rather than
+   * emitting moreRequest. The component gets RefLookupMoreDialogData via
+   * MAT_DIALOG_DATA, and closes its dialog with the picked item (which
+   * becomes the lookup's item, emitting itemChange), or with undefined
+   * to leave the current item unchanged.
+   */
+  public readonly moreDialog = input<unknown>();
+
+  /**
+   * The optional configuration of the dialog hosting moreDialog, e.g. its
+   * size, title, and additional data.
+   */
+  public readonly moreDialogConfig = input<RefLookupMoreDialogConfig>();
+
+  /**
+   * True if the More button is shown, i.e. when hasMore is true or a
+   * moreDialog is set.
+   */
+  public readonly showMore = computed<boolean>(
+    () => !!this.hasMore() || !!this.moreDialog()
+  );
 
   /**
    * The optional template to be used when building the
@@ -270,7 +332,8 @@ export class RefLookupComponent {
 
   /**
    * The request for a more complex lookup, getting the
-   * current item if any.
+   * current item if any. This is not emitted when moreDialog
+   * is set, as the dialog handles the request.
    */
   public readonly moreRequest = output<unknown | undefined>();
 
@@ -419,7 +482,39 @@ export class RefLookupComponent {
 
   public requestMore(): void {
     this.lookupActive.set(false);
-    this.moreRequest.emit(this.item());
+    const dialog = this.moreDialog();
+    if (!dialog) {
+      this.moreRequest.emit(this.item());
+      return;
+    }
+    this.openMoreDialog(dialog as Type<unknown>);
+  }
+
+  /**
+   * Open the moreDialog component in a dialog, and set the item it closes
+   * with, if any, as the current item.
+   * @param component The component.
+   */
+  private openMoreDialog(component: Type<unknown>): void {
+    const { title, data, ...size } = this.moreDialogConfig() || {};
+    const dialogData: RefLookupMoreDialogData = {
+      ...(data || {}),
+      title,
+      item: this.item(),
+      options: this.options(),
+    };
+    this._dialog
+      .open<unknown, RefLookupMoreDialogData, unknown>(component, {
+        ...size,
+        data: dialogData,
+      })
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((picked) => {
+        if (picked !== undefined && picked !== null) {
+          this.pickItem(picked);
+        }
+      });
   }
 
   private resolvePlaceholder(value: string): string | null {

@@ -195,6 +195,95 @@ describe('RefLookupComponent', () => {
     expect(component.lookupActive()).toBe(false);
   });
 
+  describe('more dialog', () => {
+    class FakeMoreDialog {}
+
+    function spyDialog(result: unknown) {
+      // see the showOptions tests for why the dialog comes from the
+      // component's injector
+      const dialog = fixture.debugElement.injector.get(MatDialog);
+      return vi.spyOn(dialog, 'open').mockReturnValue({
+        afterClosed: () => of(result),
+      } as any);
+    }
+
+    it('should not show the More button without hasMore or moreDialog', () => {
+      expect(component.showMore()).toBe(false);
+      expect(
+        fixture.nativeElement.querySelector('button[aria-label="more"]')
+      ).toBeNull();
+    });
+
+    it('should show the More button when moreDialog is set without hasMore', () => {
+      fixture.componentRef.setInput('moreDialog', FakeMoreDialog);
+      fixture.detectChanges();
+
+      expect(component.showMore()).toBe(true);
+      expect(
+        fixture.nativeElement.querySelector('button[aria-label="more"]')
+      ).toBeTruthy();
+    });
+
+    it('requestMore should open moreDialog with item, options and config data, not emitting moreRequest', () => {
+      const item = { id: '1', name: 'Alpha' };
+      component.pickItem(item);
+      component.options.set({ scope: 'x' });
+      fixture.componentRef.setInput('moreDialog', FakeMoreDialog);
+      fixture.componentRef.setInput('moreDialogConfig', {
+        title: 'Search',
+        width: '90vw',
+        height: '80vh',
+        data: { extra: 42 },
+      });
+      fixture.detectChanges();
+      const openSpy = spyDialog(undefined);
+      let emitted = false;
+      component.moreRequest.subscribe(() => (emitted = true));
+
+      component.requestMore();
+
+      expect(emitted).toBe(false);
+      expect(openSpy).toHaveBeenCalledTimes(1);
+      expect(openSpy.mock.calls[0][0]).toBe(FakeMoreDialog);
+      const config = openSpy.mock.calls[0][1] as any;
+      expect(config.width).toBe('90vw');
+      expect(config.height).toBe('80vh');
+      expect(config.title).toBeUndefined();
+      expect(config.data).toEqual({
+        extra: 42,
+        title: 'Search',
+        item,
+        options: { scope: 'x' },
+      });
+    });
+
+    it('should set the item picked in moreDialog and emit itemChange', () => {
+      fixture.componentRef.setInput('moreDialog', FakeMoreDialog);
+      fixture.detectChanges();
+      const picked = { id: '2', name: 'Beta' };
+      spyDialog(picked);
+      const changes: unknown[] = [];
+      component.item.subscribe((v) => changes.push(v));
+
+      component.requestMore();
+
+      expect(component.item()).toBe(picked);
+      expect(changes).toEqual([picked]);
+    });
+
+    it('should keep the current item when moreDialog is closed without a result', () => {
+      const item = { id: '1', name: 'Alpha' };
+      component.pickItem(item);
+      fixture.componentRef.setInput('moreDialog', FakeMoreDialog);
+      fixture.detectChanges();
+      spyDialog(undefined);
+
+      component.requestMore();
+
+      expect(component.item()).toBe(item);
+    });
+  });
+
   it('should mark invalid when required and no item is set', () => {
     fixture.componentRef.setInput('required', true);
     fixture.detectChanges();

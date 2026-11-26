@@ -31,7 +31,9 @@ To use a brick:
 2. import the component(s) you want to use.
 3. use the brick via its selector in your component template, binding it to your code as required by its API.
 
-To run library tests: `pnpm run test:lib`. This excludes the app, which is just a demo (also, `cadmus-refs-*-lookup` libraries have no real tests).
+To run library tests: `pnpm run test:lib`. This excludes the app, which is just a demo (also, most `cadmus-refs-*-lookup` libraries have no real tests).
+
+Lookup providers (`cadmus-refs-*-lookup`) are configured once at the app level, and used by many bricks: see [Using Lookup Providers in Real Apps](projects/myrmidon/cadmus-refs-lookup/README.md#using-lookup-providers-in-real-apps). Some of them (Iconclass, Pleiades) provide a _More_ dialog with a full UI to pick items (see [More Dialogs](projects/myrmidon/cadmus-refs-lookup/README.md#more-dialogs)). The demo API (`Cadmus.Bricks.Api`) hosts the backend services used by some providers, including the Iconclass API for the Iconclass builder.
 
 ## Docker
 

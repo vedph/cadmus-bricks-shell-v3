@@ -1,6 +1,6 @@
 {
   "name": "@myrmidon/cadmus-refs-iconclass-lookup",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "exports": {
     ".": "./src/public-api.ts"
   },
@@ -19,8 +19,14 @@
     "name": "Daniele Fusi"
   },
   "peerDependencies": {
-    "@angular/common": "^22.2.1",
-    "@angular/core": "^22.2.1"
+    "@angular/common": "^22.3.0",
+    "@angular/core": "^22.3.0",
+    "@angular/material": "^22.3.0",
+    "@myrmidon/ngx-tools": "^3.0.2",
+    "@myrmidon/cadmus-refs-lookup": "^11.1.0",
+    "@myrmidon/iconclass-api": "^0.0.1",
+    "@myrmidon/iconclass-builder": "^0.0.1",
+    "rxjs": "^7.8.0"
   },
   "sideEffects": false
 }
